@@ -37,14 +37,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "agreement",
+    "costing",
     "CRM",
+    "customer",
     "delivery",
     "dunning",
     "invoice",
+    "misc",
     "order",
     "quotation",
     "reporting",
     "returns",
+    "statement",
     "rest_framework",
     "corsheaders",
     "django_cognito_jwt",
@@ -64,7 +69,7 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permission.AllowAny"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": ["django_cognito_jwt.JSONWebTokenAuthentication"],
 }
 
@@ -94,8 +99,12 @@ WSGI_APPLICATION = "sales_backend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "kinetiq_test",
+        "USER": "postgres",
+        "PASSWORD": "123",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
