@@ -14,5 +14,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["statement"] = StatementSerializer(
-            get_object_or_404(Statement, instance.statement)
+            get_object_or_404(Statement, pk=instance.statement.statement_id)
         ).data
+        data["quotation_id"] = data.pop("quotation")
+        return data
