@@ -21,9 +21,8 @@ class QuotationViewSet(viewsets.ModelViewSet):
                 salesrep,
                 total_amount,
                 discount,
-                discount_reason,
                 type,
-                items: []
+                items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
             },
             quotation_data: {
                 status
@@ -49,6 +48,7 @@ class QuotationViewSet(viewsets.ModelViewSet):
                             item_serializer.save()
                         else:
                             raise Exception(item_serializer.errors)
+
                     quotation = Quotation.objects.create(
                         statement=statement, **quotation_data
                     )
