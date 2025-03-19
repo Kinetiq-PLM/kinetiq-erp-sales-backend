@@ -18,6 +18,9 @@ class Order(models.Model):
         D3_SAMPLE = "D3 Sample"
 
     order_id = models.BigAutoField(primary_key=True)
+    quotation_id = models.ForeignKey(
+        to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
+    )
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     rework_order = models.ForeignKey(
         to="misc.ReworkOrder", on_delete=models.SET_NULL, blank=True, null=True
