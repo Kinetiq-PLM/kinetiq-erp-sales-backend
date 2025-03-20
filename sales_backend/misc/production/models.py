@@ -20,7 +20,7 @@ class Components(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.components"
+        db_table = '"production"."components"'
 
 
 class DeliveryRequests(models.Model):
@@ -34,7 +34,7 @@ class DeliveryRequests(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.delivery_requests"
+        db_table = '"production"."delivery_requests"'
 
 
 class Equipment(models.Model):
@@ -48,7 +48,7 @@ class Equipment(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.equipment"
+        db_table = '"production"."equipment"'
 
 
 class Labor(models.Model):
@@ -60,7 +60,7 @@ class Labor(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.labor"
+        db_table = '"production"."labor"'
 
 
 class ProductionOrdersDetails(models.Model):
@@ -76,7 +76,7 @@ class ProductionOrdersDetails(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.production_orders_details"
+        db_table = '"production"."production_orders_details"'
 
 
 class ProductionOrdersHeader(models.Model):
@@ -91,4 +91,4 @@ class ProductionOrdersHeader(models.Model):
 
     class Meta:
         managed = False
-        db_table = "production.production_orders_header"
+        db_table = '"production"."production_orders_header"'

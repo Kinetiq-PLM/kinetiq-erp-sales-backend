@@ -26,7 +26,7 @@ class Currency(models.Model):
 
     class Meta:
         managed = False
-        db_table = "accounting.currency"
+        db_table = '"accounting"."currency"'
 
 
 class GeneralLedgerAccounts(models.Model):
@@ -39,7 +39,7 @@ class GeneralLedgerAccounts(models.Model):
 
     class Meta:
         managed = False
-        db_table = "accounting.general_ledger_accounts"
+        db_table = '"accounting"."general_ledger_accounts"'
 
 
 class JournalEntries(models.Model):
@@ -53,7 +53,7 @@ class JournalEntries(models.Model):
 
     class Meta:
         managed = False
-        db_table = "accounting.journal_entries"
+        db_table = '"accounting"."journal_entries"'
 
 
 class JournalEntryLines(models.Model):
@@ -66,4 +66,4 @@ class JournalEntryLines(models.Model):
 
     class Meta:
         managed = False
-        db_table = "accounting.journal_entry_lines"
+        db_table = '"accounting"."journal_entry_lines"'

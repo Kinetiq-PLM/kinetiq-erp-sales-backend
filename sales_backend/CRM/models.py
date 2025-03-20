@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 from misc.human_resources.models import Employees
+from misc.admin.models import BusinessPartnerMaster
 
 
 class Leads(models.Model):
@@ -18,9 +19,7 @@ class Leads(models.Model):
         LOST = "Lost"
 
     lead_id = models.CharField(primary_key=True, max_length=255)
-    salesrep = models.ForeignKey(
-        to="misc.Employee", on_delete=models.SET_NULL, null=True
-    )
+    salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     lead_name = models.CharField(max_length=255)
     lead_email = models.CharField(max_length=255)
     lead_phonenum = models.CharField(max_length=20)
@@ -91,11 +90,9 @@ class Opportunities(models.Model):
         to="customer.Customer", on_delete=models.SET_NULL, null=True
     )
     partner = models.ForeignKey(
-        to="misc.BusinessPartnerMaster", on_delete=models.SET_NULL, null=True
+        to=BusinessPartnerMaster, on_delete=models.SET_NULL, null=True
     )
-    salesrep = models.ForeignKey(
-        to="misc.Employee", on_delete=models.SET_NULL, null=True
-    )
+    salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     estimated_value = models.DecimalField(max_digits=10, decimal_places=2)
     expected_closed_date = models.DateTimeField(default=datetime.now())
     stage = models.TextField(choices=Stage)

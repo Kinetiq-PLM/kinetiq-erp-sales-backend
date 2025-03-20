@@ -35,7 +35,7 @@ class DocumentHeader(models.Model):
 
     class Meta:
         managed = False
-        db_table = "operations.document_header"
+        db_table = '"operations"."document_header"'
 
 
 class DocumentItems(models.Model):
@@ -53,7 +53,7 @@ class DocumentItems(models.Model):
 
     class Meta:
         managed = False
-        db_table = "operations.document_items"
+        db_table = '"operations"."document_items"'
 
 
 class ExternalModule(models.Model):
@@ -73,7 +73,7 @@ class ExternalModule(models.Model):
 
     class Meta:
         managed = False
-        db_table = "operations.external_module"
+        db_table = '"operations"."external_module"'
 
 
 class ProductDocumentItems(models.Model):
@@ -87,7 +87,7 @@ class ProductDocumentItems(models.Model):
 
     class Meta:
         managed = False
-        db_table = "operations.product_document_items"
+        db_table = '"operations"."product_document_items"'
 
 
 class SerialTracking(models.Model):
@@ -97,4 +97,4 @@ class SerialTracking(models.Model):
 
     class Meta:
         managed = False
-        db_table = "operations.serial_tracking"
+        db_table = '"operations"."serial_tracking"'

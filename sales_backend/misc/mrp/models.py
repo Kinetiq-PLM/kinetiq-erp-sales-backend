@@ -23,7 +23,7 @@ class BillOfMaterials(models.Model):
 
     class Meta:
         managed = False
-        db_table = "mrp.bill_of_materials"
+        db_table = '"mrp"."bill_of_materials"'
 
 
 class NonProjectOrderPricing(models.Model):
@@ -38,7 +38,7 @@ class NonProjectOrderPricing(models.Model):
 
     class Meta:
         managed = False
-        db_table = "mrp.non_project_order_pricing"
+        db_table = '"mrp"."non_project_order_pricing"'
 
 
 class OverallProduction(models.Model):
@@ -60,7 +60,7 @@ class OverallProduction(models.Model):
 
     class Meta:
         managed = False
-        db_table = "mrp.overall_production"
+        db_table = '"mrp"."overall_production"'
 
 
 class PrincipalItems(models.Model):
@@ -79,4 +79,4 @@ class PrincipalItems(models.Model):
 
     class Meta:
         managed = False
-        db_table = "mrp.principal_items"
+        db_table = '"mrp"."principal_items"'

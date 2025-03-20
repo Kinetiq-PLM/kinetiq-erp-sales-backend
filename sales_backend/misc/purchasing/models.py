@@ -20,7 +20,7 @@ class BatchInspection(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.batch_inspection"
+        db_table = '"purchasing"."batch_inspection"'
 
 
 class CreditMemo(models.Model):
@@ -52,7 +52,7 @@ class CreditMemo(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.credit_memo"
+        db_table = '"purchasing"."credit_memo"'
 
 
 class PurchaseInvoice(models.Model):
@@ -83,7 +83,7 @@ class PurchaseInvoice(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.purchase_invoice"
+        db_table = '"purchasing"."purchase_invoice"'
 
 
 class PurchaseOrder(models.Model):
@@ -96,7 +96,7 @@ class PurchaseOrder(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.purchase_order"
+        db_table = '"purchasing"."purchase_order"'
 
 
 class PurchaseQuotation(models.Model):
@@ -124,7 +124,7 @@ class PurchaseQuotation(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.purchase_quotation"
+        db_table = '"purchasing"."purchase_quotation"'
 
 
 class PurchaseRequests(models.Model):
@@ -141,7 +141,7 @@ class PurchaseRequests(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.purchase_requests"
+        db_table = '"purchasing"."purchase_requests"'
 
 
 class QuotationContents(models.Model):
@@ -158,7 +158,7 @@ class QuotationContents(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.quotation_contents"
+        db_table = '"purchasing"."quotation_contents"'
 
 
 class ReceivedShipments(models.Model):
@@ -168,7 +168,7 @@ class ReceivedShipments(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.received_shipments"
+        db_table = '"purchasing"."received_shipments"'
 
 
 class VendorApplication(models.Model):
@@ -197,4 +197,4 @@ class VendorApplication(models.Model):
 
     class Meta:
         managed = False
-        db_table = "purchasing.vendor_application"
+        db_table = '"purchasing"."vendor_application"'

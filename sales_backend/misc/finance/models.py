@@ -17,7 +17,7 @@ class BudgetApprovals(models.Model):
 
     class Meta:
         managed = False
-        db_table = "finance.budget_approvals"
+        db_table = '"finance"."budget_approvals"'
 
 
 class BudgetValidations(models.Model):
@@ -34,4 +34,4 @@ class BudgetValidations(models.Model):
 
     class Meta:
         managed = False
-        db_table = "finance.budget_validations"
+        db_table = '"finance"."budget_validations"'

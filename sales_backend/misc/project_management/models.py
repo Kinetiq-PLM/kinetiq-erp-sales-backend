@@ -19,7 +19,7 @@ class ContractualWorkerRequest(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.contractual_worker_request"
+        db_table = '"project_management"."contractual_worker_request"'
 
 
 class ExternalProjectCostManagement(models.Model):
@@ -30,7 +30,7 @@ class ExternalProjectCostManagement(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_cost_management"
+        db_table = '"project_management"."external_project_cost_management"'
 
 
 class ExternalProjectDetails(models.Model):
@@ -40,7 +40,7 @@ class ExternalProjectDetails(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_details"
+        db_table = '"project_management"."external_project_details"'
 
 
 class ExternalProjectLabor(models.Model):
@@ -50,7 +50,7 @@ class ExternalProjectLabor(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_labor"
+        db_table = '"project_management"."external_project_labor"'
 
 
 class ExternalProjectRequest(models.Model):
@@ -62,7 +62,7 @@ class ExternalProjectRequest(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_request"
+        db_table = '"project_management"."external_project_request"'
 
 
 class ExternalProjectTaskList(models.Model):
@@ -75,7 +75,7 @@ class ExternalProjectTaskList(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_task_list"
+        db_table = '"project_management"."external_project_task_list"'
 
 
 class ExternalProjectTracking(models.Model):
@@ -89,7 +89,7 @@ class ExternalProjectTracking(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_tracking"
+        db_table = '"project_management"."external_project_tracking"'
 
 
 class ExternalProjectWarranty(models.Model):
@@ -101,7 +101,7 @@ class ExternalProjectWarranty(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.external_project_warranty"
+        db_table = '"project_management"."external_project_warranty"'
 
 
 class InternalProjectDetails(models.Model):
@@ -111,7 +111,7 @@ class InternalProjectDetails(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.internal_project_details"
+        db_table = '"project_management"."internal_project_details"'
 
 
 class InternalProjectLabor(models.Model):
@@ -121,7 +121,7 @@ class InternalProjectLabor(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.internal_project_labor"
+        db_table = '"project_management"."internal_project_labor"'
 
 
 class InternalProjectRequest(models.Model):
@@ -138,7 +138,7 @@ class InternalProjectRequest(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.internal_project_request"
+        db_table = '"project_management"."internal_project_request"'
 
 
 class InternalProjectTaskList(models.Model):
@@ -151,7 +151,7 @@ class InternalProjectTaskList(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.internal_project_task_list"
+        db_table = '"project_management"."internal_project_task_list"'
 
 
 class InternalProjectTracking(models.Model):
@@ -163,4 +163,4 @@ class InternalProjectTracking(models.Model):
 
     class Meta:
         managed = False
-        db_table = "project_management.internal_project_tracking"
+        db_table = '"project_management"."internal_project_tracking"'

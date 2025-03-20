@@ -16,7 +16,7 @@ class BillingReceipt(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.billing_receipt"
+        db_table = '"distribution"."billing_receipt"'
 
 
 class Carrier(models.Model):
@@ -29,7 +29,7 @@ class Carrier(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.carrier"
+        db_table = '"distribution"."carrier"'
 
 
 class DeliveryOrder(models.Model):
@@ -52,7 +52,7 @@ class DeliveryOrder(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.delivery_order"
+        db_table = '"distribution"."delivery_order"'
 
 
 class DeliveryReceipt(models.Model):
@@ -67,7 +67,7 @@ class DeliveryReceipt(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.delivery_receipt"
+        db_table = '"distribution"."delivery_receipt"'
 
 
 class FailedShipment(models.Model):
@@ -81,7 +81,7 @@ class FailedShipment(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.failed_shipment"
+        db_table = '"distribution"."failed_shipment"'
 
 
 class GoodsIssue(models.Model):
@@ -92,7 +92,7 @@ class GoodsIssue(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.goods_issue"
+        db_table = '"distribution"."goods_issue"'
 
 
 class LogisticsApprovalRequest(models.Model):
@@ -107,7 +107,7 @@ class LogisticsApprovalRequest(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.logistics_approval_request"
+        db_table = '"distribution"."logistics_approval_request"'
 
 
 class OperationalCost(models.Model):
@@ -123,7 +123,7 @@ class OperationalCost(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.operational_cost"
+        db_table = '"distribution"."operational_cost"'
 
 
 class PackingCost(models.Model):
@@ -134,7 +134,7 @@ class PackingCost(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.packing_cost"
+        db_table = '"distribution"."packing_cost"'
 
 
 class PackingList(models.Model):
@@ -152,7 +152,7 @@ class PackingList(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.packing_list"
+        db_table = '"distribution"."packing_list"'
 
 
 class PickingList(models.Model):
@@ -167,7 +167,7 @@ class PickingList(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.picking_list"
+        db_table = '"distribution"."picking_list"'
 
 
 class Rejection(models.Model):
@@ -181,7 +181,7 @@ class Rejection(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.rejection"
+        db_table = '"distribution"."rejection"'
 
 
 class ReworkOrder(models.Model):
@@ -197,7 +197,7 @@ class ReworkOrder(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.rework_order"
+        db_table = '"distribution"."rework_order"'
 
 
 class ShipmentDetails(models.Model):
@@ -216,7 +216,7 @@ class ShipmentDetails(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.shipment_details"
+        db_table = '"distribution"."shipment_details"'
 
 
 class ShippingCost(models.Model):
@@ -240,4 +240,4 @@ class ShippingCost(models.Model):
 
     class Meta:
         managed = False
-        db_table = "distribution.shipping_cost"
+        db_table = '"distribution"."shipping_cost"'

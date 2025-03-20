@@ -21,7 +21,7 @@ class AttendanceTracking(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.attendance_tracking"
+        db_table = '"human_resources"."attendance_tracking"'
 
 
 class Candidates(models.Model):
@@ -39,7 +39,7 @@ class Candidates(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.candidates"
+        db_table = '"human_resources"."candidates"'
 
 
 class Departments(models.Model):
@@ -48,7 +48,7 @@ class Departments(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.departments"
+        db_table = '"human_resources"."departments"'
 
 
 class EmployeePerformance(models.Model):
@@ -61,7 +61,7 @@ class EmployeePerformance(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.employee_performance"
+        db_table = '"human_resources"."employee_performance"'
 
 
 class EmployeeSalary(models.Model):
@@ -84,7 +84,7 @@ class EmployeeSalary(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.employee_salary"
+        db_table = '"human_resources"."employee_salary"'
 
 
 class Employees(models.Model):
@@ -101,7 +101,7 @@ class Employees(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.employees"
+        db_table = '"human_resources"."employees"'
 
 
 class Interviews(models.Model):
@@ -115,7 +115,7 @@ class Interviews(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.interviews"
+        db_table = '"human_resources"."interviews"'
 
 
 class JobPosting(models.Model):
@@ -136,7 +136,7 @@ class JobPosting(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.job_posting"
+        db_table = '"human_resources"."job_posting"'
 
 
 class LeaveRequests(models.Model):
@@ -155,7 +155,7 @@ class LeaveRequests(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.leave_requests"
+        db_table = '"human_resources"."leave_requests"'
 
 
 class Payroll(models.Model):
@@ -181,7 +181,7 @@ class Payroll(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.payroll"
+        db_table = '"human_resources"."payroll"'
 
 
 class WorkforceAllocation(models.Model):
@@ -198,4 +198,4 @@ class WorkforceAllocation(models.Model):
 
     class Meta:
         managed = False
-        db_table = "human_resources.workforce_allocation"
+        db_table = '"human_resources"."workforce_allocation"'

@@ -20,7 +20,7 @@ class DeprecationReport(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.deprecation_report"
+        db_table = '"inventory"."deprecation_report"'
 
 
 class InventoryAdjustments(models.Model):
@@ -33,7 +33,7 @@ class InventoryAdjustments(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.inventory_adjustments"
+        db_table = '"inventory"."inventory_adjustments"'
 
 
 class InventoryCyclicCounts(models.Model):
@@ -49,7 +49,7 @@ class InventoryCyclicCounts(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.inventory_cyclic_counts"
+        db_table = '"inventory"."inventory_cyclic_counts"'
 
 
 class InventoryItem(models.Model):
@@ -64,7 +64,7 @@ class InventoryItem(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.inventory_item"
+        db_table = '"inventory"."inventory_item"'
 
 
 class InventoryItemMasterData(models.Model):
@@ -81,7 +81,7 @@ class InventoryItemMasterData(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.inventory_item_master_data"
+        db_table = '"inventory"."inventory_item_master_data"'
 
 
 class WarehouseMovement(models.Model):
@@ -99,4 +99,4 @@ class WarehouseMovement(models.Model):
 
     class Meta:
         managed = False
-        db_table = "inventory.warehouse_movement"
+        db_table = '"inventory"."warehouse_movement"'

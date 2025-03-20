@@ -16,7 +16,7 @@ class Assets(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.assets"
+        db_table = '"admin"."assets"'
 
 
 class AuditLog(models.Model):
@@ -30,7 +30,7 @@ class AuditLog(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.audit_log"
+        db_table = '"admin"."audit_log"'
 
 
 class BusinessPartnerMaster(models.Model):
@@ -42,7 +42,7 @@ class BusinessPartnerMaster(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.business_partner_master"
+        db_table = '"admin"."business_partner_master"'
 
 
 class ItemMasterData(models.Model):
@@ -51,7 +51,7 @@ class ItemMasterData(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.item_master_data"
+        db_table = '"admin"."item_master_data"'
 
 
 class Policies(models.Model):
@@ -63,7 +63,7 @@ class Policies(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.policies"
+        db_table = '"admin"."policies"'
 
 
 class Products(models.Model):
@@ -79,7 +79,7 @@ class Products(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.products"
+        db_table = '"admin"."products"'
 
 
 class RawMaterials(models.Model):
@@ -95,7 +95,7 @@ class RawMaterials(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.raw_materials"
+        db_table = '"admin"."raw_materials"'
 
 
 class RolesPermission(models.Model):
@@ -109,7 +109,7 @@ class RolesPermission(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.roles_permission"
+        db_table = '"admin"."roles_permission"'
 
 
 class Users(models.Model):
@@ -127,7 +127,7 @@ class Users(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.users"
+        db_table = '"admin"."users"'
 
 
 class Vendor(models.Model):
@@ -139,7 +139,7 @@ class Vendor(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.vendor"
+        db_table = '"admin"."vendor"'
 
 
 class Warehouse(models.Model):
@@ -149,4 +149,4 @@ class Warehouse(models.Model):
 
     class Meta:
         managed = False
-        db_table = "admin.warehouse"
+        db_table = '"admin"."warehouse"'

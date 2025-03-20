@@ -18,7 +18,7 @@ class AfterAnalysisSched(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.after_analysis_sched"
+        db_table = '"services"."after_analysis_sched"'
 
 
 class ChatMessage(models.Model):
@@ -31,7 +31,7 @@ class ChatMessage(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.chat_message"
+        db_table = '"services"."chat_message"'
 
 
 class CommSession(models.Model):
@@ -45,7 +45,7 @@ class CommSession(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.comm_session"
+        db_table = '"services"."comm_session"'
 
 
 class DeliveryOrder(models.Model):
@@ -63,7 +63,7 @@ class DeliveryOrder(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.delivery_order"
+        db_table = '"services"."delivery_order"'
 
 
 class RenewalHistory(models.Model):
@@ -79,7 +79,7 @@ class RenewalHistory(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.renewal_history"
+        db_table = '"services"."renewal_history"'
 
 
 class ServiceAnalysis(models.Model):
@@ -93,7 +93,7 @@ class ServiceAnalysis(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_analysis"
+        db_table = '"services"."service_analysis"'
 
 
 class ServiceBilling(models.Model):
@@ -112,7 +112,7 @@ class ServiceBilling(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_billing"
+        db_table = '"services"."service_billing"'
 
 
 class ServiceCall(models.Model):
@@ -133,7 +133,7 @@ class ServiceCall(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_call"
+        db_table = '"services"."service_call"'
 
 
 class ServiceCallHistory(models.Model):
@@ -145,7 +145,7 @@ class ServiceCallHistory(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_call_history"
+        db_table = '"services"."service_call_history"'
 
 
 class ServiceContract(models.Model):
@@ -170,7 +170,7 @@ class ServiceContract(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_contract"
+        db_table = '"services"."service_contract"'
 
 
 class ServiceCost(models.Model):
@@ -187,7 +187,7 @@ class ServiceCost(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_cost"
+        db_table = '"services"."service_cost"'
 
 
 class ServiceOrder(models.Model):
@@ -203,7 +203,7 @@ class ServiceOrder(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_order"
+        db_table = '"services"."service_order"'
 
 
 class ServicePurchase(models.Model):
@@ -221,7 +221,7 @@ class ServicePurchase(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_purchase"
+        db_table = '"services"."service_purchase"'
 
 
 class ServiceReport(models.Model):
@@ -235,7 +235,7 @@ class ServiceReport(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_report"
+        db_table = '"services"."service_report"'
 
 
 class ServiceRequest(models.Model):
@@ -252,7 +252,7 @@ class ServiceRequest(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_request"
+        db_table = '"services"."service_request"'
 
 
 class ServiceTicket(models.Model):
@@ -260,7 +260,7 @@ class ServiceTicket(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.service_ticket"
+        db_table = '"services"."service_ticket"'
 
 
 class Technician(models.Model):
@@ -268,4 +268,4 @@ class Technician(models.Model):
 
     class Meta:
         managed = False
-        db_table = "services.technician"
+        db_table = '"services"."technician"'
