@@ -25,3 +25,4 @@ class SalesInvoices(models.Model):
     payment_status = models.TextField(
         choices=PaymentStatus, default=PaymentStatus.UNPAID
     )
+    due_date = models.DateField()

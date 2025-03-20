@@ -1,6 +1,4 @@
 from django.db import models
-from django.shortcuts import get_object_or_404
-from quotation.models import Quotation
 
 
 class Order(models.Model):
@@ -29,6 +27,6 @@ class Order(models.Model):
         to="misc.GoodsIssue", on_delete=models.SET_NULL, null=True, blank=True
     )
     order_date = models.DateTimeField(auto_now_add=True)
-    order_status = models.TextField(choices=Status)
+    order_status = models.TextField(choices=Status, default=Status.PENDING)
     order_total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     order_type = models.TextField(choices=Type)

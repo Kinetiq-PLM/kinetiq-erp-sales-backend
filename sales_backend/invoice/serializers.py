@@ -1,16 +1,19 @@
 from rest_framework import serializers
 from .models import *
+from order.serializers import *
+from django.shortcuts import get_object_or_404
 
 
 class SalesInvoicesSerializer(serializers.ModelSerializer):
-    customer_name = serializers.CharField(source="order_id.customer_id.name")
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
 
-    # paid_amount
-    # unpaid_amount
-    # late by
     class Meta:
         model = SalesInvoices
         fields = "__all__"
 
     def to_representation(self, instance):
-        return super().to_representation(instance)
+        data = super().to_representation(instance)
+        data["order"] = OrderSerializer(
+            get_object_or_404(Order, pk=instance.order.order_id)
+        ).data
+        return data
