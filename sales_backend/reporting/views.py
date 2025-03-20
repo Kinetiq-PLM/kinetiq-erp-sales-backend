@@ -7,6 +7,7 @@ from order.models import Order
 from invoice.models import SalesInvoices
 from datetime import date, datetime
 from rest_framework import status
+from decimal import Decimal
 from dateutil.relativedelta import relativedelta
 
 
@@ -103,9 +104,54 @@ def get_profit_report(request: Request):
 
     Returns the following object:
     {
+        start_date: date,
+        end_date: date,
         profit_data: [{date, total_amount}]
         total_profit: int
     }
     """
     params = request.query_params
-    return Response({"success": True})
+    start_date = date.today()
+    end_date = date.today()
+
+    match params.get("period"):
+        case "month":
+            start_date = date.today() - relativedelta(months=1)
+        case "year":
+            start_date = date.today() - relativedelta(years=1)
+        case "all":
+            start_date = datetime.fromtimestamp(0).date()
+        case "day":
+            pass
+        case other:
+            if other is not None:
+                return Response(
+                    {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+    profits = SalesInvoices.objects.filter(
+        invoice_status=SalesInvoices.InvoiceStatus.PAID,
+        payment_status=SalesInvoices.PaymentStatus.PAID,
+        invoice_date__range=(start_date, end_date),
+    )
+
+    data = {}
+    total_profit = Decimal(0)
+    for profit in profits:
+        str_date = str(profit.invoice_date.date())
+        if str_date in data:
+            data[str_date] += profit.total_amount
+        else:
+            data[str_date] = profit.total_amount
+        total_profit += profit.total_amount
+
+    sales_profits = [{"date": key, "profit": value} for key, value in data.items()]
+
+    return Response(
+        {
+            "start_date": start_date,
+            "end_date": end_date,
+            "profit_data": sales_profits,
+            "total_profit": total_profit,
+        }
+    )

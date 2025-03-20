@@ -1,4 +1,7 @@
 from .views import *
 from django.urls import path
 
-urlpatterns = [path("", get_sales_report)]
+urlpatterns = [
+    path("operations/", get_sales_report),
+    path("profit/", get_profit_report),
+]
