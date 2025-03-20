@@ -1,4 +1,6 @@
 from django.db import models
+from misc.admin.models import Products
+from misc.human_resources.models import Employees
 
 
 class Statement(models.Model):
@@ -7,14 +9,17 @@ class Statement(models.Model):
         NON_PROJECT_BASED = "Non-Project Based"
         SERVICE = "Service"
 
-    statement_id = models.BigAutoField(primary_key=True)
+    statement_id = models.CharField(primary_key=True, max_length=255)
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
-    salesrep = models.ForeignKey(to="misc.Employee", on_delete=models.CASCADE)
+    salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_reason = models.TextField(blank=True, null=True)
     type = models.TextField(choices=Type)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        db_table = "sales.statement"
 
 
 class StatementItem(models.Model):
@@ -25,13 +30,13 @@ class StatementItem(models.Model):
         VERY_HIGH = "Very High"
         SEASONAL = "Seasonal"
 
-    statement_item_id = models.BigAutoField(primary_key=True)
+    statement_item_id = models.CharField(primary_key=True, max_length=255)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
     sales_costing = models.ForeignKey(
         to="costing.SalesCosting", on_delete=models.SET_NULL, null=True, blank=True
     )
     product = models.ForeignKey(
-        to="misc.Product", on_delete=models.SET_NULL, null=True, blank=True
+        to=Products, on_delete=models.SET_NULL, null=True, blank=True
     )
     quantity = models.IntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -40,3 +45,6 @@ class StatementItem(models.Model):
     demand_level = models.TextField(choices=DemandLevel, default=DemandLevel.LOW)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        db_table = "sales.statement_item"

@@ -13,7 +13,7 @@ class SalesInvoices(models.Model):
         PAID = "Paid"
         PARTIAL = "Partial"
 
-    invoice_id = models.AutoField(primary_key=True)
+    invoice_id = models.CharField(primary_key=True, max_length=255)
     order = models.ForeignKey(
         to="order.Order", on_delete=models.CASCADE, related_name="invoice"
     )
@@ -26,3 +26,6 @@ class SalesInvoices(models.Model):
         choices=PaymentStatus, default=PaymentStatus.UNPAID
     )
     due_date = models.DateField()
+
+    class Meta:
+        db_table = "sales.sales_invoices"
