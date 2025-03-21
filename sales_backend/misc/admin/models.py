@@ -71,7 +71,7 @@ class Products(models.Model):
     product_name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     selling_price = models.DecimalField(
-        max_digits=65535, decimal_places=65535, blank=True, null=True
+        max_digits=10, decimal_places=2, blank=True, null=True
     )
     stock_level = models.IntegerField(blank=True, null=True)
     warranty_period = models.IntegerField(blank=True, null=True)

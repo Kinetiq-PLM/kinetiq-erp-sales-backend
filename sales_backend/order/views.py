@@ -26,7 +26,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     order_type,
                     items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
                 }
-            optional (if did not copy from quotation, include this):
+
                 statement_data: {
                     customer,
                     salesrep,
@@ -42,45 +42,33 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         try:
             with transaction.atomic():
-                quotation_id = order_data.get("quotation_id")
-                # if the sales order did not come from a quotation, create a new Statement
-                if not quotation_id:
-                    statement_serializer = StatementSerializer(
-                        data=request.data, context={"items": items_data}
-                    )
-                    if statement_serializer.is_valid():
-                        statement: Statement = statement_serializer.save()
-                        for item_data in items_data:
-                            item_data["statement"] = statement.statement_id
-                            item_serializer = StatementItemSerializer(data=item_data)
-                            if item_serializer.is_valid():
-                                item_serializer.save()
-                            else:
-                                raise Exception(item_serializer.errors)
+                quotation_id = order_data.pop("quotation_id", None)
 
-                        order = Order.objects.create(
-                            statement=statement,
-                            order_total_amount=statement.total_amount,
-                            **order_data
-                        )
+                statement_serializer = StatementSerializer(
+                    data=request.data, context={"items": items_data}
+                )
+                if statement_serializer.is_valid():
+                    statement: Statement = statement_serializer.save()
+                    for item_data in items_data:
+                        item_data["statement"] = statement.statement_id
+                        item_serializer = StatementItemSerializer(data=item_data)
+                        if item_serializer.is_valid():
+                            item_serializer.save()
+                        else:
+                            raise Exception(item_serializer.errors)
 
-                        return Response(
-                            OrderSerializer(order).data,
-                            status=status.HTTP_201_CREATED,
-                        )
-                    else:
-                        raise Exception(statement_serializer.errors)
-                # else, point the Order's statement to the same statement from Quotation
-                else:
-                    quotation: Quotation = get_object_or_404(Quotation, pk=quotation_id)
-                    associated_statement: Statement = quotation.statement
                     order = Order.objects.create(
-                        statement=associated_statement,
-                        order_total_amount=associated_statement.total_amount,
-                        **order_data
+                        statement=statement,
+                        order_total_amount=statement.total_amount,
+                        quotation=Quotation.objects.get(pk=quotation_id),
+                        **order_data,
                     )
+
                     return Response(
-                        OrderSerializer(order).data, status=status.HTTP_201_CREATED
+                        OrderSerializer(order).data,
+                        status=status.HTTP_201_CREATED,
                     )
+                else:
+                    raise Exception(statement_serializer.errors)
         except Exception as err:
             return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)

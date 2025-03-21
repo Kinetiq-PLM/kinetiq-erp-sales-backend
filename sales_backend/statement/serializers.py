@@ -11,6 +11,7 @@ class StatementItemSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
+    product = serializers.SerializerMethodField()
 
     class Meta:
         model = StatementItem
@@ -22,14 +23,16 @@ class StatementItemSerializer(serializers.ModelSerializer):
         )
         return super().create(validated_data)
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     if instance.product:
-    #         data["product"] = ProductSerializer(
-    #             get_object_or_404(Product, pk=instance.product.product_id)
-    #         ).data
-
-    #     return data
+    def get_product(self, obj):
+        return {
+            "product_id": obj.product.product_id,
+            "product_name": obj.product.product_name,
+            "description": obj.product.description,
+            "selling_price": obj.product.selling_price,
+            "stock_level": obj.product.stock_level,
+            "warranty_period": obj.product.warranty_period,
+            "policy_id": obj.product.policy_id,
+        }
 
 
 class StatementSerializer(serializers.ModelSerializer):
@@ -49,17 +52,6 @@ class StatementSerializer(serializers.ModelSerializer):
 
         data["total_amount"] = total
         return super().to_internal_value(data)
-
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     data["customer"] = CustomerSerializer(
-    #         get_object_or_404(Customer, pk=data["customer"])
-    #     ).data
-    #     data["salesrep"] = EmployeeSerializer(
-    #         get_object_or_404(Employee, pk=data["salesrep"])
-    #     ).data
-
-    #     return data
 
     def get_items(self, obj):
         return StatementItemSerializer(
