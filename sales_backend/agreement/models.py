@@ -22,4 +22,4 @@ class BlanketAgreement(models.Model):
     agreement_method = models.TextField(choices=Method)
 
     class Meta:
-        db_table = "sales.blanket_agreement"
+        db_table = '"sales"."blanket_agreement"'

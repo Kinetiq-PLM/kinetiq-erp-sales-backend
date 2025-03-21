@@ -28,4 +28,4 @@ class SalesInvoices(models.Model):
     due_date = models.DateField()
 
     class Meta:
-        db_table = "sales.sales_invoices"
+        db_table = '"sales"."sales_invoices"'

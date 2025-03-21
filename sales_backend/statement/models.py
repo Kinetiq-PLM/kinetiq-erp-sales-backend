@@ -5,8 +5,8 @@ from misc.human_resources.models import Employees
 
 class Statement(models.Model):
     class Type(models.TextChoices):
-        PROJECT_BASED = "Project Based"
-        NON_PROJECT_BASED = "Non-Project Based"
+        PROJECT_BASED = "Project-Based"
+        NON_PROJECT_BASED = "Non-Project-Based"
         SERVICE = "Service"
 
     statement_id = models.CharField(primary_key=True, max_length=255)
@@ -14,12 +14,11 @@ class Statement(models.Model):
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    discount_reason = models.TextField(blank=True, null=True)
     type = models.TextField(choices=Type)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
-        db_table = "sales.statement"
+        db_table = '"sales"."statement"'
 
 
 class StatementItem(models.Model):
@@ -47,4 +46,4 @@ class StatementItem(models.Model):
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
-        db_table = "sales.statement_item"
+        db_table = '"sales"."statement_item"'

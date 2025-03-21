@@ -27,7 +27,7 @@ class Leads(models.Model):
     status = models.TextField(choices=Status, default=Status.NEW)
 
     class Meta:
-        db_table = "sales.leads"
+        db_table = '"sales"."leads"'
 
 
 class Campaigns(models.Model):
@@ -50,7 +50,7 @@ class Campaigns(models.Model):
     status = models.TextField(choices=Status, default=Status.ACTIVE)
 
     class Meta:
-        db_table = "sales.campaigns"
+        db_table = '"sales"."campaigns"'
 
 
 class CampaignContacts(models.Model):
@@ -71,7 +71,7 @@ class CampaignContacts(models.Model):
     )
 
     class Meta:
-        db_table = "sales.campaign_contacts"
+        db_table = '"sales"."campaign_contacts"'
 
 
 class Opportunities(models.Model):
@@ -102,7 +102,7 @@ class Opportunities(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
-        db_table = "sales.opportunities"
+        db_table = '"sales"."opportunities"'
 
 
 class Ticket(models.Model):
@@ -127,7 +127,7 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
-        db_table = "sales.ticket"
+        db_table = '"sales"."ticket"'
 
 
 class TicketConvo(models.Model):
@@ -139,4 +139,4 @@ class TicketConvo(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
-        db_table = "sales.ticket_convo"
+        db_table = '"sales"."ticket_convo"'

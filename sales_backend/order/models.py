@@ -21,7 +21,7 @@ class Order(models.Model):
         to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
     )
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
-    rework_order = models.ForeignKey(
+    rework = models.ForeignKey(
         to=ReworkOrder, on_delete=models.SET_NULL, blank=True, null=True
     )
     goods_issue = models.ForeignKey(
@@ -33,4 +33,4 @@ class Order(models.Model):
     order_type = models.TextField(choices=Type)
 
     class Meta:
-        db_table = "sales.orders"
+        db_table = '"sales"."orders"'

@@ -23,4 +23,4 @@ class SalesCosting(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "sales.sales_costing"
+        db_table = '"sales"."sales_costing"'

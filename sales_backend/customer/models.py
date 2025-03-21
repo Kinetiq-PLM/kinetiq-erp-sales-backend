@@ -35,4 +35,4 @@ class Customer(models.Model):
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
-        db_table = "sales.customers"
+        db_table = '"sales"."customers"'

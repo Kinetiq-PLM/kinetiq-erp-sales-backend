@@ -20,4 +20,4 @@ class Quotation(models.Model):
     status = models.TextField(choices=Status, default=Status.PENDING)
 
     class Meta:
-        db_table = "sales.quotation"
+        db_table = '"sales"."quotation"'
