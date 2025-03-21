@@ -70,5 +70,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                     )
                 else:
                     raise Exception(statement_serializer.errors)
+
+        ## TODO: Raise Sales Order to Project Management
+        ## TODO: update stocks
         except Exception as err:
             return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)

@@ -22,11 +22,22 @@ class QuotationViewSet(viewsets.ModelViewSet):
                 total_amount,
                 discount,
                 type,
-                items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
+                total_tax,
+                items (see statement_items): [
+                    product,
+                    quantity,
+                    unit_price,
+                    total_price,
+                    markup_percentage (optional),
+                    demand_level (default 'Low'),
+                    discount,
+                    tax_amount
+                ]
             },
             quotation_data: {
                 status
-            }
+            },
+            copy_to: 'Order' | 'Blanket Agreement' | null
         }
         """
 
