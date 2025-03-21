@@ -13,7 +13,7 @@ class SalesCosting(models.Model):
         blank=True,
         null=True,
     )
-    project_resources_id = models.ForeignKey(
+    project_resources = models.ForeignKey(
         to=ExternalProjectCostManagement,
         on_delete=models.SET_NULL,
         blank=True,

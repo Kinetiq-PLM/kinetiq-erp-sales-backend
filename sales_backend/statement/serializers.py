@@ -54,6 +54,5 @@ class StatementSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def get_items(self, obj):
-        return StatementItemSerializer(
-            get_list_or_404(StatementItem, statement=obj), many=True
-        ).data
+        items = StatementItem.objects.filter(statement=obj)
+        return StatementItemSerializer(items, many=True).data
