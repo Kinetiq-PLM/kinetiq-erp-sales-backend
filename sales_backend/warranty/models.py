@@ -10,7 +10,7 @@ class RenewalWarranty(models.Model):
         APPROVED = "Approved"
         REJECTED = "Rejected"
 
-    renewal_id = models.CharField(primary_key=True, max_length=255)
+    renewal_id = models.CharField(primary_key=True, max_length=255, blank=True)
     order = models.ForeignKey(Order, models.CASCADE)
     customer = models.ForeignKey(Customer, models.CASCADE)
     product_id = models.CharField(max_length=255)

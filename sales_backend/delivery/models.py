@@ -1,6 +1,6 @@
 from django.db import models
 from order.models import Order
-from misc.distribution.models import ShipmentDetails
+from misc.distribution.models import ShipmentDetails, OperationalCost
 
 
 class ShippingDetails(models.Model):
@@ -18,10 +18,10 @@ class ShippingDetails(models.Model):
         DELIVERED = "Delivered"
         RETURNED = "Returned"
 
-    shipping_id = models.CharField(primary_key=True, max_length=255)
+    shipping_id = models.CharField(primary_key=True, max_length=255, blank=True)
     order = models.ForeignKey(to=Order, on_delete=models.CASCADE)
-    operational_cost_id = models.CharField(max_length=255)
-    shipment_id = models.ForeignKey(to=ShipmentDetails, on_delete=models.CASCADE)
+    operational_cost = models.ForeignKey(to=OperationalCost, on_delete=models.CASCADE)
+    shipment = models.ForeignKey(to=ShipmentDetails, on_delete=models.CASCADE)
     shipping_method = models.TextField(choices=Method)
     tracking_num = models.CharField(unique=True, max_length=50, blank=True, null=True)
     shipping_date = models.DateTimeField(blank=True, null=True)
@@ -29,4 +29,5 @@ class ShippingDetails(models.Model):
     delivery_status = models.TextField(choices=Status)
 
     class Meta:
+        managed = False
         db_table = '"sales"."shipping_details"'

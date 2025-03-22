@@ -18,7 +18,7 @@ class Leads(models.Model):
         CONVERTED = "Converted"
         LOST = "Lost"
 
-    lead_id = models.CharField(primary_key=True, max_length=255)
+    lead_id = models.CharField(primary_key=True, max_length=255, blank=True)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     lead_name = models.CharField(max_length=255)
     lead_email = models.CharField(max_length=255)
@@ -27,6 +27,7 @@ class Leads(models.Model):
     status = models.TextField(choices=Status, default=Status.NEW)
 
     class Meta:
+        managed = False
         db_table = '"sales"."leads"'
 
 
@@ -42,7 +43,7 @@ class Campaigns(models.Model):
         ACTIVE = "Active"
         COMPLETED = "Completed"
 
-    campaign_id = models.CharField(primary_key=True, max_length=255)
+    campaign_id = models.CharField(primary_key=True, max_length=255, blank=True)
     campaign_name = models.CharField(max_length=255)
     type = models.TextField(choices=Type, default=Type.EMAIL)
     start_date = models.DateTimeField(default=datetime.now())
@@ -50,6 +51,7 @@ class Campaigns(models.Model):
     status = models.TextField(choices=Status, default=Status.ACTIVE)
 
     class Meta:
+        managed = False
         db_table = '"sales"."campaigns"'
 
 
@@ -59,7 +61,7 @@ class CampaignContacts(models.Model):
         NOT_INTERESTED = "Not Interested"
         PENDING = "Pending"
 
-    contact_id = models.CharField(primary_key=True, max_length=255)
+    contact_id = models.CharField(primary_key=True, max_length=255, blank=True)
     lead = models.ForeignKey(
         to=Leads, on_delete=models.SET_NULL, null=True, related_name="campaigns"
     )
@@ -71,6 +73,7 @@ class CampaignContacts(models.Model):
     )
 
     class Meta:
+        managed = False
         db_table = '"sales"."campaign_contacts"'
 
 
@@ -85,7 +88,7 @@ class Opportunities(models.Model):
         WON = "Won"
         LOST = "Lost"
 
-    opportunity_id = models.CharField(primary_key=True, max_length=255)
+    opportunity_id = models.CharField(primary_key=True, max_length=255, blank=True)
     customer = models.ForeignKey(
         to="customer.Customer", on_delete=models.SET_NULL, null=True
     )
@@ -101,6 +104,7 @@ class Opportunities(models.Model):
     reason_lost = models.TextField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = '"sales"."opportunities"'
 
 
@@ -116,7 +120,7 @@ class Ticket(models.Model):
         HIGH = "High"
         URGENT = "Urgent"
 
-    ticket_id = models.CharField(primary_key=True, max_length=255)
+    ticket_id = models.CharField(primary_key=True, max_length=255, blank=True)
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE, null=True)
     subject = models.CharField(max_length=255)
@@ -126,11 +130,12 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
+        managed = False
         db_table = '"sales"."ticket"'
 
 
 class TicketConvo(models.Model):
-    convo_id = models.CharField(primary_key=True, max_length=255)
+    convo_id = models.CharField(primary_key=True, max_length=255, blank=True)
     ticket = models.ForeignKey(
         to=Ticket, on_delete=models.CASCADE, related_name="conversations"
     )
@@ -138,4 +143,5 @@ class TicketConvo(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
+        managed = False
         db_table = '"sales"."ticket_convo"'

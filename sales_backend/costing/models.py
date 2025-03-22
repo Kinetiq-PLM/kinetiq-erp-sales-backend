@@ -6,7 +6,7 @@ from misc.project_management.models import ExternalProjectCostManagement
 
 # contains all necessary pricing for products
 class SalesCosting(models.Model):
-    sales_costing_id = models.CharField(primary_key=True, max_length=255)
+    sales_costing_id = models.CharField(primary_key=True, max_length=255, blank=True)
     non_project_costing = models.ForeignKey(
         to=NonProjectOrderPricing,
         on_delete=models.SET_NULL,
@@ -23,4 +23,5 @@ class SalesCosting(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        managed = False
         db_table = '"sales"."sales_costing"'

@@ -20,31 +20,40 @@ import importlib
 from django.contrib import admin
 from django.urls import path, include
 from django.apps import apps
+from statement.views import *
 
-app_config = apps.get_app_config("misc")
-for module_info in pkgutil.iter_modules(app_config.module.__path__):
-    module_name = f"{app_config.name}.{module_info.name}"
-    # Import the submodule dynamically
-    module = importlib.import_module(module_name)
-    # If the submodule has a 'models' attribute (models.py exists)
-    if hasattr(module, "models"):
-        # Get all model classes in the submodule
-        for model_name in dir(module.models):
-            model = getattr(module.models, model_name)
-            # Ensure it's a Django model before registering
-            if isinstance(model, type) and hasattr(model, "_meta"):
-                admin.site.register(model)
+# app_config = apps.get_app_config("misc")
+# for module_info in pkgutil.iter_modules(app_config.module.__path__):
+#     module_name = f"{app_config.name}.{module_info.name}"
+#     # Import the submodule dynamically
+#     module = importlib.import_module(module_name)
+#     # If the submodule has a 'models' attribute (models.py exists)
+#     if hasattr(module, "models"):
+#         # Get all model classes in the submodule
+#         for model_name in dir(module.models):
+#             model = getattr(module.models, model_name)
+#             # Ensure it's a Django model before registering
+#             if isinstance(model, type) and hasattr(model, "_meta"):
+#                 admin.site.register(model)
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/sales/agreement/", include("agreement.urls")),
-    path("api/sales/crm/", include("CRM.urls")),
-    path("api/sales/costing/", include("costing.urls")),
-    path("api/sales/customer/", include("customer.urls")),
-    path("api/sales/delivery/", include("delivery.urls")),
-    path("api/sales/dunning/", include("dunning.urls")),
-    path("api/sales/invoice/", include("invoice.urls")),
-    path("api/sales/order/", include("order.urls")),
-    path("api/sales/quotation/", include("quotation.urls")),
-    path("api/sales/reporting/", include("reporting.urls")),
+    path(
+        "api/sales/",
+        include(
+            [
+                path("agreement/", include("agreement.urls")),
+                path("crm/", include("CRM.urls")),
+                path("costing/", include("costing.urls")),
+                path("customer/", include("customer.urls")),
+                path("delivery/", include("delivery.urls")),
+                path("dunning/", include("dunning.urls")),
+                path("", include("invoice.urls")),
+                path("order/", include("order.urls")),
+                path("quotation/", include("quotation.urls")),
+                path("reporting/", include("reporting.urls")),
+                path("", include("statement.urls")),
+            ]
+        ),
+    ),
     path("api/misc/", include("misc.urls")),
 ]

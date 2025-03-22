@@ -48,11 +48,12 @@ class SalesInvoices(models.Model):
     due_date = models.DateField()
 
     class Meta:
+        managed = False
         db_table = '"sales"."sales_invoices"'
 
 
 class Receipt(models.Model):
-    receipt_id = models.CharField(primary_key=True, max_length=255)
+    receipt_id = models.CharField(primary_key=True, max_length=255, blank=True)
     shipping = models.ForeignKey(ShippingDetails, models.DO_NOTHING)
     customer = models.ForeignKey(Customer, models.CASCADE)
     payments = models.ForeignKey(Payments, models.DO_NOTHING)
@@ -62,4 +63,5 @@ class Receipt(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = '"sales"."receipt"'

@@ -8,7 +8,7 @@ class Quotation(models.Model):
         APPROVED = "Approved"
         REJECTED = "Rejected"
 
-    quotation_id = models.CharField(primary_key=True, max_length=255)
+    quotation_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     agreement = models.ForeignKey(
         to="agreement.BlanketAgreement",
@@ -20,4 +20,5 @@ class Quotation(models.Model):
     status = models.TextField(choices=Status, default=Status.PENDING)
 
     class Meta:
+        managed = False
         db_table = '"sales"."quotation"'

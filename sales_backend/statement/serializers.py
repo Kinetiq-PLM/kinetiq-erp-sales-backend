@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from customer.serializers import *
-from decimal import Decimal
 from django.shortcuts import get_object_or_404, get_list_or_404
 from misc.human_resources.models import Employees
 
@@ -11,7 +10,7 @@ class StatementItemSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    product = serializers.SerializerMethodField()
+    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
 
     class Meta:
         model = StatementItem
@@ -23,16 +22,20 @@ class StatementItemSerializer(serializers.ModelSerializer):
         )
         return super().create(validated_data)
 
-    def get_product(self, obj):
-        return {
-            "product_id": obj.product.product_id,
-            "product_name": obj.product.product_name,
-            "description": obj.product.description,
-            "selling_price": obj.product.selling_price,
-            "stock_level": obj.product.stock_level,
-            "warranty_period": obj.product.warranty_period,
-            "policy_id": obj.product.policy_id,
-        }
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.product:
+            product = get_object_or_404(Products, pk=instance.product.product_id)
+            data["product"] = {
+                "product_id": product.product_id,
+                "product_name": product.product_name,
+                "description": product.description,
+                "policy_id": product.policy_id,
+                "selling_price": product.selling_price,
+                "stock_level": product.stock_level,
+                "warranty_period": product.warranty_period,
+            }
+        return data
 
 
 class StatementSerializer(serializers.ModelSerializer):
@@ -43,15 +46,6 @@ class StatementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Statement
         fields = "__all__"
-
-    def to_internal_value(self, data):
-        items = self.context.get("items", [])
-        total = Decimal(0)
-        for item in items:
-            total += item["quantity"] * item["unit_price"]
-
-        data["total_amount"] = total
-        return super().to_internal_value(data)
 
     def get_items(self, obj):
         items = StatementItem.objects.filter(statement=obj)

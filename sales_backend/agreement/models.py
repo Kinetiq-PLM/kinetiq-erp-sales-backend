@@ -12,7 +12,7 @@ class BlanketAgreement(models.Model):
         ORAL = "Oral"
         ELECTRONIC = "Electronic"
 
-    agreement_id = models.CharField(primary_key=True, max_length=255)
+    agreement_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
@@ -22,4 +22,5 @@ class BlanketAgreement(models.Model):
     agreement_method = models.TextField(choices=Method)
 
     class Meta:
+        managed = False
         db_table = '"sales"."blanket_agreement"'

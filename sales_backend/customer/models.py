@@ -15,7 +15,7 @@ class Customer(models.Model):
         ACTIVE = "Active"
         INACTIVE = "Inactive"
 
-    customer_id = models.CharField(primary_key=True, max_length=255)
+    customer_id = models.CharField(primary_key=True, max_length=255, blank=True)
     partner = models.ForeignKey(
         to=BusinessPartnerMaster, on_delete=models.SET_NULL, blank=True, null=True
     )
@@ -35,4 +35,5 @@ class Customer(models.Model):
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
+        managed = False
         db_table = '"sales"."customers"'

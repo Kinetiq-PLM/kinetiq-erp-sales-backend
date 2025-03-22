@@ -16,7 +16,7 @@ class Order(models.Model):
         OPEN = "Open"
         D3_SAMPLE = "D3 Sample"
 
-    order_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(primary_key=True, max_length=255, blank=True)
     quotation = models.ForeignKey(
         to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -33,4 +33,5 @@ class Order(models.Model):
     order_type = models.TextField(choices=Type)
 
     class Meta:
+        managed = False
         db_table = '"sales"."orders"'
