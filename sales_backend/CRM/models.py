@@ -99,7 +99,6 @@ class Opportunities(models.Model):
     status = models.TextField(choices=Status)
     description = models.TextField(blank=True, null=True)
     reason_lost = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
         db_table = '"sales"."opportunities"'

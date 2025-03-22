@@ -4,6 +4,14 @@ from order.serializers import *
 from django.shortcuts import get_object_or_404
 
 
+class PaymentsSerializer(serializers.ModelSerializer):
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+
+    class Meta:
+        model = Payments
+        fields = "__all__"
+
+
 class SalesInvoicesSerializer(serializers.ModelSerializer):
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
 
@@ -17,3 +25,9 @@ class SalesInvoicesSerializer(serializers.ModelSerializer):
             get_object_or_404(Order, pk=instance.order.order_id)
         ).data
         return data
+
+
+class ReceiptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receipt
+        fields = "__all__"

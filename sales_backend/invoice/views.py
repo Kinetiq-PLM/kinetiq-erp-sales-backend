@@ -38,3 +38,13 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         return Response(
             SalesInvoicesSerializer(invoice).data, status=status.HTTP_201_CREATED
         )
+
+
+class PaymentsViewSet(viewsets.ModelViewSet):
+    queryset = Payments.objects.all()
+    serializer_class = PaymentsSerializer
+
+
+class ReceiptViewSet(viewsets.ModelViewSet):
+    queryset = Receipt.objects.all()
+    serializer_class = ReceiptSerializer
