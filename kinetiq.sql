@@ -6052,6 +6052,14 @@ COPY admin.audit_log (log_id, user_id, action, "timestamp", ip_address, suspicio
 --
 
 COPY admin.business_partner_master (partner_id, employee_id, partner_name, category, contact_info) FROM stdin;
+ADMIN-PARTNER-2025-3c2564	\N	Robert Santiago	Employee	09187654321
+ADMIN-PARTNER-2025-afee8b	HR-EMP-2025-c8223f	James Marticio	Employee	09123456789
+ADMIN-PARTNER-2025-95223d	HR-EMP-2025-c8223f	Kate Tan	Employee	09165824756
+ADMIN-PARTNER-2025-adcdfc	\N	Maria Lopez	Employee	09154321876
+ADMIN-PARTNER-2025-ead71e	\N	BioFlex Composites	Vendor	(312) 867-5309
+ADMIN-PARTNER-2025-036cb7	\N	BioGrade Metals	Vendor	(415) 293-8274
+ADMIN-PARTNER-2025-37f764	\N	Ethan Caldwell	Customer	ethan.caldwell@google.com
+ADMIN-PARTNER-2025-f3081d	\N	Sophia Ramirez	Customer	sophia.ramirez@google.com
 \.
 
 
@@ -6190,6 +6198,16 @@ COPY distribution.logistics_approval_request (approval_request_id, request_date,
 --
 
 COPY distribution.operational_cost (operational_cost_id, additional_cost, total_operational_cost, shipping_cost_id, packing_cost_id) FROM stdin;
+DIS-OS-2025-5b37de	50.00	350.00	1	1
+DIS-OS-2025-48963a	75.00	650.00	2	2
+DIS-OS-2025-ad8e07	60.00	400.00	3	3
+DIS-OS-2025-40855e	100.00	417.00	4	4
+DIS-OS-2025-3de59c	0.00	175.00	5	5
+DIS-OS-2025-30d8db	65.00	427.00	6	6
+DIS-OS-2025-1bc391	80.00	669.00	7	7
+DIS-OS-2025-129b85	45.00	367.00	8	8
+DIS-OS-2025-9f398e	110.00	464.00	9	9
+DIS-OS-2025-30ba25	0.00	210.00	10	10
 \.
 
 
@@ -6238,6 +6256,7 @@ COPY distribution.rework_order (rework_id, assigned_to, rework_status, rework_da
 --
 
 COPY distribution.shipment_details (shipment_id, carrier_id, shipment_date, shipment_status, tracking_number, estimated_arrival_date, actual_arrival_date, failed_shipment_id, packing_list_id, shipping_cost_id) FROM stdin;
+a	1	2025-03-22	Delivered	123456	2025-03-22 14:00:00	2025-03-22 08:12:36	\N	1	1
 \.
 
 
@@ -6733,6 +6752,14 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 82	Can change statement item	7	change_statementitem
 83	Can delete statement item	7	delete_statementitem
 84	Can view statement item	7	view_statementitem
+85	Can add payments	25	add_payments
+86	Can change payments	25	change_payments
+87	Can delete payments	25	delete_payments
+88	Can view payments	25	view_payments
+89	Can add receipt	26	add_receipt
+90	Can change receipt	26	change_receipt
+91	Can delete receipt	26	delete_receipt
+92	Can view receipt	26	view_receipt
 \.
 
 
@@ -6741,7 +6768,7 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
-1	pbkdf2_sha256$870000$1SUH5uhi1c8c1TQ3n0wr7u$hqwmH9tEAsqzGlFyXcrHB9tsqIxMnwfbFu9d2uZpXiI=	2025-03-22 01:34:15.062936+08	t	admin				t	t	2025-03-22 01:31:07.652069+08
+1	pbkdf2_sha256$870000$1SUH5uhi1c8c1TQ3n0wr7u$hqwmH9tEAsqzGlFyXcrHB9tsqIxMnwfbFu9d2uZpXiI=	2025-03-22 15:43:24.696383+08	t	admin				t	t	2025-03-22 01:31:07.652069+08
 \.
 
 
@@ -6828,6 +6855,160 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 60	2025-03-22 01:47:31.578685+08	SALES-ORD-2025-26f2f7	Order object (SALES-ORD-2025-26f2f7)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
 61	2025-03-22 01:47:36.907181+08	SALES-ORD-2025-1722d3	Order object (SALES-ORD-2025-1722d3)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
 62	2025-03-22 01:47:42.181822+08	SALES-ORD-2025-04a32f	Order object (SALES-ORD-2025-04a32f)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
+63	2025-03-22 15:00:39.936904+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+64	2025-03-22 15:01:27.447997+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+65	2025-03-22 15:01:45.933569+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+66	2025-03-22 15:02:02.426398+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+67	2025-03-22 15:02:26.846213+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+68	2025-03-22 15:02:46.930036+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+69	2025-03-22 15:03:08.81314+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+70	2025-03-22 15:03:31.432569+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+71	2025-03-22 15:03:58.330267+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+72	2025-03-22 15:04:19.032578+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+73	2025-03-22 15:28:42.570503+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+74	2025-03-22 15:29:19.668156+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+75	2025-03-22 15:29:54.986661+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+76	2025-03-22 15:30:21.31509+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+77	2025-03-22 15:30:51.055823+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+78	2025-03-22 15:31:31.541901+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+79	2025-03-22 15:32:00.684792+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+80	2025-03-22 15:32:29.396795+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+81	2025-03-22 15:32:53.120303+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+82	2025-03-22 15:33:18.788552+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
+83	2025-03-22 15:34:15.83503+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+84	2025-03-22 15:34:37.668223+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+85	2025-03-22 15:34:59.580035+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+86	2025-03-22 15:35:22.841044+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+87	2025-03-22 15:35:49.097813+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+88	2025-03-22 15:36:14.086945+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+89	2025-03-22 15:36:38.983131+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+90	2025-03-22 15:36:59.474231+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+91	2025-03-22 15:37:18.749874+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+92	2025-03-22 15:37:36.746605+08	a	Leads object (a)	1	[{"added": {}}]	11	1
+93	2025-03-22 15:37:55.246886+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+94	2025-03-22 15:38:16.53007+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+95	2025-03-22 15:38:35.156533+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+96	2025-03-22 15:39:12.811588+08	SALES-CONTACT-2025-05ef71	CampaignContacts object (SALES-CONTACT-2025-05ef71)	2	[]	12	1
+97	2025-03-22 15:39:25.44467+08	SALES-CONTACT-2025-8a5985	CampaignContacts object (SALES-CONTACT-2025-8a5985)	2	[{"changed": {"fields": ["Campaign", "Response status"]}}]	12	1
+98	2025-03-22 15:39:35.650302+08	SALES-CONTACT-2025-cee938	CampaignContacts object (SALES-CONTACT-2025-cee938)	2	[{"changed": {"fields": ["Lead", "Response status"]}}]	12	1
+99	2025-03-22 15:39:50.263493+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+100	2025-03-22 15:40:02.917705+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+101	2025-03-22 15:40:27.70812+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+102	2025-03-22 15:40:40.090387+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+103	2025-03-22 15:40:54.726247+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+104	2025-03-22 15:41:04.651334+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+105	2025-03-22 15:41:10.938705+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
+106	2025-03-22 15:46:46.638925+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+107	2025-03-22 15:47:32.061463+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+108	2025-03-22 15:47:48.431442+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+109	2025-03-22 15:48:16.362988+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+110	2025-03-22 15:48:22.178102+08	ADMIN-PARTNER-2025-3c2564	BusinessPartnerMaster object (ADMIN-PARTNER-2025-3c2564)	2	[{"changed": {"fields": ["Category"]}}]	23	1
+111	2025-03-22 15:48:24.913037+08	ADMIN-PARTNER-2025-3c2564	BusinessPartnerMaster object (ADMIN-PARTNER-2025-3c2564)	2	[]	23	1
+112	2025-03-22 15:48:30.224645+08	ADMIN-PARTNER-2025-95223d	BusinessPartnerMaster object (ADMIN-PARTNER-2025-95223d)	2	[{"changed": {"fields": ["Category"]}}]	23	1
+113	2025-03-22 15:48:35.000371+08	ADMIN-PARTNER-2025-adcdfc	BusinessPartnerMaster object (ADMIN-PARTNER-2025-adcdfc)	2	[{"changed": {"fields": ["Category"]}}]	23	1
+114	2025-03-22 15:48:41.656695+08	ADMIN-PARTNER-2025-afee8b	BusinessPartnerMaster object (ADMIN-PARTNER-2025-afee8b)	2	[{"changed": {"fields": ["Category"]}}]	23	1
+115	2025-03-22 15:48:44.719013+08	ADMIN-PARTNER-2025-95223d	BusinessPartnerMaster object (ADMIN-PARTNER-2025-95223d)	2	[]	23	1
+116	2025-03-22 15:48:48.427452+08	ADMIN-PARTNER-2025-adcdfc	BusinessPartnerMaster object (ADMIN-PARTNER-2025-adcdfc)	2	[]	23	1
+117	2025-03-22 15:49:10.664392+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+118	2025-03-22 15:49:26.288765+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+119	2025-03-22 15:49:41.620995+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+120	2025-03-22 15:49:56.969232+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
+121	2025-03-22 15:50:58.404157+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+122	2025-03-22 15:51:34.233174+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+123	2025-03-22 15:52:00.741656+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+124	2025-03-22 15:52:39.303759+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+125	2025-03-22 15:53:34.45473+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+126	2025-03-22 15:54:34.903816+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+127	2025-03-22 15:55:15.771363+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+128	2025-03-22 15:55:46.76954+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+129	2025-03-22 15:56:21.556113+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+130	2025-03-22 15:56:51.057739+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
+131	2025-03-22 15:57:23.825559+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+132	2025-03-22 15:57:47.251512+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+133	2025-03-22 15:58:06.620696+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+134	2025-03-22 15:58:35.278004+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+135	2025-03-22 15:58:59.004711+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+136	2025-03-22 15:59:26.677603+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+137	2025-03-22 15:59:50.76351+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+138	2025-03-22 16:00:09.030421+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+139	2025-03-22 16:00:33.671249+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+140	2025-03-22 16:00:54.532733+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
+141	2025-03-22 16:01:09.080757+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+142	2025-03-22 16:01:18.532963+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+143	2025-03-22 16:01:24.427953+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+144	2025-03-22 16:01:33.342922+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+145	2025-03-22 16:01:41.008414+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+146	2025-03-22 16:01:49.525054+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+147	2025-03-22 16:01:57.02158+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+148	2025-03-22 16:02:06.363152+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+149	2025-03-22 16:02:16.208987+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+150	2025-03-22 16:02:26.564357+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
+151	2025-03-22 16:09:18.768739+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+152	2025-03-22 16:09:41.184672+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+153	2025-03-22 16:09:52.960073+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+154	2025-03-22 16:10:05.054675+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+155	2025-03-22 16:10:12.950495+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+156	2025-03-22 16:10:20.554863+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+157	2025-03-22 16:10:32.019498+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+158	2025-03-22 16:10:42.51072+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+159	2025-03-22 16:10:52.151296+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+160	2025-03-22 16:11:04.959048+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
+161	2025-03-22 16:12:46.546368+08	a	ShipmentDetails object (a)	1	[{"added": {}}]	28	1
+162	2025-03-22 16:13:57.995986+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+163	2025-03-22 16:14:19.741606+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+164	2025-03-22 16:14:49.061464+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+165	2025-03-22 16:15:20.043458+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+166	2025-03-22 16:15:53.359145+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+167	2025-03-22 16:16:37.496506+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+168	2025-03-22 16:17:09.154923+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+169	2025-03-22 16:17:46.034617+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+170	2025-03-22 16:18:18.27518+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+171	2025-03-22 16:18:45.29849+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
+172	2025-03-22 16:19:42.952074+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+173	2025-03-22 16:20:18.029828+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+174	2025-03-22 16:20:44.239733+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+175	2025-03-22 16:21:13.303567+08	SALES-ORD-2025-dc2b39	Order object (SALES-ORD-2025-dc2b39)	2	[]	19	1
+176	2025-03-22 16:21:20.424663+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+177	2025-03-22 16:21:59.378386+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+178	2025-03-22 16:22:22.418202+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+179	2025-03-22 16:22:39.337115+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+180	2025-03-22 16:23:04.986826+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+181	2025-03-22 16:23:24.249591+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
+182	2025-03-22 16:23:44.674099+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+183	2025-03-22 16:23:53.351921+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+184	2025-03-22 16:24:07.958499+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+185	2025-03-22 16:24:17.589669+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+186	2025-03-22 16:24:38.575038+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+187	2025-03-22 16:24:51.631785+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+188	2025-03-22 16:25:01.870759+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+189	2025-03-22 16:25:12.332845+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+190	2025-03-22 16:25:20.754386+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+191	2025-03-22 16:25:37.32174+08	a	Payments object (a)	1	[{"added": {}}]	25	1
+192	2025-03-22 16:26:49.523407+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+193	2025-03-22 16:27:15.079646+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+194	2025-03-22 16:27:33.545431+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+195	2025-03-22 16:27:54.050112+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+196	2025-03-22 16:28:13.622545+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+197	2025-03-22 16:28:33.747293+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+198	2025-03-22 16:28:54.948723+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+199	2025-03-22 16:29:12.592097+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+200	2025-03-22 16:29:31.392894+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+201	2025-03-22 16:30:42.369503+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
+202	2025-03-22 17:13:09.37104+08	SALES-STM-2025-ee064d	Statement object (SALES-STM-2025-ee064d)	3		21	1
+203	2025-03-22 17:21:42.352277+08	SALES-STM-2025-ffb6c1	Statement object (SALES-STM-2025-ffb6c1)	3		21	1
+204	2025-03-22 17:22:08.864027+08	SALES-STM-2025-e2aaf8	Statement object (SALES-STM-2025-e2aaf8)	3		21	1
+205	2025-03-22 17:28:10.989724+08	SALES-STM-2025-ac5694	Statement object (SALES-STM-2025-ac5694)	3		21	1
+206	2025-03-22 17:54:05.216455+08	SALES-STM-2025-3ea420	Statement object (SALES-STM-2025-3ea420)	3		21	1
+207	2025-03-22 17:55:29.812749+08	SALES-STM-2025-e4c672	Statement object (SALES-STM-2025-e4c672)	3		21	1
+208	2025-03-22 17:55:52.458471+08	SALES-STM-2025-baa13c	Statement object (SALES-STM-2025-baa13c)	3		21	1
+209	2025-03-22 17:59:20.9113+08	SALES-STM-2025-200dc3	Statement object (SALES-STM-2025-200dc3)	3		21	1
+210	2025-03-22 18:22:40.652393+08	SALES-STM-2025-3453ca	Statement object (SALES-STM-2025-3453ca)	3		21	1
+211	2025-03-22 18:23:21.681491+08	SALES-STM-2025-94f5f8	Statement object (SALES-STM-2025-94f5f8)	3		21	1
+212	2025-03-22 18:34:22.271672+08	SALES-STM-2025-9097bb	Statement object (SALES-STM-2025-9097bb)	3		21	1
+213	2025-03-22 18:34:27.177563+08	SALES-STM-2025-64031e	Statement object (SALES-STM-2025-64031e)	3		21	1
+214	2025-03-22 18:41:17.933647+08	SALES-STM-2025-af4bfb	Statement object (SALES-STM-2025-af4bfb)	3		21	1
+215	2025-03-22 18:41:52.71887+08	SALES-STM-2025-151935	Statement object (SALES-STM-2025-151935)	3		21	1
+216	2025-03-22 18:58:29.067131+08	SALES-STM-2025-4e095d	Statement object (SALES-STM-2025-4e095d)	3		21	1
 \.
 
 
@@ -6858,6 +7039,12 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 20	quotation	quotation
 21	statement	statement
 22	misc	products
+23	misc	businesspartnermaster
+24	misc	employees
+25	invoice	payments
+26	invoice	receipt
+27	misc	operationalcost
+28	misc	shipmentdetails
 \.
 
 
@@ -6903,6 +7090,10 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 35	CRM	0004_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 01:36:12.183561+08
 36	costing	0004_rename_project_resources_id_salescosting_project_resources_and_more	2025-03-22 01:36:23.473259+08
 37	invoice	0004_alter_salesinvoices_invoice_date	2025-03-22 01:36:23.478251+08
+38	CRM	0005_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 15:26:32.03084+08
+39	costing	0005_alter_salescosting_created_at	2025-03-22 15:26:32.037779+08
+40	invoice	0005_payments_alter_salesinvoices_invoice_date_and_more	2025-03-22 15:26:32.038524+08
+41	delivery	0002_auto_20250322_1607	2025-03-22 16:07:43.309387+08
 \.
 
 
@@ -6912,6 +7103,7 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 
 COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
 19llfvc2kz55n2kkyiyppamjj7087bqt	.eJxVjDkOwjAUBe_iGll24iWhpOcM1l_8SQDZUpxUiLtDpBTQvpl5L5VgW6e0tbykmdVZWXX63RDokcsO-A7lVjXVsi4z6l3RB236Wjk_L4f7dzBBm751h0Io1nRMXT94CYZpQOrHmK0LyCgmOsgjOLGEBsXH2EvwzN6MA6J6fwALpTjr:1tvgG7:SEyVpXPbAs_XyhOX-0zMoHHOfHulOq6VF9mOweNvGBw	2025-04-05 01:34:15.06466+08
+jpujl1a12xo78zwl9fihjcwm0hbno4z2	.eJxVjDkOwjAUBe_iGll24iWhpOcM1l_8SQDZUpxUiLtDpBTQvpl5L5VgW6e0tbykmdVZWXX63RDokcsO-A7lVjXVsi4z6l3RB236Wjk_L4f7dzBBm751h0Io1nRMXT94CYZpQOrHmK0LyCgmOsgjOLGEBsXH2EvwzN6MA6J6fwALpTjr:1tvtVs:66gY7PTXYpUaFaIBXlKoVl_vJVNSY7TiWVqQqMuuVtw	2025-04-05 15:43:24.699377+08
 \.
 
 
@@ -7000,6 +7192,16 @@ COPY sales.blanket_agreement (agreement_id, statement_id, start_date, end_date, 
 --
 
 COPY sales.campaign_contacts (contact_id, lead_id, campaign_id, response_status) FROM stdin;
+SALES-CONTACT-2025-05ef71	SALES-LEAD-2025-f1283f	SALES-CMPGN-2025-69a6c1	Interested
+SALES-CONTACT-2025-8a5985	SALES-LEAD-2025-3d8bfa	SALES-CMPGN-2025-69a6c1	Not Interested
+SALES-CONTACT-2025-cee938	SALES-LEAD-2025-f02fda	SALES-CMPGN-2025-9cf2f8	Pending
+SALES-CONTACT-2025-6ee3b7	SALES-LEAD-2025-f1283f	SALES-CMPGN-2025-4c5dc7	Not Interested
+SALES-CONTACT-2025-1bd47c	SALES-LEAD-2025-1415f3	SALES-CMPGN-2025-dd1c17	Not Interested
+SALES-CONTACT-2025-e0c11c	SALES-LEAD-2025-08a7b4	SALES-CMPGN-2025-576de3	Interested
+SALES-CONTACT-2025-e901eb	SALES-LEAD-2025-86b33c	SALES-CMPGN-2025-f369d7	Pending
+SALES-CONTACT-2025-f24222	SALES-LEAD-2025-2e0761	SALES-CMPGN-2025-a4143a	Not Interested
+SALES-CONTACT-2025-190e01	SALES-LEAD-2025-f4c5ba	SALES-CMPGN-2025-2f6b81	Interested
+SALES-CONTACT-2025-773ffa	SALES-LEAD-2025-816089	SALES-CMPGN-2025-ed1260	Pending
 \.
 
 
@@ -7008,6 +7210,16 @@ COPY sales.campaign_contacts (contact_id, lead_id, campaign_id, response_status)
 --
 
 COPY sales.campaigns (campaign_id, campaign_name, type, start_date, end_date, status) FROM stdin;
+SALES-CMPGN-2025-69a6c1	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59	Planned
+SALES-CMPGN-2025-9cf2f8	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-15 23:59:59	Active
+SALES-CMPGN-2025-4c5dc7	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
+SALES-CMPGN-2025-dd1c17	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59	Planned
+SALES-CMPGN-2025-576de3	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
+SALES-CMPGN-2025-f369d7	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
+SALES-CMPGN-2025-a4143a	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59	Completed
+SALES-CMPGN-2025-2f6b81	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
+SALES-CMPGN-2025-ed1260	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Completed
+SALES-CMPGN-2025-c48d93	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59	Planned
 \.
 
 
@@ -7034,6 +7246,16 @@ SALES-CUST-2025-2d4994	\N	\N	Cebu Doctors University Hospital	contact@cebudoctor
 --
 
 COPY sales.leads (lead_id, salesrep_id, lead_name, lead_email, lead_phonenum, source, status) FROM stdin;
+SALES-LEAD-2025-f1283f	HR-EMP-2025-0bf227	Dr. Jose Martinez	jose.martinez@healthclinic.com	+63-917-555-1001	Referral	Contacted
+SALES-LEAD-2025-3d8bfa	HR-EMP-2025-bf22fd	Maria Santos	maria.santos@meditechph.com	+63-917-555-1002	Website	Qualified
+SALES-LEAD-2025-f02fda	HR-EMP-2025-c8223f	Carlos Dela Cruz	carlos.dc@lifelinediag.com	+63-917-555-1003	Cold Call	New
+SALES-LEAD-2025-906e99	HR-EMP-2025-0bf227	Anna Reyes	anna.reyes@biopharmph.com	+63-917-555-1004	Email	Converted
+SALES-LEAD-2025-1415f3	HR-EMP-2025-bf22fd	Rafael Gonzales	rafael.gonzales@pharmasolutions.com	+63-917-555-1005	Referral	Lost
+SALES-LEAD-2025-08a7b4	HR-EMP-2025-c8223f	Isabel Flores	isabel.flores@mediserveph.com	+63-917-555-1006	Website	Qualified
+SALES-LEAD-2025-86b33c	HR-EMP-2025-0bf227	Michael Torres	michael.torres@healthplus.com.ph	+63-917-555-1007	Cold Call	Contacted
+SALES-LEAD-2025-2e0761	HR-EMP-2025-bf22fd	Elena Cruz	elena.cruz@philmedpharma.com	63-917-555-1008	Email	Converted
+SALES-LEAD-2025-f4c5ba	HR-EMP-2025-c8223f	Luis Navarro	luis.navarro@vitalcareph.com	+63-917-555-1009	Referral	Qualified
+SALES-LEAD-2025-816089	HR-EMP-2025-0bf227	Patricia Mendoza	patricia.mendoza@pediacareph.com	+63-917-555-1010	Website	New
 \.
 
 
@@ -7042,6 +7264,16 @@ COPY sales.leads (lead_id, salesrep_id, lead_name, lead_email, lead_phonenum, so
 --
 
 COPY sales.opportunities (opportunity_id, customer_id, partner_id, salesrep_id, estimated_value, expected_closed_date, stage, status, description, reason_lost) FROM stdin;
+SALES-OPP-2025-d1ce3b	SALES-CUST-2025-e1cdff	ADMIN-PARTNER-2025-3c2564	HR-EMP-2025-0bf227	250000.00	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	
+SALES-OPP-2025-78fc41	SALES-CUST-2025-d39ed9	ADMIN-PARTNER-2025-afee8b	HR-EMP-2025-0bf227	150000.00	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	
+SALES-OPP-2025-cf6eee	SALES-CUST-2025-ad49b6	ADMIN-PARTNER-2025-95223d	HR-EMP-2025-bf22fd	10000.00	2025-03-30	Closed	Won	Sold 500 surgical gloves.	
+SALES-OPP-2025-9c439a	SALES-CUST-2025-5e9b82	ADMIN-PARTNER-2025-adcdfc	HR-EMP-2025-0bf227	75000.00	2025-06-01	Prospecting	Open	New client interested in defibrillators.	
+SALES-OPP-2025-ecf9df	SALES-CUST-2025-8a8cdd	ADMIN-PARTNER-2025-ead71e	HR-EMP-2025-c8223f	500000.00	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.
+SALES-OPP-2025-c001fe	SALES-CUST-2025-dd5896	ADMIN-PARTNER-2025-036cb7	HR-EMP-2025-c8223f	20000.00	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	
+SALES-OPP-2025-2c1db6	SALES-CUST-2025-189efd	ADMIN-PARTNER-2025-37f764	HR-EMP-2025-bf22fd	8000.00	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.
+SALES-OPP-2025-f119f5	SALES-CUST-2025-21c090	ADMIN-PARTNER-2025-f3081d	HR-EMP-2025-0bf227	95000.00	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	
+SALES-OPP-2025-49ece9	SALES-CUST-2025-e482c1	ADMIN-PARTNER-2025-3c2564	HR-EMP-2025-bf22fd	12000.00	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	
+SALES-OPP-2025-5e32c8	SALES-CUST-2025-2d4994	ADMIN-PARTNER-2025-ead71e	HR-EMP-2025-0bf227	180000.00	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	
 \.
 
 
@@ -7053,13 +7285,13 @@ COPY sales.orders (order_id, statement_id, quotation_id, rework_id, goods_issue_
 SALES-ORD-2025-ee1ff2	SALES-STM-2025-543ad0	SALES-QT-2025-640e87	\N	\N	2025-03-21 20:03:37.472554	Pending	437073.00	Scheduled
 SALES-ORD-2025-e150d2	SALES-STM-2025-e0f54f	SALES-QT-2025-6ab1ab	\N	\N	2025-03-21 20:03:08.777183	Pending	3544677.76	Direct
 SALES-ORD-2025-e0deca	SALES-STM-2025-95c41b	SALES-QT-2025-9f9e0a	\N	\N	2025-03-21 20:05:45.01596	Pending	244608.00	Direct
-SALES-ORD-2025-dc2b39	SALES-STM-2025-357582	SALES-QT-2025-a23d37	\N	\N	2025-03-21 20:04:05.814368	Pending	135266.04	Direct
 SALES-ORD-2025-8a5f44	SALES-STM-2025-a51eff	SALES-QT-2025-c45dbc	\N	\N	2025-03-21 20:04:45.987747	Pending	290688.65	Direct
 SALES-ORD-2025-889575	SALES-STM-2025-5c03b9	SALES-QT-2025-cd75f0	\N	\N	2025-03-21 20:07:26.988051	Processed	404832.65	Direct
 SALES-ORD-2025-5ae409	SALES-STM-2025-001bc5	SALES-QT-2025-d3f461	\N	\N	2025-03-21 20:05:16.729245	Pending	333180.56	Scheduled
 SALES-ORD-2025-26f2f7	SALES-STM-2025-d979d6	SALES-QT-2025-d57143	\N	\N	2025-03-21 20:06:19.062515	Processed	12265.34	Direct
 SALES-ORD-2025-1722d3	SALES-STM-2025-52cff7	SALES-QT-2025-d5d1e7	\N	\N	2025-03-21 20:06:56.285375	Pending	234913.76	Direct
 SALES-ORD-2025-04a32f	SALES-STM-2025-54d93c	SALES-QT-2025-f1469f	\N	\N	2025-03-21 20:02:12.32394	Pending	77984.53	Direct
+SALES-ORD-2025-dc2b39	SALES-STM-2025-357582	SALES-QT-2025-a23d37	\N	\N	2025-03-21 20:04:05.814368	Pending	135266.04	Direct
 \.
 
 
@@ -7068,6 +7300,16 @@ SALES-ORD-2025-04a32f	SALES-STM-2025-54d93c	SALES-QT-2025-f1469f	\N	\N	2025-03-2
 --
 
 COPY sales.payments (payment_id, order_id, payment_method, payment_status, payment_date) FROM stdin;
+SALES-PAY-2025-769113	SALES-ORD-2025-ee1ff2	Credit Card	Completed	2025-03-22 08:23:43
+SALES-PAY-2025-ce174d	SALES-ORD-2025-e150d2	Bank Transfer	Pending	2025-03-22 08:23:52
+SALES-PAY-2025-df2c35	SALES-ORD-2025-e0deca	Cash	Completed	2025-03-22 08:24:07
+SALES-PAY-2025-531409	SALES-ORD-2025-8a5f44	Credit Card	Failed	2025-03-22 08:24:16
+SALES-PAY-2025-faaefe	SALES-ORD-2025-889575	Bank Transfer	Completed	2025-03-22 08:24:37
+SALES-PAY-2025-baa287	SALES-ORD-2025-5ae409	Cash	Pending	2025-03-22 08:24:50
+SALES-PAY-2025-444af9	SALES-ORD-2025-26f2f7	Credit Card	Completed	2025-03-22 08:25:01
+SALES-PAY-2025-c52f69	SALES-ORD-2025-1722d3	Bank Transfer	Failed	2025-03-22 08:25:11
+SALES-PAY-2025-3899d1	SALES-ORD-2025-04a32f	Cash	Completed	2025-03-22 08:25:19
+SALES-PAY-2025-6323fd	SALES-ORD-2025-dc2b39	Credit Card	Pending	2025-03-22 08:25:32
 \.
 
 
@@ -7086,6 +7328,7 @@ SALES-QT-2025-d3f461	SALES-STM-2025-001bc5	\N	2025-03-21 19:55:14.223794	Pending
 SALES-QT-2025-d57143	SALES-STM-2025-d979d6	\N	2025-03-21 19:55:41.775823	Pending
 SALES-QT-2025-d5d1e7	SALES-STM-2025-52cff7	\N	2025-03-21 19:54:49.552681	Pending
 SALES-QT-2025-f1469f	SALES-STM-2025-54d93c	\N	2025-03-21 19:55:06.977934	Pending
+SALES-QT-2025-dde3e4	SALES-STM-2025-5fc4f3	\N	2025-03-22 10:58:35.654454	Pending
 \.
 
 
@@ -7094,6 +7337,16 @@ SALES-QT-2025-f1469f	SALES-STM-2025-54d93c	\N	2025-03-21 19:55:06.977934	Pending
 --
 
 COPY sales.receipt (receipt_id, shipping_id, customer_id, payments_id, policy_id, date_signed, signed_docu, created_at) FROM stdin;
+SALES-REC-2025-3b7536	SALES-SHIP-2025-e5786a	SALES-CUST-2025-e1cdff	SALES-PAY-2025-769113	1	2025-03-22	receipt_1.pdf	2025-03-18 08:26:48
+SALES-REC-2025-5fcf88	SALES-SHIP-2025-32000a	SALES-CUST-2025-d39ed9	SALES-PAY-2025-ce174d	2	2025-03-19	receipt_2.pdf	2025-03-22 08:27:13
+SALES-REC-2025-cdbbfa	SALES-SHIP-2025-6e91d8	SALES-CUST-2025-ad49b6	SALES-PAY-2025-df2c35	a	2025-03-20	receipt_3.pdf	2025-03-22 08:27:26
+SALES-REC-2025-03f221	SALES-SHIP-2025-c34d24	SALES-CUST-2025-5e9b82	SALES-PAY-2025-531409	4	2025-03-21	receipt_4.pdf	2025-03-22 08:27:53
+SALES-REC-2025-b63949	SALES-SHIP-2025-5a4857	SALES-CUST-2025-8a8cdd	SALES-PAY-2025-faaefe	5	2025-03-22	receipt_5.pdf	2025-03-22 08:28:12
+SALES-REC-2025-e0d9d9	SALES-SHIP-2025-ac591e	SALES-CUST-2025-dd5896	SALES-PAY-2025-baa287	6	2025-03-23	receipt_5.pdf	2025-03-22 08:28:32
+SALES-REC-2025-0a319a	SALES-SHIP-2025-8b5148	SALES-CUST-2025-189efd	SALES-PAY-2025-444af9	7	2025-03-24	receipt_7.pdf	2025-03-22 08:28:54
+SALES-REC-2025-5cf577	SALES-SHIP-2025-1699a2	SALES-CUST-2025-21c090	SALES-PAY-2025-c52f69	8	2025-03-25	receipt_8.pdf	2025-03-22 08:29:11
+SALES-REC-2025-6abb08	SALES-SHIP-2025-185532	SALES-CUST-2025-e482c1	SALES-PAY-2025-3899d1	9	2025-03-26	receipt_9.pdf	2025-03-22 08:29:30
+SALES-REC-2025-b83b7e	SALES-SHIP-2025-b43c1d	SALES-CUST-2025-2d4994	SALES-PAY-2025-6323fd	10	2025-03-27	receipt_10.pdf	2025-03-22 08:30:40
 \.
 
 
@@ -7118,6 +7371,25 @@ COPY sales.sales_costing (sales_costing_id, non_project_costing_id, project_reso
 --
 
 COPY sales.sales_invoices (invoice_id, order_id, invoice_date, total_amount, invoice_status, payment_status, due_date) FROM stdin;
+SALES-INV-2025-ff0877	SALES-ORD-2025-ee1ff2	2025-03-22 14:59:44	437073.00	Pending	Pending	2025-04-01
+SALES-INV-2025-7d6ccf	SALES-ORD-2025-e150d2	2025-03-16 14:59:44	3544677.76	Pending	Pending	2025-04-17
+SALES-INV-2025-1dc625	SALES-ORD-2025-e0deca	2025-03-22 14:59:44	244608.00	Pending	Pending	2025-03-30
+SALES-INV-2025-28f8b5	SALES-ORD-2025-dc2b39	2025-03-22 14:59:44	135266.04	Pending	Pending	2025-03-23
+SALES-INV-2025-bce93a	SALES-ORD-2025-8a5f44	2025-03-22 14:59:44	290688.65	Pending	Pending	2025-03-24
+SALES-INV-2025-2b8f41	SALES-ORD-2025-889575	2025-03-22 14:59:44	404832.65	Paid	Completed	2025-03-23
+SALES-INV-2025-805837	SALES-ORD-2025-5ae409	2025-03-22 14:59:44	333180.56	Pending	Pending	2025-03-29
+SALES-INV-2025-420b51	SALES-ORD-2025-26f2f7	2025-03-22 14:59:44	12265.34	Paid	Pending	2025-03-23
+SALES-INV-2025-62acc3	SALES-ORD-2025-1722d3	2025-03-22 14:59:44	234913.76	Pending	Pending	2025-03-24
+SALES-INV-2025-f27bbf	SALES-ORD-2025-04a32f	2025-03-22 14:59:44	77984.53	Pending	Pending	2025-03-24
+SALES-INV-2025-4cab2b	SALES-ORD-2025-ee1ff2	2025-03-22 16:06:06	437073.00	Pending	Pending	2025-04-01
+SALES-INV-2025-d7d36d	SALES-ORD-2025-e150d2	2025-03-22 16:06:06	3544677.76	Paid	Completed	2025-03-25
+SALES-INV-2025-acdf1b	SALES-ORD-2025-e0deca	2025-03-22 16:06:06	244608.00	Overdue	Pending	2025-03-28
+SALES-INV-2025-20d6ce	SALES-ORD-2025-dc2b39	2025-03-22 16:06:06	135266.04	Paid	Completed	2025-03-23
+SALES-INV-2025-90d7f2	SALES-ORD-2025-889575	2025-03-22 16:06:06	290688.65	Pending	Failed	2025-03-22
+SALES-INV-2025-8218c9	SALES-ORD-2025-5ae409	2025-03-22 16:06:06	404832.65	Paid	Completed	2025-03-23
+SALES-INV-2025-9727c6	SALES-ORD-2025-26f2f7	2025-03-22 16:06:06	12265.34	Paid	Completed	2025-03-28
+SALES-INV-2025-b060f6	SALES-ORD-2025-04a32f	2025-03-22 16:06:06	234913.76	Overdue	Pending	2025-03-21
+SALES-INV-2025-e63d35	SALES-ORD-2025-dc2b39	2025-03-22 16:06:06	77984.53	Pending	Pending	2025-03-25
 \.
 
 
@@ -7126,6 +7398,16 @@ COPY sales.sales_invoices (invoice_id, order_id, invoice_date, total_amount, inv
 --
 
 COPY sales.shipping_details (shipping_id, order_id, operational_cost_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status) FROM stdin;
+SALES-SHIP-2025-e5786a	SALES-ORD-2025-ee1ff2	DIS-OS-2025-5b37de	a	Standard	TRK1001	2025-03-22 08:13:34	2025-04-01 10:00:00	Pending
+SALES-SHIP-2025-32000a	SALES-ORD-2025-e150d2	DIS-OS-2025-48963a	a	Express	TRK1002	2025-03-22 08:14:13	2025-03-22 08:14:14	Shipped
+SALES-SHIP-2025-6e91d8	SALES-ORD-2025-e0deca	DIS-OS-2025-ad8e07	a	Overnight	TRK1003	2025-03-20 08:14:40	2025-03-21 08:14:42	Delivered
+SALES-SHIP-2025-c34d24	SALES-ORD-2025-dc2b39	DIS-OS-2025-40855e	a	Same-Day	TRK1004	2025-03-19 08:15:09	2025-03-19 14:15:13	Delivered
+SALES-SHIP-2025-5a4857	SALES-ORD-2025-8a5f44	DIS-OS-2025-3de59c	a	International	TRK1005	2025-03-22 08:15:42	2025-04-10 08:15:52	Pending
+SALES-SHIP-2025-ac591e	SALES-ORD-2025-889575	DIS-OS-2025-30d8db	a	Local	TRK1006	2025-03-22 08:16:28	2025-03-25 08:16:35	Shipped
+SALES-SHIP-2025-8b5148	SALES-ORD-2025-5ae409	DIS-OS-2025-1bc391	a	Standard	TRK1007	2025-03-22 08:16:52	2025-03-23 09:00:00	Pending
+SALES-SHIP-2025-1699a2	SALES-ORD-2025-26f2f7	DIS-OS-2025-129b85	a	Express	TRK1008	2025-03-17 08:17:31	2025-03-21 08:17:43	Delivered
+SALES-SHIP-2025-185532	SALES-ORD-2025-1722d3	DIS-OS-2025-9f398e	a	Overnight	TRK1009	2025-03-23 08:18:02	2025-03-24 08:18:10	Pending
+SALES-SHIP-2025-b43c1d	SALES-ORD-2025-04a32f	DIS-OS-2025-30ba25	a	Same-Day	TRK1010	2025-03-22 08:18:33	2025-03-22 11:18:35	Shipped
 \.
 
 
@@ -7144,6 +7426,9 @@ SALES-STM-2025-001bc5	SALES-CUST-2025-bf996e	HR-EMP-2025-74bbe0	218400.00	0.00	N
 SALES-STM-2025-d979d6	SALES-CUST-2025-856b59	HR-EMP-2025-0d2686	10951.20	0.00	Non-Project-Based	1314
 SALES-STM-2025-52cff7	SALES-CUST-2025-94a450	HR-EMP-2025-d4c668	218673.00	10000.00	Non-Project-Based	26241
 SALES-STM-2025-54d93c	SALES-CUST-2025-83a030	HR-EMP-2025-74bbe0	388243.44	30000.00	Non-Project-Based	46589
+SALES-STM-2025-633f58	SALES-CUST-2025-d39ed9	HR-EMP-2025-c8223f	80580.24	2560.00	Non-Project-Based	9670
+SALES-STM-2025-01ae9c	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	5051292.80	0.00	Non-Project-Based	496829
+SALES-STM-2025-5fc4f3	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	5051292.80	0.00	Non-Project-Based	496829
 \.
 
 
@@ -7153,6 +7438,8 @@ SALES-STM-2025-54d93c	SALES-CUST-2025-83a030	HR-EMP-2025-74bbe0	388243.44	30000.
 
 COPY sales.statement_item (statement_item_id, statement_id, sales_costing_id, product_id, item_md_id, quantity, unit_price, total_price, markup_percentage, demand_level, discount, tax_amount) FROM stdin;
 SALES-STI-2025-378a01	SALES-STM-2025-e0f54f	\N	ADMIN-PROD-2025-a83254	\N	1	10951.20	10951.20	20.00	Low	0.00	1314
+SALES-STI-2025-b81438	SALES-STM-2025-5fc4f3	\N	ADMIN-PROD-2025-a83254	\N	150	10951.20	1642680.00	20.00	Low	0.00	197122
+SALES-STI-2025-e45446	SALES-STM-2025-5fc4f3	\N	ADMIN-PROD-2025-fdabb5	\N	10	249756.00	2497560.00	20.00	Low	0.00	299707
 SALES-STI-2025-19e80b	SALES-STM-2025-543ad0	\N	ADMIN-PROD-2025-ea1ddb	\N	1	218673.00	218673.00	20.00	Low	0.00	26241
 SALES-STI-2025-217edd	SALES-STM-2025-543ad0	\N	ADMIN-PROD-2025-bb2e86	\N	1	218400.00	218400.00	20.00	Low	0.00	26208
 SALES-STI-2025-29d6a9	SALES-STM-2025-e0f54f	\N	ADMIN-PROD-2025-ac0665	\N	1	135266.04	135266.04	20.00	Low	0.00	16232
@@ -7174,6 +7461,16 @@ SALES-STI-2025-fa61e8	SALES-STM-2025-54d93c	\N	ADMIN-PROD-2025-e9ce12	\N	1	25954
 --
 
 COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, created_at) FROM stdin;
+SALES-TICKET-2025-e017e3	SALES-CUST-2025-e1cdff	HR-EMP-2025-0bf227	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-03-22 15:42:09
+SALES-TICKET-2025-45e1d1	SALES-CUST-2025-d39ed9	HR-EMP-2025-bf22fd	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-03-22 15:42:09
+SALES-TICKET-2025-81301c	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-03-22 15:42:09
+SALES-TICKET-2025-8833c0	SALES-CUST-2025-5e9b82	HR-EMP-2025-0bf227	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-03-22 15:42:09
+SALES-TICKET-2025-234095	SALES-CUST-2025-8a8cdd	HR-EMP-2025-bf22fd	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-03-22 15:42:09
+SALES-TICKET-2025-ea6204	SALES-CUST-2025-dd5896	HR-EMP-2025-c8223f	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-03-22 15:42:09
+SALES-TICKET-2025-dbd816	SALES-CUST-2025-189efd	HR-EMP-2025-0bf227	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-03-22 15:42:09
+SALES-TICKET-2025-72f8f2	SALES-CUST-2025-21c090	HR-EMP-2025-bf22fd	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly	Open	Urgent	2025-03-22 15:42:09
+SALES-TICKET-2025-f50510	SALES-CUST-2025-e482c1	HR-EMP-2025-c8223f	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-03-22 15:42:09
+SALES-TICKET-2025-6ba730	SALES-CUST-2025-2d4994	HR-EMP-2025-bf22fd	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-03-22 15:42:09
 \.
 
 
@@ -7182,6 +7479,16 @@ COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, st
 --
 
 COPY sales.ticket_convo (convo_id, ticket_id, content, created_at) FROM stdin;
+SALES-CONVO-2025-851a86	SALES-TICKET-2025-e017e3	Technician scheduled for MRI maintenance on April 5.	2025-03-22 15:42:09
+SALES-CONVO-2025-075f2c	SALES-TICKET-2025-45e1d1	Calibration tools dispatched, technician visit confirmed.	2025-03-22 15:42:09
+SALES-CONVO-2025-ebb3dd	SALES-TICKET-2025-81301c	ECG training session scheduled for March 15.	2025-03-22 15:42:09
+SALES-CONVO-2025-e39c6d	SALES-TICKET-2025-8833c0	Software update package sent, remote installation guide provided.	2025-03-22 15:42:09
+SALES-CONVO-2025-226f05	SALES-TICKET-2025-234095	Warranty repair approved, dispatching service team.	2025-03-22 15:42:09
+SALES-CONVO-2025-7f80e7	SALES-TICKET-2025-ea6204	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-03-22 15:42:09
+SALES-CONVO-2025-62eefd	SALES-TICKET-2025-dbd816	MRI relocation assistance team confirmed for March 20.	2025-03-22 15:42:09
+SALES-CONVO-2025-aa866b	SALES-TICKET-2025-72f8f2	Investigating motorized hospital bed issues, awaiting technician report.	2025-03-22 15:42:09
+SALES-CONVO-2025-220719	SALES-TICKET-2025-f50510	Battery order placed, estimated arrival March 10.	2025-03-22 15:42:09
+SALES-CONVO-2025-eb1c61	SALES-TICKET-2025-6ba730	On-site inspection scheduled for April 1, report to follow.	2025-03-22 15:42:09
 \.
 
 
@@ -7346,7 +7653,7 @@ SELECT pg_catalog.setval('public.auth_group_permissions_id_seq', 1, false);
 -- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_permission_id_seq', 84, true);
+SELECT pg_catalog.setval('public.auth_permission_id_seq', 92, true);
 
 
 --
@@ -7374,21 +7681,21 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 62, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 216, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 22, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 28, true);
 
 
 --
 -- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_migrations_id_seq', 37, true);
+SELECT pg_catalog.setval('public.django_migrations_id_seq', 41, true);
 
 
 --
