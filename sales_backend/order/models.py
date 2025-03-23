@@ -99,6 +99,3 @@ class Order(models.Model):
                     self.order_id,
                 ],
             )
-            row = cursor.fetchone()
-            if row:
-                self.order_id = row[0]  # Update the instance with the new statement_id

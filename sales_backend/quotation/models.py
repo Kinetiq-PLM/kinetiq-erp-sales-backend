@@ -80,8 +80,3 @@ class Quotation(models.Model):
                     self.quotation_id,
                 ],
             )
-            row = cursor.fetchone()
-            if row:
-                self.quotation_id = row[
-                    0
-                ]  # Update the instance with the new statement_id
