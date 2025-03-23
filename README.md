@@ -22,6 +22,21 @@ $ source venv/scripts/activate
 $ pip install -r requirements.txt
 ```
 
+### Change [sales_backend/settings.py](./sales_backend/sales_backend/settings.py) database credentials
+
+```
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "kinetiq",
+        "USER": <your_username>,
+        "PASSWORD": <your_password>,
+        "HOST": "localhost",
+        "PORT": "<your_psql_port>",
+    }
+}
+```
+
 ### Create database
 
 ```
