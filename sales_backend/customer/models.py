@@ -59,7 +59,7 @@ class Customer(models.Model):
                     """
                    INSERT INTO sales.customers (gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    RETURNING quotation_id;
+                    RETURNING customer_id;
                 """,
                     [
                         self.gl_account.gl_account_id if self.gl_account else None,
@@ -79,6 +79,6 @@ class Customer(models.Model):
                 )
                 row = cursor.fetchone()
                 if row:
-                    self.quotation_id = row[
+                    self.customer_id = row[
                         0
                     ]  # Update the instance with the new statement_id

@@ -72,7 +72,7 @@ class SalesInvoices(models.Model):
                     """
                     INSERT INTO sales.sales_invoices (order_id, total_amount, invoice_status, payment_status, due_date)
                     VALUES (%s, %s, %s, %s, %s)
-                    RETURNING order_id;
+                    RETURNING invoice_id;
                 """,
                     [
                         self.order.order_id,
