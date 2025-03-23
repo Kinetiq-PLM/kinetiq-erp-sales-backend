@@ -9,7 +9,7 @@ from rest_framework import status
 
 
 class QuotationViewSet(viewsets.ModelViewSet):
-    queryset = Quotation.objects.all()
+    queryset = Quotation.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
 
     def create(self, request: Request, *args, **kwargs):

@@ -9,14 +9,16 @@ from django.db import models
 
 
 class DeprecationReport(models.Model):
-    deprecation_report_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=225)
-    content_id = models.CharField(max_length=255)
+    deprecation_report_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
+    )
+    item_id = models.CharField(max_length=255, blank=True, null=True)
+    content_id = models.CharField(max_length=255, blank=True, null=True)
     quantity = models.IntegerField()
     reported_date = models.DateTimeField()
     status = models.TextField()  # This field type is a guess.
-    warehouse_id = models.CharField(max_length=225)
-    employee_id = models.CharField(max_length=255)
+    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -24,12 +26,12 @@ class DeprecationReport(models.Model):
 
 
 class InventoryAdjustments(models.Model):
-    adjustment_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=255)
+    adjustment_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
     adjustment_type = models.TextField()  # This field type is a guess.
     quantity = models.IntegerField()
     adjustment_date = models.DateTimeField()
-    employee_id = models.CharField(max_length=255)
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -37,12 +39,12 @@ class InventoryAdjustments(models.Model):
 
 
 class InventoryCyclicCounts(models.Model):
-    inventory_count_id = models.CharField(primary_key=True, max_length=255)
-    item_md_id = models.CharField(max_length=255)
+    inventory_count_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    item_md_id = models.CharField(max_length=255, blank=True, null=True)
     item_onhand = models.IntegerField()
     item_actually_counted = models.IntegerField()
     difference_in_qty = models.IntegerField()
-    employee_id = models.CharField(max_length=255)
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
     status = models.TextField()  # This field type is a guess.
     remarks = models.TextField()
     time_period = models.TextField()  # This field type is a guess.
@@ -53,14 +55,14 @@ class InventoryCyclicCounts(models.Model):
 
 
 class InventoryItem(models.Model):
-    inventory_item_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=225)
-    content_id = models.IntegerField()
+    inventory_item_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
+    content_id = models.CharField(max_length=255, blank=True, null=True)
     expiry_date = models.DateField()
     unit_cost = models.DecimalField(max_digits=10, decimal_places=3)
     unit_of_measure = models.CharField(max_length=25)
     item_status = models.TextField()  # This field type is a guess.
-    warehouse_id = models.CharField(max_length=225)
+    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -68,9 +70,9 @@ class InventoryItem(models.Model):
 
 
 class InventoryItemMasterData(models.Model):
-    item_md_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=225)
-    unit_cost = models.DecimalField(max_digits=10, decimal_places=3)
+    item_md_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
+    content_id = models.CharField(max_length=255, blank=True, null=True)
     minimum_threshold = models.IntegerField()
     maximum_threshold = models.IntegerField()
     total_stock = models.IntegerField()
@@ -85,13 +87,13 @@ class InventoryItemMasterData(models.Model):
 
 
 class WarehouseMovement(models.Model):
-    movement_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=225)
+    movement_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
     movement_type = models.TextField()
     quantity = models.IntegerField()
     movement_date = models.DateTimeField()
-    destination = models.CharField(max_length=225)
-    source = models.CharField(max_length=225)
+    destination = models.CharField(max_length=255, blank=True, null=True)
+    source = models.CharField(max_length=255, blank=True, null=True)
     reference_id_purchase_order = models.CharField(
         max_length=255, blank=True, null=True
     )

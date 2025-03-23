@@ -9,13 +9,15 @@ from django.db import models
 
 
 class ContractualWorkerRequest(models.Model):
-    request_id = models.CharField(primary_key=True, max_length=255)
-    intrnl_project_id = models.CharField(max_length=255)
-    dept_id = models.CharField(max_length=255)
+    request_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    intrnl_project = models.ForeignKey(
+        "InternalProjectDetails", models.DO_NOTHING, blank=True, null=True
+    )
     job_title = models.CharField(max_length=50)
     job_description = models.TextField(blank=True, null=True)
     required_position = models.CharField(max_length=50)
     employment_type = models.TextField()  # This field type is a guess.
+    dept_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -23,9 +25,13 @@ class ContractualWorkerRequest(models.Model):
 
 
 class ExternalProjectCostManagement(models.Model):
-    project_resources_id = models.CharField(primary_key=True, max_length=255)
-    project_id = models.CharField(max_length=255)
-    cost_id = models.CharField(max_length=255)
+    project_resources_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
+    )
+    project = models.ForeignKey(
+        "ExternalProjectDetails", models.DO_NOTHING, blank=True, null=True
+    )
+    cost_id = models.CharField(max_length=255, blank=True, null=True)
     project_budget_approval = models.TextField()  # This field type is a guess.
 
     class Meta:
@@ -34,8 +40,10 @@ class ExternalProjectCostManagement(models.Model):
 
 
 class ExternalProjectDetails(models.Model):
-    project_id = models.CharField(primary_key=True, max_length=255)
-    ext_project_request_id = models.CharField(max_length=255)
+    project_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    ext_project_request = models.ForeignKey(
+        "ExternalProjectRequest", models.DO_NOTHING, blank=True, null=True
+    )
     project_status = models.TextField()  # This field type is a guess.
 
     class Meta:
@@ -44,9 +52,11 @@ class ExternalProjectDetails(models.Model):
 
 
 class ExternalProjectLabor(models.Model):
-    project_labor_id = models.CharField(primary_key=True, max_length=255)
-    project_id = models.CharField(max_length=255)
-    employee_id = models.CharField(max_length=255)
+    project_labor_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    project = models.ForeignKey(
+        ExternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -54,11 +64,13 @@ class ExternalProjectLabor(models.Model):
 
 
 class ExternalProjectRequest(models.Model):
-    ext_project_request_id = models.CharField(primary_key=True, max_length=255)
+    ext_project_request_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
+    )
     ext_project_name = models.CharField(max_length=50)
     ext_project_description = models.TextField(blank=True, null=True)
-    approval_id = models.CharField(max_length=255)
-    item_id = models.CharField(max_length=255)
+    approval_id = models.CharField(max_length=255, blank=True, null=True)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -66,12 +78,16 @@ class ExternalProjectRequest(models.Model):
 
 
 class ExternalProjectTaskList(models.Model):
-    task_id = models.CharField(primary_key=True, max_length=255)
-    project_id = models.CharField(max_length=255)
+    task_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    project = models.ForeignKey(
+        ExternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
     task_description = models.TextField(blank=True, null=True)
     task_status = models.TextField()  # This field type is a guess.
     task_deadline = models.DateField()
-    employee_id = models.CharField(max_length=255)
+    project_labor = models.ForeignKey(
+        ExternalProjectLabor, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -79,12 +95,16 @@ class ExternalProjectTaskList(models.Model):
 
 
 class ExternalProjectTracking(models.Model):
-    project_tracking_id = models.CharField(primary_key=True, max_length=255)
-    project_id = models.CharField(max_length=255)
+    project_tracking_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    project = models.ForeignKey(
+        ExternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
     project_milestone = models.TextField()  # This field type is a guess.
     start_date = models.DateField()
     estimated_end_date = models.DateField()
-    project_warranty_id = models.CharField(max_length=255)
+    project_warranty = models.ForeignKey(
+        "ExternalProjectWarranty", models.DO_NOTHING, blank=True, null=True
+    )
     project_issue = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -93,8 +113,10 @@ class ExternalProjectTracking(models.Model):
 
 
 class ExternalProjectWarranty(models.Model):
-    project_warranty_id = models.CharField(primary_key=True, max_length=255)
-    project_id = models.CharField(max_length=255)
+    project_warranty_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    project = models.ForeignKey(
+        ExternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
     warranty_coverage_yr = models.IntegerField()
     warranty_start_date = models.DateField()
     warranty_end_date = models.DateField()
@@ -105,8 +127,10 @@ class ExternalProjectWarranty(models.Model):
 
 
 class InternalProjectDetails(models.Model):
-    intrnl_project_id = models.CharField(primary_key=True, max_length=255)
-    project_request_id = models.CharField(max_length=255)
+    intrnl_project_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    project_request = models.ForeignKey(
+        "InternalProjectRequest", models.DO_NOTHING, blank=True, null=True
+    )
     intrnl_project_status = models.TextField()  # This field type is a guess.
 
     class Meta:
@@ -115,9 +139,13 @@ class InternalProjectDetails(models.Model):
 
 
 class InternalProjectLabor(models.Model):
-    intrnl_project_labor_id = models.CharField(primary_key=True, max_length=255)
-    intrnl_project_id = models.CharField(max_length=255)
-    employee_id = models.CharField(max_length=255)
+    intrnl_project_labor_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
+    )
+    intrnl_project = models.ForeignKey(
+        InternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -125,15 +153,15 @@ class InternalProjectLabor(models.Model):
 
 
 class InternalProjectRequest(models.Model):
-    project_request_id = models.CharField(primary_key=True, max_length=255)
+    project_request_id = models.CharField(primary_key=True, blank=True, max_length=255)
     project_name = models.CharField(max_length=50)
     project_description = models.TextField(blank=True, null=True)
     request_date = models.DateField()
     request_valid_date = models.DateField()
     request_starting_date = models.DateField()
-    approval_id = models.CharField(max_length=255)
-    employee_id = models.CharField(max_length=255)
-    dept_id = models.CharField(max_length=255)
+    approval_id = models.CharField(max_length=255, blank=True, null=True)
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
+    dept_id = models.CharField(max_length=255, blank=True, null=True)
     project_type = models.TextField()  # This field type is a guess.
 
     class Meta:
@@ -142,12 +170,16 @@ class InternalProjectRequest(models.Model):
 
 
 class InternalProjectTaskList(models.Model):
-    intrnl_task_id = models.CharField(primary_key=True, max_length=255)
-    intrnl_project_id = models.CharField(max_length=255)
+    intrnl_task_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    intrnl_project = models.ForeignKey(
+        InternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
     intrnl_task_description = models.TextField(blank=True, null=True)
     intrnl_task_status = models.TextField()  # This field type is a guess.
     intrnl_task_deadline = models.DateField()
-    employee_id = models.CharField(max_length=255)
+    intrnl_project_labor = models.ForeignKey(
+        InternalProjectLabor, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -155,8 +187,12 @@ class InternalProjectTaskList(models.Model):
 
 
 class InternalProjectTracking(models.Model):
-    intrnl_project_tracking_id = models.CharField(primary_key=True, max_length=255)
-    intrnl_project_id = models.CharField(max_length=255)
+    intrnl_project_tracking_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
+    )
+    intrnl_project = models.ForeignKey(
+        InternalProjectDetails, models.DO_NOTHING, blank=True, null=True
+    )
     intrnl_start_date = models.DateField()
     intrnl_estimated_end_date = models.DateField()
     intrnl_project_issue = models.TextField(blank=True, null=True)

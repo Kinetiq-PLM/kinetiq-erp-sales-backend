@@ -42,7 +42,6 @@ urlpatterns = [
         include(
             [
                 path("agreement/", include("agreement.urls")),
-                path("crm/", include("CRM.urls")),
                 path("costing/", include("costing.urls")),
                 path("customer/", include("customer.urls")),
                 path("delivery/", include("delivery.urls")),
@@ -55,5 +54,6 @@ urlpatterns = [
             ]
         ),
     ),
+    path("api/crm/", include("CRM.urls")),
     path("api/misc/", include("misc.urls")),
 ]

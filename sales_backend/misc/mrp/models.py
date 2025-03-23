@@ -9,17 +9,15 @@ from django.db import models
 
 
 class BillOfMaterials(models.Model):
-    bom_id = models.CharField(primary_key=True, max_length=255)
-    product_description = models.TextField(blank=True, null=True)
-    unit_of_measure = models.CharField(max_length=255, blank=True, null=True)
+    bom_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
+    product_description = models.TextField()
+    unit_of_measure = models.CharField(max_length=255)
     specific_notes = models.TextField(blank=True, null=True)
-    quantity_of_unit = models.IntegerField(blank=True, null=True)
-    cost_per_raw_material = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    total_cost_of_raw_materials = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
+    quantity_of_unit = models.IntegerField()
+    cost_per_raw_material = models.DecimalField(max_digits=10, decimal_places=2)
+    total_cost_of_raw_materials = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
@@ -27,14 +25,14 @@ class BillOfMaterials(models.Model):
 
 
 class NonProjectOrderPricing(models.Model):
-    non_project_costing_id = models.CharField(primary_key=True, max_length=255)
-    quantity = models.IntegerField(blank=True, null=True)
-    mrp_base_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
+    non_project_costing_id = models.CharField(
+        primary_key=True, blank=True, max_length=255
     )
-    final_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    quantity = models.IntegerField()
+    mrp_base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
@@ -42,21 +40,13 @@ class NonProjectOrderPricing(models.Model):
 
 
 class OverallProduction(models.Model):
-    cost_id = models.CharField(primary_key=True, max_length=255)
+    cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    production_order_detail_id = models.CharField(max_length=255, blank=True, null=True)
     product_id = models.CharField(max_length=255, blank=True, null=True)
-    bom_id = models.CharField(max_length=255, blank=True, null=True)
-    cost_of_raw_materials = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    cost_of_production = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    labor_cost = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    total_mrp_cost = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
+    bom = models.ForeignKey(BillOfMaterials, models.DO_NOTHING, blank=True, null=True)
+    cost_of_raw_materials = models.DecimalField(max_digits=10, decimal_places=2)
+    labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    total_mrp_cost = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
@@ -64,18 +54,14 @@ class OverallProduction(models.Model):
 
 
 class PrincipalItems(models.Model):
-    principal_item_id = models.CharField(primary_key=True, max_length=255)
+    principal_item_id = models.CharField(primary_key=True, blank=True, max_length=255)
     service_request_id = models.CharField(max_length=255, blank=True, null=True)
     service_order_id = models.CharField(max_length=255, blank=True, null=True)
-    quantity = models.IntegerField(blank=True, null=True)
+    quantity = models.IntegerField()
     item_id = models.CharField(max_length=255, blank=True, null=True)
-    unit_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    markup_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    pricing_date = models.DateField(blank=True, null=True)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    markup_price = models.DecimalField(max_digits=10, decimal_places=2)
+    pricing_date = models.DateField()
 
     class Meta:
         managed = False

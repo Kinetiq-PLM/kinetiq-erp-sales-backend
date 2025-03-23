@@ -9,7 +9,7 @@ from django.db import transaction
 
 
 class SalesInvoicesViewSet(viewsets.ModelViewSet):
-    queryset = SalesInvoices.objects.all()
+    queryset = SalesInvoices.objects.all().order_by("-invoice_date")
     serializer_class = SalesInvoicesSerializer
 
     def create(self, request: Request, *args, **kwargs):

@@ -9,7 +9,10 @@ from django.db import models
 
 
 class BudgetApprovals(models.Model):
-    validation_id = models.CharField(primary_key=True, max_length=255)
+    budget_approvals_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    validation = models.ForeignKey(
+        "BudgetValidations", models.DO_NOTHING, blank=True, null=True
+    )
     downpayments = models.DecimalField(
         max_digits=12, decimal_places=2, blank=True, null=True
     )
@@ -21,10 +24,10 @@ class BudgetApprovals(models.Model):
 
 
 class BudgetValidations(models.Model):
-    validation_id = models.CharField(primary_key=True, max_length=255)
-    dept_id = models.CharField(max_length=255)
+    validation_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    dept_id = models.CharField(max_length=255, blank=True, null=True)
     validation_date = models.DateField()
-    validated_by = models.CharField(max_length=255)
+    validated_by = models.CharField(max_length=255, blank=True, null=True)
     validation_status = models.CharField(max_length=10)
     remarks = models.CharField(max_length=20)
     amount_requested = models.DecimalField(max_digits=12, decimal_places=2)

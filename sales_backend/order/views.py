@@ -8,7 +8,7 @@ from quotation.models import Quotation
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
 
     def create(self, request, *args, **kwargs):

@@ -47,6 +47,13 @@ class StatementSerializer(serializers.ModelSerializer):
         model = Statement
         fields = "__all__"
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["customer"] = CustomerSerializer(
+            Customer.objects.get(pk=data.pop("customer"))
+        ).data
+        return data
+
     def get_items(self, obj):
         items = StatementItem.objects.filter(statement=obj)
         return StatementItemSerializer(items, many=True).data

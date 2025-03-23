@@ -9,8 +9,10 @@ from django.db import models
 
 
 class BillingReceipt(models.Model):
-    billing_receipt_id = models.CharField(primary_key=True, max_length=255)
-    delivery_receipt_id = models.CharField(max_length=255, blank=True, null=True)
+    billing_receipt_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    delivery_receipt = models.ForeignKey(
+        "DeliveryReceipt", models.DO_NOTHING, blank=True, null=True
+    )
     sales_invoice_id = models.CharField(max_length=255, blank=True, null=True)
     service_billing_id = models.CharField(max_length=255, blank=True, null=True)
 
@@ -20,8 +22,8 @@ class BillingReceipt(models.Model):
 
 
 class Carrier(models.Model):
-    carrier_id = models.CharField(primary_key=True, max_length=255)
-    carrier_name = models.TextField()
+    carrier_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    carrier_name = models.CharField(max_length=255)
     service_type = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
@@ -33,7 +35,7 @@ class Carrier(models.Model):
 
 
 class DeliveryOrder(models.Model):
-    delivery_order_id = models.CharField(primary_key=True, max_length=255)
+    del_order_id = models.CharField(primary_key=True, blank=True, max_length=255)
     order_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
@@ -48,7 +50,9 @@ class DeliveryOrder(models.Model):
     production_request_id = models.CharField(max_length=255, blank=True, null=True)
     stock_transfer_id = models.CharField(max_length=255, blank=True, null=True)
     sales_order_id = models.CharField(max_length=255, blank=True, null=True)
-    approval_request_id = models.CharField(max_length=255, blank=True, null=True)
+    approval_request = models.ForeignKey(
+        "LogisticsApprovalRequest", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -56,14 +60,16 @@ class DeliveryOrder(models.Model):
 
 
 class DeliveryReceipt(models.Model):
-    delivery_receipt_id = models.AutoField(primary_key=True)
+    delivery_receipt_id = models.CharField(primary_key=True, blank=True, max_length=255)
     delivery_date = models.DateField(blank=True, null=True)
-    received_by = models.IntegerField()
+    received_by = models.CharField(max_length=255, blank=True, null=True)
     signature = models.TextField()
     receipt_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
-    shipment_id = models.IntegerField()
+    shipment = models.ForeignKey(
+        "ShipmentDetails", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -71,13 +77,15 @@ class DeliveryReceipt(models.Model):
 
 
 class FailedShipment(models.Model):
-    failed_shipment_id = models.CharField(primary_key=True, max_length=255)
+    failed_shipment_id = models.CharField(primary_key=True, blank=True, max_length=255)
     failure_date = models.DateField(blank=True, null=True)
     failure_reason = models.TextField()
     resolution_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
-    shipment_id = models.CharField(max_length=255, blank=True, null=True)
+    shipment = models.ForeignKey(
+        "ShipmentDetails", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -85,10 +93,12 @@ class FailedShipment(models.Model):
 
 
 class GoodsIssue(models.Model):
-    goods_issue_id = models.CharField(primary_key=True, max_length=255)
+    goods_issue_id = models.CharField(primary_key=True, blank=True, max_length=255)
     issue_date = models.DateField(blank=True, null=True)
-    issued_by = models.IntegerField()
-    billing_receipt_id = models.IntegerField(blank=True, null=True)
+    issued_by = models.CharField(max_length=255, blank=True, null=True)
+    billing_receipt = models.ForeignKey(
+        BillingReceipt, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -96,14 +106,16 @@ class GoodsIssue(models.Model):
 
 
 class LogisticsApprovalRequest(models.Model):
-    approval_request_id = models.CharField(primary_key=True, max_length=255)
+    approval_request_id = models.CharField(primary_key=True, blank=True, max_length=255)
     request_date = models.DateField(blank=True, null=True)
     approval_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
     approval_date = models.DateField(blank=True, null=True)
-    approved_by = models.CharField(max_length=255)
-    delivery_order_id = models.CharField(max_length=255)
+    approved_by = models.CharField(max_length=255, blank=True, null=True)
+    del_order = models.ForeignKey(
+        DeliveryOrder, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -111,15 +123,19 @@ class LogisticsApprovalRequest(models.Model):
 
 
 class OperationalCost(models.Model):
-    operational_cost_id = models.CharField(primary_key=True, max_length=255)
+    operational_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
     additional_cost = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
     total_operational_cost = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
-    shipping_cost_id = models.CharField(max_length=255, blank=True, null=True)
-    packing_cost_id = models.CharField(max_length=255, blank=True, null=True)
+    shipping_cost = models.ForeignKey(
+        "ShippingCost", models.DO_NOTHING, blank=True, null=True
+    )
+    packing_cost = models.ForeignKey(
+        "PackingCost", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -127,7 +143,7 @@ class OperationalCost(models.Model):
 
 
 class PackingCost(models.Model):
-    packing_cost_id = models.CharField(primary_key=True, max_length=255)
+    packing_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
     material_cost = models.DecimalField(max_digits=10, decimal_places=2)
     labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
     total_packing_cost = models.DecimalField(max_digits=10, decimal_places=2)
@@ -138,8 +154,8 @@ class PackingCost(models.Model):
 
 
 class PackingList(models.Model):
-    packing_list_id = models.CharField(primary_key=True, max_length=255)
-    packed_by = models.CharField(max_length=255)
+    packing_list_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    packed_by = models.CharField(max_length=255, blank=True, null=True)
     packing_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
@@ -147,8 +163,12 @@ class PackingList(models.Model):
         blank=True, null=True
     )  # This field type is a guess.
     total_items_packed = models.IntegerField(blank=True, null=True)
-    packing_cost_id = models.CharField(max_length=255, blank=True, null=True)
-    picking_list_id = models.CharField(max_length=255)
+    packing_cost = models.ForeignKey(
+        PackingCost, models.DO_NOTHING, blank=True, null=True
+    )
+    picking_list = models.ForeignKey(
+        "PickingList", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -156,14 +176,16 @@ class PackingList(models.Model):
 
 
 class PickingList(models.Model):
-    picking_list_id = models.CharField(primary_key=True, max_length=255)
+    picking_list_id = models.CharField(primary_key=True, blank=True, max_length=255)
     warehouse_id = models.CharField(max_length=255, blank=True, null=True)
-    picked_by = models.CharField(max_length=255)
+    picked_by = models.CharField(max_length=255, blank=True, null=True)
     picked_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
     picked_date = models.DateField(blank=True, null=True)
-    approval_request_id = models.CharField(max_length=255)
+    approval_request = models.ForeignKey(
+        LogisticsApprovalRequest, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -171,13 +193,15 @@ class PickingList(models.Model):
 
 
 class Rejection(models.Model):
-    rejection_id = models.CharField(primary_key=True, max_length=255)
+    rejection_id = models.CharField(primary_key=True, blank=True, max_length=255)
     rejection_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
     rejection_reason = models.TextField()
     rejection_date = models.DateField(blank=True, null=True)
-    delivery_receipt_id = models.CharField(max_length=255)
+    delivery_receipt = models.ForeignKey(
+        DeliveryReceipt, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -185,15 +209,17 @@ class Rejection(models.Model):
 
 
 class ReworkOrder(models.Model):
-    rework_id = models.CharField(primary_key=True, max_length=255)
-    assigned_to = models.CharField(max_length=255)
+    rework_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    assigned_to = models.CharField(max_length=255, blank=True, null=True)
     rework_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
     rework_date = models.DateField(blank=True, null=True)
     expected_completion = models.DateTimeField(blank=True, null=True)
-    rejection_id = models.CharField(max_length=255, blank=True, null=True)
-    failed_shipment_id = models.CharField(max_length=255, blank=True, null=True)
+    rejection = models.ForeignKey(Rejection, models.DO_NOTHING, blank=True, null=True)
+    failed_shipment = models.ForeignKey(
+        FailedShipment, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -201,8 +227,8 @@ class ReworkOrder(models.Model):
 
 
 class ShipmentDetails(models.Model):
-    shipment_id = models.CharField(primary_key=True, max_length=255)
-    carrier_id = models.CharField(max_length=255)
+    shipment_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    carrier = models.ForeignKey(Carrier, models.DO_NOTHING, blank=True, null=True)
     shipment_date = models.DateField(blank=True, null=True)
     shipment_status = models.TextField(
         blank=True, null=True
@@ -210,9 +236,15 @@ class ShipmentDetails(models.Model):
     tracking_number = models.CharField(max_length=100)
     estimated_arrival_date = models.DateTimeField(blank=True, null=True)
     actual_arrival_date = models.DateTimeField(blank=True, null=True)
-    failed_shipment_id = models.CharField(max_length=255, blank=True, null=True)
-    packing_list_id = models.CharField(max_length=255)
-    shipping_cost_id = models.CharField(max_length=255)
+    failed_shipment = models.ForeignKey(
+        FailedShipment, models.DO_NOTHING, blank=True, null=True
+    )
+    packing_list = models.ForeignKey(
+        PackingList, models.DO_NOTHING, blank=True, null=True
+    )
+    shipping_cost = models.ForeignKey(
+        "ShippingCost", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -220,8 +252,10 @@ class ShipmentDetails(models.Model):
 
 
 class ShippingCost(models.Model):
-    shipping_cost_id = models.CharField(primary_key=True, max_length=255)
-    packing_list_id = models.CharField(max_length=255, blank=True, null=True)
+    shipping_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    packing_list = models.ForeignKey(
+        PackingList, models.DO_NOTHING, blank=True, null=True
+    )
     cost_per_kg = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )

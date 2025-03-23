@@ -9,9 +9,9 @@ from django.db import models
 
 
 class DocumentHeader(models.Model):
-    document_id = models.CharField(primary_key=True, max_length=255)
+    document_id = models.CharField(primary_key=True, blank=True, max_length=255)
     document_type = models.TextField()  # This field type is a guess.
-    vendor_code = models.CharField(max_length=255)
+    vendor_code = models.CharField(max_length=255, blank=True, null=True)
     document_no = models.IntegerField()
     transaction_id = models.CharField(max_length=255)
     module_request = models.TextField()  # This field type is a guess.
@@ -39,13 +39,21 @@ class DocumentHeader(models.Model):
 
 
 class DocumentItems(models.Model):
-    content_id = models.CharField(primary_key=True, max_length=255)
-    item_id = models.CharField(max_length=255, blank=True, null=True)
-    document_id = models.CharField(max_length=255, blank=True, null=True)
+    content_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    asset_id = models.CharField(max_length=255, blank=True, null=True)
+    document = models.ForeignKey(
+        DocumentHeader, models.DO_NOTHING, blank=True, null=True
+    )
     material_id = models.CharField(max_length=255, blank=True, null=True)
-    serial_id = models.CharField(max_length=255, blank=True, null=True)
-    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
-    external_id = models.CharField(max_length=255, blank=True, null=True)
+    serial = models.ForeignKey(
+        "SerialTracking", models.DO_NOTHING, blank=True, null=True
+    )
+    productdocu = models.ForeignKey(
+        "ProductDocumentItems", models.DO_NOTHING, blank=True, null=True
+    )
+    external = models.ForeignKey(
+        "ExternalModule", models.DO_NOTHING, blank=True, null=True
+    )
     quantity = models.IntegerField()
     total = models.DecimalField(max_digits=18, decimal_places=2)
     batch_no = models.CharField(max_length=100)
@@ -57,8 +65,9 @@ class DocumentItems(models.Model):
 
 
 class ExternalModule(models.Model):
-    external_id = models.CharField(primary_key=True, max_length=255)
+    external_id = models.CharField(primary_key=True, blank=True, max_length=255)
     purchase_id = models.CharField(max_length=255, blank=True, null=True)
+    request_id = models.CharField(max_length=255, blank=True, null=True)
     approval_id = models.CharField(max_length=255, blank=True, null=True)
     goods_issue_id = models.CharField(max_length=255, blank=True, null=True)
     approval_request_id = models.CharField(max_length=255, blank=True, null=True)
@@ -77,8 +86,8 @@ class ExternalModule(models.Model):
 
 
 class ProductDocumentItems(models.Model):
-    productdocu_id = models.CharField(primary_key=True, max_length=255)
-    product_id = models.CharField(max_length=255)
+    productdocu_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
     quantity_rejected = models.IntegerField()
     defect_type = models.CharField(max_length=155)
     selling_price = models.DecimalField(max_digits=18, decimal_places=2)
@@ -91,8 +100,10 @@ class ProductDocumentItems(models.Model):
 
 
 class SerialTracking(models.Model):
-    serial_id = models.CharField(primary_key=True, max_length=255)
-    document_id = models.CharField(max_length=255, blank=True, null=True)
+    serial_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    document = models.ForeignKey(
+        DocumentHeader, models.DO_NOTHING, blank=True, null=True
+    )
     serial_no = models.CharField(unique=True, max_length=50)
 
     class Meta:
