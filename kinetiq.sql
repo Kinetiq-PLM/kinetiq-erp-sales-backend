@@ -165,6 +165,20 @@ CREATE TYPE public.access_level AS ENUM (
 ALTER TYPE public.access_level OWNER TO postgres;
 
 --
+-- Name: adjustment_type_enum; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.adjustment_type_enum AS ENUM (
+    'Inbound',
+    'Outbound-Distribution',
+    'Outbound-Production',
+    'Outbound-Deprecated'
+);
+
+
+ALTER TYPE public.adjustment_type_enum OWNER TO postgres;
+
+--
 -- Name: agreement_method_enum; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -369,6 +383,18 @@ CREATE TYPE public.inventory_status AS ENUM (
 ALTER TYPE public.inventory_status OWNER TO postgres;
 
 --
+-- Name: inventory_status_enum; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.inventory_status_enum AS ENUM (
+    'Pending',
+    'Approved'
+);
+
+
+ALTER TYPE public.inventory_status_enum OWNER TO postgres;
+
+--
 -- Name: inventory_time_period; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -451,6 +477,19 @@ CREATE TYPE public.lead_status_enum AS ENUM (
 ALTER TYPE public.lead_status_enum OWNER TO postgres;
 
 --
+-- Name: management_approval_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.management_approval_status AS ENUM (
+    'approved',
+    'pending',
+    'rejected'
+);
+
+
+ALTER TYPE public.management_approval_status OWNER TO postgres;
+
+--
 -- Name: module_request_enum; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -473,6 +512,20 @@ CREATE TYPE public.module_request_enum AS ENUM (
 
 
 ALTER TYPE public.module_request_enum OWNER TO postgres;
+
+--
+-- Name: operations_status_enum; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.operations_status_enum AS ENUM (
+    'Open',
+    'Closed',
+    'Cancelled',
+    'Draft'
+);
+
+
+ALTER TYPE public.operations_status_enum OWNER TO postgres;
 
 --
 -- Name: opportunity_stage_enum; Type: TYPE; Schema: public; Owner: postgres
@@ -1039,48 +1092,6 @@ CREATE TYPE public.yes_no_type AS ENUM (
 ALTER TYPE public.yes_no_type OWNER TO postgres;
 
 --
--- Name: generate_account_id(); Type: FUNCTION; Schema: accounting; Owner: postgres
---
-
-CREATE FUNCTION accounting.generate_account_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'COA'; 
-    module_name TEXT := 'ACCOUNTING';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.account_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION accounting.generate_account_id() OWNER TO postgres;
-
---
--- Name: generate_currency_id(); Type: FUNCTION; Schema: accounting; Owner: postgres
---
-
-CREATE FUNCTION accounting.generate_currency_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'CUR'; 
-    module_name TEXT := 'ACCOUNTING';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.currency_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION accounting.generate_currency_id() OWNER TO postgres;
-
---
 -- Name: generate_entry_line_id(); Type: FUNCTION; Schema: accounting; Owner: postgres
 --
 
@@ -1090,7 +1101,7 @@ CREATE FUNCTION accounting.generate_entry_line_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'JEL'; 
-    module_name TEXT := 'ACCOUNTING';          
+    module_name TEXT := 'ACC';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.entry_line_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -1111,7 +1122,7 @@ CREATE FUNCTION accounting.generate_gl_account_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'GLA'; 
-    module_name TEXT := 'ACCOUNTING';          
+    module_name TEXT := 'ACC';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.gl_account_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -1132,7 +1143,7 @@ CREATE FUNCTION accounting.generate_journal_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'JOE'; 
-    module_name TEXT := 'accounting';          
+    module_name TEXT := 'ACC';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.journal_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -1142,6 +1153,27 @@ $$;
 
 
 ALTER FUNCTION accounting.generate_journal_id() OWNER TO postgres;
+
+--
+-- Name: generate_or_id(); Type: FUNCTION; Schema: accounting; Owner: postgres
+--
+
+CREATE FUNCTION accounting.generate_or_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code TEXT;
+    module_prefix TEXT := 'OFR'; 
+    module_name TEXT := 'ACC';          
+BEGIN
+    unique_code := substr(md5(random()::text), 1, 6);
+    NEW.or_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION accounting.generate_or_id() OWNER TO postgres;
 
 --
 -- Name: generate_asset_id(); Type: FUNCTION; Schema: admin; Owner: postgres
@@ -1429,7 +1461,7 @@ DECLARE
     module_name TEXT := 'DIS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
-    NEW.receipt_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    NEW.billing_receipt_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
     RETURN NEW;
 END;
 $$;
@@ -1459,10 +1491,10 @@ $$;
 ALTER FUNCTION distribution.generate_carrier_id() OWNER TO postgres;
 
 --
--- Name: generate_delivery_order_id(); Type: FUNCTION; Schema: distribution; Owner: postgres
+-- Name: generate_del_order_id(); Type: FUNCTION; Schema: distribution; Owner: postgres
 --
 
-CREATE FUNCTION distribution.generate_delivery_order_id() RETURNS trigger
+CREATE FUNCTION distribution.generate_del_order_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -1471,13 +1503,13 @@ DECLARE
     module_name TEXT := 'DIS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
-    NEW.delivery_order_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    NEW.del_order_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
     RETURN NEW;
 END;
 $$;
 
 
-ALTER FUNCTION distribution.generate_delivery_order_id() OWNER TO postgres;
+ALTER FUNCTION distribution.generate_del_order_id() OWNER TO postgres;
 
 --
 -- Name: generate_delivery_receipt_id(); Type: FUNCTION; Schema: distribution; Owner: postgres
@@ -1597,7 +1629,7 @@ DECLARE
     module_name TEXT := 'DIS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
-    NEW.approval_request_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    NEW.picking_list_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
     RETURN NEW;
 END;
 $$;
@@ -1648,6 +1680,27 @@ $$;
 ALTER FUNCTION distribution.generate_rework_id() OWNER TO postgres;
 
 --
+-- Name: generate_shipment_details_id(); Type: FUNCTION; Schema: distribution; Owner: postgres
+--
+
+CREATE FUNCTION distribution.generate_shipment_details_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code TEXT;
+    module_prefix TEXT := 'BR'; 
+    module_name TEXT := 'DIS';          
+BEGIN
+    unique_code := substr(md5(random()::text), 1, 6);
+    NEW.shipment_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION distribution.generate_shipment_details_id() OWNER TO postgres;
+
+--
 -- Name: generate_shipping_cost_id(); Type: FUNCTION; Schema: distribution; Owner: postgres
 --
 
@@ -1669,6 +1722,27 @@ $$;
 ALTER FUNCTION distribution.generate_shipping_cost_id() OWNER TO postgres;
 
 --
+-- Name: generate_budget_approvals_id(); Type: FUNCTION; Schema: finance; Owner: postgres
+--
+
+CREATE FUNCTION finance.generate_budget_approvals_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code TEXT;
+    module_prefix TEXT := 'BUA'; 
+    module_name TEXT := 'FNC';          
+BEGIN
+    unique_code := substr(md5(random()::text), 1, 6);
+    NEW.budget_approvals_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION finance.generate_budget_approvals_id() OWNER TO postgres;
+
+--
 -- Name: generate_validation_id(); Type: FUNCTION; Schema: finance; Owner: postgres
 --
 
@@ -1677,8 +1751,8 @@ CREATE FUNCTION finance.generate_validation_id() RETURNS trigger
     AS $$
 DECLARE
     unique_code TEXT;
-    module_prefix TEXT := 'BUA'; 
-    module_name TEXT := 'FINANCE';          
+    module_prefix TEXT := 'BVA'; 
+    module_name TEXT := 'FNC';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.validation_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -2047,6 +2121,27 @@ $$;
 ALTER FUNCTION inventory.generate_movement_id() OWNER TO postgres;
 
 --
+-- Name: generate_approval_id(); Type: FUNCTION; Schema: management; Owner: postgres
+--
+
+CREATE FUNCTION management.generate_approval_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code TEXT;
+    module_prefix TEXT := 'APP'; 
+    module_name TEXT := 'MNG';          
+BEGIN
+    unique_code := substr(md5(random()::text), 1, 6);
+    NEW.approval_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION management.generate_approval_id() OWNER TO postgres;
+
+--
 -- Name: generate_bom_id(); Type: FUNCTION; Schema: mrp; Owner: postgres
 --
 
@@ -2140,7 +2235,7 @@ CREATE FUNCTION operations.generate_content_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'DOI'; 
-    module_name TEXT := 'OPERATIONS';          
+    module_name TEXT := 'OPS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.content_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -2161,7 +2256,7 @@ CREATE FUNCTION operations.generate_document_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'DOH'; 
-    module_name TEXT := 'OPERATIONS';          
+    module_name TEXT := 'OPS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.document_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -2182,7 +2277,7 @@ CREATE FUNCTION operations.generate_external_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'EXM'; 
-    module_name TEXT := 'OPERATIONS';          
+    module_name TEXT := 'OPS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.external_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -2203,7 +2298,7 @@ CREATE FUNCTION operations.generate_productdocu_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'PDI'; 
-    module_name TEXT := 'OPERATIONS';          
+    module_name TEXT := 'OPS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.productdocu_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -2224,7 +2319,7 @@ CREATE FUNCTION operations.generate_serial_id() RETURNS trigger
 DECLARE
     unique_code TEXT;
     module_prefix TEXT := 'SET'; 
-    module_name TEXT := 'OPERATIONS';          
+    module_name TEXT := 'OPS';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
     NEW.serial_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
@@ -3247,27 +3342,6 @@ $$;
 ALTER FUNCTION services.generate_analysis_sched_id() OWNER TO postgres;
 
 --
--- Name: generate_contract_id(); Type: FUNCTION; Schema: services; Owner: postgres
---
-
-CREATE FUNCTION services.generate_contract_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'CONT'; 
-    module_name TEXT := 'SERVICES';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.contract_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION services.generate_contract_id() OWNER TO postgres;
-
---
 -- Name: generate_delivery_order_id(); Type: FUNCTION; Schema: services; Owner: postgres
 --
 
@@ -3287,48 +3361,6 @@ $$;
 
 
 ALTER FUNCTION services.generate_delivery_order_id() OWNER TO postgres;
-
---
--- Name: generate_message_id(); Type: FUNCTION; Schema: services; Owner: postgres
---
-
-CREATE FUNCTION services.generate_message_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'MSG'; 
-    module_name TEXT := 'SERVICES';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.message_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION services.generate_message_id() OWNER TO postgres;
-
---
--- Name: generate_renewal_history_id(); Type: FUNCTION; Schema: services; Owner: postgres
---
-
-CREATE FUNCTION services.generate_renewal_history_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'RENEWHIS'; 
-    module_name TEXT := 'SERVICES';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.renewal_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION services.generate_renewal_history_id() OWNER TO postgres;
 
 --
 -- Name: generate_report_id(); Type: FUNCTION; Schema: services; Owner: postgres
@@ -3373,27 +3405,6 @@ $$;
 ALTER FUNCTION services.generate_service_billing_id() OWNER TO postgres;
 
 --
--- Name: generate_service_call_history_id(); Type: FUNCTION; Schema: services; Owner: postgres
---
-
-CREATE FUNCTION services.generate_service_call_history_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'CALLHIS'; 
-    module_name TEXT := 'SERVICES';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.service_call_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION services.generate_service_call_history_id() OWNER TO postgres;
-
---
 -- Name: generate_service_call_id(); Type: FUNCTION; Schema: services; Owner: postgres
 --
 
@@ -3413,27 +3424,6 @@ $$;
 
 
 ALTER FUNCTION services.generate_service_call_id() OWNER TO postgres;
-
---
--- Name: generate_service_cost_id(); Type: FUNCTION; Schema: services; Owner: postgres
---
-
-CREATE FUNCTION services.generate_service_cost_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    unique_code TEXT;
-    module_prefix TEXT := 'COST'; 
-    module_name TEXT := 'SERVICES';          
-BEGIN
-    unique_code := substr(md5(random()::text), 1, 6);
-    NEW.service_cost_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION services.generate_service_cost_id() OWNER TO postgres;
 
 --
 -- Name: generate_service_order_id(); Type: FUNCTION; Schema: services; Owner: postgres
@@ -3457,25 +3447,25 @@ $$;
 ALTER FUNCTION services.generate_service_order_id() OWNER TO postgres;
 
 --
--- Name: generate_service_purchase_id(); Type: FUNCTION; Schema: services; Owner: postgres
+-- Name: generate_service_order_item_id(); Type: FUNCTION; Schema: services; Owner: postgres
 --
 
-CREATE FUNCTION services.generate_service_purchase_id() RETURNS trigger
+CREATE FUNCTION services.generate_service_order_item_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
     unique_code TEXT;
-    module_prefix TEXT := 'SO'; 
+    module_prefix TEXT := 'SOIT'; 
     module_name TEXT := 'SERVICES';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
-    NEW.service_purchase_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    NEW.service_order_item_id := module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
     RETURN NEW;
 END;
 $$;
 
 
-ALTER FUNCTION services.generate_service_purchase_id() OWNER TO postgres;
+ALTER FUNCTION services.generate_service_order_item_id() OWNER TO postgres;
 
 --
 -- Name: generate_service_request_id(); Type: FUNCTION; Schema: services; Owner: postgres
@@ -3499,25 +3489,46 @@ $$;
 ALTER FUNCTION services.generate_service_request_id() OWNER TO postgres;
 
 --
--- Name: generate_session_id(); Type: FUNCTION; Schema: services; Owner: postgres
+-- Name: generate_service_ticket_id(); Type: FUNCTION; Schema: services; Owner: postgres
 --
 
-CREATE FUNCTION services.generate_session_id() RETURNS trigger
+CREATE FUNCTION services.generate_service_ticket_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
     unique_code TEXT;
-    module_prefix TEXT := 'COMS'; 
+    module_prefix TEXT := 'TICKET';
     module_name TEXT := 'SERVICES';          
 BEGIN
     unique_code := substr(md5(random()::text), 1, 6);
-    NEW.session_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    NEW.service_ticket_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
     RETURN NEW;
 END;
 $$;
 
 
-ALTER FUNCTION services.generate_session_id() OWNER TO postgres;
+ALTER FUNCTION services.generate_service_ticket_id() OWNER TO postgres;
+
+--
+-- Name: generate_technician_id(); Type: FUNCTION; Schema: services; Owner: postgres
+--
+
+CREATE FUNCTION services.generate_technician_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code TEXT;
+    module_prefix TEXT := 'TECH';
+    module_name TEXT := 'SERVICES';          
+BEGIN
+    unique_code := substr(md5(random()::text), 1, 6);
+    NEW.technician_id := module_name || '-' || module_prefix || '-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION services.generate_technician_id() OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -3528,7 +3539,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE accounting.chart_of_accounts (
-    account_id character varying(255) NOT NULL,
+    account_code character varying(255) NOT NULL,
     account_name character varying(255) NOT NULL,
     account_type character varying(50) DEFAULT NULL::character varying
 );
@@ -3557,9 +3568,9 @@ ALTER TABLE accounting.currency OWNER TO postgres;
 CREATE TABLE accounting.general_ledger_accounts (
     gl_account_id character varying(255) NOT NULL,
     account_name character varying(255) NOT NULL,
-    account_code integer NOT NULL,
+    account_code character varying(255) NOT NULL,
     account_id character varying(255),
-    status public.status_enum NOT NULL,
+    status public.status_enum,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -3590,7 +3601,7 @@ ALTER TABLE accounting.journal_entries OWNER TO postgres;
 CREATE TABLE accounting.journal_entry_lines (
     entry_line_id character varying(255) NOT NULL,
     gl_account_id character varying(255) DEFAULT NULL::character varying,
-    journal_id character varying(255) NOT NULL,
+    journal_id character varying(255),
     debit_amount numeric(15,2) NOT NULL,
     credit_amount numeric(15,2) NOT NULL,
     description character varying(255) DEFAULT NULL::character varying
@@ -3600,11 +3611,31 @@ CREATE TABLE accounting.journal_entry_lines (
 ALTER TABLE accounting.journal_entry_lines OWNER TO postgres;
 
 --
+-- Name: official_receipts; Type: TABLE; Schema: accounting; Owner: postgres
+--
+
+CREATE TABLE accounting.official_receipts (
+    or_id character varying(255) NOT NULL,
+    invoice_id character varying(255) DEFAULT NULL::character varying,
+    customer_id character varying(255) DEFAULT NULL::character varying,
+    or_date date NOT NULL,
+    settled_amount numeric(15,2) NOT NULL,
+    remaining_amount numeric(15,2) NOT NULL,
+    payment_method character varying(50) NOT NULL,
+    reference_number character varying(100),
+    created_by character varying(255)
+);
+
+
+ALTER TABLE accounting.official_receipts OWNER TO postgres;
+
+--
 -- Name: assets; Type: TABLE; Schema: admin; Owner: postgres
 --
 
 CREATE TABLE admin.assets (
     asset_id character varying(255) NOT NULL,
+    item_id character varying(255),
     asset_name character varying(255) NOT NULL,
     purchase_date date DEFAULT now(),
     serial_no character varying(225)
@@ -3637,6 +3668,8 @@ ALTER TABLE admin.audit_log OWNER TO postgres;
 CREATE TABLE admin.business_partner_master (
     partner_id character varying(255) NOT NULL,
     employee_id character varying(255),
+    vendor_code character varying(255),
+    customer_id character varying(255),
     partner_name character varying(255) NOT NULL,
     category public.partner_category DEFAULT 'Employee'::public.partner_category,
     contact_info character varying(255)
@@ -3678,6 +3711,7 @@ ALTER TABLE admin.policies OWNER TO postgres;
 
 CREATE TABLE admin.products (
     product_id character varying(255) NOT NULL,
+    item_id character varying(255),
     product_name character varying(255) NOT NULL,
     description text,
     selling_price numeric,
@@ -3695,6 +3729,7 @@ ALTER TABLE admin.products OWNER TO postgres;
 
 CREATE TABLE admin.raw_materials (
     material_id character varying(255) NOT NULL,
+    item_id character varying(255),
     material_name character varying(255) NOT NULL,
     description text,
     unit_of_measure public.unit_of_measure DEFAULT 'kg'::public.unit_of_measure,
@@ -3746,7 +3781,7 @@ ALTER TABLE admin.users OWNER TO postgres;
 
 CREATE TABLE admin.vendor (
     vendor_code character varying(255) NOT NULL,
-    partner_id character varying(255),
+    application_reference character varying(255),
     vendor_name character varying(255) NOT NULL,
     contact_person character varying(255),
     status public.user_status DEFAULT 'Active'::public.user_status
@@ -3788,7 +3823,7 @@ ALTER TABLE distribution.billing_receipt OWNER TO postgres;
 
 CREATE TABLE distribution.carrier (
     carrier_id character varying(255) NOT NULL,
-    carrier_name text NOT NULL,
+    carrier_name character varying(255) NOT NULL,
     service_type public.service_type_enum,
     carrier_count integer
 );
@@ -3801,7 +3836,7 @@ ALTER TABLE distribution.carrier OWNER TO postgres;
 --
 
 CREATE TABLE distribution.delivery_order (
-    delivery_order_id character varying(255) NOT NULL,
+    del_order_id character varying(255) NOT NULL,
     order_status public.order_status_type,
     content_id character varying(255),
     is_project_based public.project_based_type,
@@ -3821,38 +3856,16 @@ ALTER TABLE distribution.delivery_order OWNER TO postgres;
 --
 
 CREATE TABLE distribution.delivery_receipt (
-    delivery_receipt_id integer NOT NULL,
+    delivery_receipt_id character varying(255) NOT NULL,
     delivery_date date,
-    received_by integer NOT NULL,
+    received_by character varying(255),
     signature text NOT NULL,
     receipt_status public.receipt_status_type,
-    shipment_id integer NOT NULL
+    shipment_id character varying(255)
 );
 
 
 ALTER TABLE distribution.delivery_receipt OWNER TO postgres;
-
---
--- Name: delivery_receipt_delivery_receipt_id_seq; Type: SEQUENCE; Schema: distribution; Owner: postgres
---
-
-CREATE SEQUENCE distribution.delivery_receipt_delivery_receipt_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE distribution.delivery_receipt_delivery_receipt_id_seq OWNER TO postgres;
-
---
--- Name: delivery_receipt_delivery_receipt_id_seq; Type: SEQUENCE OWNED BY; Schema: distribution; Owner: postgres
---
-
-ALTER SEQUENCE distribution.delivery_receipt_delivery_receipt_id_seq OWNED BY distribution.delivery_receipt.delivery_receipt_id;
-
 
 --
 -- Name: failed_shipment; Type: TABLE; Schema: distribution; Owner: postgres
@@ -3876,8 +3889,8 @@ ALTER TABLE distribution.failed_shipment OWNER TO postgres;
 CREATE TABLE distribution.goods_issue (
     goods_issue_id character varying(255) NOT NULL,
     issue_date date,
-    issued_by integer NOT NULL,
-    billing_receipt_id integer
+    issued_by character varying(255),
+    billing_receipt_id character varying(255)
 );
 
 
@@ -3892,8 +3905,8 @@ CREATE TABLE distribution.logistics_approval_request (
     request_date date,
     approval_status public.approval_status_type,
     approval_date date,
-    approved_by character varying(255) NOT NULL,
-    delivery_order_id character varying(255) NOT NULL
+    approved_by character varying(255),
+    del_order_id character varying(255)
 );
 
 
@@ -3934,12 +3947,12 @@ ALTER TABLE distribution.packing_cost OWNER TO postgres;
 
 CREATE TABLE distribution.packing_list (
     packing_list_id character varying(255) NOT NULL,
-    packed_by character varying(255) NOT NULL,
+    packed_by character varying(255),
     packing_status public.packing_status_type,
     packing_type public.packing_type_enum,
     total_items_packed integer,
     packing_cost_id character varying(255),
-    picking_list_id character varying(255) NOT NULL
+    picking_list_id character varying(255)
 );
 
 
@@ -3952,10 +3965,10 @@ ALTER TABLE distribution.packing_list OWNER TO postgres;
 CREATE TABLE distribution.picking_list (
     picking_list_id character varying(255) NOT NULL,
     warehouse_id character varying(255),
-    picked_by character varying(255) NOT NULL,
+    picked_by character varying(255),
     picked_status public.picked_status_type,
     picked_date date,
-    approval_request_id character varying(255) NOT NULL
+    approval_request_id character varying(255)
 );
 
 
@@ -3970,7 +3983,7 @@ CREATE TABLE distribution.rejection (
     rejection_status public.rejection_status_type,
     rejection_reason text NOT NULL,
     rejection_date date,
-    delivery_receipt_id character varying(255) NOT NULL
+    delivery_receipt_id character varying(255)
 );
 
 
@@ -3982,7 +3995,7 @@ ALTER TABLE distribution.rejection OWNER TO postgres;
 
 CREATE TABLE distribution.rework_order (
     rework_id character varying(255) NOT NULL,
-    assigned_to character varying(255) NOT NULL,
+    assigned_to character varying(255),
     rework_status public.rework_status_type,
     rework_date date,
     expected_completion timestamp without time zone,
@@ -3999,15 +4012,15 @@ ALTER TABLE distribution.rework_order OWNER TO postgres;
 
 CREATE TABLE distribution.shipment_details (
     shipment_id character varying(255) NOT NULL,
-    carrier_id character varying(255) NOT NULL,
+    carrier_id character varying(255),
     shipment_date date,
     shipment_status public.shipment_status_type,
     tracking_number character varying(100) NOT NULL,
     estimated_arrival_date timestamp without time zone,
     actual_arrival_date timestamp without time zone,
     failed_shipment_id character varying(255),
-    packing_list_id character varying(255) NOT NULL,
-    shipping_cost_id character varying(255) NOT NULL
+    packing_list_id character varying(255),
+    shipping_cost_id character varying(255)
 );
 
 
@@ -4035,7 +4048,8 @@ ALTER TABLE distribution.shipping_cost OWNER TO postgres;
 --
 
 CREATE TABLE finance.budget_approvals (
-    validation_id character varying(255) NOT NULL,
+    budget_approvals_id character varying(255) NOT NULL,
+    validation_id character varying(255),
     downpayments numeric(12,2),
     approval_status character varying(10) NOT NULL,
     CONSTRAINT budget_approvals_approval_status_check CHECK (((approval_status)::text = ANY ((ARRAY['Approved'::character varying, 'Pending'::character varying])::text[])))
@@ -4050,9 +4064,9 @@ ALTER TABLE finance.budget_approvals OWNER TO postgres;
 
 CREATE TABLE finance.budget_validations (
     validation_id character varying(255) NOT NULL,
-    dept_id character varying(255) NOT NULL,
+    dept_id character varying(255),
     validation_date date NOT NULL,
-    validated_by character varying(255) NOT NULL,
+    validated_by character varying(255),
     validation_status character varying(10) NOT NULL,
     remarks character varying(20) NOT NULL,
     amount_requested numeric(12,2) NOT NULL,
@@ -4070,7 +4084,7 @@ ALTER TABLE finance.budget_validations OWNER TO postgres;
 
 CREATE TABLE human_resources.attendance_tracking (
     attendance_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
+    employee_id character varying(255),
     time_in timestamp without time zone NOT NULL,
     time_out timestamp without time zone NOT NULL,
     work_hours numeric(5,2) GENERATED ALWAYS AS ((EXTRACT(epoch FROM (time_out - time_in)) / (3600)::numeric)) STORED,
@@ -4088,7 +4102,7 @@ ALTER TABLE human_resources.attendance_tracking OWNER TO postgres;
 
 CREATE TABLE human_resources.candidates (
     candidate_id character varying(255) NOT NULL,
-    job_id character varying(255) NOT NULL,
+    job_id character varying(255),
     first_name character varying(50) NOT NULL,
     last_name character varying(50) NOT NULL,
     email character varying(100) NOT NULL,
@@ -4123,9 +4137,10 @@ ALTER TABLE human_resources.departments OWNER TO postgres;
 
 CREATE TABLE human_resources.employee_performance (
     performance_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    immediate_superior_id character varying(255) NOT NULL,
+    employee_id character varying(255),
+    immediate_superior_id character varying(255),
     rating integer NOT NULL,
+    bonus_percentage numeric(5,2),
     review_date date DEFAULT CURRENT_DATE,
     comments text,
     CONSTRAINT employee_performance_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
@@ -4140,13 +4155,13 @@ ALTER TABLE human_resources.employee_performance OWNER TO postgres;
 
 CREATE TABLE human_resources.employee_salary (
     salary_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    base_salary numeric(10,2) DEFAULT NULL::numeric,
-    contract_pay_type character varying(20) DEFAULT NULL::character varying,
-    contract_pay_rate numeric(10,2) DEFAULT NULL::numeric,
-    total_hours_worked numeric(10,2) DEFAULT NULL::numeric,
-    total_contract_pay numeric(10,2) DEFAULT NULL::numeric,
-    effective_date date DEFAULT CURRENT_DATE NOT NULL,
+    employee_id character varying(255),
+    base_salary numeric(10,2),
+    contract_pay_type character varying(20),
+    contract_pay_rate numeric(10,2),
+    total_hours_worked numeric(10,2),
+    total_contract_pay numeric(10,2),
+    effective_date date DEFAULT CURRENT_DATE,
     CONSTRAINT employee_salary_contract_pay_type_check CHECK (((contract_pay_type)::text = ANY ((ARRAY['Hourly'::character varying, 'Daily'::character varying])::text[])))
 );
 
@@ -4159,7 +4174,7 @@ ALTER TABLE human_resources.employee_salary OWNER TO postgres;
 
 CREATE TABLE human_resources.employees (
     employee_id character varying(255) NOT NULL,
-    dept_id character varying(255) NOT NULL,
+    dept_id character varying(255),
     first_name character varying(50) NOT NULL,
     last_name character varying(50) NOT NULL,
     email character varying(100) NOT NULL,
@@ -4181,8 +4196,8 @@ ALTER TABLE human_resources.employees OWNER TO postgres;
 
 CREATE TABLE human_resources.interviews (
     interview_id character varying(255) NOT NULL,
-    candidate_id character varying(255) NOT NULL,
-    interviewer_id character varying(255) NOT NULL,
+    candidate_id character varying(255),
+    interviewer_id character varying(255),
     interview_date timestamp without time zone NOT NULL,
     status character varying(20) DEFAULT 'Scheduled'::character varying,
     feedback text,
@@ -4199,15 +4214,15 @@ ALTER TABLE human_resources.interviews OWNER TO postgres;
 
 CREATE TABLE human_resources.job_posting (
     job_id character varying(255) NOT NULL,
-    request_id character varying(255) DEFAULT NULL::character varying,
-    dept_id character varying(255) NOT NULL,
+    request_id character varying(255),
+    dept_id character varying(255),
     "position" character varying(100) NOT NULL,
     description text NOT NULL,
     requirements text NOT NULL,
     employment_type character varying(20) NOT NULL,
     contract_duration smallint,
-    contract_rate numeric(10,2) DEFAULT NULL::numeric,
-    contract_pay_type character varying(20) DEFAULT NULL::character varying,
+    contract_rate numeric(10,2),
+    contract_pay_type character varying(20),
     status character varying(20) DEFAULT 'Open'::character varying,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT job_posting_contract_duration_check CHECK ((contract_duration >= 1)),
@@ -4225,15 +4240,15 @@ ALTER TABLE human_resources.job_posting OWNER TO postgres;
 
 CREATE TABLE human_resources.leave_requests (
     leave_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    dept_id character varying(255) NOT NULL,
-    immediate_superior_id character varying(255) NOT NULL,
+    employee_id character varying(255),
+    dept_id character varying(255),
+    immediate_superior_id character varying(255),
     management_approval_id character varying(255),
     leave_type character varying(20) NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
     total_days integer GENERATED ALWAYS AS (((end_date - start_date) + 1)) STORED,
-    is_paid boolean DEFAULT true NOT NULL,
+    is_paid boolean DEFAULT true,
     status character varying(50) DEFAULT 'Pending'::character varying,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT leave_requests_leave_type_check CHECK (((leave_type)::text = ANY ((ARRAY['Sick'::character varying, 'Vacation'::character varying, 'Personal'::character varying, 'Maternity'::character varying, 'Paternity'::character varying, 'Unpaid'::character varying])::text[]))),
@@ -4249,15 +4264,29 @@ ALTER TABLE human_resources.leave_requests OWNER TO postgres;
 
 CREATE TABLE human_resources.payroll (
     payroll_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
+    employee_id character varying(255),
     employment_type character varying(20) DEFAULT 'Permanent'::character varying NOT NULL,
     base_salary numeric(10,2),
     work_days integer,
     contract_pay_type character varying(20),
-    contract_pay_rate numeric(10,2) DEFAULT NULL::numeric,
-    total_hours_worked numeric(10,2) DEFAULT NULL::numeric,
+    contract_pay_rate numeric(10,2),
+    total_hours_worked numeric(10,2),
     total_contract_pay numeric(10,2) DEFAULT 0,
-    payment_date date DEFAULT CURRENT_DATE NOT NULL,
+    overtime_hours numeric(5,2) DEFAULT 0,
+    overtime_pay numeric(10,2) DEFAULT 0,
+    undertime_hours numeric(5,2) DEFAULT 0,
+    undertime_deductions numeric(10,2) DEFAULT 0,
+    unpaid_leave_days integer DEFAULT 0,
+    leave_deductions numeric(10,2) DEFAULT 0,
+    taxable_income numeric(10,2) DEFAULT 0,
+    tax numeric(10,2) DEFAULT 0,
+    sss_deduction numeric(10,2) DEFAULT 0,
+    philhealth_deduction numeric(10,2) DEFAULT 0,
+    pagibig_deduction numeric(10,2) DEFAULT 0,
+    thirteenth_month_pay numeric(10,2) DEFAULT 0,
+    performance_bonus numeric(10,2) DEFAULT 0,
+    net_salary numeric(10,2) DEFAULT 0,
+    payment_date date DEFAULT CURRENT_DATE,
     payment_status character varying(20) DEFAULT 'Pending'::character varying,
     CONSTRAINT payroll_contract_pay_type_check CHECK (((contract_pay_type)::text = ANY ((ARRAY['Hourly'::character varying, 'Daily'::character varying, 'Fixed'::character varying])::text[]))),
     CONSTRAINT payroll_employment_type_check CHECK (((employment_type)::text = ANY ((ARRAY['Permanent'::character varying, 'Contractual'::character varying])::text[]))),
@@ -4273,9 +4302,9 @@ ALTER TABLE human_resources.payroll OWNER TO postgres;
 
 CREATE TABLE human_resources.workforce_allocation (
     allocation_id character varying(255) NOT NULL,
-    requesting_dept_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    current_dept_id character varying(255) NOT NULL,
+    requesting_dept_id character varying(255),
+    employee_id character varying(255),
+    current_dept_id character varying(255),
     reason text NOT NULL,
     approval_status character varying(20) DEFAULT 'Pending'::character varying,
     status character varying(20) DEFAULT 'Active'::character varying,
@@ -4295,13 +4324,13 @@ ALTER TABLE human_resources.workforce_allocation OWNER TO postgres;
 
 CREATE TABLE inventory.deprecation_report (
     deprecation_report_id character varying(255) NOT NULL,
-    item_id character varying(225) NOT NULL,
-    content_id character varying(255) NOT NULL,
+    item_id character varying(255),
+    content_id character varying(255),
     quantity integer NOT NULL,
     reported_date timestamp without time zone NOT NULL,
-    status public.status_enum NOT NULL,
-    warehouse_id character varying(225) NOT NULL,
-    employee_id character varying(255) NOT NULL
+    status public.inventory_status_enum NOT NULL,
+    warehouse_id character varying(255),
+    employee_id character varying(255)
 );
 
 
@@ -4313,11 +4342,11 @@ ALTER TABLE inventory.deprecation_report OWNER TO postgres;
 
 CREATE TABLE inventory.inventory_adjustments (
     adjustment_id character varying(255) NOT NULL,
-    item_id character varying(255) NOT NULL,
-    adjustment_type public.inventory_status NOT NULL,
+    item_id character varying(255),
+    adjustment_type public.adjustment_type_enum NOT NULL,
     quantity integer NOT NULL,
     adjustment_date timestamp without time zone NOT NULL,
-    employee_id character varying(255) NOT NULL
+    employee_id character varying(255)
 );
 
 
@@ -4329,11 +4358,11 @@ ALTER TABLE inventory.inventory_adjustments OWNER TO postgres;
 
 CREATE TABLE inventory.inventory_cyclic_counts (
     inventory_count_id character varying(255) NOT NULL,
-    item_md_id character varying(255) NOT NULL,
+    item_md_id character varying(255),
     item_onhand integer NOT NULL,
     item_actually_counted integer NOT NULL,
     difference_in_qty integer NOT NULL,
-    employee_id character varying(255) NOT NULL,
+    employee_id character varying(255),
     status public.inventory_status NOT NULL,
     remarks text NOT NULL,
     time_period public.inventory_time_period NOT NULL
@@ -4348,13 +4377,13 @@ ALTER TABLE inventory.inventory_cyclic_counts OWNER TO postgres;
 
 CREATE TABLE inventory.inventory_item (
     inventory_item_id character varying(255) NOT NULL,
-    item_id character varying(225) NOT NULL,
-    content_id integer NOT NULL,
+    item_id character varying(255),
+    content_id character varying(255),
     expiry_date date NOT NULL,
     unit_cost numeric(10,3) NOT NULL,
     unit_of_measure character varying(25) NOT NULL,
     item_status public.item_status_enum NOT NULL,
-    warehouse_id character varying(225) NOT NULL
+    warehouse_id character varying(255)
 );
 
 
@@ -4366,8 +4395,8 @@ ALTER TABLE inventory.inventory_item OWNER TO postgres;
 
 CREATE TABLE inventory.inventory_item_master_data (
     item_md_id character varying(255) NOT NULL,
-    item_id character varying(225) NOT NULL,
-    unit_cost numeric(10,3) NOT NULL,
+    item_id character varying(255),
+    content_id character varying(255),
     minimum_threshold integer NOT NULL,
     maximum_threshold integer NOT NULL,
     total_stock integer NOT NULL,
@@ -4386,12 +4415,12 @@ ALTER TABLE inventory.inventory_item_master_data OWNER TO postgres;
 
 CREATE TABLE inventory.warehouse_movement (
     movement_id character varying(255) NOT NULL,
-    item_id character varying(225) NOT NULL,
+    item_id character varying(255),
     movement_type text NOT NULL,
     quantity integer NOT NULL,
     movement_date timestamp without time zone NOT NULL,
-    destination character varying(225) NOT NULL,
-    source character varying(225) NOT NULL,
+    destination character varying(255),
+    source character varying(255),
     reference_id_purchase_order character varying(255),
     reference_id_order character varying(255)
 );
@@ -4400,17 +4429,39 @@ CREATE TABLE inventory.warehouse_movement (
 ALTER TABLE inventory.warehouse_movement OWNER TO postgres;
 
 --
+-- Name: management_approvals; Type: TABLE; Schema: management; Owner: postgres
+--
+
+CREATE TABLE management.management_approvals (
+    approval_id character varying(255) NOT NULL,
+    request_id character varying(255),
+    checked_id character varying(255),
+    decision_date date NOT NULL,
+    issue_date date NOT NULL,
+    checked_by character varying(255),
+    checked_date date NOT NULL,
+    status public.management_approval_status NOT NULL,
+    due_date date NOT NULL,
+    remarks text
+);
+
+
+ALTER TABLE management.management_approvals OWNER TO postgres;
+
+--
 -- Name: bill_of_materials; Type: TABLE; Schema: mrp; Owner: postgres
 --
 
 CREATE TABLE mrp.bill_of_materials (
     bom_id character varying(255) NOT NULL,
-    product_description text,
-    unit_of_measure character varying(255),
+    product_id character varying(255),
+    material_id character varying(255),
+    product_description text NOT NULL,
+    unit_of_measure character varying(255) NOT NULL,
     specific_notes text,
-    quantity_of_unit integer,
-    cost_per_raw_material numeric(10,2),
-    total_cost_of_raw_materials numeric(10,2)
+    quantity_of_unit integer NOT NULL,
+    cost_per_raw_material numeric(10,2) NOT NULL,
+    total_cost_of_raw_materials numeric(10,2) NOT NULL
 );
 
 
@@ -4422,9 +4473,11 @@ ALTER TABLE mrp.bill_of_materials OWNER TO postgres;
 
 CREATE TABLE mrp.non_project_order_pricing (
     non_project_costing_id character varying(255) NOT NULL,
-    quantity integer,
-    mrp_base_price numeric(10,2),
-    final_price numeric(10,2)
+    order_id character varying(255),
+    product_id character varying(255),
+    quantity integer NOT NULL,
+    mrp_base_price numeric(10,2) NOT NULL,
+    final_price numeric(10,2) NOT NULL
 );
 
 
@@ -4436,12 +4489,12 @@ ALTER TABLE mrp.non_project_order_pricing OWNER TO postgres;
 
 CREATE TABLE mrp.overall_production (
     cost_id character varying(255) NOT NULL,
+    production_order_detail_id character varying(255),
     product_id character varying(255),
     bom_id character varying(255),
-    cost_of_raw_materials numeric(10,2),
-    cost_of_production numeric(10,2),
-    labor_cost numeric(10,2),
-    total_mrp_cost numeric(10,2)
+    cost_of_raw_materials numeric(10,2) NOT NULL,
+    labor_cost numeric(10,2) NOT NULL,
+    total_mrp_cost numeric(10,2) NOT NULL
 );
 
 
@@ -4455,11 +4508,11 @@ CREATE TABLE mrp.principal_items (
     principal_item_id character varying(255) NOT NULL,
     service_request_id character varying(255),
     service_order_id character varying(255),
-    quantity integer,
+    quantity integer NOT NULL,
     item_id character varying(255),
-    unit_price numeric(10,2),
-    markup_price numeric(10,2),
-    pricing_date date
+    unit_price numeric(10,2) NOT NULL,
+    markup_price numeric(10,2) NOT NULL,
+    pricing_date date NOT NULL
 );
 
 
@@ -4472,11 +4525,11 @@ ALTER TABLE mrp.principal_items OWNER TO postgres;
 CREATE TABLE operations.document_header (
     document_id character varying(255) NOT NULL,
     document_type public.document_type_enum NOT NULL,
-    vendor_code character varying(255) NOT NULL,
+    vendor_code character varying(255),
     document_no integer NOT NULL,
     transaction_id character varying(255) NOT NULL,
     module_request public.module_request_enum NOT NULL,
-    status public.status_enum NOT NULL,
+    status public.operations_status_enum NOT NULL,
     posting_date date NOT NULL,
     delivery_date date,
     document_date date NOT NULL,
@@ -4500,7 +4553,7 @@ ALTER TABLE operations.document_header OWNER TO postgres;
 
 CREATE TABLE operations.document_items (
     content_id character varying(255) NOT NULL,
-    item_id character varying(255),
+    asset_id character varying(255),
     document_id character varying(255),
     material_id character varying(255),
     serial_id character varying(255),
@@ -4522,6 +4575,7 @@ ALTER TABLE operations.document_items OWNER TO postgres;
 CREATE TABLE operations.external_module (
     external_id character varying(255) NOT NULL,
     purchase_id character varying(255),
+    request_id character varying(255),
     approval_id character varying(255),
     goods_issue_id character varying(255),
     approval_request_id character varying(255),
@@ -4544,7 +4598,7 @@ ALTER TABLE operations.external_module OWNER TO postgres;
 
 CREATE TABLE operations.product_document_items (
     productdocu_id character varying(255) NOT NULL,
-    product_id character varying(255) NOT NULL,
+    product_id character varying(255),
     quantity_rejected integer DEFAULT 0 NOT NULL,
     defect_type character varying(155) NOT NULL,
     selling_price numeric(18,2) NOT NULL,
@@ -4590,7 +4644,7 @@ ALTER TABLE production.components OWNER TO postgres;
 
 CREATE TABLE production.delivery_requests (
     delivery_request_id character varying(255) NOT NULL,
-    production_order_id character varying(255) NOT NULL,
+    production_order_id character varying(255),
     request_type public.request_type NOT NULL,
     request_date timestamp without time zone DEFAULT now(),
     requested_delivery_date date DEFAULT now(),
@@ -4622,8 +4676,8 @@ ALTER TABLE production.equipment OWNER TO postgres;
 
 CREATE TABLE production.labor (
     labor_id character varying(255) NOT NULL,
-    production_order_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
+    production_order_id character varying(255),
+    employee_id character varying(255),
     date_worked timestamp without time zone DEFAULT now(),
     hours_worked integer NOT NULL
 );
@@ -4637,11 +4691,11 @@ ALTER TABLE production.labor OWNER TO postgres;
 
 CREATE TABLE production.production_orders_details (
     production_order_detail_id character varying(255) NOT NULL,
-    production_order_id character varying(255) NOT NULL,
+    production_order_id character varying(255),
     actual_quantity integer NOT NULL,
     cost_of_production numeric(10,2) NOT NULL,
     miscellaneous_costs numeric(10,2) NOT NULL,
-    equipment_id character varying(255) NOT NULL,
+    equipment_id character varying(255),
     rework_required boolean NOT NULL,
     rework_notes text,
     content_id character varying(255)
@@ -4674,12 +4728,12 @@ ALTER TABLE production.production_orders_header OWNER TO postgres;
 
 CREATE TABLE project_management.contractual_worker_request (
     request_id character varying(255) NOT NULL,
-    intrnl_project_id character varying(255) NOT NULL,
-    dept_id character varying(255) NOT NULL,
+    intrnl_project_id character varying(255),
     job_title character varying(50) NOT NULL,
     job_description text,
     required_position character varying(50) NOT NULL,
-    employment_type public.employment_type NOT NULL
+    employment_type public.employment_type NOT NULL,
+    dept_id character varying(255)
 );
 
 
@@ -4691,8 +4745,8 @@ ALTER TABLE project_management.contractual_worker_request OWNER TO postgres;
 
 CREATE TABLE project_management.external_project_cost_management (
     project_resources_id character varying(255) NOT NULL,
-    project_id character varying(255) NOT NULL,
-    cost_id character varying(255) NOT NULL,
+    project_id character varying(255),
+    cost_id character varying(255),
     project_budget_approval public.project_budget_approval NOT NULL
 );
 
@@ -4705,7 +4759,7 @@ ALTER TABLE project_management.external_project_cost_management OWNER TO postgre
 
 CREATE TABLE project_management.external_project_details (
     project_id character varying(255) NOT NULL,
-    ext_project_request_id character varying(255) NOT NULL,
+    ext_project_request_id character varying(255),
     project_status public.project_status NOT NULL
 );
 
@@ -4718,8 +4772,8 @@ ALTER TABLE project_management.external_project_details OWNER TO postgres;
 
 CREATE TABLE project_management.external_project_labor (
     project_labor_id character varying(255) NOT NULL,
-    project_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL
+    project_id character varying(255),
+    employee_id character varying(255)
 );
 
 
@@ -4733,8 +4787,8 @@ CREATE TABLE project_management.external_project_request (
     ext_project_request_id character varying(255) NOT NULL,
     ext_project_name character varying(50) NOT NULL,
     ext_project_description text,
-    approval_id character varying(255) NOT NULL,
-    item_id character varying(255) NOT NULL
+    approval_id character varying(255),
+    item_id character varying(255)
 );
 
 
@@ -4746,11 +4800,11 @@ ALTER TABLE project_management.external_project_request OWNER TO postgres;
 
 CREATE TABLE project_management.external_project_task_list (
     task_id character varying(255) NOT NULL,
-    project_id character varying(255) NOT NULL,
+    project_id character varying(255),
     task_description text,
     task_status public.task_status NOT NULL,
     task_deadline date NOT NULL,
-    employee_id character varying(255) NOT NULL
+    project_labor_id character varying(255)
 );
 
 
@@ -4762,11 +4816,11 @@ ALTER TABLE project_management.external_project_task_list OWNER TO postgres;
 
 CREATE TABLE project_management.external_project_tracking (
     project_tracking_id character varying(255) NOT NULL,
-    project_id character varying(255) NOT NULL,
+    project_id character varying(255),
     project_milestone public.project_milestone NOT NULL,
     start_date date NOT NULL,
     estimated_end_date date NOT NULL,
-    project_warranty_id character varying(255) NOT NULL,
+    project_warranty_id character varying(255),
     project_issue text
 );
 
@@ -4779,7 +4833,7 @@ ALTER TABLE project_management.external_project_tracking OWNER TO postgres;
 
 CREATE TABLE project_management.external_project_warranty (
     project_warranty_id character varying(255) NOT NULL,
-    project_id character varying(255) NOT NULL,
+    project_id character varying(255),
     warranty_coverage_yr integer NOT NULL,
     warranty_start_date date NOT NULL,
     warranty_end_date date NOT NULL,
@@ -4795,7 +4849,7 @@ ALTER TABLE project_management.external_project_warranty OWNER TO postgres;
 
 CREATE TABLE project_management.internal_project_details (
     intrnl_project_id character varying(255) NOT NULL,
-    project_request_id character varying(255) NOT NULL,
+    project_request_id character varying(255),
     intrnl_project_status public.intrnl_project_status NOT NULL
 );
 
@@ -4808,8 +4862,8 @@ ALTER TABLE project_management.internal_project_details OWNER TO postgres;
 
 CREATE TABLE project_management.internal_project_labor (
     intrnl_project_labor_id character varying(255) NOT NULL,
-    intrnl_project_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL
+    intrnl_project_id character varying(255),
+    employee_id character varying(255)
 );
 
 
@@ -4826,9 +4880,9 @@ CREATE TABLE project_management.internal_project_request (
     request_date date NOT NULL,
     request_valid_date date NOT NULL,
     request_starting_date date NOT NULL,
-    approval_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    dept_id character varying(255) NOT NULL,
+    approval_id character varying(255),
+    employee_id character varying(255),
+    dept_id character varying(255),
     project_type public.project_type NOT NULL
 );
 
@@ -4841,11 +4895,11 @@ ALTER TABLE project_management.internal_project_request OWNER TO postgres;
 
 CREATE TABLE project_management.internal_project_task_list (
     intrnl_task_id character varying(255) NOT NULL,
-    intrnl_project_id character varying(255) NOT NULL,
+    intrnl_project_id character varying(255),
     intrnl_task_description text,
     intrnl_task_status public.intrnl_task_status NOT NULL,
     intrnl_task_deadline date NOT NULL,
-    employee_id character varying(255) NOT NULL
+    intrnl_project_labor_id character varying(255)
 );
 
 
@@ -4857,7 +4911,7 @@ ALTER TABLE project_management.internal_project_task_list OWNER TO postgres;
 
 CREATE TABLE project_management.internal_project_tracking (
     intrnl_project_tracking_id character varying(255) NOT NULL,
-    intrnl_project_id character varying(255) NOT NULL,
+    intrnl_project_id character varying(255),
     intrnl_start_date date NOT NULL,
     intrnl_estimated_end_date date NOT NULL,
     intrnl_project_issue text
@@ -5143,9 +5197,9 @@ ALTER TABLE public.django_session OWNER TO postgres;
 
 CREATE TABLE purchasing.batch_inspection (
     inspection_id character varying(255) NOT NULL,
-    shipment_id character varying(255) NOT NULL,
+    shipment_id character varying(255),
     inspection_date date,
-    employee_id character varying(255) NOT NULL,
+    employee_id character varying(255),
     inspection_result public.inspection_result,
     remarks character varying(255)
 );
@@ -5159,7 +5213,7 @@ ALTER TABLE purchasing.batch_inspection OWNER TO postgres;
 
 CREATE TABLE purchasing.credit_memo (
     credit_memo_id character varying(255) NOT NULL,
-    inspection_id character varying(255) NOT NULL,
+    inspection_id character varying(255),
     status public.purchase_status,
     document_no integer,
     document_date date,
@@ -5182,7 +5236,7 @@ ALTER TABLE purchasing.credit_memo OWNER TO postgres;
 
 CREATE TABLE purchasing.purchase_invoice (
     invoice_id character varying(255) NOT NULL,
-    purchase_id character varying(255) NOT NULL,
+    purchase_id character varying(255),
     status public.purchase_status,
     document_no integer,
     document_date date,
@@ -5204,7 +5258,7 @@ ALTER TABLE purchasing.purchase_invoice OWNER TO postgres;
 
 CREATE TABLE purchasing.purchase_order (
     purchase_id character varying(255) NOT NULL,
-    quotation_id character varying(255) NOT NULL,
+    quotation_id character varying(255),
     order_date date,
     delivery_date date,
     document_date date,
@@ -5220,8 +5274,8 @@ ALTER TABLE purchasing.purchase_order OWNER TO postgres;
 
 CREATE TABLE purchasing.purchase_quotation (
     quotation_id character varying(255) NOT NULL,
-    vendor_code character varying(255) NOT NULL,
-    quotation_content_id character varying(255) NOT NULL,
+    vendor_code character varying(255),
+    quotation_content_id character varying(255),
     status public.purchase_status,
     document_no integer,
     valid_date date,
@@ -5243,8 +5297,8 @@ ALTER TABLE purchasing.purchase_quotation OWNER TO postgres;
 
 CREATE TABLE purchasing.purchase_requests (
     request_id character varying(255) NOT NULL,
-    employee_id character varying(255) NOT NULL,
-    approval_id character varying(255) NOT NULL,
+    employee_id character varying(255),
+    approval_id character varying(255),
     item_id character varying(255),
     purchase_item character varying(255),
     purchase_description text,
@@ -5263,7 +5317,7 @@ ALTER TABLE purchasing.purchase_requests OWNER TO postgres;
 
 CREATE TABLE purchasing.quotation_contents (
     quotation_content_id character varying(255) NOT NULL,
-    request_id character varying(255) NOT NULL,
+    request_id character varying(255),
     unit_price numeric(10,2),
     discount numeric(10,2),
     tax_code character varying(50),
@@ -5279,7 +5333,7 @@ ALTER TABLE purchasing.quotation_contents OWNER TO postgres;
 
 CREATE TABLE purchasing.received_shipments (
     shipment_id character varying(255) NOT NULL,
-    purchase_id character varying(255) NOT NULL,
+    purchase_id character varying(255),
     delivery_date date
 );
 
@@ -5292,7 +5346,6 @@ ALTER TABLE purchasing.received_shipments OWNER TO postgres;
 
 CREATE TABLE purchasing.vendor_application (
     application_reference character varying(255) NOT NULL,
-    vendor_code character varying(255) NOT NULL,
     status public.vendor_application_status,
     company_name character varying,
     tax_number integer,
@@ -5322,7 +5375,7 @@ ALTER TABLE purchasing.vendor_application OWNER TO postgres;
 
 CREATE TABLE sales.blanket_agreement (
     agreement_id character varying(255) NOT NULL,
-    statement_id character varying(255) NOT NULL,
+    statement_id character varying(255),
     start_date timestamp without time zone,
     end_date timestamp without time zone,
     status public.agreement_status_enum,
@@ -5372,7 +5425,7 @@ CREATE TABLE sales.customers (
     customer_id character varying(255) NOT NULL,
     gl_account_id character varying(255),
     partner_id character varying(255),
-    name character varying(255) NOT NULL,
+    name character varying(255),
     email_address character varying(255),
     phone_number character varying(20),
     address_line1 character varying(255),
@@ -5395,7 +5448,7 @@ ALTER TABLE sales.customers OWNER TO postgres;
 
 CREATE TABLE sales.leads (
     lead_id character varying(255) NOT NULL,
-    salesrep_id character varying(255) NOT NULL,
+    salesrep_id character varying(255),
     lead_name character varying(255),
     lead_email character varying(255),
     lead_phonenum character varying(20),
@@ -5412,9 +5465,9 @@ ALTER TABLE sales.leads OWNER TO postgres;
 
 CREATE TABLE sales.opportunities (
     opportunity_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    partner_id character varying(255) NOT NULL,
-    salesrep_id character varying(255) NOT NULL,
+    customer_id character varying(255),
+    partner_id character varying(255),
+    salesrep_id character varying(255),
     estimated_value numeric(10,2),
     expected_closed_date date,
     stage public.opportunity_stage_enum,
@@ -5432,7 +5485,7 @@ ALTER TABLE sales.opportunities OWNER TO postgres;
 
 CREATE TABLE sales.orders (
     order_id character varying(255) NOT NULL,
-    statement_id character varying(255) NOT NULL,
+    statement_id character varying(255),
     quotation_id character varying(255),
     rework_id character varying(255),
     goods_issue_id character varying(255),
@@ -5451,7 +5504,7 @@ ALTER TABLE sales.orders OWNER TO postgres;
 
 CREATE TABLE sales.payments (
     payment_id character varying(255) NOT NULL,
-    order_id character varying(255) NOT NULL,
+    order_id character varying(255),
     payment_method public.payment_method_enum,
     payment_status public.payment_status_enum DEFAULT 'Pending'::public.payment_status_enum,
     payment_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
@@ -5466,7 +5519,7 @@ ALTER TABLE sales.payments OWNER TO postgres;
 
 CREATE TABLE sales.quotation (
     quotation_id character varying(255) NOT NULL,
-    statement_id character varying(255) NOT NULL,
+    statement_id character varying(255),
     agreement_id character varying(255),
     date_issued timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     status public.quotation_status_enum
@@ -5481,10 +5534,10 @@ ALTER TABLE sales.quotation OWNER TO postgres;
 
 CREATE TABLE sales.receipt (
     receipt_id character varying(255) NOT NULL,
-    shipping_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    payments_id character varying(255) NOT NULL,
-    policy_id character varying(255) NOT NULL,
+    shipping_id character varying(255),
+    customer_id character varying(255),
+    payments_id character varying(255),
+    policy_id character varying(255),
     date_signed date,
     signed_docu character varying(255),
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
@@ -5499,10 +5552,10 @@ ALTER TABLE sales.receipt OWNER TO postgres;
 
 CREATE TABLE sales.renewal_warranty (
     renewal_id character varying(255) NOT NULL,
-    order_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    product_id character varying(255) NOT NULL,
-    payments_id character varying(255) NOT NULL,
+    order_id character varying(255),
+    customer_id character varying(255),
+    product_id character varying(255),
+    payments_id character varying(255),
     service_request_id character varying(255),
     original_warranty_start date,
     original_warranty_end date,
@@ -5538,7 +5591,7 @@ ALTER TABLE sales.sales_costing OWNER TO postgres;
 
 CREATE TABLE sales.sales_invoices (
     invoice_id character varying(255) NOT NULL,
-    order_id character varying(255) NOT NULL,
+    order_id character varying(255),
     invoice_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     total_amount numeric(10,2),
     invoice_status public.invoice_status_enum,
@@ -5555,9 +5608,9 @@ ALTER TABLE sales.sales_invoices OWNER TO postgres;
 
 CREATE TABLE sales.shipping_details (
     shipping_id character varying(255) NOT NULL,
-    order_id character varying(255) NOT NULL,
-    operational_cost_id character varying(255) NOT NULL,
-    shipment_id character varying(255) NOT NULL,
+    order_id character varying(255),
+    operational_cost_id character varying(255),
+    shipment_id character varying(255),
     shipping_method public.shipping_method_enum,
     tracking_num character varying(50),
     shipping_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
@@ -5574,8 +5627,8 @@ ALTER TABLE sales.shipping_details OWNER TO postgres;
 
 CREATE TABLE sales.statement (
     statement_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    salesrep_id character varying(255) NOT NULL,
+    customer_id character varying(255),
+    salesrep_id character varying(255),
     total_amount numeric(10,2),
     discount numeric(10,2) DEFAULT 0,
     type public.quotation_type_enum,
@@ -5592,7 +5645,7 @@ ALTER TABLE sales.statement OWNER TO postgres;
 
 CREATE TABLE sales.statement_item (
     statement_item_id character varying(255) NOT NULL,
-    statement_id character varying(255) NOT NULL,
+    statement_id character varying(255),
     sales_costing_id character varying(255),
     product_id character varying(255),
     item_md_id character varying(255),
@@ -5616,8 +5669,8 @@ ALTER TABLE sales.statement_item OWNER TO postgres;
 
 CREATE TABLE sales.ticket (
     ticket_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    salesrep_id character varying(255) NOT NULL,
+    customer_id character varying(255),
+    salesrep_id character varying(255),
     subject character varying(255),
     description text,
     status public.ticket_status_enum,
@@ -5634,7 +5687,7 @@ ALTER TABLE sales.ticket OWNER TO postgres;
 
 CREATE TABLE sales.ticket_convo (
     convo_id character varying(255) NOT NULL,
-    ticket_id character varying(255) NOT NULL,
+    ticket_id character varying(255),
     content character varying(255),
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
@@ -5648,9 +5701,9 @@ ALTER TABLE sales.ticket_convo OWNER TO postgres;
 
 CREATE TABLE services.after_analysis_sched (
     analysis_sched_id character varying(255) NOT NULL,
-    service_request_id character varying(255) NOT NULL,
-    service_date date,
-    technician_id character varying(255) NOT NULL,
+    analysis_id character varying(255),
+    service_date date NOT NULL,
+    technician_id character varying(255),
     description text,
     service_status text NOT NULL,
     CONSTRAINT after_analysis_sched_service_status_check CHECK ((service_status = ANY (ARRAY['Scheduled'::text, 'Completed'::text, 'Cancelled'::text, 'In Progress'::text])))
@@ -5660,54 +5713,15 @@ CREATE TABLE services.after_analysis_sched (
 ALTER TABLE services.after_analysis_sched OWNER TO postgres;
 
 --
--- Name: chat_message; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.chat_message (
-    message_id character varying(255) NOT NULL,
-    session_id character varying(255) NOT NULL,
-    sender_id character varying(255) NOT NULL,
-    sender_role text NOT NULL,
-    message_text text NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chat_message_sender_role_check CHECK ((sender_role = ANY (ARRAY['Technician'::text, 'Customer'::text])))
-);
-
-
-ALTER TABLE services.chat_message OWNER TO postgres;
-
---
--- Name: comm_session; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.comm_session (
-    session_id character varying(255) NOT NULL,
-    technician_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    session_type text NOT NULL,
-    start_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    end_time timestamp without time zone,
-    status text NOT NULL,
-    CONSTRAINT comm_session_session_type_check CHECK ((session_type = ANY (ARRAY['Support'::text, 'Consultation'::text, 'Follow-up'::text]))),
-    CONSTRAINT comm_session_status_check CHECK ((status = ANY (ARRAY['Scheduled'::text, 'Ongoing'::text, 'Completed'::text, 'Cancelled'::text])))
-);
-
-
-ALTER TABLE services.comm_session OWNER TO postgres;
-
---
 -- Name: delivery_order; Type: TABLE; Schema: services; Owner: postgres
 --
 
 CREATE TABLE services.delivery_order (
     delivery_order_id character varying(255) NOT NULL,
-    service_purchase_id character varying(255),
-    service_order_id character varying(255),
-    service_billing_id character varying(255),
-    customer_id character varying(255) NOT NULL,
+    service_order_item_id character varying(255),
+    customer_id character varying(255),
     customer_address text,
     delivery_status text NOT NULL,
-    service_billing_amount numeric(10,2),
     delivery_date date,
     CONSTRAINT delivery_order_delivery_status_check CHECK ((delivery_status = ANY (ARRAY['Pending'::text, 'Shipped'::text, 'Delivered'::text])))
 );
@@ -5716,37 +5730,21 @@ CREATE TABLE services.delivery_order (
 ALTER TABLE services.delivery_order OWNER TO postgres;
 
 --
--- Name: renewal_history; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.renewal_history (
-    renewal_id character varying(255) NOT NULL,
-    contract_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    previous_start_date date,
-    previous_end_date date,
-    renewal_date date,
-    date_renewed date,
-    new_end_date date,
-    status text NOT NULL,
-    CONSTRAINT renewal_history_status_check CHECK ((status = ANY (ARRAY['Pending'::text, 'Approved'::text, 'Rejected'::text])))
-);
-
-
-ALTER TABLE services.renewal_history OWNER TO postgres;
-
---
 -- Name: service_analysis; Type: TABLE; Schema: services; Owner: postgres
 --
 
 CREATE TABLE services.service_analysis (
     analysis_id character varying(255) NOT NULL,
-    service_request_id character varying(255) NOT NULL,
+    service_request_id character varying(255),
     analysis_date date,
-    technician_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
+    technician_id character varying(255),
+    customer_id character varying(255),
+    analysis_status text NOT NULL,
     analysis_description text,
-    product_id character varying(255)
+    product_id character varying(255),
+    contract_id character varying(255),
+    labor_cost numeric(10,2),
+    CONSTRAINT service_analysis_analysis_status_check CHECK ((analysis_status = ANY (ARRAY['Scheduled'::text, 'Done'::text])))
 );
 
 
@@ -5758,19 +5756,19 @@ ALTER TABLE services.service_analysis OWNER TO postgres;
 
 CREATE TABLE services.service_billing (
     service_billing_id character varying(255) NOT NULL,
-    service_purchase_id character varying(255),
-    service_order_id character varying(255),
-    service_request_id character varying(255) NOT NULL,
+    service_order_item_id character varying(255),
+    analysis_id character varying(255),
+    service_request_id character varying(255),
     charge_type text NOT NULL,
-    product_id character varying(255),
-    warranty_status text NOT NULL,
+    item_name character varying(255),
     service_billing_amount numeric(10,2),
-    billing_status text NOT NULL,
+    outsource_fee numeric(10,2) DEFAULT 0.00,
+    order_item_price numeric(10,2) DEFAULT 0.00,
+    total_payable numeric(10,2) DEFAULT 0.00,
     date_paid date,
-    CONSTRAINT service_billing_billing_status_check CHECK ((billing_status = ANY (ARRAY['Unpaid'::text, 'Paid'::text, 'Pending'::text]))),
     CONSTRAINT service_billing_charge_type_check CHECK ((charge_type = ANY (ARRAY['Labor'::text, 'Parts'::text, 'Other'::text]))),
-    CONSTRAINT service_billing_service_billing_amount_check CHECK ((service_billing_amount >= (0)::numeric)),
-    CONSTRAINT service_billing_warranty_status_check CHECK ((warranty_status = ANY (ARRAY['Valid'::text, 'Expired'::text, 'N/A'::text])))
+    CONSTRAINT service_billing_outsource_fee_check CHECK ((outsource_fee >= (0)::numeric)),
+    CONSTRAINT service_billing_service_billing_amount_check CHECK ((service_billing_amount >= (0)::numeric))
 );
 
 
@@ -5783,21 +5781,18 @@ ALTER TABLE services.service_billing OWNER TO postgres;
 CREATE TABLE services.service_call (
     service_call_id character varying(255) NOT NULL,
     date_created timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    customer_id character varying(255) NOT NULL,
-    customer_name character varying(255),
-    queue integer NOT NULL,
+    service_ticket_id character varying(255),
+    customer_id character varying(255),
     call_type text NOT NULL,
-    technician_id character varying(255) NOT NULL,
+    technician_id character varying(255),
     call_status text NOT NULL,
     date_closed timestamp without time zone,
-    origin text NOT NULL,
-    contract_id character varying(255) NOT NULL,
+    contract_no character varying(255),
     end_date date,
     priority_level text NOT NULL,
     resolution text,
     CONSTRAINT service_call_call_status_check CHECK ((call_status = ANY (ARRAY['Open'::text, 'Closed'::text, 'In Progress'::text]))),
     CONSTRAINT service_call_call_type_check CHECK ((call_type = ANY (ARRAY['Inquiry'::text, 'Request'::text, 'Other'::text]))),
-    CONSTRAINT service_call_origin_check CHECK ((origin = ANY (ARRAY['Phone'::text, 'Email'::text, 'Walk-in'::text]))),
     CONSTRAINT service_call_priority_level_check CHECK ((priority_level = ANY (ARRAY['Low'::text, 'Medium'::text, 'High'::text])))
 );
 
@@ -5805,121 +5800,35 @@ CREATE TABLE services.service_call (
 ALTER TABLE services.service_call OWNER TO postgres;
 
 --
--- Name: service_call_history; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.service_call_history (
-    service_call_id character varying(255) NOT NULL,
-    date_update date NOT NULL,
-    time_update timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    status text NOT NULL,
-    description text,
-    CONSTRAINT service_call_history_status_check CHECK ((status = ANY (ARRAY['Open'::text, 'In Progress'::text, 'Closed'::text])))
-);
-
-
-ALTER TABLE services.service_call_history OWNER TO postgres;
-
---
--- Name: service_call_queue_seq; Type: SEQUENCE; Schema: services; Owner: postgres
---
-
-ALTER TABLE services.service_call ALTER COLUMN queue ADD GENERATED BY DEFAULT AS IDENTITY (
-    SEQUENCE NAME services.service_call_queue_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: service_contract; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.service_contract (
-    contract_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    contract_description text,
-    start_date date,
-    end_date date,
-    termination_date date,
-    service_type text NOT NULL,
-    contract_type text NOT NULL,
-    product_id character varying(255) NOT NULL,
-    contract_status text NOT NULL,
-    active_items integer,
-    remarks text,
-    renewal boolean DEFAULT false,
-    date_renewed date,
-    date_last_renewed date,
-    approval_remarks text,
-    approval_date date,
-    approved_by character varying(255),
-    CONSTRAINT service_contract_contract_status_check CHECK ((contract_status = ANY (ARRAY['Active'::text, 'Expired'::text, 'Terminated'::text]))),
-    CONSTRAINT service_contract_contract_type_check CHECK ((contract_type = ANY (ARRAY['Regular'::text, 'Extended'::text, 'Other'::text]))),
-    CONSTRAINT service_contract_service_type_check CHECK ((service_type = ANY (ARRAY['Repair'::text, 'Installation'::text, 'Maintenance'::text, 'Other'::text])))
-);
-
-
-ALTER TABLE services.service_contract OWNER TO postgres;
-
---
--- Name: service_cost; Type: TABLE; Schema: services; Owner: postgres
---
-
-CREATE TABLE services.service_cost (
-    service_cost_id character varying(255) NOT NULL,
-    analysis_id character varying(255) NOT NULL,
-    service_billing_id character varying(255) NOT NULL,
-    cost_type text NOT NULL,
-    outsource_fee numeric(10,2) DEFAULT 0.00,
-    cost_amount numeric(10,2) DEFAULT 0.00,
-    CONSTRAINT service_cost_cost_amount_check CHECK ((cost_amount >= (0)::numeric)),
-    CONSTRAINT service_cost_cost_type_check CHECK ((cost_type = ANY (ARRAY['Labor'::text, 'Materials'::text, 'Other'::text]))),
-    CONSTRAINT service_cost_outsource_fee_check CHECK ((outsource_fee >= (0)::numeric))
-);
-
-
-ALTER TABLE services.service_cost OWNER TO postgres;
-
---
 -- Name: service_order; Type: TABLE; Schema: services; Owner: postgres
 --
 
 CREATE TABLE services.service_order (
     service_order_id character varying(255) NOT NULL,
-    analysis_id character varying(255) NOT NULL,
-    customer_id character varying(255) NOT NULL,
-    item_id character varying(255) NOT NULL,
-    item_name character varying(255),
-    item_availability text NOT NULL,
-    item_price numeric(10,2),
-    CONSTRAINT service_order_item_availability_check CHECK ((item_availability = ANY (ARRAY['Available'::text, 'Out of Stock'::text])))
+    analysis_id character varying(255),
+    customer_id character varying(255),
+    order_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
 ALTER TABLE services.service_order OWNER TO postgres;
 
 --
--- Name: service_purchase; Type: TABLE; Schema: services; Owner: postgres
+-- Name: service_order_item; Type: TABLE; Schema: services; Owner: postgres
 --
 
-CREATE TABLE services.service_purchase (
-    service_purchase_id character varying(255) NOT NULL,
-    service_order_id character varying(255) NOT NULL,
+CREATE TABLE services.service_order_item (
+    service_order_item_id character varying(255) NOT NULL,
+    service_order_id character varying(255),
     principal_item_id character varying(255),
-    item_id character varying(255) NOT NULL,
     item_name character varying(255),
-    request_date date,
-    quantity integer,
-    markup_price numeric(10,2),
-    customer_id character varying(255)
+    item_quantity integer DEFAULT 1,
+    item_price numeric(10,2),
+    CONSTRAINT service_order_item_item_quantity_check CHECK ((item_quantity > 0))
 );
 
 
-ALTER TABLE services.service_purchase OWNER TO postgres;
+ALTER TABLE services.service_order_item OWNER TO postgres;
 
 --
 -- Name: service_report; Type: TABLE; Schema: services; Owner: postgres
@@ -5927,9 +5836,10 @@ ALTER TABLE services.service_purchase OWNER TO postgres;
 
 CREATE TABLE services.service_report (
     report_id character varying(255) NOT NULL,
-    service_call_id character varying(255) NOT NULL,
-    service_billing_id character varying(255) NOT NULL,
-    technician_id character varying(255) NOT NULL,
+    service_call_id character varying(255),
+    service_ticket_id character varying(255),
+    service_billing_id character varying(255),
+    technician_id character varying(255),
     description text,
     report_status text NOT NULL,
     submission_date date,
@@ -5945,17 +5855,15 @@ ALTER TABLE services.service_report OWNER TO postgres;
 
 CREATE TABLE services.service_request (
     service_request_id character varying(255) NOT NULL,
-    service_call_id character varying(255) NOT NULL,
+    service_call_id character varying(255),
     request_date date,
-    customer_id character varying(255) NOT NULL,
-    technician_id character varying(255) NOT NULL,
+    customer_id character varying(255),
+    technician_id character varying(255),
     request_type text NOT NULL,
     request_status text NOT NULL,
-    contract_type text NOT NULL,
     request_description text,
     request_remarks text,
-    CONSTRAINT service_request_contract_type_check CHECK ((contract_type = ANY (ARRAY['Regular'::text, 'Extended'::text, 'Other'::text]))),
-    CONSTRAINT service_request_request_status_check CHECK ((request_status = ANY (ARRAY['Pending'::text, 'Approved'::text, 'Rejected'::text]))),
+    CONSTRAINT service_request_request_status_check CHECK ((request_status = ANY (ARRAY['Pending'::text, 'Approved'::text, 'Rejected'::text, 'In Progress'::text]))),
     CONSTRAINT service_request_request_type_check CHECK ((request_type = ANY (ARRAY['Repair'::text, 'Installation'::text, 'Maintenance'::text, 'Other'::text])))
 );
 
@@ -5967,7 +5875,8 @@ ALTER TABLE services.service_request OWNER TO postgres;
 --
 
 CREATE TABLE services.service_ticket (
-    service_ticket_id character varying(255) NOT NULL
+    service_ticket_id character varying(255) NOT NULL,
+    ticket_id character varying(255)
 );
 
 
@@ -5978,24 +5887,69 @@ ALTER TABLE services.service_ticket OWNER TO postgres;
 --
 
 CREATE TABLE services.technician (
-    technician_id character varying(255) NOT NULL
+    technician_id character varying(255) NOT NULL,
+    employee_id character varying(255)
 );
 
 
 ALTER TABLE services.technician OWNER TO postgres;
 
 --
--- Name: delivery_receipt delivery_receipt_id; Type: DEFAULT; Schema: distribution; Owner: postgres
---
-
-ALTER TABLE ONLY distribution.delivery_receipt ALTER COLUMN delivery_receipt_id SET DEFAULT nextval('distribution.delivery_receipt_delivery_receipt_id_seq'::regclass);
-
-
---
 -- Data for Name: chart_of_accounts; Type: TABLE DATA; Schema: accounting; Owner: postgres
 --
 
-COPY accounting.chart_of_accounts (account_id, account_name, account_type) FROM stdin;
+COPY accounting.chart_of_accounts (account_code, account_name, account_type) FROM stdin;
+ACC-COA-2025-CA1010	Cash on Hand	Current Asset
+ACC-COA-2025-CA1020	Cash in Bank	Current Asset
+ACC-COA-2025-CA1030	Accounts Receivable	Current Asset
+ACC-COA-2025-CA1040	Allowance for Doubtful Accounts	Contra-Asset
+ACC-COA-2025-CA1050	Raw Materials Inventory	Current Asset
+ACC-COA-2025-CA1060	Work-in-Process (WIP) Inventory	Current Asset
+ACC-COA-2025-CA1070	Finished Goods Inventory	Current Asset
+ACC-COA-2025-CA1080	Prepaid Expenses	Current Asset
+ACC-COA-2025-CA1090	Supplier Advances	Current Asset
+ACC-COA-2025-NA1100	Land & Buildings	Non-Current Asset
+ACC-COA-2025-NA1110	Machinery & Equipment	Non-Current Asset
+ACC-COA-2025-NA1120	Vehicles	Non-Current Asset
+ACC-COA-2025-NA1130	Office Furniture & Fixtures	Non-Current Asset
+ACC-COA-2025-NA1140	Computers & IT Equipment	Non-Current Asset
+ACC-COA-2025-NA1150	Intangible Assets	Non-Current Asset
+ACC-COA-2025-NA1160	Accumulated Depreciation	Contra-Asset
+ACC-COA-2025-CL2010	Accounts Payable	Current Liability
+ACC-COA-2025-CL2020	Accrued Expenses	Current Liability
+ACC-COA-2025-CL2030	Taxes Payable	Current Liability
+ACC-COA-2025-CL2040	Short-Term Loans Payable	Current Liability
+ACC-COA-2025-CL2050	Customer Deposits	Current Liability
+ACC-COA-2025-NL2100	Long-Term Loans Payable	Non-Current Liability
+ACC-COA-2025-NL2110	Bonds Payable	Non-Current Liability
+ACC-COA-2025-NL2120	Lease Liabilities	Non-Current Liability
+ACC-COA-2025-EE3010	Owners Capital / Shareholders Equity	Equity
+ACC-COA-2025-EE3020	Retained Earnings	Equity
+ACC-COA-2025-EE3030	Dividends Payable	Equity
+ACC-COA-2025-RR4010	Sales Revenue	Revenue
+ACC-COA-2025-RR4020	Service Revenue	Revenue
+ACC-COA-2025-RR4030	Discounts Allowed	Contra-Revenue
+ACC-COA-2025-CG5010	Raw Materials Used	Cost of Goods Sold
+ACC-COA-2025-CG5020	Direct Labor	Cost of Goods Sold
+ACC-COA-2025-CG5030	Factory Overhead	Cost of Goods Sold
+ACC-COA-2025-CG5040	Work-in-Process Adjustments	Cost of Goods Sold
+ACC-COA-2025-CG5050	Cost of Finished Goods Sold	Cost of Goods Sold
+ACC-COA-2025-AE6010	Salaries & Wages	Operating Expense
+ACC-COA-2025-AE6020	Office Supplies & Equipment	Operating Expense
+ACC-COA-2025-AE6030	Rent & Utilities	Operating Expense
+ACC-COA-2025-AE6040	Depreciation	Operating Expense
+ACC-COA-2025-AE6050	Software & IT Expenses	Operating Expense
+ACC-COA-2025-AE6060	Legal & Professional Fees	Operating Expense
+ACC-COA-2025-SD6100	Marketing & Advertising	Operating Expense
+ACC-COA-2025-SD6110	Sales Commissions	Operating Expense
+ACC-COA-2025-SD6120	Shipping & Freight Costs	Operating Expense
+ACC-COA-2025-SD6130	Packaging Costs	Operating Expense
+ACC-COA-2025-OI7010	Interest Income	Other Income
+ACC-COA-2025-OI7020	Gain on Sale of Assets	Other Income
+ACC-COA-2025-OI7030	Investment Income	Other Income
+ACC-COA-2025-OE7100	Interest Expense	Other Expense
+ACC-COA-2025-OE7110	Exchange Rate Losses	Other Expense
+ACC-COA-2025-OE7120	Penalties & Fines	Other Expense
 \.
 
 
@@ -6004,6 +5958,26 @@ COPY accounting.chart_of_accounts (account_id, account_name, account_type) FROM 
 --
 
 COPY accounting.currency (currency_id, currency_name, exchange_rate, is_active) FROM stdin;
+ACC-CUR-2025-X1Y2Z3	Philippine Peso	1.000000	t
+ACC-CUR-2025-A4B5C6	US Dollar	0.017500	t
+ACC-CUR-2025-D7E8F9	Euro	0.016260	t
+ACC-CUR-2025-G1H2I3	British Pound	0.013930	t
+ACC-CUR-2025-J4K5L6	Japanese Yen	0.002650	t
+ACC-CUR-2025-M7N8O9	Canadian Dollar	0.023940	t
+ACC-CUR-2025-P1Q2R3	Australian Dollar	0.026380	t
+ACC-CUR-2025-S4T5U6	Swiss Franc	0.015570	t
+ACC-CUR-2025-V7W8X9	Chinese Yuan	0.127400	t
+ACC-CUR-2025-Y1Z2A3	Hong Kong Dollar	0.128500	t
+ACC-CUR-2025-B4C5D6	Singapore Dollar	0.023740	t
+ACC-CUR-2025-E7F8G9	South Korean Won	0.000750	t
+ACC-CUR-2025-H1I2J3	United Arab Emirates Dirham	0.004760	t
+ACC-CUR-2025-K4L5M6	Saudi Riyal	0.004690	t
+ACC-CUR-2025-N7O8P9	Thai Baht	0.027820	t
+ACC-CUR-2025-Q1R2S3	Vietnamese Dong	0.000044	t
+ACC-CUR-2025-T4U5V6	Indonesian Rupiah	0.000064	t
+ACC-CUR-2025-W7X8Y9	Indian Rupee	0.013500	t
+ACC-CUR-2025-Z1A2B3	Malaysian Ringgit	0.023400	t
+ACC-CUR-2025-C4D5E6	New Zealand Dollar	0.028800	t
 \.
 
 
@@ -6012,6 +5986,42 @@ COPY accounting.currency (currency_id, currency_name, exchange_rate, is_active) 
 --
 
 COPY accounting.general_ledger_accounts (gl_account_id, account_name, account_code, account_id, status, created_at) FROM stdin;
+ACC-GLA-2025-6324cd	Cash	ACC-COA-2025-CA1010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-294712	Bank - 1122	ACC-COA-2025-CA1020	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-4b6394	Inventory	ACC-COA-2025-CA1070	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-ebf985	Mr. Zubair & Co.	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-7493b2	Kazim Ahmed	ACC-COA-2025-CL2050	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-4b8d17	Kineteq	ACC-COA-2025-EE3010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-7759cc	Salary Expense	ACC-COA-2025-AE6010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-dcb63c	Sales Revenue	ACC-COA-2025-RR4010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-aeddee	Cost of Goods Sold	ACC-COA-2025-CG5050	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-9e0fad	Electricity Expense	ACC-COA-2025-AE6030	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-8292ce	Government Taxes Payable	ACC-COA-2025-CL2030	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-80aaed	Raw Materials Used	ACC-COA-2025-CG5010	\N	Active	2025-03-18 08:15:14
+ACC-GLA-2025-6372e6	BANK - BDO	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-8b8a26	Shipping Cost	ACC-COA-2025-SD6120	\N	Active	2025-03-18 21:06:48
+ACC-GLA-2025-100ac0	Customer - botik	ACC-COA-2025-NA1130	\N	Active	2025-03-18 21:23:27
+ACC-GLA-2025-ba3070	Vendor- BioFlex Composites	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-f1c20e	Vendor- BioGrade Metals	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-a9ee96	Vendor- CryoBond Precision	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-7674d7	Cash	ACC-COA-2025-CA1010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-b37e18	Bank - 1122	ACC-COA-2025-CA1020	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-525599	Inventory	ACC-COA-2025-CA1070	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-cbf943	Mr. Zubair & Co.	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-31d273	Kazim Ahmed	ACC-COA-2025-CL2050	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-7678e8	Kineteq	ACC-COA-2025-EE3010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-7d5e17	Salary Expense	ACC-COA-2025-AE6010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-a1539b	Sales Revenue	ACC-COA-2025-RR4010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-b7579a	Cost of Goods Sold	ACC-COA-2025-CG5050	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-e1ff82	Electricity Expense	ACC-COA-2025-AE6030	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-13c3bf	Government Taxes Payable	ACC-COA-2025-CL2030	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-f9b973	Raw Materials Used	ACC-COA-2025-CG5010	\N	Active	2025-03-18 08:15:14
+ACC-GLA-2025-d7af6a	BANK - BDO	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-885a20	Shipping Cost	ACC-COA-2025-SD6120	\N	Active	2025-03-18 21:06:48
+ACC-GLA-2025-d82c55	Customer - botik	ACC-COA-2025-NA1130	\N	Active	2025-03-18 21:23:27
+ACC-GLA-2025-eb908f	Vendor- BioFlex Composites	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-6375e2	Vendor- BioGrade Metals	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-5b4184	Vendor- CryoBond Precision	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
 \.
 
 
@@ -6020,6 +6030,30 @@ COPY accounting.general_ledger_accounts (gl_account_id, account_name, account_co
 --
 
 COPY accounting.journal_entries (journal_id, journal_date, description, total_debit, total_credit, invoice_id, currency_id) FROM stdin;
+ACC-JOE-2025-7be38c	2022-01-05	Sales Order	77984.53	77984.53	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-bfcbbf	2022-01-05	Sales Order	3544677.76	3544677.76	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-2063e2	2022-01-05	Sales Order	437073.00	437073.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-446fab	2022-01-06	Production Document Transaction	150.00	150.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-605a28	2022-01-06	Production Document Transaction	175.00	175.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-4a719a	2022-01-07	MRP Overall Production Cost	2000.00	2000.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-f576fb	2022-01-07	MRP Overall Production Cost	1830.00	1830.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-5b9a00	2022-01-07	MRP Overall Production Cost	2600.00	2600.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-e1c4ad	2022-01-08	Payroll Expense	5854.55	5854.55	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-41ad36	2022-01-08	Payroll Expense	1850.00	1850.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-b1dd9f	2022-01-09	Production Order Cost	1500.00	1500.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-128915	2022-01-09	Production Order Cost	800.00	800.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-14f322	2022-01-05	Sales Order	77984.53	77984.53	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-ecd4d1	2022-01-05	Sales Order	3544677.76	3544677.76	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-69c088	2022-01-05	Sales Order	437073.00	437073.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-14189e	2022-01-06	Production Document Transaction	150.00	150.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-016c14	2022-01-06	Production Document Transaction	175.00	175.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-d61d56	2022-01-07	MRP Overall Production Cost	2000.00	2000.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-b00ead	2022-01-07	MRP Overall Production Cost	1830.00	1830.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-670171	2022-01-07	MRP Overall Production Cost	2600.00	2600.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-22c66d	2022-01-08	Payroll Expense	5854.55	5854.55	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-096cbf	2022-01-08	Payroll Expense	1850.00	1850.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-ae25a8	2022-01-09	Production Order Cost	1500.00	1500.00	\N	ACC-CUR-2025-X1Y2Z3
+ACC-JOE-2025-17d621	2022-01-09	Production Order Cost	800.00	800.00	\N	ACC-CUR-2025-X1Y2Z3
 \.
 
 
@@ -6028,6 +6062,82 @@ COPY accounting.journal_entries (journal_id, journal_date, description, total_de
 --
 
 COPY accounting.journal_entry_lines (entry_line_id, gl_account_id, journal_id, debit_amount, credit_amount, description) FROM stdin;
+ACC-JEL-2025-4f2787	\N	\N	77984.53	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-a26681	\N	\N	0.00	77984.53	Sales Revenue
+ACC-JEL-2025-628656	\N	\N	3544677.76	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-0c570f	\N	\N	0.00	3544677.76	Sales Revenue
+ACC-JEL-2025-46f6d6	\N	\N	437073.00	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-e18769	\N	\N	0.00	437073.00	Sales Revenue
+ACC-JEL-2025-dbe0c6	\N	\N	150.00	0.00	Work-in-Process Inventory
+ACC-JEL-2025-0f1a96	\N	\N	0.00	150.00	Raw Materials Used for Production
+ACC-JEL-2025-f98d63	\N	\N	175.00	0.00	Work-in-Process Inventory
+ACC-JEL-2025-a67799	\N	\N	0.00	175.00	Raw Materials Used for Production
+ACC-JEL-2025-6ea64c	\N	\N	2000.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-3ded26	\N	\N	0.00	2000.00	Sales Revenue
+ACC-JEL-2025-5c2e8c	\N	\N	1830.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-645531	\N	\N	0.00	1830.00	Sales Revenue
+ACC-JEL-2025-eb25f9	\N	\N	2600.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-be0a10	\N	\N	0.00	2600.00	Sales Revenue
+ACC-JEL-2025-f5f606	\N	\N	5854.55	0.00	Payroll Expense
+ACC-JEL-2025-be0c5b	\N	\N	0.00	5854.55	Payroll Payment
+ACC-JEL-2025-2a1b8c	\N	\N	1850.00	0.00	Payroll Expense
+ACC-JEL-2025-3a020b	\N	\N	0.00	1850.00	Payroll Payment
+ACC-JEL-2025-cc50b7	\N	\N	1500.00	0.00	Work-in-Process Inventory Increase
+ACC-JEL-2025-86f95f	\N	\N	0.00	1500.00	Raw Materials Used
+ACC-JEL-2025-54db62	\N	\N	800.00	0.00	Work-in-Process Inventory Increase
+ACC-JEL-2025-dba8da	\N	\N	0.00	800.00	Raw Materials Used
+ACC-JEL-2025-45cdb4	\N	\N	77984.53	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-e1a4db	\N	\N	0.00	77984.53	Sales Revenue
+ACC-JEL-2025-df6f6f	\N	\N	3544677.76	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-7a5877	\N	\N	0.00	3544677.76	Sales Revenue
+ACC-JEL-2025-9e12aa	\N	\N	437073.00	0.00	Accounts Receivable - Sales Order
+ACC-JEL-2025-344a72	\N	\N	0.00	437073.00	Sales Revenue
+ACC-JEL-2025-620562	\N	\N	150.00	0.00	Work-in-Process Inventory
+ACC-JEL-2025-2a4af2	\N	\N	0.00	150.00	Raw Materials Used for Production
+ACC-JEL-2025-8d9cfe	\N	\N	175.00	0.00	Work-in-Process Inventory
+ACC-JEL-2025-d1a3dd	\N	\N	0.00	175.00	Raw Materials Used for Production
+ACC-JEL-2025-8d6e48	\N	\N	2000.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-315c3e	\N	\N	0.00	2000.00	Sales Revenue
+ACC-JEL-2025-af0a65	\N	\N	1830.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-a653c0	\N	\N	0.00	1830.00	Sales Revenue
+ACC-JEL-2025-abd2f3	\N	\N	2600.00	0.00	Cost of Finished Goods Sold
+ACC-JEL-2025-43f472	\N	\N	0.00	2600.00	Sales Revenue
+ACC-JEL-2025-e6eb6b	\N	\N	5854.55	0.00	Payroll Expense
+ACC-JEL-2025-d95d9d	\N	\N	0.00	5854.55	Payroll Payment
+ACC-JEL-2025-bff919	\N	\N	1850.00	0.00	Payroll Expense
+ACC-JEL-2025-33ced7	\N	\N	0.00	1850.00	Payroll Payment
+ACC-JEL-2025-43ec88	\N	\N	1500.00	0.00	Work-in-Process Inventory Increase
+ACC-JEL-2025-9bb9b8	\N	\N	0.00	1500.00	Raw Materials Used
+ACC-JEL-2025-019cb0	\N	\N	800.00	0.00	Work-in-Process Inventory Increase
+ACC-JEL-2025-84eaf8	\N	\N	0.00	800.00	Raw Materials Used
+\.
+
+
+--
+-- Data for Name: official_receipts; Type: TABLE DATA; Schema: accounting; Owner: postgres
+--
+
+COPY accounting.official_receipts (or_id, invoice_id, customer_id, or_date, settled_amount, remaining_amount, payment_method, reference_number, created_by) FROM stdin;
+ACC-OFR-2025-002b4e	\N	\N	2025-04-02	250.00	250.00	Credit Card	REF-1001	Admin
+ACC-OFR-2025-6116cb	\N	\N	2025-03-20	1200.00	0.00	Bank Transfer	REF-1002	Admin
+ACC-OFR-2025-515582	\N	\N	2025-03-12	1000.00	1500.00	Cash	REF-1003	Admin
+ACC-OFR-2025-a7cedc	\N	\N	2025-03-25	1800.00	0.00	Credit Card	REF-1004	Admin
+ACC-OFR-2025-c9e51c	\N	\N	2025-04-06	400.00	350.00	Bank Transfer	REF-1005	Admin
+ACC-OFR-2025-4162fe	\N	\N	2025-03-17	1500.00	1500.00	Cash	REF-1006	Admin
+ACC-OFR-2025-1f35e4	\N	\N	2025-03-22	950.00	0.00	Credit Card	REF-1007	Admin
+ACC-OFR-2025-18ae81	\N	\N	2025-04-11	2000.00	2000.00	Bank Transfer	REF-1008	Admin
+ACC-OFR-2025-bfd6b4	\N	\N	2025-03-14	750.00	2000.00	Cash	REF-1009	Admin
+ACC-OFR-2025-9c2b7e	\N	\N	2025-03-18	600.00	0.00	Credit Card	REF-1010	Admin
+ACC-OFR-2025-37557d	\N	\N	2025-04-02	250.00	250.00	Credit Card	REF-1001	Admin
+ACC-OFR-2025-ac4285	\N	\N	2025-03-20	1200.00	0.00	Bank Transfer	REF-1002	Admin
+ACC-OFR-2025-363434	\N	\N	2025-03-12	1000.00	1500.00	Cash	REF-1003	Admin
+ACC-OFR-2025-573a5f	\N	\N	2025-03-25	1800.00	0.00	Credit Card	REF-1004	Admin
+ACC-OFR-2025-f941ed	\N	\N	2025-04-06	400.00	350.00	Bank Transfer	REF-1005	Admin
+ACC-OFR-2025-cff4dd	\N	\N	2025-03-17	1500.00	1500.00	Cash	REF-1006	Admin
+ACC-OFR-2025-f09f61	\N	\N	2025-03-22	950.00	0.00	Credit Card	REF-1007	Admin
+ACC-OFR-2025-3f97fc	\N	\N	2025-04-11	2000.00	2000.00	Bank Transfer	REF-1008	Admin
+ACC-OFR-2025-ebc5e4	\N	\N	2025-03-14	750.00	2000.00	Cash	REF-1009	Admin
+ACC-OFR-2025-540ceb	\N	\N	2025-03-18	600.00	0.00	Credit Card	REF-1010	Admin
 \.
 
 
@@ -6035,7 +6145,47 @@ COPY accounting.journal_entry_lines (entry_line_id, gl_account_id, journal_id, d
 -- Data for Name: assets; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.assets (asset_id, asset_name, purchase_date, serial_no) FROM stdin;
+COPY admin.assets (asset_id, item_id, asset_name, purchase_date, serial_no) FROM stdin;
+ADMIN-ASSET-2025-3c5751	\N	Laptop - Dell XPS 15	2024-01-10	SN0001
+ADMIN-ASSET-2025-a68f53	\N	Office Chair - Ergonomic	2023-12-15	SN0002
+ADMIN-ASSET-2025-0b26d3	\N	Printer - HP LaserJet Pro	2024-02-05	SN0003
+ADMIN-ASSET-2025-4627b0	\N	Projector - Epson X500	2023-11-20	SN0004
+ADMIN-ASSET-2025-54d5d5	\N	Desk - Wooden Executive	2024-03-01	SN0005
+ADMIN-ASSET-2025-9a81c7	\N	Monitor - LG UltraWide	2024-02-10	SN0006
+ADMIN-ASSET-2025-7626e1	\N	Keyboard - Mechanical RGB	2023-12-25	SN0007
+ADMIN-ASSET-2025-c25c1b	\N	Mouse - Logitech MX Master 3	2024-01-15	SN0008
+ADMIN-ASSET-2025-96fb32	\N	External Hard Drive - 2TB	2024-02-28	SN0009
+ADMIN-ASSET-2025-f7d5b7	\N	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010
+ADMIN-ASSET-2025-6d5b67	\N	Tablet - iPad Pro	2024-03-05	SN0011
+ADMIN-ASSET-2025-757508	\N	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012
+ADMIN-ASSET-2025-f4055a	\N	Scanner - Canon imageFORMULA	2024-01-22	SN0013
+ADMIN-ASSET-2025-a773ba	\N	Router - Cisco RV340	2024-03-02	SN0014
+ADMIN-ASSET-2025-8c13cf	\N	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015
+ADMIN-ASSET-2025-2c85db	\N	Webcam - Logitech Brio	2024-03-09	SN0016
+ADMIN-ASSET-2025-21c14f	\N	Whiteboard - Magnetic	2024-01-29	SN0017
+ADMIN-ASSET-2025-209f29	\N	Speaker System - Bose Companion	2024-02-08	SN0018
+ADMIN-ASSET-2025-50e9b8	\N	UPS - APC Smart-UPS	2024-03-04	SN0019
+ADMIN-ASSET-2025-3f4710	\N	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020
+ADMIN-ASSET-2025-2c4aa5	\N	Laptop - Dell XPS 15	2024-01-10	SN0001
+ADMIN-ASSET-2025-2573f1	\N	Office Chair - Ergonomic	2023-12-15	SN0002
+ADMIN-ASSET-2025-368da3	\N	Printer - HP LaserJet Pro	2024-02-05	SN0003
+ADMIN-ASSET-2025-fe70e2	\N	Projector - Epson X500	2023-11-20	SN0004
+ADMIN-ASSET-2025-8bd54c	\N	Desk - Wooden Executive	2024-03-01	SN0005
+ADMIN-ASSET-2025-865869	\N	Monitor - LG UltraWide	2024-02-10	SN0006
+ADMIN-ASSET-2025-147853	\N	Keyboard - Mechanical RGB	2023-12-25	SN0007
+ADMIN-ASSET-2025-742109	\N	Mouse - Logitech MX Master 3	2024-01-15	SN0008
+ADMIN-ASSET-2025-ec4113	\N	External Hard Drive - 2TB	2024-02-28	SN0009
+ADMIN-ASSET-2025-317a30	\N	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010
+ADMIN-ASSET-2025-144e5a	\N	Tablet - iPad Pro	2024-03-05	SN0011
+ADMIN-ASSET-2025-24205d	\N	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012
+ADMIN-ASSET-2025-6abeea	\N	Scanner - Canon imageFORMULA	2024-01-22	SN0013
+ADMIN-ASSET-2025-86cbb2	\N	Router - Cisco RV340	2024-03-02	SN0014
+ADMIN-ASSET-2025-7b8649	\N	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015
+ADMIN-ASSET-2025-e549a6	\N	Webcam - Logitech Brio	2024-03-09	SN0016
+ADMIN-ASSET-2025-554e6a	\N	Whiteboard - Magnetic	2024-01-29	SN0017
+ADMIN-ASSET-2025-cff311	\N	Speaker System - Bose Companion	2024-02-08	SN0018
+ADMIN-ASSET-2025-00e28c	\N	UPS - APC Smart-UPS	2024-03-04	SN0019
+ADMIN-ASSET-2025-6fefe2	\N	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020
 \.
 
 
@@ -6044,6 +6194,46 @@ COPY admin.assets (asset_id, asset_name, purchase_date, serial_no) FROM stdin;
 --
 
 COPY admin.audit_log (log_id, user_id, action, "timestamp", ip_address, suspicious_activity, security_measures) FROM stdin;
+ADMIN-LOG-2025-ea688e	\N	User login	2025-03-01 08:00:00	192.168.1.1	f	None
+ADMIN-LOG-2025-247377	\N	Password change	2025-03-02 09:15:00	192.168.1.2	f	Password complexity enforced
+ADMIN-LOG-2025-5cbfdb	\N	Failed login attempt	2025-03-03 10:20:00	192.168.1.3	t	Account temporarily locked
+ADMIN-LOG-2025-4b824b	\N	Updated profile	2025-03-04 11:30:00	192.168.1.4	f	None
+ADMIN-LOG-2025-e7fefc	\N	Deleted user record	2025-03-05 12:40:00	192.168.1.5	t	Deletion logged and reviewed
+ADMIN-LOG-2025-591c80	\N	Accessed sensitive data	2025-03-06 13:50:00	192.168.1.6	t	Admin notified
+ADMIN-LOG-2025-f190d9	\N	User logout	2025-03-07 14:00:00	192.168.1.7	f	None
+ADMIN-LOG-2025-fc4e7f	\N	Permission change	2025-03-08 15:10:00	192.168.1.8	t	Security log updated
+ADMIN-LOG-2025-eda644	\N	Password reset	2025-03-09 16:20:00	192.168.1.9	f	Two-factor authentication enabled
+ADMIN-LOG-2025-7566bb	\N	Exported report	2025-03-10 17:30:00	192.168.1.10	f	None
+ADMIN-LOG-2025-367034	\N	Added new vendor	2025-03-11 18:40:00	192.168.1.11	f	Change tracked in system
+ADMIN-LOG-2025-a98e26	\N	Failed login attempt	2025-03-12 19:50:00	192.168.1.12	t	Account locked for review
+ADMIN-LOG-2025-e3a699	\N	Edited invoice data	2025-03-13 20:00:00	192.168.1.13	t	Audit log updated
+ADMIN-LOG-2025-237821	\N	Updated security settings	2025-03-14 21:10:00	192.168.1.14	t	Audit triggered
+ADMIN-LOG-2025-6a015a	\N	Added new user	2025-03-15 22:20:00	192.168.1.15	f	Change logged
+ADMIN-LOG-2025-883a4a	\N	Uploaded sensitive document	2025-03-16 23:30:00	192.168.1.16	t	Encryption applied
+ADMIN-LOG-2025-4a031c	\N	Deleted inventory record	2025-03-17 08:40:00	192.168.1.17	t	Deletion flagged for audit
+ADMIN-LOG-2025-9f8e23	\N	Updated purchase order	2025-03-18 09:50:00	192.168.1.18	f	PO audit log updated
+ADMIN-LOG-2025-877d30	\N	Failed login attempt	2025-03-19 10:00:00	192.168.1.19	t	IP blacklisted temporarily
+ADMIN-LOG-2025-27dd29	\N	Exported financial data	2025-03-20 11:15:00	192.168.1.20	t	Audit log flagged
+ADMIN-LOG-2025-1d0c24	\N	User login	2025-03-01 08:00:00	192.168.1.1	f	None
+ADMIN-LOG-2025-12b82c	\N	Password change	2025-03-02 09:15:00	192.168.1.2	f	Password complexity enforced
+ADMIN-LOG-2025-bcb4e1	\N	Failed login attempt	2025-03-03 10:20:00	192.168.1.3	t	Account temporarily locked
+ADMIN-LOG-2025-de3aae	\N	Updated profile	2025-03-04 11:30:00	192.168.1.4	f	None
+ADMIN-LOG-2025-60057b	\N	Deleted user record	2025-03-05 12:40:00	192.168.1.5	t	Deletion logged and reviewed
+ADMIN-LOG-2025-922935	\N	Accessed sensitive data	2025-03-06 13:50:00	192.168.1.6	t	Admin notified
+ADMIN-LOG-2025-92cb8a	\N	User logout	2025-03-07 14:00:00	192.168.1.7	f	None
+ADMIN-LOG-2025-eaa82b	\N	Permission change	2025-03-08 15:10:00	192.168.1.8	t	Security log updated
+ADMIN-LOG-2025-4f23ce	\N	Password reset	2025-03-09 16:20:00	192.168.1.9	f	Two-factor authentication enabled
+ADMIN-LOG-2025-86bb30	\N	Exported report	2025-03-10 17:30:00	192.168.1.10	f	None
+ADMIN-LOG-2025-1c5c64	\N	Added new vendor	2025-03-11 18:40:00	192.168.1.11	f	Change tracked in system
+ADMIN-LOG-2025-ddab72	\N	Failed login attempt	2025-03-12 19:50:00	192.168.1.12	t	Account locked for review
+ADMIN-LOG-2025-9fec31	\N	Edited invoice data	2025-03-13 20:00:00	192.168.1.13	t	Audit log updated
+ADMIN-LOG-2025-e58525	\N	Updated security settings	2025-03-14 21:10:00	192.168.1.14	t	Audit triggered
+ADMIN-LOG-2025-d67149	\N	Added new user	2025-03-15 22:20:00	192.168.1.15	f	Change logged
+ADMIN-LOG-2025-3805bd	\N	Uploaded sensitive document	2025-03-16 23:30:00	192.168.1.16	t	Encryption applied
+ADMIN-LOG-2025-e3f463	\N	Deleted inventory record	2025-03-17 08:40:00	192.168.1.17	t	Deletion flagged for audit
+ADMIN-LOG-2025-267b3d	\N	Updated purchase order	2025-03-18 09:50:00	192.168.1.18	f	PO audit log updated
+ADMIN-LOG-2025-7752f4	\N	Failed login attempt	2025-03-19 10:00:00	192.168.1.19	t	IP blacklisted temporarily
+ADMIN-LOG-2025-d593d9	\N	Exported financial data	2025-03-20 11:15:00	192.168.1.20	t	Audit log flagged
 \.
 
 
@@ -6051,15 +6241,47 @@ COPY admin.audit_log (log_id, user_id, action, "timestamp", ip_address, suspicio
 -- Data for Name: business_partner_master; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.business_partner_master (partner_id, employee_id, partner_name, category, contact_info) FROM stdin;
-ADMIN-PARTNER-2025-3c2564	\N	Robert Santiago	Employee	09187654321
-ADMIN-PARTNER-2025-afee8b	HR-EMP-2025-c8223f	James Marticio	Employee	09123456789
-ADMIN-PARTNER-2025-95223d	HR-EMP-2025-c8223f	Kate Tan	Employee	09165824756
-ADMIN-PARTNER-2025-adcdfc	\N	Maria Lopez	Employee	09154321876
-ADMIN-PARTNER-2025-ead71e	\N	BioFlex Composites	Vendor	(312) 867-5309
-ADMIN-PARTNER-2025-036cb7	\N	BioGrade Metals	Vendor	(415) 293-8274
-ADMIN-PARTNER-2025-37f764	\N	Ethan Caldwell	Customer	ethan.caldwell@google.com
-ADMIN-PARTNER-2025-f3081d	\N	Sophia Ramirez	Customer	sophia.ramirez@google.com
+COPY admin.business_partner_master (partner_id, employee_id, vendor_code, customer_id, partner_name, category, contact_info) FROM stdin;
+ADMIN-PARTNER-2025-1c49e2	\N	\N	\N	Kate Tan	Employee	09165824756
+ADMIN-PARTNER-2025-fb5757	\N	\N	\N	James Marticio	Employee	09123456789
+ADMIN-PARTNER-2025-6180de	\N	\N	\N	Robert Santiago	Employee	09187654321
+ADMIN-PARTNER-2025-63fd8e	\N	\N	\N	Maria Lopez	Employee	09154321876
+ADMIN-PARTNER-2025-bc6ec3	\N	\N	\N	David Cruz	Employee	09192837465
+ADMIN-PARTNER-2025-7105fc	\N	\N	\N	BioFlex Composites	Vendor	(312) 867-5309
+ADMIN-PARTNER-2025-3fed97	\N	\N	\N	BioGrade Metals	Vendor	(415) 293-8274
+ADMIN-PARTNER-2025-93d94d	\N	\N	\N	CryoBond Precision	Vendor	(646) 918-3742
+ADMIN-PARTNER-2025-a665c4	\N	\N	\N	DuraWell Pro Ltd.	Vendor	(702) 555-8291
+ADMIN-PARTNER-2025-a7e20d	\N	\N	\N	MedicalTradingCorps	Vendor	(818) 320-4657
+ADMIN-PARTNER-2025-73d402	\N	\N	\N	MediCore Materials Inc.	Vendor	(213) 555-0184
+ADMIN-PARTNER-2025-20fcd8	\N	\N	\N	NeoCarewell Industries Ltd.	Vendor	(415) 678-9012
+ADMIN-PARTNER-2025-03bc88	\N	\N	\N	PharmaTools Ltd.	Vendor	(646) 555-4321
+ADMIN-PARTNER-2025-257ac1	\N	\N	\N	PureForm Medical	Vendor	(702) 123-4567
+ADMIN-PARTNER-2025-29b3ed	\N	\N	\N	Sterilite Components	Vendor	(818) 876-5432
+ADMIN-PARTNER-2025-87201f	\N	\N	\N	MediTech Solutions Inc.	Customer	contact@meditechph.com
+ADMIN-PARTNER-2025-4602bc	\N	\N	\N	PhilCare Medical Supplies	Customer	info@philcaremed.com
+ADMIN-PARTNER-2025-ccfa60	\N	\N	\N	LifeLine Diagnostics	Customer	support@lifelinediag.com
+ADMIN-PARTNER-2025-6fc170	\N	\N	\N	BioPharm Innovations	Customer	sales@biopharmph.com
+ADMIN-PARTNER-2025-8340c5	\N	\N	\N	Wellness Pharma Corp.	Customer	contact@wellnesspharma.com
+ADMIN-PARTNER-2025-abe6db	\N	\N	\N	Kate Tan	Employee	09165824756
+ADMIN-PARTNER-2025-5b8853	\N	\N	\N	James Marticio	Employee	09123456789
+ADMIN-PARTNER-2025-7f1d41	\N	\N	\N	Robert Santiago	Employee	09187654321
+ADMIN-PARTNER-2025-e2c44f	\N	\N	\N	Maria Lopez	Employee	09154321876
+ADMIN-PARTNER-2025-f8f073	\N	\N	\N	David Cruz	Employee	09192837465
+ADMIN-PARTNER-2025-c320e5	\N	\N	\N	BioFlex Composites	Vendor	(312) 867-5309
+ADMIN-PARTNER-2025-043168	\N	\N	\N	BioGrade Metals	Vendor	(415) 293-8274
+ADMIN-PARTNER-2025-b1ad50	\N	\N	\N	CryoBond Precision	Vendor	(646) 918-3742
+ADMIN-PARTNER-2025-3d3280	\N	\N	\N	DuraWell Pro Ltd.	Vendor	(702) 555-8291
+ADMIN-PARTNER-2025-bbc35b	\N	\N	\N	MedicalTradingCorps	Vendor	(818) 320-4657
+ADMIN-PARTNER-2025-c54200	\N	\N	\N	MediCore Materials Inc.	Vendor	(213) 555-0184
+ADMIN-PARTNER-2025-a507a7	\N	\N	\N	NeoCarewell Industries Ltd.	Vendor	(415) 678-9012
+ADMIN-PARTNER-2025-c9c540	\N	\N	\N	PharmaTools Ltd.	Vendor	(646) 555-4321
+ADMIN-PARTNER-2025-ebb7ad	\N	\N	\N	PureForm Medical	Vendor	(702) 123-4567
+ADMIN-PARTNER-2025-8a2456	\N	\N	\N	Sterilite Components	Vendor	(818) 876-5432
+ADMIN-PARTNER-2025-293eea	\N	\N	\N	MediTech Solutions Inc.	Customer	contact@meditechph.com
+ADMIN-PARTNER-2025-ad4569	\N	\N	\N	PhilCare Medical Supplies	Customer	info@philcaremed.com
+ADMIN-PARTNER-2025-c12ad8	\N	\N	\N	LifeLine Diagnostics	Customer	support@lifelinediag.com
+ADMIN-PARTNER-2025-108fc7	\N	\N	\N	BioPharm Innovations	Customer	sales@biopharmph.com
+ADMIN-PARTNER-2025-e2cfbc	\N	\N	\N	Wellness Pharma Corp.	Customer	contact@wellnesspharma.com
 \.
 
 
@@ -6068,6 +6290,166 @@ ADMIN-PARTNER-2025-f3081d	\N	Sophia Ramirez	Customer	sophia.ramirez@google.com
 --
 
 COPY admin.item_master_data (item_id, item_type) FROM stdin;
+ADMIN-ITEM-2025-f72fa4	Product
+ADMIN-ITEM-2025-cd860d	Product
+ADMIN-ITEM-2025-8cff12	Product
+ADMIN-ITEM-2025-486aa8	Product
+ADMIN-ITEM-2025-f242f2	Product
+ADMIN-ITEM-2025-6eebdf	Product
+ADMIN-ITEM-2025-312171	Product
+ADMIN-ITEM-2025-758722	Product
+ADMIN-ITEM-2025-3d52a6	Product
+ADMIN-ITEM-2025-6c6906	Product
+ADMIN-ITEM-2025-09c590	Product
+ADMIN-ITEM-2025-973288	Product
+ADMIN-ITEM-2025-d40904	Product
+ADMIN-ITEM-2025-b093f8	Product
+ADMIN-ITEM-2025-4787de	Product
+ADMIN-ITEM-2025-8b228e	Product
+ADMIN-ITEM-2025-ef8ead	Product
+ADMIN-ITEM-2025-c1163f	Product
+ADMIN-ITEM-2025-066502	Product
+ADMIN-ITEM-2025-217092	Product
+ADMIN-ITEM-2025-c4bcd1	Product
+ADMIN-ITEM-2025-6feb03	Product
+ADMIN-ITEM-2025-134ddb	Product
+ADMIN-ITEM-2025-865b1c	Product
+ADMIN-ITEM-2025-12e389	Product
+ADMIN-ITEM-2025-bd5985	Product
+ADMIN-ITEM-2025-a165b7	Product
+ADMIN-ITEM-2025-d8555f	Product
+ADMIN-ITEM-2025-adfb62	Product
+ADMIN-ITEM-2025-88c6a2	Product
+ADMIN-ITEM-2025-8b20d7	Raw Material
+ADMIN-ITEM-2025-73ccc1	Raw Material
+ADMIN-ITEM-2025-8b5365	Raw Material
+ADMIN-ITEM-2025-90413e	Raw Material
+ADMIN-ITEM-2025-2da90b	Raw Material
+ADMIN-ITEM-2025-ea1ffc	Raw Material
+ADMIN-ITEM-2025-8fe6d2	Raw Material
+ADMIN-ITEM-2025-734622	Raw Material
+ADMIN-ITEM-2025-2f1409	Raw Material
+ADMIN-ITEM-2025-bc59ea	Raw Material
+ADMIN-ITEM-2025-1b5e60	Raw Material
+ADMIN-ITEM-2025-e92f36	Raw Material
+ADMIN-ITEM-2025-06eff9	Raw Material
+ADMIN-ITEM-2025-2849c1	Raw Material
+ADMIN-ITEM-2025-c21aa1	Raw Material
+ADMIN-ITEM-2025-04470e	Raw Material
+ADMIN-ITEM-2025-fde8f1	Raw Material
+ADMIN-ITEM-2025-48ef80	Raw Material
+ADMIN-ITEM-2025-471ed2	Raw Material
+ADMIN-ITEM-2025-a5f197	Raw Material
+ADMIN-ITEM-2025-3985e3	Raw Material
+ADMIN-ITEM-2025-814c77	Raw Material
+ADMIN-ITEM-2025-992682	Raw Material
+ADMIN-ITEM-2025-3fb338	Raw Material
+ADMIN-ITEM-2025-57e00e	Raw Material
+ADMIN-ITEM-2025-af6d80	Raw Material
+ADMIN-ITEM-2025-4a3a6a	Raw Material
+ADMIN-ITEM-2025-b91e11	Raw Material
+ADMIN-ITEM-2025-39ee3c	Raw Material
+ADMIN-ITEM-2025-046722	Raw Material
+ADMIN-ITEM-2025-05106e	Asset
+ADMIN-ITEM-2025-b4b0a8	Asset
+ADMIN-ITEM-2025-9f85d0	Asset
+ADMIN-ITEM-2025-a7b3d9	Asset
+ADMIN-ITEM-2025-c1bac5	Asset
+ADMIN-ITEM-2025-f31f42	Asset
+ADMIN-ITEM-2025-eebbd1	Asset
+ADMIN-ITEM-2025-b6ebe7	Asset
+ADMIN-ITEM-2025-895a69	Asset
+ADMIN-ITEM-2025-2aaee5	Asset
+ADMIN-ITEM-2025-ba90ac	Asset
+ADMIN-ITEM-2025-cbfbdc	Asset
+ADMIN-ITEM-2025-180ee1	Asset
+ADMIN-ITEM-2025-e32e9d	Asset
+ADMIN-ITEM-2025-aa97b4	Asset
+ADMIN-ITEM-2025-9d322b	Asset
+ADMIN-ITEM-2025-20e0c1	Asset
+ADMIN-ITEM-2025-193f57	Asset
+ADMIN-ITEM-2025-b3093b	Asset
+ADMIN-ITEM-2025-5b1c6b	Asset
+ADMIN-ITEM-2025-174d75	Product
+ADMIN-ITEM-2025-6a60b7	Product
+ADMIN-ITEM-2025-eae1b9	Product
+ADMIN-ITEM-2025-06a675	Product
+ADMIN-ITEM-2025-fe77cd	Product
+ADMIN-ITEM-2025-199261	Product
+ADMIN-ITEM-2025-91af33	Product
+ADMIN-ITEM-2025-2df93b	Product
+ADMIN-ITEM-2025-544545	Product
+ADMIN-ITEM-2025-1db8fc	Product
+ADMIN-ITEM-2025-6bcf45	Product
+ADMIN-ITEM-2025-b62ca1	Product
+ADMIN-ITEM-2025-a7a363	Product
+ADMIN-ITEM-2025-bf5dd7	Product
+ADMIN-ITEM-2025-6dce54	Product
+ADMIN-ITEM-2025-88a6cc	Product
+ADMIN-ITEM-2025-b8a3c2	Product
+ADMIN-ITEM-2025-edc5c1	Product
+ADMIN-ITEM-2025-a91041	Product
+ADMIN-ITEM-2025-734d8b	Product
+ADMIN-ITEM-2025-ec52b7	Product
+ADMIN-ITEM-2025-710e90	Product
+ADMIN-ITEM-2025-421b14	Product
+ADMIN-ITEM-2025-a33037	Product
+ADMIN-ITEM-2025-d652d6	Product
+ADMIN-ITEM-2025-2dff44	Product
+ADMIN-ITEM-2025-e69a1f	Product
+ADMIN-ITEM-2025-73163e	Product
+ADMIN-ITEM-2025-44b680	Product
+ADMIN-ITEM-2025-7d5b52	Product
+ADMIN-ITEM-2025-be448b	Raw Material
+ADMIN-ITEM-2025-be14c9	Raw Material
+ADMIN-ITEM-2025-7ecfe6	Raw Material
+ADMIN-ITEM-2025-c97198	Raw Material
+ADMIN-ITEM-2025-85068b	Raw Material
+ADMIN-ITEM-2025-7ad244	Raw Material
+ADMIN-ITEM-2025-94b5bf	Raw Material
+ADMIN-ITEM-2025-70445f	Raw Material
+ADMIN-ITEM-2025-cee63e	Raw Material
+ADMIN-ITEM-2025-b307f9	Raw Material
+ADMIN-ITEM-2025-8dacce	Raw Material
+ADMIN-ITEM-2025-1cee4e	Raw Material
+ADMIN-ITEM-2025-1ce6f5	Raw Material
+ADMIN-ITEM-2025-b7ffae	Raw Material
+ADMIN-ITEM-2025-5b3a74	Raw Material
+ADMIN-ITEM-2025-6e9c89	Raw Material
+ADMIN-ITEM-2025-c0d5d6	Raw Material
+ADMIN-ITEM-2025-899dca	Raw Material
+ADMIN-ITEM-2025-d8fce4	Raw Material
+ADMIN-ITEM-2025-c22cc8	Raw Material
+ADMIN-ITEM-2025-906730	Raw Material
+ADMIN-ITEM-2025-9c6dad	Raw Material
+ADMIN-ITEM-2025-e0cc1a	Raw Material
+ADMIN-ITEM-2025-9183b6	Raw Material
+ADMIN-ITEM-2025-3278de	Raw Material
+ADMIN-ITEM-2025-89371b	Raw Material
+ADMIN-ITEM-2025-d73417	Raw Material
+ADMIN-ITEM-2025-3feead	Raw Material
+ADMIN-ITEM-2025-bd90d5	Raw Material
+ADMIN-ITEM-2025-179f62	Raw Material
+ADMIN-ITEM-2025-a16101	Asset
+ADMIN-ITEM-2025-70ae78	Asset
+ADMIN-ITEM-2025-23fc23	Asset
+ADMIN-ITEM-2025-6ccf86	Asset
+ADMIN-ITEM-2025-87b06a	Asset
+ADMIN-ITEM-2025-d2ba5e	Asset
+ADMIN-ITEM-2025-95af8e	Asset
+ADMIN-ITEM-2025-107477	Asset
+ADMIN-ITEM-2025-8fb724	Asset
+ADMIN-ITEM-2025-6a6a41	Asset
+ADMIN-ITEM-2025-a9cca1	Asset
+ADMIN-ITEM-2025-af5d7d	Asset
+ADMIN-ITEM-2025-46645b	Asset
+ADMIN-ITEM-2025-537e9e	Asset
+ADMIN-ITEM-2025-1e2712	Asset
+ADMIN-ITEM-2025-902463	Asset
+ADMIN-ITEM-2025-b7a1f7	Asset
+ADMIN-ITEM-2025-f6d72c	Asset
+ADMIN-ITEM-2025-edc1a9	Asset
+ADMIN-ITEM-2025-45f6e2	Asset
 \.
 
 
@@ -6076,6 +6458,46 @@ COPY admin.item_master_data (item_id, item_type) FROM stdin;
 --
 
 COPY admin.policies (policy_id, policy_name, description, effective_date, status) FROM stdin;
+ADMIN-POLICY-2025-812436	Equal Employment Opportunity	Ensures fair treatment and prohibits discrimination in the workplace.	2025-03-23	Active
+ADMIN-POLICY-2025-2d9675	Policy Against Workplace Harassment	Prohibits harassment and provides reporting and resolution procedures.	2025-03-23	Active
+ADMIN-POLICY-2025-b10c59	Hiring and Onboarding Procedures	Details the recruitment, hiring, and onboarding process.	2025-03-23	Active
+ADMIN-POLICY-2025-aa3566	Hours of Work, Attendance, and Punctuality	Establishes work schedules and attendance requirements.	2025-03-23	Active
+ADMIN-POLICY-2025-88c862	Overtime Policy	Outlines overtime compensation for eligible employees.	2025-03-23	Active
+ADMIN-POLICY-2025-31bb9f	Position Description and Salary Administration	Defines job descriptions, salary ranges, and pay schedules.	2025-03-23	Active
+ADMIN-POLICY-2025-fb71e6	Health/Life Insurance Policy	Provides individual health and dental insurance for eligible employees.	2025-03-23	Active
+ADMIN-POLICY-2025-2513f0	Retirement and Tax Deferred Annuity Plan	Outlines employee retirement benefits and annuity options.	2025-03-23	Active
+ADMIN-POLICY-2025-eec552	Leave Benefits Policy	Details vacation, sick leave, personal, bereavement, and extended leave benefits.	2025-03-23	Active
+ADMIN-POLICY-2025-fcf1c1	Maternity and Paternity Leave Policy	Provides guidelines for maternity, paternity, and parental leave.	2025-03-23	Active
+ADMIN-POLICY-2025-20e4da	Separation Policy	Outlines the process for resignation, termination, and layoffs.	2025-03-23	Active
+ADMIN-POLICY-2025-716785	Return of Property Policy	Requires employees to return company property upon separation.	2025-03-23	Active
+ADMIN-POLICY-2025-12e689	Personnel Records Policy	Governs the maintenance and confidentiality of personnel records.	2025-03-23	Active
+ADMIN-POLICY-2025-cf6624	Non-Disclosure of Confidential Information	Protects confidential company and customer information.	2025-03-23	Active
+ADMIN-POLICY-2025-0dd8a7	Computer and Information Security	Defines IT security protocols for system and data protection.	2025-03-23	Active
+ADMIN-POLICY-2025-2b80f2	Internet Acceptable Use Policy	Regulates internet use to ensure compliance and professionalism.	2025-03-23	Active
+ADMIN-POLICY-2025-2a82cb	Accounting Standards Policy	Adheres to GAAP or IFRS for financial reporting.	2025-03-23	Active
+ADMIN-POLICY-2025-1f1154	Detailed Accounting Procedures	Outlines financial controls including petty cash and fund disbursements.	2025-03-23	Active
+ADMIN-POLICY-2025-af840b	Corporate Credit Card Policy	Regulates use of corporate credit cards for business expenses.	2025-03-23	Active
+ADMIN-POLICY-2025-419469	Travel and Reimbursement Policy	Defines rules for employee travel and expense reimbursement.	2025-03-23	Active
+ADMIN-POLICY-2025-180b37	Equal Employment Opportunity	Ensures fair treatment and prohibits discrimination in the workplace.	2025-03-23	Active
+ADMIN-POLICY-2025-0c6da2	Policy Against Workplace Harassment	Prohibits harassment and provides reporting and resolution procedures.	2025-03-23	Active
+ADMIN-POLICY-2025-49058f	Hiring and Onboarding Procedures	Details the recruitment, hiring, and onboarding process.	2025-03-23	Active
+ADMIN-POLICY-2025-7673b1	Hours of Work, Attendance, and Punctuality	Establishes work schedules and attendance requirements.	2025-03-23	Active
+ADMIN-POLICY-2025-4a0947	Overtime Policy	Outlines overtime compensation for eligible employees.	2025-03-23	Active
+ADMIN-POLICY-2025-076ec8	Position Description and Salary Administration	Defines job descriptions, salary ranges, and pay schedules.	2025-03-23	Active
+ADMIN-POLICY-2025-b1ce47	Health/Life Insurance Policy	Provides individual health and dental insurance for eligible employees.	2025-03-23	Active
+ADMIN-POLICY-2025-7326f0	Retirement and Tax Deferred Annuity Plan	Outlines employee retirement benefits and annuity options.	2025-03-23	Active
+ADMIN-POLICY-2025-75c018	Leave Benefits Policy	Details vacation, sick leave, personal, bereavement, and extended leave benefits.	2025-03-23	Active
+ADMIN-POLICY-2025-3b0a7d	Maternity and Paternity Leave Policy	Provides guidelines for maternity, paternity, and parental leave.	2025-03-23	Active
+ADMIN-POLICY-2025-a537c1	Separation Policy	Outlines the process for resignation, termination, and layoffs.	2025-03-23	Active
+ADMIN-POLICY-2025-96a4e4	Return of Property Policy	Requires employees to return company property upon separation.	2025-03-23	Active
+ADMIN-POLICY-2025-cfc744	Personnel Records Policy	Governs the maintenance and confidentiality of personnel records.	2025-03-23	Active
+ADMIN-POLICY-2025-7f6cb2	Non-Disclosure of Confidential Information	Protects confidential company and customer information.	2025-03-23	Active
+ADMIN-POLICY-2025-764727	Computer and Information Security	Defines IT security protocols for system and data protection.	2025-03-23	Active
+ADMIN-POLICY-2025-a25823	Internet Acceptable Use Policy	Regulates internet use to ensure compliance and professionalism.	2025-03-23	Active
+ADMIN-POLICY-2025-a944d8	Accounting Standards Policy	Adheres to GAAP or IFRS for financial reporting.	2025-03-23	Active
+ADMIN-POLICY-2025-e3705c	Detailed Accounting Procedures	Outlines financial controls including petty cash and fund disbursements.	2025-03-23	Active
+ADMIN-POLICY-2025-a1263a	Corporate Credit Card Policy	Regulates use of corporate credit cards for business expenses.	2025-03-23	Active
+ADMIN-POLICY-2025-5b686e	Travel and Reimbursement Policy	Defines rules for employee travel and expense reimbursement.	2025-03-23	Active
 \.
 
 
@@ -6083,17 +6505,64 @@ COPY admin.policies (policy_id, policy_name, description, effective_date, status
 -- Data for Name: products; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.products (product_id, product_name, description, selling_price, stock_level, warranty_period, policy_id) FROM stdin;
-ADMIN-PROD-2025-09e97d	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	3	POL008
-ADMIN-PROD-2025-a83254	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	1	POL008
-ADMIN-PROD-2025-328a5f	B2 Infant Incubator	Controlled environment for newborn care for optimal temperature and humidity.	1114666.00	540	1	POL008
-ADMIN-PROD-2025-bb2e86	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	1	POL008
-ADMIN-PROD-2025-fdabb5	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities	249756.00	693	1	POL008
-ADMIN-PROD-2025-0274af	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	1	POL008
-ADMIN-PROD-2025-ac0665	BeneFusion e Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	1	POL008
-ADMIN-PROD-2025-04fd80	BeneFusion n Series	Portable infusion pumps for ambulatory patient care.	128700.00	554	1	POL008
-ADMIN-PROD-2025-e9ce12	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	1	POL008
-ADMIN-PROD-2025-ea1ddb	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	1	POL008
+COPY admin.products (product_id, item_id, product_name, description, selling_price, stock_level, warranty_period, policy_id) FROM stdin;
+ADMIN-PROD-2025-2e0ab6	\N	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N
+ADMIN-PROD-2025-5598cf	\N	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N
+ADMIN-PROD-2025-8698b7	\N	B2 Infant Incubator	Controlled environment for newborn care for optimal temperature and humidity.	1114666.00	540	12	\N
+ADMIN-PROD-2025-941c5b	\N	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N
+ADMIN-PROD-2025-a17047	\N	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N
+ADMIN-PROD-2025-c5c83a	\N	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N
+ADMIN-PROD-2025-115147	\N	BeneFusion e Series	Advanced infusion systems with smart features for enhanced safety.	128700.00	331	12	\N
+ADMIN-PROD-2025-83adb5	\N	BeneFusion n Series	Portable infusion pumps for ambulatory patient care.	128700.00	554	12	\N
+ADMIN-PROD-2025-a68481	\N	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N
+ADMIN-PROD-2025-b022f3	\N	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N
+ADMIN-PROD-2025-6db12d	\N	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N
+ADMIN-PROD-2025-5833b2	\N	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N
+ADMIN-PROD-2025-0e6337	\N	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N
+ADMIN-PROD-2025-158fce	\N	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N
+ADMIN-PROD-2025-88a5b3	\N	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N
+ADMIN-PROD-2025-9e365c	\N	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N
+ADMIN-PROD-2025-290b77	\N	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N
+ADMIN-PROD-2025-467bbd	\N	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N
+ADMIN-PROD-2025-561cd9	\N	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N
+ADMIN-PROD-2025-93544e	\N	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N
+ADMIN-PROD-2025-f2a2ec	\N	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N
+ADMIN-PROD-2025-d25da2	\N	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N
+ADMIN-PROD-2025-086546	\N	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N
+ADMIN-PROD-2025-d973c5	\N	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N
+ADMIN-PROD-2025-d1edf6	\N	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N
+ADMIN-PROD-2025-66eb2d	\N	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N
+ADMIN-PROD-2025-91b19e	\N	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N
+ADMIN-PROD-2025-f3d852	\N	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N
+ADMIN-PROD-2025-64c17b	\N	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N
+ADMIN-PROD-2025-b39c24	\N	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N
+ADMIN-PROD-2025-4c8e03	\N	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N
+ADMIN-PROD-2025-c54996	\N	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N
+ADMIN-PROD-2025-cb9367	\N	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N
+ADMIN-PROD-2025-546582	\N	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N
+ADMIN-PROD-2025-c44825	\N	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N
+ADMIN-PROD-2025-6d2f1c	\N	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N
+ADMIN-PROD-2025-744457	\N	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N
+ADMIN-PROD-2025-ef5c11	\N	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N
+ADMIN-PROD-2025-65010f	\N	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N
+ADMIN-PROD-2025-f4dfb1	\N	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N
+ADMIN-PROD-2025-99a57e	\N	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N
+ADMIN-PROD-2025-4d4b5e	\N	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N
+ADMIN-PROD-2025-1c041d	\N	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N
+ADMIN-PROD-2025-2db293	\N	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N
+ADMIN-PROD-2025-e52b86	\N	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N
+ADMIN-PROD-2025-51838d	\N	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N
+ADMIN-PROD-2025-f25387	\N	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N
+ADMIN-PROD-2025-c7328b	\N	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N
+ADMIN-PROD-2025-f71dbd	\N	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N
+ADMIN-PROD-2025-7c7fca	\N	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N
+ADMIN-PROD-2025-895493	\N	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N
+ADMIN-PROD-2025-aa61c5	\N	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N
+ADMIN-PROD-2025-2a83ff	\N	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N
+ADMIN-PROD-2025-736c7e	\N	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N
+ADMIN-PROD-2025-3b3229	\N	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N
+ADMIN-PROD-2025-c3b87b	\N	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N
+ADMIN-PROD-2025-09e33a	\N	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N
 \.
 
 
@@ -6101,7 +6570,67 @@ ADMIN-PROD-2025-ea1ddb	BeneHeart D3	Professional defibrillator monitor for cardi
 -- Data for Name: raw_materials; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.raw_materials (material_id, material_name, description, unit_of_measure, cost_per_unit) FROM stdin;
+COPY admin.raw_materials (material_id, item_id, material_name, description, unit_of_measure, cost_per_unit) FROM stdin;
+ADMIN-MATERIAL-2025-42d3ce	\N	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00
+ADMIN-MATERIAL-2025-4ec17c	\N	Casing	Outer shell, made of plastic or metal.	pcs	1900.00
+ADMIN-MATERIAL-2025-3fbf2d	\N	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00
+ADMIN-MATERIAL-2025-9ea588	\N	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00
+ADMIN-MATERIAL-2025-caf305	\N	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00
+ADMIN-MATERIAL-2025-c65277	\N	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00
+ADMIN-MATERIAL-2025-749a41	\N	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00
+ADMIN-MATERIAL-2025-79fccc	\N	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00
+ADMIN-MATERIAL-2025-140cdf	\N	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00
+ADMIN-MATERIAL-2025-aaf0b2	\N	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00
+ADMIN-MATERIAL-2025-003207	\N	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00
+ADMIN-MATERIAL-2025-3e97e0	\N	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00
+ADMIN-MATERIAL-2025-d061f5	\N	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00
+ADMIN-MATERIAL-2025-fe445e	\N	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00
+ADMIN-MATERIAL-2025-241836	\N	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00
+ADMIN-MATERIAL-2025-92651e	\N	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00
+ADMIN-MATERIAL-2025-64c0a2	\N	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00
+ADMIN-MATERIAL-2025-d4d9a2	\N	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00
+ADMIN-MATERIAL-2025-52689f	\N	Aluminum	A metal used in frames and casings.	kg	250.00
+ADMIN-MATERIAL-2025-d34817	\N	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00
+ADMIN-MATERIAL-2025-419b12	\N	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00
+ADMIN-MATERIAL-2025-2d68fa	\N	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00
+ADMIN-MATERIAL-2025-f620eb	\N	Battery	Power source that stores and releases electrical energy.	pcs	18900.00
+ADMIN-MATERIAL-2025-93783b	\N	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00
+ADMIN-MATERIAL-2025-6db3c2	\N	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00
+ADMIN-MATERIAL-2025-66cde5	\N	Buttons	Switches that initiate controls in devices.	pcs	400.00
+ADMIN-MATERIAL-2025-af9d5b	\N	Cables	Transmit electrical signals or power between components.	mm	1000.00
+ADMIN-MATERIAL-2025-7cb3ba	\N	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00
+ADMIN-MATERIAL-2025-e7923d	\N	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00
+ADMIN-MATERIAL-2025-b31b9d	\N	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00
+ADMIN-MATERIAL-2025-995792	\N	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00
+ADMIN-MATERIAL-2025-b8df48	\N	Casing	Outer shell, made of plastic or metal.	pcs	1900.00
+ADMIN-MATERIAL-2025-9ece0e	\N	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00
+ADMIN-MATERIAL-2025-be1425	\N	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00
+ADMIN-MATERIAL-2025-ea8630	\N	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00
+ADMIN-MATERIAL-2025-d010a2	\N	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00
+ADMIN-MATERIAL-2025-b0ace2	\N	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00
+ADMIN-MATERIAL-2025-e44116	\N	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00
+ADMIN-MATERIAL-2025-17ea49	\N	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00
+ADMIN-MATERIAL-2025-912b18	\N	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00
+ADMIN-MATERIAL-2025-cd44b9	\N	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00
+ADMIN-MATERIAL-2025-17328b	\N	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00
+ADMIN-MATERIAL-2025-e1f592	\N	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00
+ADMIN-MATERIAL-2025-3a5e08	\N	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00
+ADMIN-MATERIAL-2025-82ad34	\N	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00
+ADMIN-MATERIAL-2025-ab23df	\N	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00
+ADMIN-MATERIAL-2025-f2b2ee	\N	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00
+ADMIN-MATERIAL-2025-06c22b	\N	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00
+ADMIN-MATERIAL-2025-7935b9	\N	Aluminum	A metal used in frames and casings.	kg	250.00
+ADMIN-MATERIAL-2025-d8f145	\N	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00
+ADMIN-MATERIAL-2025-c148a1	\N	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00
+ADMIN-MATERIAL-2025-755305	\N	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00
+ADMIN-MATERIAL-2025-955f9d	\N	Battery	Power source that stores and releases electrical energy.	pcs	18900.00
+ADMIN-MATERIAL-2025-bcfc25	\N	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00
+ADMIN-MATERIAL-2025-9efcf0	\N	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00
+ADMIN-MATERIAL-2025-88775a	\N	Buttons	Switches that initiate controls in devices.	pcs	400.00
+ADMIN-MATERIAL-2025-db168d	\N	Cables	Transmit electrical signals or power between components.	mm	1000.00
+ADMIN-MATERIAL-2025-0f9ed7	\N	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00
+ADMIN-MATERIAL-2025-290c96	\N	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00
+ADMIN-MATERIAL-2025-b53060	\N	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00
 \.
 
 
@@ -6110,6 +6639,46 @@ COPY admin.raw_materials (material_id, material_name, description, unit_of_measu
 --
 
 COPY admin.roles_permission (role_id, role_name, description, permissions, access_level) FROM stdin;
+ADMIN-ROLE-2025-7edf46	Chief Accountant	Oversees financial reporting and tax compliance.	Accounting, Finance	Full Access
+ADMIN-ROLE-2025-1cb430	Accounting Supervisor	Manages accounting staff and ensures accurate bookkeeping.	Accounting, Finance	Full Access
+ADMIN-ROLE-2025-d7e78a	Accounts Payable Specialist	Handles invoice payments and vendor reconciliations.	Accounting	Read-Only
+ADMIN-ROLE-2025-4e6538	Accounts Receivable Specialist	Manages customer invoicing and collections.	Accounting	Read-Only
+ADMIN-ROLE-2025-e10cb1	Payroll Officer	Prepares and processes payroll.	Payroll, Accounting	Full Access
+ADMIN-ROLE-2025-610e04	Bookkeeper	Maintains financial records and transactions.	Accounting	Read-Only
+ADMIN-ROLE-2025-9eaaf5	Financial Analyst	Conducts financial analysis and forecasting.	Finance, Accounting	Full Access
+ADMIN-ROLE-2025-249ec2	Audit Officer	Performs internal audits and ensures regulatory compliance.	Audit, Finance	Full Access
+ADMIN-ROLE-2025-95553a	Administrative Manager	Oversees office operations and support staff.	Administration	Full Access
+ADMIN-ROLE-2025-212996	Office Administrator	Provides clerical and administrative support.	Administration	Read-Only
+ADMIN-ROLE-2025-9593bb	Data Entry Specialist	Inputs and maintains data records.	Administration	Read-Only
+ADMIN-ROLE-2025-955a02	Receptionist	Manages front desk and visitor coordination.	Administration	Read-Only
+ADMIN-ROLE-2025-79a2e0	Executive Assistant	Provides high-level administrative support to executives.	Administration, Management	Full Access
+ADMIN-ROLE-2025-be6555	Distribution Manager	Oversees distribution and logistics operations.	Distribution, Logistics	Full Access
+ADMIN-ROLE-2025-264536	Logistics Coordinator	Coordinates transportation and warehouse operations.	Logistics	Full Access
+ADMIN-ROLE-2025-df5074	Warehouse Supervisor	Supervises warehouse staff and inventory control.	Warehouse, Inventory	Full Access
+ADMIN-ROLE-2025-1d1602	Inventory Clerk	Maintains inventory records and stock levels.	Inventory	Read-Only
+ADMIN-ROLE-2025-3bcb50	Chief Financial Officer (CFO)	Leads financial planning and reporting.	Finance, Management	Full Access
+ADMIN-ROLE-2025-f6312c	HR Director	Oversees HR policies and employee relations.	Human Resources	Full Access
+ADMIN-ROLE-2025-ca70e3	Recruitment Officer	Manages recruitment and hiring processes.	Human Resources	Full Access
+ADMIN-ROLE-2025-15663e	Chief Accountant	Oversees financial reporting and tax compliance.	Accounting, Finance	Full Access
+ADMIN-ROLE-2025-22e6a8	Accounting Supervisor	Manages accounting staff and ensures accurate bookkeeping.	Accounting, Finance	Full Access
+ADMIN-ROLE-2025-aae826	Accounts Payable Specialist	Handles invoice payments and vendor reconciliations.	Accounting	Read-Only
+ADMIN-ROLE-2025-8e56bb	Accounts Receivable Specialist	Manages customer invoicing and collections.	Accounting	Read-Only
+ADMIN-ROLE-2025-c5f37a	Payroll Officer	Prepares and processes payroll.	Payroll, Accounting	Full Access
+ADMIN-ROLE-2025-861230	Bookkeeper	Maintains financial records and transactions.	Accounting	Read-Only
+ADMIN-ROLE-2025-4bc263	Financial Analyst	Conducts financial analysis and forecasting.	Finance, Accounting	Full Access
+ADMIN-ROLE-2025-b29ed6	Audit Officer	Performs internal audits and ensures regulatory compliance.	Audit, Finance	Full Access
+ADMIN-ROLE-2025-1c29e5	Administrative Manager	Oversees office operations and support staff.	Administration	Full Access
+ADMIN-ROLE-2025-639f86	Office Administrator	Provides clerical and administrative support.	Administration	Read-Only
+ADMIN-ROLE-2025-4984ab	Data Entry Specialist	Inputs and maintains data records.	Administration	Read-Only
+ADMIN-ROLE-2025-edb5aa	Receptionist	Manages front desk and visitor coordination.	Administration	Read-Only
+ADMIN-ROLE-2025-85aba0	Executive Assistant	Provides high-level administrative support to executives.	Administration, Management	Full Access
+ADMIN-ROLE-2025-5b6bfa	Distribution Manager	Oversees distribution and logistics operations.	Distribution, Logistics	Full Access
+ADMIN-ROLE-2025-fa9fa5	Logistics Coordinator	Coordinates transportation and warehouse operations.	Logistics	Full Access
+ADMIN-ROLE-2025-afd4d8	Warehouse Supervisor	Supervises warehouse staff and inventory control.	Warehouse, Inventory	Full Access
+ADMIN-ROLE-2025-91ee03	Inventory Clerk	Maintains inventory records and stock levels.	Inventory	Read-Only
+ADMIN-ROLE-2025-509ed8	Chief Financial Officer (CFO)	Leads financial planning and reporting.	Finance, Management	Full Access
+ADMIN-ROLE-2025-b56fc6	HR Director	Oversees HR policies and employee relations.	Human Resources	Full Access
+ADMIN-ROLE-2025-c1a9ef	Recruitment Officer	Manages recruitment and hiring processes.	Human Resources	Full Access
 \.
 
 
@@ -6118,6 +6687,36 @@ COPY admin.roles_permission (role_id, role_name, description, permissions, acces
 --
 
 COPY admin.users (user_id, employee_id, first_name, last_name, email, password, role_id, status, type, created_at, updated_at) FROM stdin;
+ADMIN-USER-2025-c08860	\N	Kate	Tan	katetan@kinetic.ph	Pass12345	\N	Active	Employee	2025-02-01 08:30:15	2025-02-10 12:45:30
+ADMIN-USER-2025-e66519	\N	James	Marticio	jamesmarticio@kinetic.ph	Secure9876	\N	Active	Employee	2025-02-05 10:15:45	2025-02-15 14:20:10
+ADMIN-USER-2025-d9d1cf	\N	Robert	Santiago	robertsantiago@kinetic.ph	Unique54321	\N	Active	Employee	2025-02-07 11:05:50	2025-02-18 16:30:20
+ADMIN-USER-2025-5b3b00	\N	Maria	Lopez	marialopez@kinetic.ph	SafeKey678	\N	Active	Employee	2025-02-09 13:25:40	2025-02-20 17:15:05
+ADMIN-USER-2025-107d34	\N	David	Cruz	davidcruz@kinetic.ph	RandomKey456	\N	Active	Employee	2025-02-12 09:50:30	2025-02-22 18:10:45
+ADMIN-USER-2025-c3535f	\N	Carla	Ramirez	carlaramirez@kinetic.ph	StrongPass789	\N	Active	Employee	2025-02-14 14:10:25	2025-02-25 19:20:30
+ADMIN-USER-2025-df861b	\N	Miguel	Narabal	miguelnarabal@kinetic.ph	AccessCode321	\N	Active	Employee	2025-02-17 08:40:20	2025-02-27 20:05:50
+ADMIN-USER-2025-a06ab3	\N	Angela	Tores	angelatores@kinetic.ph	Protect654	\N	Active	Employee	2025-02-19 15:55:10	2025-02-28 21:10:15
+ADMIN-USER-2025-e404eb	\N	Henry	Vallespin	henryvallespin@kinetic.ph	Defend890	\N	Active	Employee	2025-02-21 10:30:35	2025-03-01 08:15:25
+ADMIN-USER-2025-a1417a	\N	Karen	Mendoza	karenmendoza@kinetic.ph	UltraSafe012	\N	Active	Employee	2025-02-23 12:05:55	2025-03-02 09:50:40
+ADMIN-USER-2025-9b110c	\N	Daniel	Bautista	danielbautista@kinetic.ph	Daniel1234	\N	Active	Employee	2025-02-24 09:30:00	2025-03-03 11:00:00
+ADMIN-USER-2025-bb549f	\N	Sofia	Reyes	sofiareyes@kinetic.ph	Sofia5678	\N	Active	Employee	2025-02-25 10:15:00	2025-03-04 10:45:00
+ADMIN-USER-2025-15404c	\N	John	Dela Cruz	johndelacruz@kinetic.ph	John9012	\N	Active	Employee	2025-02-26 08:40:00	2025-03-05 09:50:00
+ADMIN-USER-2025-70b52c	\N	Michelle	Ken	michelleken@kinetic.ph	Michelle3456	\N	Active	Employee	2025-02-27 11:20:00	2025-03-06 12:30:00
+ADMIN-USER-2025-3427a0	\N	Paul	Hernandez	paulhernandez@kinetic.ph	Paul7890	\N	Active	Employee	2025-02-28 14:10:00	2025-03-07 13:15:00
+ADMIN-USER-2025-d693f1	\N	Emily	Gonzales	emilygonzales@kinetic.ph	Emily4321	\N	Active	Employee	2025-03-01 08:00:00	2025-03-08 09:05:00
+ADMIN-USER-2025-4eb1f2	\N	Kevin	Ramirez	kevinramirez@kinetic.ph	Kevin6543	\N	Active	Employee	2025-03-02 09:45:00	2025-03-09 10:30:00
+ADMIN-USER-2025-6bcc28	\N	Patricia	Morales	patriciamorales@kinetic.ph	Patricia8765	\N	Active	Employee	2025-03-03 10:30:00	2025-03-10 11:50:00
+ADMIN-USER-2025-c0f7bd	\N	Juan	Dela Cruz	juan.delacruz@kinetiq.ph	Juan1122	\N	Active	Employee	2025-03-04 11:15:00	2025-03-11 12:00:00
+ADMIN-USER-2025-459df1	\N	Maria	Santos	maria.santos@kinetiq.ph	Maria3344	\N	Active	Employee	2025-03-05 12:00:00	2025-03-12 13:00:00
+ADMIN-USER-2025-874596	\N	Jose	Ramirez	jose.ramirez@kinetiq.ph	Jose5566	\N	Active	Employee	2025-03-06 09:20:00	2025-03-13 11:30:00
+ADMIN-USER-2025-9215dd	\N	Ana	Mendoza	ana.mendoza@kinetiq.ph	Ana7788	\N	Active	Employee	2025-03-07 10:10:00	2025-03-14 12:15:00
+ADMIN-USER-2025-ec551e	\N	Mark	Villanueva	mark.villanueva@kinetiq.ph	Mark1122	\N	Active	Employee	2025-03-08 08:55:00	2025-03-15 10:50:00
+ADMIN-USER-2025-e508fc	\N	Miguel	Fernandez	miguel.fernandez@kinetiq.ph	Miguel3344	\N	Active	Employee	2025-03-09 11:45:00	2025-03-16 12:25:00
+ADMIN-USER-2025-8daaef	\N	Daniel	Gonzales	daniel.gonzales@kinetiq.ph	Daniel5566	\N	Active	Employee	2025-03-10 09:35:00	2025-03-17 11:15:00
+ADMIN-USER-2025-cba3a7	\N	Carlo	Reyes	carlo.reyes@kinetiq.ph	Carlo7788	\N	Active	Employee	2025-03-11 10:25:00	2025-03-18 12:45:00
+ADMIN-USER-2025-504dd3	\N	Sofia	Cruz	sofia.cruz@kinetiq.ph	Sofia9900	\N	Active	Employee	2025-03-12 08:15:00	2025-03-19 10:05:00
+ADMIN-USER-2025-a51dac	\N	Katrina	Lopez	katrina.lopez@kinetiq.ph	Katrina1122	\N	Active	Employee	2025-03-13 09:05:00	2025-03-20 11:55:00
+ADMIN-USER-2025-2e90ec	\N	Patrick	Fernandez	patrick.fernande@kinetiq.ph	Patrick3344	\N	Active	Employee	2025-03-14 10:50:00	2025-03-21 12:35:00
+ADMIN-USER-2025-aaabd8	\N	Andrea	Bautista	andrea.bautista@kinetiq.ph	Andrea5566	\N	Active	Employee	2025-03-15 08:25:00	2025-03-22 10:45:00
 \.
 
 
@@ -6125,7 +6724,39 @@ COPY admin.users (user_id, employee_id, first_name, last_name, email, password, 
 -- Data for Name: vendor; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.vendor (vendor_code, partner_id, vendor_name, contact_person, status) FROM stdin;
+COPY admin.vendor (vendor_code, application_reference, vendor_name, contact_person, status) FROM stdin;
+ADMIN-VENDOR-2025-ba5633	\N	BioFlex Composites	Francisco Lopez	Active
+ADMIN-VENDOR-2025-232b4b	\N	BioGrade Metals	Benjamin Ramos	Active
+ADMIN-VENDOR-2025-4272f3	\N	CryoBond Precision	Kyla Villamor	Active
+ADMIN-VENDOR-2025-0b3b9d	\N	DuraWell Pro Ltd.	Mariel De Guzman	Active
+ADMIN-VENDOR-2025-1fee8d	\N	MedicalTradingCorps	Juan Carlos Perez	Active
+ADMIN-VENDOR-2025-18443d	\N	MediCore Materials Inc.	Xzanelle Garcia	Active
+ADMIN-VENDOR-2025-4f50e9	\N	NeoCarewell Industries Ltd.	Shaira Fernandez	Active
+ADMIN-VENDOR-2025-e406cb	\N	PharmaTools Ltd.	Andrew Enriquez	Active
+ADMIN-VENDOR-2025-9080ff	\N	PureForm Medical	Jefferson Callanta	Active
+ADMIN-VENDOR-2025-6dd734	\N	Sterilite Components	Luis Santos	Active
+ADMIN-VENDOR-2025-dfddef	\N	SupplyLife Pty Ltd	Clyden Reyes	Active
+ADMIN-VENDOR-2025-9c4aef	\N	TheraMat Solutions	Michael Ocampo	Active
+ADMIN-VENDOR-2025-1ef745	\N	UltraMed Alloys	Clemente Yambao	Active
+ADMIN-VENDOR-2025-7a2a46	\N	VitalCore Tech	Ivan Hernandez	Active
+ADMIN-VENDOR-2025-004d37	\N	Zenith BioCeramics	Carlito Macabe	Active
+ADMIN-VENDOR-2025-ddcdf3	\N	ZenPlast Innovations	Wilson Guevarra	Active
+ADMIN-VENDOR-2025-c76cb9	\N	BioFlex Composites	Francisco Lopez	Active
+ADMIN-VENDOR-2025-968721	\N	BioGrade Metals	Benjamin Ramos	Active
+ADMIN-VENDOR-2025-5ead77	\N	CryoBond Precision	Kyla Villamor	Active
+ADMIN-VENDOR-2025-a42b9a	\N	DuraWell Pro Ltd.	Mariel De Guzman	Active
+ADMIN-VENDOR-2025-eb26a2	\N	MedicalTradingCorps	Juan Carlos Perez	Active
+ADMIN-VENDOR-2025-83494d	\N	MediCore Materials Inc.	Xzanelle Garcia	Active
+ADMIN-VENDOR-2025-ddba81	\N	NeoCarewell Industries Ltd.	Shaira Fernandez	Active
+ADMIN-VENDOR-2025-67a175	\N	PharmaTools Ltd.	Andrew Enriquez	Active
+ADMIN-VENDOR-2025-6d428d	\N	PureForm Medical	Jefferson Callanta	Active
+ADMIN-VENDOR-2025-d6c2b0	\N	Sterilite Components	Luis Santos	Active
+ADMIN-VENDOR-2025-9947a7	\N	SupplyLife Pty Ltd	Clyden Reyes	Active
+ADMIN-VENDOR-2025-97fc4c	\N	TheraMat Solutions	Michael Ocampo	Active
+ADMIN-VENDOR-2025-618ac3	\N	UltraMed Alloys	Clemente Yambao	Active
+ADMIN-VENDOR-2025-2c160d	\N	VitalCore Tech	Ivan Hernandez	Active
+ADMIN-VENDOR-2025-df3fe3	\N	Zenith BioCeramics	Carlito Macabe	Active
+ADMIN-VENDOR-2025-4fbde8	\N	ZenPlast Innovations	Wilson Guevarra	Active
 \.
 
 
@@ -6134,6 +6765,46 @@ COPY admin.vendor (vendor_code, partner_id, vendor_name, contact_person, status)
 --
 
 COPY admin.warehouse (warehouse_id, warehouse_location, stored_materials) FROM stdin;
+ADMIN-WARE-2025-83dc04	Manila	AI-Driven Electronic Components, Casing, Chambers
+ADMIN-WARE-2025-afc53f	Cebu	Clamps, Coatings, Heating & Drying System
+ADMIN-WARE-2025-4c1ae7	Davao	Polycarbonate, Polyethylene, Power system
+ADMIN-WARE-2025-c2ab9d	Quezon City	Pump, Purification Media, Sensors
+ADMIN-WARE-2025-3b645d	Pasig	Structural Frame & Casing, Suction, Ultrasound Transducer
+ADMIN-WARE-2025-d81c05	Makati	Acrylic, Acrylonitrile Butadiene Styrene (ABS), Airflow Components
+ADMIN-WARE-2025-f9ef3a	Taguig	Aluminum, Aluminum Alloys, Anesthetic Delivery System
+ADMIN-WARE-2025-07eb93	Bacolod	Bacterial filters, Battery, Borosilicate Glass
+ADMIN-WARE-2025-2845a7	Iloilo	Buffering Agent, Buttons, Cables
+ADMIN-WARE-2025-ffbad0	Cagayan de Oro	Canister Body, Capacitors, Capnography Sensor
+ADMIN-WARE-2025-9c5ee4	General Santos	AI-Driven Electronic Components, Polycarbonate, Sensors
+ADMIN-WARE-2025-964d83	Baguio	Casing, Battery, Borosilicate Glass
+ADMIN-WARE-2025-5e2601	Zamboanga	Power System, Suction, Clamps
+ADMIN-WARE-2025-1892ce	Batangas	Pump, Heating and Drying System, Airflow Components
+ADMIN-WARE-2025-742c9d	Cavite	Aluminum, Purification Media, Coatings
+ADMIN-WARE-2025-39fa26	Laguna	Polyethylene, Capacitors, Buttons
+ADMIN-WARE-2025-d9d007	Pampanga	Acrylic, Structural Frame & Casing, Buffering Agent
+ADMIN-WARE-2025-5d7c26	Tarlac	Chambers, Anesthetic Delivery System, Capnography Sensor
+ADMIN-WARE-2025-9cf798	Naga	Filing Cabinet - Steel, Monitor - LG UltraWide, Whiteboard - Magnetic
+ADMIN-WARE-2025-775760	Dumaguete	UPS - APC Smart-UPS, Router - Cisco RV340, Logitech Brio Webcam
+ADMIN-WARE-2025-2ace44	Manila	AI-Driven Electronic Components, Casing, Chambers
+ADMIN-WARE-2025-e0c274	Cebu	Clamps, Coatings, Heating & Drying System
+ADMIN-WARE-2025-eeef7f	Davao	Polycarbonate, Polyethylene, Power system
+ADMIN-WARE-2025-32c695	Quezon City	Pump, Purification Media, Sensors
+ADMIN-WARE-2025-daabd7	Pasig	Structural Frame & Casing, Suction, Ultrasound Transducer
+ADMIN-WARE-2025-7612eb	Makati	Acrylic, Acrylonitrile Butadiene Styrene (ABS), Airflow Components
+ADMIN-WARE-2025-b59ff1	Taguig	Aluminum, Aluminum Alloys, Anesthetic Delivery System
+ADMIN-WARE-2025-648087	Bacolod	Bacterial filters, Battery, Borosilicate Glass
+ADMIN-WARE-2025-0e2f6f	Iloilo	Buffering Agent, Buttons, Cables
+ADMIN-WARE-2025-2e5a9d	Cagayan de Oro	Canister Body, Capacitors, Capnography Sensor
+ADMIN-WARE-2025-e198f5	General Santos	AI-Driven Electronic Components, Polycarbonate, Sensors
+ADMIN-WARE-2025-01b9de	Baguio	Casing, Battery, Borosilicate Glass
+ADMIN-WARE-2025-753bf5	Zamboanga	Power System, Suction, Clamps
+ADMIN-WARE-2025-92dd46	Batangas	Pump, Heating and Drying System, Airflow Components
+ADMIN-WARE-2025-3ede2e	Cavite	Aluminum, Purification Media, Coatings
+ADMIN-WARE-2025-6e951e	Laguna	Polyethylene, Capacitors, Buttons
+ADMIN-WARE-2025-30f29c	Pampanga	Acrylic, Structural Frame & Casing, Buffering Agent
+ADMIN-WARE-2025-8d66af	Tarlac	Chambers, Anesthetic Delivery System, Capnography Sensor
+ADMIN-WARE-2025-0334d7	Naga	Filing Cabinet - Steel, Monitor - LG UltraWide, Whiteboard - Magnetic
+ADMIN-WARE-2025-7866a0	Dumaguete	UPS - APC Smart-UPS, Router - Cisco RV340, Logitech Brio Webcam
 \.
 
 
@@ -6142,6 +6813,26 @@ COPY admin.warehouse (warehouse_id, warehouse_location, stored_materials) FROM s
 --
 
 COPY distribution.billing_receipt (billing_receipt_id, delivery_receipt_id, sales_invoice_id, service_billing_id) FROM stdin;
+DIS-BR-2025-cd6ac9	\N	\N	\N
+DIS-BR-2025-871adf	\N	\N	\N
+DIS-BR-2025-9320fe	\N	\N	\N
+DIS-BR-2025-b6f12f	\N	\N	\N
+DIS-BR-2025-502547	\N	\N	\N
+DIS-BR-2025-8e5831	\N	\N	\N
+DIS-BR-2025-5887b3	\N	\N	\N
+DIS-BR-2025-807262	\N	\N	\N
+DIS-BR-2025-4cb835	\N	\N	\N
+DIS-BR-2025-14d20e	\N	\N	\N
+DIS-BR-2025-e67036	\N	\N	\N
+DIS-BR-2025-8bd7bb	\N	\N	\N
+DIS-BR-2025-b43134	\N	\N	\N
+DIS-BR-2025-a06a39	\N	\N	\N
+DIS-BR-2025-1476c5	\N	\N	\N
+DIS-BR-2025-993a00	\N	\N	\N
+DIS-BR-2025-68943f	\N	\N	\N
+DIS-BR-2025-311625	\N	\N	\N
+DIS-BR-2025-f4862c	\N	\N	\N
+DIS-BR-2025-0a9920	\N	\N	\N
 \.
 
 
@@ -6150,6 +6841,26 @@ COPY distribution.billing_receipt (billing_receipt_id, delivery_receipt_id, sale
 --
 
 COPY distribution.carrier (carrier_id, carrier_name, service_type, carrier_count) FROM stdin;
+DIS-CAR-2025-3e118a	John Carter	Express	15
+DIS-CAR-2025-5914c3	Emily Watson	Standard	25
+DIS-CAR-2025-dd7a2b	Michael Turner	Same-day	10
+DIS-CAR-2025-7d5c4c	Sarah Mitchell	Express	18
+DIS-CAR-2025-b80874	David Richardson	Standard	20
+DIS-CAR-2025-887027	Jessica Brooks	Same-day	12
+DIS-CAR-2025-c7251a	Daniel Foster	Express	22
+DIS-CAR-2025-2dacd9	Olivia Hayes	Standard	17
+DIS-CAR-2025-5e065b	Matthew Collins	Same-day	1
+DIS-CAR-2025-514a0f	Sophia Bennett	Express	30
+DIS-CAR-2025-3241be	John Carter	Express	15
+DIS-CAR-2025-27f697	Emily Watson	Standard	25
+DIS-CAR-2025-edea9e	Michael Turner	Same-day	10
+DIS-CAR-2025-461a43	Sarah Mitchell	Express	18
+DIS-CAR-2025-98bca9	David Richardson	Standard	20
+DIS-CAR-2025-d469ce	Jessica Brooks	Same-day	12
+DIS-CAR-2025-adbdcb	Daniel Foster	Express	22
+DIS-CAR-2025-716bd5	Olivia Hayes	Standard	17
+DIS-CAR-2025-4709cd	Matthew Collins	Same-day	1
+DIS-CAR-2025-3252ad	Sophia Bennett	Express	30
 \.
 
 
@@ -6157,7 +6868,27 @@ COPY distribution.carrier (carrier_id, carrier_name, service_type, carrier_count
 -- Data for Name: delivery_order; Type: TABLE DATA; Schema: distribution; Owner: postgres
 --
 
-COPY distribution.delivery_order (delivery_order_id, order_status, content_id, is_project_based, is_partial_delivery, service_order_id, production_request_id, stock_transfer_id, sales_order_id, approval_request_id) FROM stdin;
+COPY distribution.delivery_order (del_order_id, order_status, content_id, is_project_based, is_partial_delivery, service_order_id, production_request_id, stock_transfer_id, sales_order_id, approval_request_id) FROM stdin;
+DIS-DO-2025-49d1ee	Approved	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-3a8209	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-d5119e	Approved	\N	Non-Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-86c311	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-de3cac	Created	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-cb15f0	Approved	\N	Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-081824	Rejected	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-de5826	Approved	\N	Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-9bb7c0	Created	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-4351b4	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-ed7db7	Approved	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-36d99a	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-a14159	Approved	\N	Non-Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-f7df8f	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-0de616	Created	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-abc180	Approved	\N	Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-248dbd	Rejected	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-5580ea	Approved	\N	Project Based	Yes	\N	\N	\N	\N	\N
+DIS-DO-2025-7e619f	Created	\N	Non-Project Based	No	\N	\N	\N	\N	\N
+DIS-DO-2025-c4d008	Approved	\N	Project Based	No	\N	\N	\N	\N	\N
 \.
 
 
@@ -6166,6 +6897,26 @@ COPY distribution.delivery_order (delivery_order_id, order_status, content_id, i
 --
 
 COPY distribution.delivery_receipt (delivery_receipt_id, delivery_date, received_by, signature, receipt_status, shipment_id) FROM stdin;
+DIS-DR-2025-8645ce	2023-01-19	\N	J. Williams	Received	\N
+DIS-DR-2025-75c081	2023-01-27	\N	T. Rogers	Received	\N
+DIS-DR-2025-3bd9b1	2023-02-10	\N	L. Martinez	Received	\N
+DIS-DR-2025-2f01fc	\N	\N	aaa7	Pending	\N
+DIS-DR-2025-c0e180	\N	\N	aaa6	Pending	\N
+DIS-DR-2025-c3a44c	2023-03-16	\N	M. Johnson	Received	\N
+DIS-DR-2025-1bc25d	2023-03-25	\N	S. Brown	Received	\N
+DIS-DR-2025-54b2f0	\N	\N	aaa3	Rejected	\N
+DIS-DR-2025-51c648	\N	\N	aaa2	Pending	\N
+DIS-DR-2025-10284a	\N	\N	aaa1	Rejected	\N
+DIS-DR-2025-ffd8ec	2023-01-19	\N	J. Williams	Received	\N
+DIS-DR-2025-f2836d	2023-01-27	\N	T. Rogers	Received	\N
+DIS-DR-2025-8ebf69	2023-02-10	\N	L. Martinez	Received	\N
+DIS-DR-2025-7de667	\N	\N	aaa7	Pending	\N
+DIS-DR-2025-0f3e50	\N	\N	aaa6	Pending	\N
+DIS-DR-2025-8bd5bc	2023-03-16	\N	M. Johnson	Received	\N
+DIS-DR-2025-fee2ab	2023-03-25	\N	S. Brown	Received	\N
+DIS-DR-2025-500adf	\N	\N	aaa3	Rejected	\N
+DIS-DR-2025-627c7b	\N	\N	aaa2	Pending	\N
+DIS-DR-2025-7b20b2	\N	\N	aaa1	Rejected	\N
 \.
 
 
@@ -6174,6 +6925,26 @@ COPY distribution.delivery_receipt (delivery_receipt_id, delivery_date, received
 --
 
 COPY distribution.failed_shipment (failed_shipment_id, failure_date, failure_reason, resolution_status, shipment_id) FROM stdin;
+DIS-FS-2025-52d8b8	\N	asqw	\N	\N
+DIS-FS-2025-9f1e5c	\N	asqw8	\N	\N
+DIS-FS-2025-7577b6	\N	asqw7	\N	\N
+DIS-FS-2025-ae6734	\N	asqw6	\N	\N
+DIS-FS-2025-56bf3f	\N	asqw5	\N	\N
+DIS-FS-2025-2d4034	\N	asqw4	\N	\N
+DIS-FS-2025-8ee141	\N	asqw3	\N	\N
+DIS-FS-2025-efa10c	2023-04-06	Missing documentation	Pending	\N
+DIS-FS-2025-b0036f	\N	asqw1	\N	\N
+DIS-FS-2025-2e457a	\N	asqw2	\N	\N
+DIS-FS-2025-0b2be1	\N	asqw	\N	\N
+DIS-FS-2025-a311b5	\N	asqw8	\N	\N
+DIS-FS-2025-d2b746	\N	asqw7	\N	\N
+DIS-FS-2025-b7af62	\N	asqw6	\N	\N
+DIS-FS-2025-0458f4	\N	asqw5	\N	\N
+DIS-FS-2025-a34821	\N	asqw4	\N	\N
+DIS-FS-2025-4eed83	\N	asqw3	\N	\N
+DIS-FS-2025-2ad23e	2023-04-06	Missing documentation	Pending	\N
+DIS-FS-2025-b90c4c	\N	asqw1	\N	\N
+DIS-FS-2025-47982c	\N	asqw2	\N	\N
 \.
 
 
@@ -6182,6 +6953,26 @@ COPY distribution.failed_shipment (failed_shipment_id, failure_date, failure_rea
 --
 
 COPY distribution.goods_issue (goods_issue_id, issue_date, issued_by, billing_receipt_id) FROM stdin;
+DIS-GI-2025-92c5e3	2023-01-19	\N	\N
+DIS-GI-2025-aa0882	2023-01-27	\N	\N
+DIS-GI-2025-398462	2023-02-10	\N	\N
+DIS-GI-2025-e521b4	\N	\N	\N
+DIS-GI-2025-69ade9	\N	\N	\N
+DIS-GI-2025-6a7497	2023-03-16	\N	\N
+DIS-GI-2025-3dfe84	2023-03-25	\N	\N
+DIS-GI-2025-99fe95	\N	\N	\N
+DIS-GI-2025-84d218	\N	\N	\N
+DIS-GI-2025-3336f2	\N	\N	\N
+DIS-GI-2025-d67900	2023-01-19	\N	\N
+DIS-GI-2025-8400c0	2023-01-27	\N	\N
+DIS-GI-2025-34757d	2023-02-10	\N	\N
+DIS-GI-2025-9bbecc	\N	\N	\N
+DIS-GI-2025-e44675	\N	\N	\N
+DIS-GI-2025-e9292d	2023-03-16	\N	\N
+DIS-GI-2025-90559d	2023-03-25	\N	\N
+DIS-GI-2025-99c2b4	\N	\N	\N
+DIS-GI-2025-e5c15b	\N	\N	\N
+DIS-GI-2025-c90778	\N	\N	\N
 \.
 
 
@@ -6189,7 +6980,27 @@ COPY distribution.goods_issue (goods_issue_id, issue_date, issued_by, billing_re
 -- Data for Name: logistics_approval_request; Type: TABLE DATA; Schema: distribution; Owner: postgres
 --
 
-COPY distribution.logistics_approval_request (approval_request_id, request_date, approval_status, approval_date, approved_by, delivery_order_id) FROM stdin;
+COPY distribution.logistics_approval_request (approval_request_id, request_date, approval_status, approval_date, approved_by, del_order_id) FROM stdin;
+DIS-LOR-2025-1e6ccf	2023-01-13	Approved	2023-01-14	\N	\N
+DIS-LOR-2025-7cc6bb	2023-01-21	Approved	2023-01-22	\N	\N
+DIS-LOR-2025-960254	2023-02-06	Approved	2023-02-07	\N	\N
+DIS-LOR-2025-cb32ee	2023-02-19	Approved	2023-02-20	\N	\N
+DIS-LOR-2025-90e469	2023-03-04	Pending	\N	\N	\N
+DIS-LOR-2025-135533	2023-03-12	Approved	2023-03-13	\N	\N
+DIS-LOR-2025-17f324	2023-03-20	Rejected	2023-03-21	\N	\N
+DIS-LOR-2025-cb1095	2023-04-03	Approved	2023-04-04	\N	\N
+DIS-LOR-2025-bded88	2023-04-17	Pending	\N	\N	\N
+DIS-LOR-2025-94c186	2023-04-25	Approved	2023-04-26	\N	\N
+DIS-LOR-2025-48291f	2023-01-13	Approved	2023-01-14	\N	\N
+DIS-LOR-2025-406fa9	2023-01-21	Approved	2023-01-22	\N	\N
+DIS-LOR-2025-ec9f00	2023-02-06	Approved	2023-02-07	\N	\N
+DIS-LOR-2025-adf28e	2023-02-19	Approved	2023-02-20	\N	\N
+DIS-LOR-2025-a79322	2023-03-04	Pending	\N	\N	\N
+DIS-LOR-2025-3c7616	2023-03-12	Approved	2023-03-13	\N	\N
+DIS-LOR-2025-45f5e5	2023-03-20	Rejected	2023-03-21	\N	\N
+DIS-LOR-2025-97998c	2023-04-03	Approved	2023-04-04	\N	\N
+DIS-LOR-2025-33dc55	2023-04-17	Pending	\N	\N	\N
+DIS-LOR-2025-b4ec03	2023-04-25	Approved	2023-04-26	\N	\N
 \.
 
 
@@ -6198,16 +7009,26 @@ COPY distribution.logistics_approval_request (approval_request_id, request_date,
 --
 
 COPY distribution.operational_cost (operational_cost_id, additional_cost, total_operational_cost, shipping_cost_id, packing_cost_id) FROM stdin;
-DIS-OS-2025-5b37de	50.00	350.00	1	1
-DIS-OS-2025-48963a	75.00	650.00	2	2
-DIS-OS-2025-ad8e07	60.00	400.00	3	3
-DIS-OS-2025-40855e	100.00	417.00	4	4
-DIS-OS-2025-3de59c	0.00	175.00	5	5
-DIS-OS-2025-30d8db	65.00	427.00	6	6
-DIS-OS-2025-1bc391	80.00	669.00	7	7
-DIS-OS-2025-129b85	45.00	367.00	8	8
-DIS-OS-2025-9f398e	110.00	464.00	9	9
-DIS-OS-2025-30ba25	0.00	210.00	10	10
+DIS-OS-2025-b9e770	50.00	350.00	\N	\N
+DIS-OS-2025-ad056e	75.00	650.00	\N	\N
+DIS-OS-2025-bc9bc8	60.00	400.00	\N	\N
+DIS-OS-2025-e62f32	100.00	417.50	\N	\N
+DIS-OS-2025-73833a	\N	\N	\N	\N
+DIS-OS-2025-fe1959	65.00	427.50	\N	\N
+DIS-OS-2025-8abb21	\N	\N	\N	\N
+DIS-OS-2025-d59e65	45.00	367.50	\N	\N
+DIS-OS-2025-1e9e0e	\N	\N	\N	\N
+DIS-OS-2025-da533d	\N	\N	\N	\N
+DIS-OS-2025-272d7a	50.00	350.00	\N	\N
+DIS-OS-2025-6435d2	75.00	650.00	\N	\N
+DIS-OS-2025-e96127	60.00	400.00	\N	\N
+DIS-OS-2025-f4fc1c	100.00	417.50	\N	\N
+DIS-OS-2025-d038b6	\N	\N	\N	\N
+DIS-OS-2025-e71a42	65.00	427.50	\N	\N
+DIS-OS-2025-8d691b	\N	\N	\N	\N
+DIS-OS-2025-adb677	45.00	367.50	\N	\N
+DIS-OS-2025-6e665f	\N	\N	\N	\N
+DIS-OS-2025-3f58a5	\N	\N	\N	\N
 \.
 
 
@@ -6216,6 +7037,26 @@ DIS-OS-2025-30ba25	0.00	210.00	10	10
 --
 
 COPY distribution.packing_cost (packing_cost_id, material_cost, labor_cost, total_packing_cost) FROM stdin;
+DIS-PC-2025-a3a12d	50.00	75.00	125.00
+DIS-PC-2025-16d7f3	75.00	100.00	175.00
+DIS-PC-2025-1b4f9a	60.00	90.00	150.00
+DIS-PC-2025-d3b78b	100.00	120.00	220.00
+DIS-PC-2025-a9e322	80.00	95.00	175.00
+DIS-PC-2025-a03e7b	55.00	85.00	140.00
+DIS-PC-2025-23e958	70.00	110.00	180.00
+DIS-PC-2025-9dd8e3	90.00	100.00	190.00
+DIS-PC-2025-7b869b	65.00	75.00	140.00
+DIS-PC-2025-a1d0c9	85.00	125.00	210.00
+DIS-PC-2025-b37b89	50.00	75.00	125.00
+DIS-PC-2025-d8c97d	75.00	100.00	175.00
+DIS-PC-2025-546a15	60.00	90.00	150.00
+DIS-PC-2025-9a226c	100.00	120.00	220.00
+DIS-PC-2025-c3618c	80.00	95.00	175.00
+DIS-PC-2025-78bf2d	55.00	85.00	140.00
+DIS-PC-2025-fef29c	70.00	110.00	180.00
+DIS-PC-2025-acfa3d	90.00	100.00	190.00
+DIS-PC-2025-d1db05	65.00	75.00	140.00
+DIS-PC-2025-5dca61	85.00	125.00	210.00
 \.
 
 
@@ -6224,6 +7065,26 @@ COPY distribution.packing_cost (packing_cost_id, material_cost, labor_cost, tota
 --
 
 COPY distribution.packing_list (packing_list_id, packed_by, packing_status, packing_type, total_items_packed, packing_cost_id, picking_list_id) FROM stdin;
+DIS-PC-2025-a46fdf	\N	Shipped	Box	15	\N	\N
+DIS-PC-2025-f2873a	\N	Shipped	Crate	10	\N	\N
+DIS-PC-2025-132971	\N	Shipped	Box	8	\N	\N
+DIS-PC-2025-0c6d09	\N	Packed	Bubble Wrap	20	\N	\N
+DIS-PC-2025-b19d1d	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-20c4ba	\N	Shipped	Box	12	\N	\N
+DIS-PC-2025-60b226	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-0cae28	\N	Shipped	Box	5	\N	\N
+DIS-PC-2025-014bb6	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-d7ec28	\N	Pending	\N	\N	\N	\N
+DIS-PC-2025-c49e99	\N	Shipped	Box	15	\N	\N
+DIS-PC-2025-42bd39	\N	Shipped	Crate	10	\N	\N
+DIS-PC-2025-0d677a	\N	Shipped	Box	8	\N	\N
+DIS-PC-2025-91c3d9	\N	Packed	Bubble Wrap	20	\N	\N
+DIS-PC-2025-189f3c	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-50ae9c	\N	Shipped	Box	12	\N	\N
+DIS-PC-2025-fceb8d	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-0ff20a	\N	Shipped	Box	5	\N	\N
+DIS-PC-2025-cbada2	\N	\N	\N	\N	\N	\N
+DIS-PC-2025-694f39	\N	Pending	\N	\N	\N	\N
 \.
 
 
@@ -6232,6 +7093,26 @@ COPY distribution.packing_list (packing_list_id, packed_by, packing_status, pack
 --
 
 COPY distribution.picking_list (picking_list_id, warehouse_id, picked_by, picked_status, picked_date, approval_request_id) FROM stdin;
+DIS-PIL-2025-aff190	\N	\N	Completed	2023-01-15	\N
+DIS-PIL-2025-dc790c	\N	\N	Completed	2023-01-23	\N
+DIS-PIL-2025-a3dcb7	\N	\N	Completed	2023-02-08	\N
+DIS-PIL-2025-e8a61e	\N	\N	In Progress	2023-02-21	\N
+DIS-PIL-2025-dd14f3	\N	\N	\N	\N	\N
+DIS-PIL-2025-956b8c	\N	\N	Completed	2023-03-14	\N
+DIS-PIL-2025-f39874	\N	\N	\N	\N	\N
+DIS-PIL-2025-ecb376	\N	\N	Completed	2023-04-05	\N
+DIS-PIL-2025-1463a1	\N	\N	\N	\N	\N
+DIS-PIL-2025-c4ce51	\N	\N	Not Started	\N	\N
+DIS-PIL-2025-069e0d	\N	\N	Completed	2023-01-15	\N
+DIS-PIL-2025-a2779d	\N	\N	Completed	2023-01-23	\N
+DIS-PIL-2025-9d9a12	\N	\N	Completed	2023-02-08	\N
+DIS-PIL-2025-1ef715	\N	\N	In Progress	2023-02-21	\N
+DIS-PIL-2025-62dd06	\N	\N	\N	\N	\N
+DIS-PIL-2025-3587b4	\N	\N	Completed	2023-03-14	\N
+DIS-PIL-2025-2d7c6a	\N	\N	\N	\N	\N
+DIS-PIL-2025-a98fcd	\N	\N	Completed	2023-04-05	\N
+DIS-PIL-2025-0abf9f	\N	\N	\N	\N	\N
+DIS-PIL-2025-a25d20	\N	\N	Not Started	\N	\N
 \.
 
 
@@ -6240,6 +7121,26 @@ COPY distribution.picking_list (picking_list_id, warehouse_id, picked_by, picked
 --
 
 COPY distribution.rejection (rejection_id, rejection_status, rejection_reason, rejection_date, delivery_receipt_id) FROM stdin;
+DIS-REJ-2025-79e6fe	Resolved	Damaged packaging	2023-01-19	\N
+DIS-REJ-2025-23acbd	Confirmed	Wrong items delivered	2023-01-27	\N
+DIS-REJ-2025-50a0ba	Pending	Late delivery	2023-02-10	\N
+DIS-REJ-2025-f66be8	\N	aaac	\N	\N
+DIS-REJ-2025-d4b83f	\N	aaav	\N	\N
+DIS-REJ-2025-f8c788	Resolved	Incomplete delivery	2023-03-16	\N
+DIS-REJ-2025-1af719	Confirmed	Product quality issues	2023-03-25	\N
+DIS-REJ-2025-d33d6e	Confirmed	Documentation errors	2023-04-06	\N
+DIS-REJ-2025-63f900	\N	aaaa	\N	\N
+DIS-REJ-2025-9cc9ae	Confirmed	Damaged goods	2023-04-27	\N
+DIS-REJ-2025-130e48	Resolved	Damaged packaging	2023-01-19	\N
+DIS-REJ-2025-519f70	Confirmed	Wrong items delivered	2023-01-27	\N
+DIS-REJ-2025-a34c78	Pending	Late delivery	2023-02-10	\N
+DIS-REJ-2025-a8c195	\N	aaac	\N	\N
+DIS-REJ-2025-a9b212	\N	aaav	\N	\N
+DIS-REJ-2025-57cd5a	Resolved	Incomplete delivery	2023-03-16	\N
+DIS-REJ-2025-311597	Confirmed	Product quality issues	2023-03-25	\N
+DIS-REJ-2025-3579c4	Confirmed	Documentation errors	2023-04-06	\N
+DIS-REJ-2025-c5a253	\N	aaaa	\N	\N
+DIS-REJ-2025-d68fb1	Confirmed	Damaged goods	2023-04-27	\N
 \.
 
 
@@ -6248,6 +7149,26 @@ COPY distribution.rejection (rejection_id, rejection_status, rejection_reason, r
 --
 
 COPY distribution.rework_order (rework_id, assigned_to, rework_status, rework_date, expected_completion, rejection_id, failed_shipment_id) FROM stdin;
+DIS-RO-2025-15dd44	\N	Completed	2023-01-20	2023-01-21 17:00:00	\N	\N
+DIS-RO-2025-cb0074	\N	In Progress	2023-01-28	2023-01-30 17:00:00	\N	\N
+DIS-RO-2025-f7649f	\N	Pending	2023-02-11	2023-02-12 17:00:00	\N	\N
+DIS-RO-2025-cbe451	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-17a398	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-89175b	\N	Completed	2023-03-17	2023-03-18 16:00:00	\N	\N
+DIS-RO-2025-1ba8ec	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-bdb15b	\N	Pending	2023-04-07	2023-04-09 12:00:00	\N	\N
+DIS-RO-2025-7fd548	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-bdf07c	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-85be41	\N	Completed	2023-01-20	2023-01-21 17:00:00	\N	\N
+DIS-RO-2025-6cfc6f	\N	In Progress	2023-01-28	2023-01-30 17:00:00	\N	\N
+DIS-RO-2025-96c82a	\N	Pending	2023-02-11	2023-02-12 17:00:00	\N	\N
+DIS-RO-2025-cfad59	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-6aae49	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-7b13ff	\N	Completed	2023-03-17	2023-03-18 16:00:00	\N	\N
+DIS-RO-2025-e2f559	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-b96f28	\N	Pending	2023-04-07	2023-04-09 12:00:00	\N	\N
+DIS-RO-2025-8b612f	\N	\N	\N	\N	\N	\N
+DIS-RO-2025-0ad7f0	\N	\N	\N	\N	\N	\N
 \.
 
 
@@ -6256,7 +7177,26 @@ COPY distribution.rework_order (rework_id, assigned_to, rework_status, rework_da
 --
 
 COPY distribution.shipment_details (shipment_id, carrier_id, shipment_date, shipment_status, tracking_number, estimated_arrival_date, actual_arrival_date, failed_shipment_id, packing_list_id, shipping_cost_id) FROM stdin;
-a	1	2025-03-22	Delivered	123456	2025-03-22 14:00:00	2025-03-22 08:12:36	\N	1	1
+DIS-BR-2025-d58aef	\N	2023-01-16	Delivered	asd1	2023-01-18 14:00:00	2023-01-19 11:30:00	\N	\N	\N
+DIS-BR-2025-5f961a	\N	2023-01-24	Delivered	asd2	2023-01-27 16:00:00	2023-01-27 15:45:00	\N	\N	\N
+DIS-BR-2025-76a49e	\N	2023-02-09	Delivered	asd3	2023-02-09 18:00:00	2023-02-10 09:15:00	\N	\N	\N
+DIS-BR-2025-e763b9	\N	2023-02-22	Shipped	asd4	2023-02-24 12:00:00	\N	\N	\N	\N
+DIS-BR-2025-1f8c0a	\N	\N	Pending	asd5	\N	\N	\N	\N	\N
+DIS-BR-2025-ec42c0	\N	2023-03-15	Delivered	asd6	2023-03-16 10:00:00	2023-03-16 16:20:00	\N	\N	\N
+DIS-BR-2025-dc8444	\N	\N	Delivered	asd7	2023-03-25 13:00:00	2023-03-25 14:05:00	\N	\N	\N
+DIS-BR-2025-319a84	\N	2023-04-06	Failed	asd8	2023-04-08 11:00:00	\N	\N	\N	\N
+DIS-BR-2025-bde3e2	\N	\N	Pending	asd9	2023-04-21 15:00:00	\N	\N	\N	\N
+DIS-BR-2025-e779ad	\N	\N	Pending	asd10	2023-04-29 12:00:00	\N	\N	\N	\N
+DIS-BR-2025-5690cb	\N	2023-01-16	Delivered	asd1	2023-01-18 14:00:00	2023-01-19 11:30:00	\N	\N	\N
+DIS-BR-2025-0c7498	\N	2023-01-24	Delivered	asd2	2023-01-27 16:00:00	2023-01-27 15:45:00	\N	\N	\N
+DIS-BR-2025-1d317b	\N	2023-02-09	Delivered	asd3	2023-02-09 18:00:00	2023-02-10 09:15:00	\N	\N	\N
+DIS-BR-2025-54f43c	\N	2023-02-22	Shipped	asd4	2023-02-24 12:00:00	\N	\N	\N	\N
+DIS-BR-2025-da8b9d	\N	\N	Pending	asd5	\N	\N	\N	\N	\N
+DIS-BR-2025-03edb0	\N	2023-03-15	Delivered	asd6	2023-03-16 10:00:00	2023-03-16 16:20:00	\N	\N	\N
+DIS-BR-2025-2cf4cc	\N	\N	Delivered	asd7	2023-03-25 13:00:00	2023-03-25 14:05:00	\N	\N	\N
+DIS-BR-2025-2039d0	\N	2023-04-06	Failed	asd8	2023-04-08 11:00:00	\N	\N	\N	\N
+DIS-BR-2025-7846b2	\N	\N	Pending	asd9	2023-04-21 15:00:00	\N	\N	\N	\N
+DIS-BR-2025-d9f1ce	\N	\N	Pending	asd10	2023-04-29 12:00:00	\N	\N	\N	\N
 \.
 
 
@@ -6265,6 +7205,26 @@ a	1	2025-03-22	Delivered	123456	2025-03-22 14:00:00	2025-03-22 08:12:36	\N	1	1
 --
 
 COPY distribution.shipping_cost (shipping_cost_id, packing_list_id, cost_per_kg, cost_per_km, weight_kg, distance_km, total_shipping_cost) FROM stdin;
+DIS-SC-2025-a04d89	\N	2.50	0.75	25.00	150.00	175.00
+DIS-SC-2025-c5448c	\N	2.50	0.75	100.00	200.00	400.00
+DIS-SC-2025-91b047	\N	2.50	0.75	40.00	120.00	190.00
+DIS-SC-2025-1eaa4f	\N	2.50	0.75	15.00	80.00	97.50
+DIS-SC-2025-243ea6	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-6cd642	\N	2.75	0.80	30.00	175.00	222.50
+DIS-SC-2025-b7e197	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-45a37a	\N	2.75	0.80	22.00	90.00	132.50
+DIS-SC-2025-23dca6	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-5a36f0	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-f7098e	\N	2.50	0.75	25.00	150.00	175.00
+DIS-SC-2025-d52d32	\N	2.50	0.75	100.00	200.00	400.00
+DIS-SC-2025-be7d50	\N	2.50	0.75	40.00	120.00	190.00
+DIS-SC-2025-939c68	\N	2.50	0.75	15.00	80.00	97.50
+DIS-SC-2025-de9aa9	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-511b93	\N	2.75	0.80	30.00	175.00	222.50
+DIS-SC-2025-bd0951	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-c0121b	\N	2.75	0.80	22.00	90.00	132.50
+DIS-SC-2025-3afa27	\N	\N	\N	\N	\N	\N
+DIS-SC-2025-be47e9	\N	\N	\N	\N	\N	\N
 \.
 
 
@@ -6272,7 +7232,45 @@ COPY distribution.shipping_cost (shipping_cost_id, packing_list_id, cost_per_kg,
 -- Data for Name: budget_approvals; Type: TABLE DATA; Schema: finance; Owner: postgres
 --
 
-COPY finance.budget_approvals (validation_id, downpayments, approval_status) FROM stdin;
+COPY finance.budget_approvals (budget_approvals_id, validation_id, downpayments, approval_status) FROM stdin;
+FNC-BUA-2025-50902d	\N	0.00	Approved
+FNC-BUA-2025-5d17c1	\N	0.00	Approved
+FNC-BUA-2025-6f261b	\N	0.00	Approved
+FNC-BUA-2025-4c86f1	\N	14000.00	Approved
+FNC-BUA-2025-44acbd	\N	10000.00	Approved
+FNC-BUA-2025-5a4110	\N	20000.00	Approved
+FNC-BUA-2025-7cde70	\N	100000.00	Approved
+FNC-BUA-2025-b2bfa4	\N	0.00	Approved
+FNC-BUA-2025-244744	\N	10000.00	Approved
+FNC-BUA-2025-e316a8	\N	50000.00	Approved
+FNC-BUA-2025-9e84c7	\N	100000.00	Approved
+FNC-BUA-2025-784488	\N	0.00	Approved
+FNC-BUA-2025-3e99d7	\N	9.00	Approved
+FNC-BUA-2025-d001f1	\N	30000.00	Approved
+FNC-BUA-2025-fa8143	\N	40000.00	Approved
+FNC-BUA-2025-1a3fa0	\N	0.00	Approved
+FNC-BUA-2025-91b009	\N	40000.00	Approved
+FNC-BUA-2025-aa0087	\N	10000.00	Approved
+FNC-BUA-2025-a6e137	\N	34000.00	Approved
+FNC-BUA-2025-b18f4b	\N	0.00	Approved
+FNC-BUA-2025-219583	\N	0.00	Approved
+FNC-BUA-2025-1d44b3	\N	0.00	Approved
+FNC-BUA-2025-543709	\N	14000.00	Approved
+FNC-BUA-2025-0ce3ac	\N	10000.00	Approved
+FNC-BUA-2025-404898	\N	20000.00	Approved
+FNC-BUA-2025-552e15	\N	100000.00	Approved
+FNC-BUA-2025-4fdf27	\N	0.00	Approved
+FNC-BUA-2025-b6279a	\N	10000.00	Approved
+FNC-BUA-2025-20a6b4	\N	50000.00	Approved
+FNC-BUA-2025-26c7ed	\N	100000.00	Approved
+FNC-BUA-2025-074899	\N	0.00	Approved
+FNC-BUA-2025-ab6441	\N	9.00	Approved
+FNC-BUA-2025-51ca95	\N	30000.00	Approved
+FNC-BUA-2025-cc5588	\N	40000.00	Approved
+FNC-BUA-2025-0a77e6	\N	0.00	Approved
+FNC-BUA-2025-893ad4	\N	40000.00	Approved
+FNC-BUA-2025-392996	\N	10000.00	Approved
+FNC-BUA-2025-a0464d	\N	34000.00	Approved
 \.
 
 
@@ -6281,6 +7279,46 @@ COPY finance.budget_approvals (validation_id, downpayments, approval_status) FRO
 --
 
 COPY finance.budget_validations (validation_id, dept_id, validation_date, validated_by, validation_status, remarks, amount_requested, final_approved_amount) FROM stdin;
+FNC-BVA-2025-b91c63	\N	2024-10-26	Jenny Jimenez	Approved	Approved	2400.00	2400.00
+FNC-BVA-2025-5271e4	\N	2024-10-26	Yori Perdigon	Pending	Awaiting Validation	100000.00	\N
+FNC-BVA-2025-5124fc	\N	2024-10-27	Jenny Jimenez	Pending	Awaiting Validation	50000.00	\N
+FNC-BVA-2025-7a5911	\N	2024-10-27	Jenny Jimenez	Approved	Approved	2400.00	2000.00
+FNC-BVA-2025-365e97	\N	2024-10-28	Julianne Rico	Pending	Awaiting Validation	2000.00	\N
+FNC-BVA-2025-df6f52	\N	2024-10-28	Janna Sudla	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-94829d	\N	2024-10-29	Julianne Rico	Approved	Approved	70000.00	70000.00
+FNC-BVA-2025-435a66	\N	2024-10-29	Edelyn Bercasio	Approved	Approved	70000.00	50000.00
+FNC-BVA-2025-b96ec6	\N	2024-10-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-77937f	\N	2024-10-30	Julianne Rico	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-8f4fce	\N	2024-11-28	Janna Sudla	Approved	Approved	1000000.00	1000000.00
+FNC-BVA-2025-873b6b	\N	2024-11-29	Julianne Rico	Approved	Approved	700000.00	700000.00
+FNC-BVA-2025-087f04	\N	2024-11-29	Edelyn Bercasio	Approved	Approved	700000.00	700000.00
+FNC-BVA-2025-cfb68a	\N	2024-11-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-ba6a1a	\N	2024-11-30	Julianne Rico	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-1970e5	\N	2024-11-28	Janna Sudla	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-122d19	\N	2024-11-29	Julianne Rico	Approved	Approved	70000.00	70000.00
+FNC-BVA-2025-f77767	\N	2024-11-29	Edelyn Bercasio	Approved	Approved	70000.00	50000.00
+FNC-BVA-2025-1b0436	\N	2024-11-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-d7bd60	\N	2024-11-30	Julianne Rico	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-cbd05c	\N	2024-10-26	Jenny Jimenez	Approved	Approved	2400.00	2400.00
+FNC-BVA-2025-6bebad	\N	2024-10-26	Yori Perdigon	Pending	Awaiting Validation	100000.00	\N
+FNC-BVA-2025-dfa2bc	\N	2024-10-27	Jenny Jimenez	Pending	Awaiting Validation	50000.00	\N
+FNC-BVA-2025-b1734c	\N	2024-10-27	Jenny Jimenez	Approved	Approved	2400.00	2000.00
+FNC-BVA-2025-fb6be4	\N	2024-10-28	Julianne Rico	Pending	Awaiting Validation	2000.00	\N
+FNC-BVA-2025-09fccb	\N	2024-10-28	Janna Sudla	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-792123	\N	2024-10-29	Julianne Rico	Approved	Approved	70000.00	70000.00
+FNC-BVA-2025-42f643	\N	2024-10-29	Edelyn Bercasio	Approved	Approved	70000.00	50000.00
+FNC-BVA-2025-cc0714	\N	2024-10-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-ad68d5	\N	2024-10-30	Julianne Rico	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-0b8159	\N	2024-11-28	Janna Sudla	Approved	Approved	1000000.00	1000000.00
+FNC-BVA-2025-0dad52	\N	2024-11-29	Julianne Rico	Approved	Approved	700000.00	700000.00
+FNC-BVA-2025-bdeeaa	\N	2024-11-29	Edelyn Bercasio	Approved	Approved	700000.00	700000.00
+FNC-BVA-2025-b8b137	\N	2024-11-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-4511cc	\N	2024-11-30	Julianne Rico	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-1d48c9	\N	2024-11-28	Janna Sudla	Approved	Approved	100000.00	100000.00
+FNC-BVA-2025-7a72d0	\N	2024-11-29	Julianne Rico	Approved	Approved	70000.00	70000.00
+FNC-BVA-2025-2b6db7	\N	2024-11-29	Edelyn Bercasio	Approved	Approved	70000.00	50000.00
+FNC-BVA-2025-e21a1f	\N	2024-11-30	Yori Perdigon	Pending	Awaiting Validation	250000.00	\N
+FNC-BVA-2025-ce0780	\N	2024-11-30	Julianne Rico	Approved	Approved	100000.00	100000.00
 \.
 
 
@@ -6289,6 +7327,26 @@ COPY finance.budget_validations (validation_id, dept_id, validation_date, valida
 --
 
 COPY human_resources.attendance_tracking (attendance_id, employee_id, time_in, time_out, status, updated_at) FROM stdin;
+HR-ATT-2025-c7a5fd	\N	2025-03-08 08:05:00	2025-03-08 17:00:00	Present	2025-03-23 10:19:43.961188
+HR-ATT-2025-ae1912	\N	2025-03-08 08:30:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:43.961188
+HR-ATT-2025-268ef9	\N	2025-03-08 08:00:00	2025-03-08 12:00:00	Half-Day	2025-03-23 10:19:43.961188
+HR-ATT-2025-b8af39	\N	2025-03-08 00:00:00	2025-03-08 00:00:00	On Leave	2025-03-23 10:19:43.961188
+HR-ATT-2025-f6f91d	\N	2025-03-08 08:15:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:43.961188
+HR-ATT-2025-57b80c	\N	2025-03-08 08:00:00	2025-03-08 17:00:00	Present	2025-03-23 10:19:43.961188
+HR-ATT-2025-d38d72	\N	2025-03-08 08:45:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:43.961188
+HR-ATT-2025-c9403e	\N	2025-03-08 08:00:00	2025-03-08 17:30:00	Present	2025-03-23 10:19:43.961188
+HR-ATT-2025-1533e4	\N	2025-03-08 08:00:00	2025-03-08 16:00:00	Present	2025-03-23 10:19:43.961188
+HR-ATT-2025-008ede	\N	2025-03-08 00:00:00	2025-03-08 00:00:00	Absent	2025-03-23 10:19:43.961188
+HR-ATT-2025-633f9a	\N	2025-03-08 08:05:00	2025-03-08 17:00:00	Present	2025-03-23 10:19:44.096402
+HR-ATT-2025-539a80	\N	2025-03-08 08:30:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:44.096402
+HR-ATT-2025-4799c5	\N	2025-03-08 08:00:00	2025-03-08 12:00:00	Half-Day	2025-03-23 10:19:44.096402
+HR-ATT-2025-7a8ec8	\N	2025-03-08 00:00:00	2025-03-08 00:00:00	On Leave	2025-03-23 10:19:44.096402
+HR-ATT-2025-d0321e	\N	2025-03-08 08:15:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:44.096402
+HR-ATT-2025-5501cc	\N	2025-03-08 08:00:00	2025-03-08 17:00:00	Present	2025-03-23 10:19:44.096402
+HR-ATT-2025-1eb3fd	\N	2025-03-08 08:45:00	2025-03-08 17:00:00	Late	2025-03-23 10:19:44.096402
+HR-ATT-2025-165655	\N	2025-03-08 08:00:00	2025-03-08 17:30:00	Present	2025-03-23 10:19:44.096402
+HR-ATT-2025-93dde9	\N	2025-03-08 08:00:00	2025-03-08 16:00:00	Present	2025-03-23 10:19:44.096402
+HR-ATT-2025-b5e2f1	\N	2025-03-08 00:00:00	2025-03-08 00:00:00	Absent	2025-03-23 10:19:44.096402
 \.
 
 
@@ -6297,6 +7355,16 @@ COPY human_resources.attendance_tracking (attendance_id, employee_id, time_in, t
 --
 
 COPY human_resources.candidates (candidate_id, job_id, first_name, last_name, email, phone, resume, employment_type, contract_duration, status, date_applied) FROM stdin;
+HR-CAND-2025-b31ece	\N	John	Dela Cruz	johndelacruz@email.com	09171234567	Experienced accountant with CPA certification.	Permanent	\N	Applied	2025-03-23 10:19:43.966003
+HR-CAND-2025-f0b27b	\N	Anna	Reyes	annareyes@email.com	09175678901	Skilled administrative assistant with 3 years of experience.	Contractual	6	Interview Scheduled	2025-03-23 10:19:43.966003
+HR-CAND-2025-03e483	\N	Michael	Santos	michaelsantos@email.com	09179876543	Logistics professional with expertise in supply chain management.	Permanent	\N	Applied	2025-03-23 10:19:43.966003
+HR-CAND-2025-d5f707	\N	Rachel	Gomez	rachelgomez@email.com	09172345678	Finance analyst with a background in risk assessment and investment.	Permanent	\N	Hired	2025-03-23 10:19:43.966003
+HR-CAND-2025-3b8064	\N	David	Tan	davidtan@email.com	09176543219	HR specialist with 5+ years of experience in talent acquisition.	Contractual	12	Interview Scheduled	2025-03-23 10:19:43.966003
+HR-CAND-2025-ed1f71	\N	Sophia	Lim	sophialim@email.com	09173456789	Inventory management professional with ERP system experience.	Permanent	\N	Applied	2025-03-23 10:19:43.966003
+HR-CAND-2025-a059a5	\N	Carlos	Fernandez	carlosfernandez@email.com	09179998877	Business strategist with strong analytical and leadership skills.	Contractual	24	Applied	2025-03-23 10:19:43.966003
+HR-CAND-2025-e7a2e0	\N	Emily	Chan	emilychan@email.com	09171239876	Materials planning officer with supply chain experience.	Permanent	\N	Interview Scheduled	2025-03-23 10:19:43.966003
+HR-CAND-2025-8be46d	\N	James	Villanueva	jamesvillanueva@email.com	09176667777	Operations supervisor with experience in large-scale logistics.	Permanent	\N	Rejected	2025-03-23 10:19:43.966003
+HR-CAND-2025-d9da6f	\N	Ben	Cruz	bencruz@email.com	09172348999	Manufacturing worker with hands-on assembly line experience.	Contractual	3	Hired	2025-03-23 10:19:43.966003
 \.
 
 
@@ -6305,6 +7373,20 @@ COPY human_resources.candidates (candidate_id, job_id, first_name, last_name, em
 --
 
 COPY human_resources.departments (dept_id, dept_name) FROM stdin;
+HR-DEPT-2025-2c0793	Accounting
+HR-DEPT-2025-dadd5f	Administration
+HR-DEPT-2025-d1a944	Distribution
+HR-DEPT-2025-7cf06b	Finance
+HR-DEPT-2025-d4e4e8	Human Resource
+HR-DEPT-2025-1e6daa	Inventory
+HR-DEPT-2025-655709	Management
+HR-DEPT-2025-ef8993	Material Resource Planning
+HR-DEPT-2025-f4bdb9	Operations
+HR-DEPT-2025-8cdfe7	Production
+HR-DEPT-2025-36ef37	Project Management
+HR-DEPT-2025-c41258	Purchasing
+HR-DEPT-2025-e34825	Sales
+HR-DEPT-2025-6c93a2	Services
 \.
 
 
@@ -6312,7 +7394,27 @@ COPY human_resources.departments (dept_id, dept_name) FROM stdin;
 -- Data for Name: employee_performance; Type: TABLE DATA; Schema: human_resources; Owner: postgres
 --
 
-COPY human_resources.employee_performance (performance_id, employee_id, immediate_superior_id, rating, review_date, comments) FROM stdin;
+COPY human_resources.employee_performance (performance_id, employee_id, immediate_superior_id, rating, bonus_percentage, review_date, comments) FROM stdin;
+HR-PERF-2025-2ec59f	\N	\N	5	\N	2025-03-01	Kate consistently delivers accurate financial reports and demonstrates exceptional leadership.
+HR-PERF-2025-ef1a77	\N	\N	4	\N	2025-03-02	James has excellent accounting knowledge and manages the team effectively.
+HR-PERF-2025-e6b25d	\N	\N	3	\N	2025-03-03	Robert maintains good accuracy in payables processing but needs to improve speed.
+HR-PERF-2025-936e4a	\N	\N	5	\N	2025-03-04	Maria is proactive and ensures receivables are up-to-date without delays.
+HR-PERF-2025-231ace	\N	\N	4	\N	2025-03-05	David is meticulous in payroll processing and always meets deadlines.
+HR-PERF-2025-634b0f	\N	\N	3	\N	2025-03-06	Carla is reliable in bookkeeping but should work on handling pressure better.
+HR-PERF-2025-d3a619	\N	\N	2	\N	2025-03-07	Miguel shows potential but has been inconsistent in performance this quarter.
+HR-PERF-2025-91e4ca	\N	\N	5	\N	2025-03-08	Angela provides deep financial insights that significantly help decision-making.
+HR-PERF-2025-deb492	\N	\N	4	\N	2025-03-09	Henry conducts thorough audits and follows compliance effectively.
+HR-PERF-2025-cc4b65	\N	\N	3	\N	2025-03-10	Miguel is detail-oriented but needs to enhance efficiency in daily tasks.
+HR-PERF-2025-5a56df	\N	\N	5	\N	2025-03-01	Kate consistently delivers accurate financial reports and demonstrates exceptional leadership.
+HR-PERF-2025-347e4d	\N	\N	4	\N	2025-03-02	James has excellent accounting knowledge and manages the team effectively.
+HR-PERF-2025-b65304	\N	\N	3	\N	2025-03-03	Robert maintains good accuracy in payables processing but needs to improve speed.
+HR-PERF-2025-30c390	\N	\N	5	\N	2025-03-04	Maria is proactive and ensures receivables are up-to-date without delays.
+HR-PERF-2025-a9490e	\N	\N	4	\N	2025-03-05	David is meticulous in payroll processing and always meets deadlines.
+HR-PERF-2025-a61976	\N	\N	3	\N	2025-03-06	Carla is reliable in bookkeeping but should work on handling pressure better.
+HR-PERF-2025-8ae8b1	\N	\N	2	\N	2025-03-07	Miguel shows potential but has been inconsistent in performance this quarter.
+HR-PERF-2025-85df2b	\N	\N	5	\N	2025-03-08	Angela provides deep financial insights that significantly help decision-making.
+HR-PERF-2025-193359	\N	\N	4	\N	2025-03-09	Henry conducts thorough audits and follows compliance effectively.
+HR-PERF-2025-c86276	\N	\N	3	\N	2025-03-10	Miguel is detail-oriented but needs to enhance efficiency in daily tasks.
 \.
 
 
@@ -6321,6 +7423,28 @@ COPY human_resources.employee_performance (performance_id, employee_id, immediat
 --
 
 COPY human_resources.employee_salary (salary_id, employee_id, base_salary, contract_pay_type, contract_pay_rate, total_hours_worked, total_contract_pay, effective_date) FROM stdin;
+HR-SAL-2025-398926	\N	65000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-f3f2af	\N	37000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-906d67	\N	32000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-72fc5a	\N	31000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-592fbf	\N	30000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-9d9c6d	\N	27500.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-92e89d	\N	43000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-2006e2	\N	29000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-4fac5c	\N	45000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-b803ea	\N	\N	Hourly	180.00	160.00	28800.00	2025-03-01
+HR-SAL-2025-819aa7	\N	\N	Daily	1200.00	20.00	24000.00	2025-03-01
+HR-SAL-2025-0514c9	\N	65000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-b849da	\N	37000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-966f3d	\N	32000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-08f96b	\N	31000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-f3d59e	\N	30000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-715639	\N	27500.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-05f26f	\N	43000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-cd5084	\N	29000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-6d3a58	\N	45000.00	\N	\N	\N	\N	2025-03-01
+HR-SAL-2025-d423d5	\N	\N	Hourly	180.00	160.00	28800.00	2025-03-01
+HR-SAL-2025-d8173e	\N	\N	Daily	1200.00	20.00	24000.00	2025-03-01
 \.
 
 
@@ -6329,9 +7453,20 @@ COPY human_resources.employee_salary (salary_id, employee_id, base_salary, contr
 --
 
 COPY human_resources.employees (employee_id, dept_id, first_name, last_name, email, phone, job_title, employment_type, status, updated_at) FROM stdin;
-HR-EMP-2025-0bf227	DEPT-000001	Kate	Tan	katetan@kinetiq.ph	09165824756	\N	Permanent	Active	2025-03-21 11:13:35
-HR-EMP-2025-bf22fd	DEPT-000001	James	Marticio	jamesmarticio@kinetiq.ph	\N	\N	Permanent	Active	2025-03-21 11:14:11
-HR-EMP-2025-c8223f	DEPT-000001	Robert	Santiago	robertsantiago@kinetiq.ph	\N	\N	Permanent	Active	2025-03-21 11:14:49
+HR-EMP-2025-d0f07f	\N	Kate	Tan	katetan@kinetic.ph	09165824756	Chief Accountant	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-f8e7db	\N	James	Marticio	jamesmarticio@kinetic.ph	09123456789	Accounting Supervisor	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-cb0e4c	\N	Robert	Santiago	robertsantiago@kinetic.ph	09187654321	Accounts Payable Specialist	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-fa5c60	\N	Maria	Lopez	marialopez@kinetic.ph	09154321876	Accounts Receivable Specialist	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-3fea02	\N	David	Cruz	davidcruz@kinetic.ph	09192837465	Payroll Officer	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-017a92	\N	Carla	Ramirez	carlaramirez@kinetic.ph	09175648392	Bookkeeper	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-075b42	\N	Miguel	Narabal	miguelnarabal@kinetic.ph	09164738291	Bookkeeper	Contractual	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-7e52c0	\N	Angela	Tores	angelatores@kinetic.ph	09183948572	Financial Analyst	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-c1e1e3	\N	Henry	Vallespin	henryvallespin@kinetic.ph	09195847263	Audit Officer	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-2f4115	\N	Liza	Domingo	lizadomingo@kinetic.ph	09172345678	Tax Consultant	Contractual	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-40af3a	\N	Karen	Mendoza	karenmendoza@kinetic.ph	09139485762	Administrative Manager	Permanent	Active	2025-03-23 10:19:43.959748
+HR-EMP-2025-f0cffe	HR-DEPT-2025-e34825	Arthur	Morgan	arthurmorgan@kinetiq.ph	\N	Sales Representative	Permanent	Active	2025-03-23 02:22:10
+HR-EMP-2025-b15e2f	HR-DEPT-2025-e34825	John	Marston	johnmarston@kinetiq.ph	\N	Sales Representative	Permanent	Active	2025-03-23 02:22:34
+HR-EMP-2025-9e7313	HR-DEPT-2025-e34825	Jordan	Belfort	jordanbelfort@kinetiq.ph	\N	Sales Representative	Permanent	Active	2025-03-23 02:22:57
 \.
 
 
@@ -6340,6 +7475,16 @@ HR-EMP-2025-c8223f	DEPT-000001	Robert	Santiago	robertsantiago@kinetiq.ph	\N	\N	P
 --
 
 COPY human_resources.interviews (interview_id, candidate_id, interviewer_id, interview_date, status, feedback, created_at) FROM stdin;
+HR-INT-2025-b19358	\N	\N	2025-03-15 10:00:00	Scheduled	\N	2025-03-23 10:19:43.96737
+HR-INT-2025-e279b3	\N	\N	2025-03-15 13:00:00	Scheduled	\N	2025-03-23 10:19:43.96737
+HR-INT-2025-e799dc	\N	\N	2025-03-16 09:30:00	Scheduled	\N	2025-03-23 10:19:43.96737
+HR-INT-2025-a952e8	\N	\N	2025-03-16 14:00:00	Scheduled	\N	2025-03-23 10:19:43.96737
+HR-INT-2025-84499f	\N	\N	2025-03-17 11:00:00	Scheduled	\N	2025-03-23 10:19:43.96737
+HR-INT-2025-a801a0	\N	\N	2025-03-15 10:00:00	Scheduled	\N	2025-03-23 10:19:44.101717
+HR-INT-2025-a278d5	\N	\N	2025-03-15 13:00:00	Scheduled	\N	2025-03-23 10:19:44.101717
+HR-INT-2025-a96d8e	\N	\N	2025-03-16 09:30:00	Scheduled	\N	2025-03-23 10:19:44.101717
+HR-INT-2025-274632	\N	\N	2025-03-16 14:00:00	Scheduled	\N	2025-03-23 10:19:44.101717
+HR-INT-2025-4ba62f	\N	\N	2025-03-17 11:00:00	Scheduled	\N	2025-03-23 10:19:44.101717
 \.
 
 
@@ -6348,6 +7493,26 @@ COPY human_resources.interviews (interview_id, candidate_id, interviewer_id, int
 --
 
 COPY human_resources.job_posting (job_id, request_id, dept_id, "position", description, requirements, employment_type, contract_duration, contract_rate, contract_pay_type, status, created_at) FROM stdin;
+HR-JOB-2025-6f36b9	\N	\N	Junior Accountant	Assist in financial record-keeping and report preparation.	Bachelor’s degree in Accounting, 1+ years experience, CPA preferred.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-1b4014	\N	\N	Administrative Assistant	Support office operations, manage schedules, and handle correspondence.	High school diploma or equivalent, proficient in MS Office, strong communication skills.	Contractual	6	18000.00	Fixed	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-655c52	\N	\N	Logistics Coordinator	Oversee transportation and delivery of goods.	Experience in distribution/logistics, knowledge of inventory software.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-19e9af	\N	\N	Finance Analyst	Analyze financial data and assist in decision-making.	Degree in Finance or Accounting, 2+ years experience, strong analytical skills.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-f8b9bf	\N	\N	Recruitment Specialist	Handle end-to-end recruitment process.	Degree in HR or Psychology, experience in talent acquisition.	Contractual	12	25000.00	Fixed	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-1bd2d7	\N	\N	Inventory Supervisor	Manage stock levels and ensure inventory accuracy.	Experience in inventory control, knowledge of ERP systems.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-0ffb68	\N	\N	Business Strategy Consultant	Develop and optimize business strategies.	MBA preferred, 5+ years experience in corporate strategy.	Contractual	24	120000.00	Fixed	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-3c3d77	\N	\N	Material Planning Officer	Ensure timely procurement and availability of materials.	Degree in Supply Chain or related field, experience in planning.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-b35e7c	\N	\N	Operations Supervisor	Oversee daily operations and manage staff.	Experience in operations management, leadership skills.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-bb78d1	\N	\N	Production Line Worker	Work on the manufacturing assembly line.	No experience required, physically fit, willing to work shifts.	Contractual	3	500.00	Daily	Open	2025-03-23 10:19:43.964674
+HR-JOB-2025-b902c2	\N	\N	Junior Accountant	Assist in financial record-keeping and report preparation.	Bachelor’s degree in Accounting, 1+ years experience, CPA preferred.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-355994	\N	\N	Administrative Assistant	Support office operations, manage schedules, and handle correspondence.	High school diploma or equivalent, proficient in MS Office, strong communication skills.	Contractual	6	18000.00	Fixed	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-71ad2d	\N	\N	Logistics Coordinator	Oversee transportation and delivery of goods.	Experience in distribution/logistics, knowledge of inventory software.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-75f413	\N	\N	Finance Analyst	Analyze financial data and assist in decision-making.	Degree in Finance or Accounting, 2+ years experience, strong analytical skills.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-6e8958	\N	\N	Recruitment Specialist	Handle end-to-end recruitment process.	Degree in HR or Psychology, experience in talent acquisition.	Contractual	12	25000.00	Fixed	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-d87278	\N	\N	Inventory Supervisor	Manage stock levels and ensure inventory accuracy.	Experience in inventory control, knowledge of ERP systems.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-3cded6	\N	\N	Business Strategy Consultant	Develop and optimize business strategies.	MBA preferred, 5+ years experience in corporate strategy.	Contractual	24	120000.00	Fixed	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-c62d48	\N	\N	Material Planning Officer	Ensure timely procurement and availability of materials.	Degree in Supply Chain or related field, experience in planning.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-7dbee6	\N	\N	Operations Supervisor	Oversee daily operations and manage staff.	Experience in operations management, leadership skills.	Permanent	\N	\N	\N	Open	2025-03-23 10:19:44.098512
+HR-JOB-2025-ae21ba	\N	\N	Production Line Worker	Work on the manufacturing assembly line.	No experience required, physically fit, willing to work shifts.	Contractual	3	500.00	Daily	Open	2025-03-23 10:19:44.098512
 \.
 
 
@@ -6356,6 +7521,26 @@ COPY human_resources.job_posting (job_id, request_id, dept_id, "position", descr
 --
 
 COPY human_resources.leave_requests (leave_id, employee_id, dept_id, immediate_superior_id, management_approval_id, leave_type, start_date, end_date, is_paid, status, updated_at) FROM stdin;
+HR-LV-2025-5b0283	\N	\N	\N	\N	Sick	2025-03-01	2025-03-03	t	Approved by Superior	2025-03-23 10:19:43.962312
+HR-LV-2025-23bd62	\N	\N	\N	\N	Vacation	2025-04-10	2025-04-14	t	Approved by Superior	2025-03-23 10:19:43.962312
+HR-LV-2025-78f89e	\N	\N	\N	\N	Personal	2025-05-02	2025-05-02	t	Rejected by Superior	2025-03-23 10:19:43.962312
+HR-LV-2025-b90df4	\N	\N	\N	\N	Maternity	2025-06-01	2025-08-01	t	Approved by Management	2025-03-23 10:19:43.962312
+HR-LV-2025-0baf55	\N	\N	\N	\N	Paternity	2025-07-15	2025-07-20	t	Approved by Management	2025-03-23 10:19:43.962312
+HR-LV-2025-a76bd3	\N	\N	\N	\N	Sick	2025-03-05	2025-03-07	t	Recorded in HRIS	2025-03-23 10:19:43.962312
+HR-LV-2025-e0b72a	\N	\N	\N	\N	Unpaid	2025-03-18	2025-03-19	f	Approved by Superior	2025-03-23 10:19:43.962312
+HR-LV-2025-af1a56	\N	\N	\N	\N	Personal	2025-04-01	2025-04-02	t	Pending	2025-03-23 10:19:43.962312
+HR-LV-2025-0f98b5	\N	\N	\N	\N	Vacation	2025-05-15	2025-05-22	t	Pending	2025-03-23 10:19:43.962312
+HR-LV-2025-f7b001	\N	\N	\N	\N	Unpaid	2025-06-10	2025-06-12	f	Rejected by Management	2025-03-23 10:19:43.962312
+HR-LV-2025-d74237	\N	\N	\N	\N	Sick	2025-03-01	2025-03-03	t	Approved by Superior	2025-03-23 10:19:44.097101
+HR-LV-2025-41578a	\N	\N	\N	\N	Vacation	2025-04-10	2025-04-14	t	Approved by Superior	2025-03-23 10:19:44.097101
+HR-LV-2025-4d1960	\N	\N	\N	\N	Personal	2025-05-02	2025-05-02	t	Rejected by Superior	2025-03-23 10:19:44.097101
+HR-LV-2025-11da21	\N	\N	\N	\N	Maternity	2025-06-01	2025-08-01	t	Approved by Management	2025-03-23 10:19:44.097101
+HR-LV-2025-8f1831	\N	\N	\N	\N	Paternity	2025-07-15	2025-07-20	t	Approved by Management	2025-03-23 10:19:44.097101
+HR-LV-2025-894a78	\N	\N	\N	\N	Sick	2025-03-05	2025-03-07	t	Recorded in HRIS	2025-03-23 10:19:44.097101
+HR-LV-2025-cd3b9e	\N	\N	\N	\N	Unpaid	2025-03-18	2025-03-19	f	Approved by Superior	2025-03-23 10:19:44.097101
+HR-LV-2025-7282a9	\N	\N	\N	\N	Personal	2025-04-01	2025-04-02	t	Pending	2025-03-23 10:19:44.097101
+HR-LV-2025-59a7a7	\N	\N	\N	\N	Vacation	2025-05-15	2025-05-22	t	Pending	2025-03-23 10:19:44.097101
+HR-LV-2025-6686d1	\N	\N	\N	\N	Unpaid	2025-06-10	2025-06-12	f	Rejected by Management	2025-03-23 10:19:44.097101
 \.
 
 
@@ -6363,7 +7548,27 @@ COPY human_resources.leave_requests (leave_id, employee_id, dept_id, immediate_s
 -- Data for Name: payroll; Type: TABLE DATA; Schema: human_resources; Owner: postgres
 --
 
-COPY human_resources.payroll (payroll_id, employee_id, employment_type, base_salary, work_days, contract_pay_type, contract_pay_rate, total_hours_worked, total_contract_pay, payment_date, payment_status) FROM stdin;
+COPY human_resources.payroll (payroll_id, employee_id, employment_type, base_salary, work_days, contract_pay_type, contract_pay_rate, total_hours_worked, total_contract_pay, overtime_hours, overtime_pay, undertime_hours, undertime_deductions, unpaid_leave_days, leave_deductions, taxable_income, tax, sss_deduction, philhealth_deduction, pagibig_deduction, thirteenth_month_pay, performance_bonus, net_salary, payment_date, payment_status) FROM stdin;
+HR-PAY-2025-3f3191	\N	Permanent	65000.00	22	\N	\N	\N	\N	5.00	2500.00	2.00	1000.00	1	2954.55	58545.45	5854.55	3250.00	3250.00	1300.00	5416.67	7800.00	53557.57	2025-03-01	Processed
+HR-PAY-2025-97a9af	\N	Permanent	37000.00	22	\N	\N	\N	\N	3.00	1350.00	1.00	500.00	0	0.00	35150.00	3515.00	1850.00	1850.00	740.00	3083.33	2775.00	31478.33	2025-03-01	Processed
+HR-PAY-2025-4d8ab9	\N	Permanent	32000.00	22	\N	\N	\N	\N	2.00	800.00	0.00	0.00	0	0.00	32000.00	3200.00	1600.00	1600.00	640.00	2666.67	1600.00	27026.67	2025-03-01	Processed
+HR-PAY-2025-c2cee5	\N	Permanent	31000.00	22	\N	\N	\N	\N	4.00	1600.00	1.00	500.00	0	0.00	29900.00	2990.00	1550.00	1550.00	620.00	2583.33	1550.00	26423.33	2025-03-01	Processed
+HR-PAY-2025-e81d4c	\N	Permanent	30000.00	22	\N	\N	\N	\N	3.00	1200.00	0.00	0.00	2	2727.27	26072.73	2607.27	1500.00	1500.00	600.00	2500.00	1500.00	23065.46	2025-03-01	Processed
+HR-PAY-2025-be9b9f	\N	Permanent	27500.00	22	\N	\N	\N	\N	1.00	400.00	0.00	0.00	0	0.00	27500.00	2750.00	1375.00	1375.00	550.00	2291.67	1375.00	22646.67	2025-03-01	Processed
+HR-PAY-2025-5ee505	\N	Permanent	43000.00	22	\N	\N	\N	\N	5.00	2000.00	2.00	1000.00	0	0.00	42000.00	4200.00	2150.00	2150.00	860.00	3583.33	3225.00	34958.33	2025-03-01	Processed
+HR-PAY-2025-0474d6	\N	Permanent	29000.00	22	\N	\N	\N	\N	2.00	800.00	0.00	0.00	0	0.00	29000.00	2900.00	1450.00	1450.00	580.00	2416.67	1450.00	24386.67	2025-03-01	Processed
+HR-PAY-2025-404f65	\N	Contractual	\N	\N	Hourly	180.00	160.00	28800.00	5.00	900.00	1.00	180.00	0	0.00	29620.00	2962.00	1440.00	1440.00	576.00	0.00	0.00	23202.00	2025-03-01	Processed
+HR-PAY-2025-8ed2bf	\N	Contractual	\N	\N	Daily	1200.00	20.00	24000.00	3.00	3600.00	0.00	0.00	0	0.00	27600.00	2760.00	1200.00	1200.00	480.00	0.00	0.00	21560.00	2025-03-01	Processed
+HR-PAY-2025-c3139a	\N	Permanent	65000.00	22	\N	\N	\N	\N	5.00	2500.00	2.00	1000.00	1	2954.55	58545.45	5854.55	3250.00	3250.00	1300.00	5416.67	7800.00	53557.57	2025-03-01	Processed
+HR-PAY-2025-393a08	\N	Permanent	37000.00	22	\N	\N	\N	\N	3.00	1350.00	1.00	500.00	0	0.00	35150.00	3515.00	1850.00	1850.00	740.00	3083.33	2775.00	31478.33	2025-03-01	Processed
+HR-PAY-2025-d38689	\N	Permanent	32000.00	22	\N	\N	\N	\N	2.00	800.00	0.00	0.00	0	0.00	32000.00	3200.00	1600.00	1600.00	640.00	2666.67	1600.00	27026.67	2025-03-01	Processed
+HR-PAY-2025-feadc4	\N	Permanent	31000.00	22	\N	\N	\N	\N	4.00	1600.00	1.00	500.00	0	0.00	29900.00	2990.00	1550.00	1550.00	620.00	2583.33	1550.00	26423.33	2025-03-01	Processed
+HR-PAY-2025-9ab7b7	\N	Permanent	30000.00	22	\N	\N	\N	\N	3.00	1200.00	0.00	0.00	2	2727.27	26072.73	2607.27	1500.00	1500.00	600.00	2500.00	1500.00	23065.46	2025-03-01	Processed
+HR-PAY-2025-837b33	\N	Permanent	27500.00	22	\N	\N	\N	\N	1.00	400.00	0.00	0.00	0	0.00	27500.00	2750.00	1375.00	1375.00	550.00	2291.67	1375.00	22646.67	2025-03-01	Processed
+HR-PAY-2025-9f7565	\N	Permanent	43000.00	22	\N	\N	\N	\N	5.00	2000.00	2.00	1000.00	0	0.00	42000.00	4200.00	2150.00	2150.00	860.00	3583.33	3225.00	34958.33	2025-03-01	Processed
+HR-PAY-2025-315f5d	\N	Permanent	29000.00	22	\N	\N	\N	\N	2.00	800.00	0.00	0.00	0	0.00	29000.00	2900.00	1450.00	1450.00	580.00	2416.67	1450.00	24386.67	2025-03-01	Processed
+HR-PAY-2025-065cd4	\N	Contractual	\N	\N	Hourly	180.00	160.00	28800.00	5.00	900.00	1.00	180.00	0	0.00	29620.00	2962.00	1440.00	1440.00	576.00	0.00	0.00	23202.00	2025-03-01	Processed
+HR-PAY-2025-ab79a7	\N	Contractual	\N	\N	Daily	1200.00	20.00	24000.00	3.00	3600.00	0.00	0.00	0	0.00	27600.00	2760.00	1200.00	1200.00	480.00	0.00	0.00	21560.00	2025-03-01	Processed
 \.
 
 
@@ -6372,6 +7577,26 @@ COPY human_resources.payroll (payroll_id, employee_id, employment_type, base_sal
 --
 
 COPY human_resources.workforce_allocation (allocation_id, requesting_dept_id, employee_id, current_dept_id, reason, approval_status, status, start_date, end_date, approval_date) FROM stdin;
+HR-ALLOC-2025-5065d3	\N	\N	\N	Temporary assignment to assist with financial reconciliation for a major project.	Approved	Completed	2025-02-01	2025-02-28	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-722dff	\N	\N	\N	Payroll Officer assigned to help with operational budgeting.	Approved	Completed	2025-01-15	2025-01-31	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-ed74e3	\N	\N	\N	Supervisory expertise needed for budget restructuring.	Pending	Active	2025-03-10	\N	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-191cb7	\N	\N	\N	Bookkeeper assisting with purchasing audit.	Approved	Active	2025-03-05	2025-03-15	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-f70e33	\N	\N	\N	Financial Analyst required for material resource planning.	Rejected	Canceled	2025-02-20	2025-03-05	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-67d4e0	\N	\N	\N	Bookkeeper support for production cost analysis.	Approved	Active	2025-03-01	2025-03-20	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-7a8927	\N	\N	\N	Accounts Receivable Specialist temporarily assigned for inventory reconciliation.	Pending	Active	2025-03-08	\N	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-7ad358	\N	\N	\N	Audit Officer assisting distribution finance team.	Approved	Completed	2025-01-05	2025-01-25	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-dbd5fc	\N	\N	\N	Tax Consultant supporting sales tax review.	Approved	Completed	2025-02-10	2025-02-28	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-c7f422	\N	\N	\N	Chief Accountant assigned to oversee HR payroll compliance.	Rejected	Canceled	2025-02-15	2025-03-10	2025-03-23 10:19:43.96349
+HR-ALLOC-2025-8d9f22	\N	\N	\N	Temporary assignment to assist with financial reconciliation for a major project.	Approved	Completed	2025-02-01	2025-02-28	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-0ede28	\N	\N	\N	Payroll Officer assigned to help with operational budgeting.	Approved	Completed	2025-01-15	2025-01-31	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-dbdda9	\N	\N	\N	Supervisory expertise needed for budget restructuring.	Pending	Active	2025-03-10	\N	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-b674d7	\N	\N	\N	Bookkeeper assisting with purchasing audit.	Approved	Active	2025-03-05	2025-03-15	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-4decc2	\N	\N	\N	Financial Analyst required for material resource planning.	Rejected	Canceled	2025-02-20	2025-03-05	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-941b53	\N	\N	\N	Bookkeeper support for production cost analysis.	Approved	Active	2025-03-01	2025-03-20	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-28a506	\N	\N	\N	Accounts Receivable Specialist temporarily assigned for inventory reconciliation.	Pending	Active	2025-03-08	\N	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-1d7c6e	\N	\N	\N	Audit Officer assisting distribution finance team.	Approved	Completed	2025-01-05	2025-01-25	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-847e12	\N	\N	\N	Tax Consultant supporting sales tax review.	Approved	Completed	2025-02-10	2025-02-28	2025-03-23 10:19:44.09779
+HR-ALLOC-2025-3a66c5	\N	\N	\N	Chief Accountant assigned to oversee HR payroll compliance.	Rejected	Canceled	2025-02-15	2025-03-10	2025-03-23 10:19:44.09779
 \.
 
 
@@ -6380,6 +7605,14 @@ COPY human_resources.workforce_allocation (allocation_id, requesting_dept_id, em
 --
 
 COPY inventory.deprecation_report (deprecation_report_id, item_id, content_id, quantity, reported_date, status, warehouse_id, employee_id) FROM stdin;
+INV-DR-2025-4c82a8	\N	\N	5	2023-10-09 18:00:00	Pending	\N	\N
+INV-DR-2025-8004d8	\N	\N	10	2023-10-10 19:00:00	Approved	\N	\N
+INV-DR-2025-566eed	\N	\N	2	2023-10-11 20:00:00	Pending	\N	\N
+INV-DR-2025-e85b24	\N	\N	1	2023-10-12 21:00:00	Approved	\N	\N
+INV-DR-2025-519997	\N	\N	5	2023-10-09 18:00:00	Pending	\N	\N
+INV-DR-2025-7a89bd	\N	\N	10	2023-10-10 19:00:00	Approved	\N	\N
+INV-DR-2025-19b71b	\N	\N	2	2023-10-11 20:00:00	Pending	\N	\N
+INV-DR-2025-a30a4e	\N	\N	1	2023-10-12 21:00:00	Approved	\N	\N
 \.
 
 
@@ -6388,6 +7621,14 @@ COPY inventory.deprecation_report (deprecation_report_id, item_id, content_id, q
 --
 
 COPY inventory.inventory_adjustments (adjustment_id, item_id, adjustment_type, quantity, adjustment_date, employee_id) FROM stdin;
+INV-IA-2025-a3f544	\N	Inbound	20	2023-10-05 14:00:00	\N
+INV-IA-2025-928bc2	\N	Outbound-Distribution	10	2023-10-06 15:00:00	\N
+INV-IA-2025-bd386b	\N	Outbound-Production	5	2023-10-07 16:00:00	\N
+INV-IA-2025-52fa1f	\N	Outbound-Deprecated	3	2023-10-08 17:00:00	\N
+INV-IA-2025-96e1f4	\N	Inbound	20	2023-10-05 14:00:00	\N
+INV-IA-2025-902894	\N	Outbound-Distribution	10	2023-10-06 15:00:00	\N
+INV-IA-2025-64b3e8	\N	Outbound-Production	5	2023-10-07 16:00:00	\N
+INV-IA-2025-2bd050	\N	Outbound-Deprecated	3	2023-10-08 17:00:00	\N
 \.
 
 
@@ -6396,6 +7637,14 @@ COPY inventory.inventory_adjustments (adjustment_id, item_id, adjustment_type, q
 --
 
 COPY inventory.inventory_cyclic_counts (inventory_count_id, item_md_id, item_onhand, item_actually_counted, difference_in_qty, employee_id, status, remarks, time_period) FROM stdin;
+INV-ICC-2025-9ca8ed	1	50	48	-2	\N	Completed	Routine check	monthly
+INV-ICC-2025-36dbd1	2	30	30	0	\N	Open	Initial count	weekly
+INV-ICC-2025-1e7360	3	70	68	-2	\N	In Progress	Mid-year audit	quarterly
+INV-ICC-2025-2cd9dc	4	100	95	-5	\N	Closed	End of year review	yearly
+INV-ICC-2025-75a978	1	50	48	-2	\N	Completed	Routine check	monthly
+INV-ICC-2025-8c1abf	2	30	30	0	\N	Open	Initial count	weekly
+INV-ICC-2025-e2f4c3	3	70	68	-2	\N	In Progress	Mid-year audit	quarterly
+INV-ICC-2025-418087	4	100	95	-5	\N	Closed	End of year review	yearly
 \.
 
 
@@ -6404,6 +7653,14 @@ COPY inventory.inventory_cyclic_counts (inventory_count_id, item_md_id, item_onh
 --
 
 COPY inventory.inventory_item (inventory_item_id, item_id, content_id, expiry_date, unit_cost, unit_of_measure, item_status, warehouse_id) FROM stdin;
+INV-II-2025-6f41fc	\N	\N	2025-12-31	10.500	bottle	Available	\N
+INV-II-2025-7f9f3e	\N	\N	2024-06-30	15.750	box	On Order	\N
+INV-II-2025-19c0eb	\N	\N	2023-11-15	8.250	packet	Committed	\N
+INV-II-2025-59b2d6	\N	\N	2026-01-01	20.000	carton	Available	\N
+INV-II-2025-863044	\N	\N	2025-12-31	10.500	bottle	Available	\N
+INV-II-2025-bbd929	\N	\N	2024-06-30	15.750	box	On Order	\N
+INV-II-2025-a3375e	\N	\N	2023-11-15	8.250	packet	Committed	\N
+INV-II-2025-0d0842	\N	\N	2026-01-01	20.000	carton	Available	\N
 \.
 
 
@@ -6411,7 +7668,15 @@ COPY inventory.inventory_item (inventory_item_id, item_id, content_id, expiry_da
 -- Data for Name: inventory_item_master_data; Type: TABLE DATA; Schema: inventory; Owner: postgres
 --
 
-COPY inventory.inventory_item_master_data (item_md_id, item_id, unit_cost, minimum_threshold, maximum_threshold, total_stock, stock_on_order, stock_committed, available_stock, last_update) FROM stdin;
+COPY inventory.inventory_item_master_data (item_md_id, item_id, content_id, minimum_threshold, maximum_threshold, total_stock, stock_on_order, stock_committed, available_stock, last_update) FROM stdin;
+INV-IIMD-2025-342b4b	\N	CONT001	10	100	50	20	5	25	2023-10-01 10:00:00
+INV-IIMD-2025-6b72c2	\N	CONT002	5	50	30	10	2	18	2023-10-02 11:00:00
+INV-IIMD-2025-a34826	\N	CONT003	15	150	70	25	10	35	2023-10-03 12:00:00
+INV-IIMD-2025-7866f7	\N	CONT004	20	200	100	30	15	55	2023-10-04 13:00:00
+INV-IIMD-2025-2096fd	\N	CONT001	10	100	50	20	5	25	2023-10-01 10:00:00
+INV-IIMD-2025-5a29ec	\N	CONT002	5	50	30	10	2	18	2023-10-02 11:00:00
+INV-IIMD-2025-00f11c	\N	CONT003	15	150	70	25	10	35	2023-10-03 12:00:00
+INV-IIMD-2025-85c827	\N	CONT004	20	200	100	30	15	55	2023-10-04 13:00:00
 \.
 
 
@@ -6420,6 +7685,42 @@ COPY inventory.inventory_item_master_data (item_md_id, item_id, unit_cost, minim
 --
 
 COPY inventory.warehouse_movement (movement_id, item_id, movement_type, quantity, movement_date, destination, source, reference_id_purchase_order, reference_id_order) FROM stdin;
+INV-WM-2025-f9e23a	\N	Inbound	50	2023-10-13 22:00:00	\N	\N	\N	\N
+INV-WM-2025-d6055a	\N	Outbound	30	2023-10-14 23:00:00	\N	\N	\N	\N
+INV-WM-2025-23096f	\N	Transfer	20	2023-10-15 08:00:00	\N	\N	\N	\N
+INV-WM-2025-1856c5	\N	Adjustment	10	2023-10-16 09:00:00	\N	\N	\N	\N
+INV-WM-2025-dce67a	\N	Inbound	50	2023-10-13 22:00:00	\N	\N	\N	\N
+INV-WM-2025-8620ae	\N	Outbound	30	2023-10-14 23:00:00	\N	\N	\N	\N
+INV-WM-2025-385f2d	\N	Transfer	20	2023-10-15 08:00:00	\N	\N	\N	\N
+INV-WM-2025-dc4241	\N	Adjustment	10	2023-10-16 09:00:00	\N	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: management_approvals; Type: TABLE DATA; Schema: management; Owner: postgres
+--
+
+COPY management.management_approvals (approval_id, request_id, checked_id, decision_date, issue_date, checked_by, checked_date, status, due_date, remarks) FROM stdin;
+MNG-APP-2025-8206fc	REQ-2025-123456	CHK-2025-111111	2025-03-15	2025-03-10	Juan Dela Cruz	2025-03-12	approved	2025-03-20	Approved after review.
+MNG-APP-2025-170da1	REQ-2025-223456	CHK-2025-222222	2025-03-16	2025-03-11	Maria Santos	2025-03-13	pending	2025-03-25	Pending further verification.
+MNG-APP-2025-0053ab	REQ-2025-323456	CHK-2025-333333	2025-03-17	2025-03-12	John Stephen	2025-03-14	rejected	2025-03-18	Rejected due to incomplete documents.
+MNG-APP-2025-e55747	REQ-2025-423456	CHK-2025-444444	2025-03-18	2025-03-14	Jolina Estiamba	2025-03-15	approved	2025-03-22	Approved after additional checks.
+MNG-APP-2025-19edca	REQ-2025-523456	CHK-2025-555555	2025-03-19	2025-03-15	Athena Moises	2025-03-16	approved	2025-03-21	Approved without issues.
+MNG-APP-2025-6fddbf	REQ-2025-623456	CHK-2025-666666	2025-03-20	2025-03-16	Gabriela Silang	2025-03-17	pending	2025-03-23	Pending further information.
+MNG-APP-2025-5edfb4	REQ-2025-723456	CHK-2025-777777	2025-03-21	2025-03-17	Diego Silang	2025-03-18	rejected	2025-03-24	Rejected due to non-compliance.
+MNG-APP-2025-460054	REQ-2025-823456	CHK-2025-888888	2025-03-22	2025-03-18	Jeffrey Bugarin	2025-03-19	approved	2025-03-26	Approved after successful review.
+MNG-APP-2025-d42cfe	REQ-2025-923456	CHK-2025-999999	2025-03-23	2025-03-19	Shawn Moises	2025-03-20	pending	2025-03-27	Pending confirmation from department.
+MNG-APP-2025-16cabb	REQ-2025-023456	CHK-2025-000000	2025-03-24	2025-03-20	Omega Bugarin	2025-03-21	approved	2025-03-28	Approved after final inspection.
+MNG-APP-2025-0488d9	REQ-2025-123456	CHK-2025-111111	2025-03-15	2025-03-10	Juan Dela Cruz	2025-03-12	approved	2025-03-20	Approved after review.
+MNG-APP-2025-0cf996	REQ-2025-223456	CHK-2025-222222	2025-03-16	2025-03-11	Maria Santos	2025-03-13	pending	2025-03-25	Pending further verification.
+MNG-APP-2025-3316c9	REQ-2025-323456	CHK-2025-333333	2025-03-17	2025-03-12	John Stephen	2025-03-14	rejected	2025-03-18	Rejected due to incomplete documents.
+MNG-APP-2025-f67dcc	REQ-2025-423456	CHK-2025-444444	2025-03-18	2025-03-14	Jolina Estiamba	2025-03-15	approved	2025-03-22	Approved after additional checks.
+MNG-APP-2025-fa2f24	REQ-2025-523456	CHK-2025-555555	2025-03-19	2025-03-15	Athena Moises	2025-03-16	approved	2025-03-21	Approved without issues.
+MNG-APP-2025-28abb7	REQ-2025-623456	CHK-2025-666666	2025-03-20	2025-03-16	Gabriela Silang	2025-03-17	pending	2025-03-23	Pending further information.
+MNG-APP-2025-ab430e	REQ-2025-723456	CHK-2025-777777	2025-03-21	2025-03-17	Diego Silang	2025-03-18	rejected	2025-03-24	Rejected due to non-compliance.
+MNG-APP-2025-e99886	REQ-2025-823456	CHK-2025-888888	2025-03-22	2025-03-18	Jeffrey Bugarin	2025-03-19	approved	2025-03-26	Approved after successful review.
+MNG-APP-2025-c80cc8	REQ-2025-923456	CHK-2025-999999	2025-03-23	2025-03-19	Shawn Moises	2025-03-20	pending	2025-03-27	Pending confirmation from department.
+MNG-APP-2025-bf6da0	REQ-2025-023456	CHK-2025-000000	2025-03-24	2025-03-20	Omega Bugarin	2025-03-21	approved	2025-03-28	Approved after final inspection.
 \.
 
 
@@ -6427,7 +7728,57 @@ COPY inventory.warehouse_movement (movement_id, item_id, movement_type, quantity
 -- Data for Name: bill_of_materials; Type: TABLE DATA; Schema: mrp; Owner: postgres
 --
 
-COPY mrp.bill_of_materials (bom_id, product_description, unit_of_measure, specific_notes, quantity_of_unit, cost_per_raw_material, total_cost_of_raw_materials) FROM stdin;
+COPY mrp.bill_of_materials (bom_id, product_id, material_id, product_description, unit_of_measure, specific_notes, quantity_of_unit, cost_per_raw_material, total_cost_of_raw_materials) FROM stdin;
+MRP-BOM-2025-995ec6	\N	\N	steel frame	kg	high strength	10	50.00	500.00
+MRP-BOM-2025-9ed27e	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00
+MRP-BOM-2025-d7842b	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00
+MRP-BOM-2025-b64b19	\N	\N	copper wire	m	high conductivity	12	30.00	360.00
+MRP-BOM-2025-0e9514	\N	\N	rubber gasket	unit	durable	20	5.00	100.00
+MRP-BOM-2025-27120b	\N	\N	glass panel	sqm	tempered	3	200.00	600.00
+MRP-BOM-2025-9251dd	\N	\N	wooden plank	m	hardwood	15	40.00	600.00
+MRP-BOM-2025-79784e	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00
+MRP-BOM-2025-f8cc59	\N	\N	pvc pipe	m	flexible	30	10.00	300.00
+MRP-BOM-2025-66231b	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00
+MRP-BOM-2025-65697d	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00
+MRP-BOM-2025-55db9a	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00
+MRP-BOM-2025-f046ef	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00
+MRP-BOM-2025-7fc4db	\N	\N	carbon rods	m	durable	22	60.00	1320.00
+MRP-BOM-2025-1078d3	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00
+MRP-BOM-2025-d08790	\N	\N	wood laminate	sqm	polished	6	150.00	900.00
+MRP-BOM-2025-a07eb1	\N	\N	brass fittings	unit	precision made	50	10.00	500.00
+MRP-BOM-2025-51a6f8	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00
+MRP-BOM-2025-278038	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00
+MRP-BOM-2025-d94c7c	\N	\N	synthetic leather	m	durable	10	25.00	250.00
+MRP-BOM-2025-df26aa	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00
+MRP-BOM-2025-2e5ed8	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00
+MRP-BOM-2025-82e841	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00
+MRP-BOM-2025-1fd40a	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00
+MRP-BOM-2025-1defa9	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00
+MRP-BOM-2025-59393f	\N	\N	steel frame	kg	high strength	10	50.00	500.00
+MRP-BOM-2025-0ad2f3	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00
+MRP-BOM-2025-401e4d	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00
+MRP-BOM-2025-50dbda	\N	\N	copper wire	m	high conductivity	12	30.00	360.00
+MRP-BOM-2025-eab8b2	\N	\N	rubber gasket	unit	durable	20	5.00	100.00
+MRP-BOM-2025-0d20eb	\N	\N	glass panel	sqm	tempered	3	200.00	600.00
+MRP-BOM-2025-d978cb	\N	\N	wooden plank	m	hardwood	15	40.00	600.00
+MRP-BOM-2025-a5bddd	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00
+MRP-BOM-2025-672aad	\N	\N	pvc pipe	m	flexible	30	10.00	300.00
+MRP-BOM-2025-0e23e7	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00
+MRP-BOM-2025-130ea3	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00
+MRP-BOM-2025-5e8baa	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00
+MRP-BOM-2025-9403ae	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00
+MRP-BOM-2025-6d90aa	\N	\N	carbon rods	m	durable	22	60.00	1320.00
+MRP-BOM-2025-fa1cce	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00
+MRP-BOM-2025-813d2f	\N	\N	wood laminate	sqm	polished	6	150.00	900.00
+MRP-BOM-2025-b18a19	\N	\N	brass fittings	unit	precision made	50	10.00	500.00
+MRP-BOM-2025-aa69df	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00
+MRP-BOM-2025-90e7c7	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00
+MRP-BOM-2025-edb068	\N	\N	synthetic leather	m	durable	10	25.00	250.00
+MRP-BOM-2025-0ef296	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00
+MRP-BOM-2025-7b0c81	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00
+MRP-BOM-2025-e96736	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00
+MRP-BOM-2025-cff1fa	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00
+MRP-BOM-2025-43a641	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00
 \.
 
 
@@ -6435,7 +7786,57 @@ COPY mrp.bill_of_materials (bom_id, product_description, unit_of_measure, specif
 -- Data for Name: non_project_order_pricing; Type: TABLE DATA; Schema: mrp; Owner: postgres
 --
 
-COPY mrp.non_project_order_pricing (non_project_costing_id, quantity, mrp_base_price, final_price) FROM stdin;
+COPY mrp.non_project_order_pricing (non_project_costing_id, order_id, product_id, quantity, mrp_base_price, final_price) FROM stdin;
+MRP-NPC-2025-a07f3d	\N	\N	5	1200.00	6000.00
+MRP-NPC-2025-bc562a	\N	\N	3	1100.00	3300.00
+MRP-NPC-2025-f940ae	\N	\N	7	1500.00	10500.00
+MRP-NPC-2025-762fe0	\N	\N	10	800.00	8000.00
+MRP-NPC-2025-e54e02	\N	\N	15	500.00	7500.00
+MRP-NPC-2025-7c27ef	\N	\N	2	2500.00	5000.00
+MRP-NPC-2025-7e462a	\N	\N	8	900.00	7200.00
+MRP-NPC-2025-04d85a	\N	\N	12	300.00	3600.00
+MRP-NPC-2025-4ab77d	\N	\N	20	200.00	4000.00
+MRP-NPC-2025-9a52be	\N	\N	1	10000.00	10000.00
+MRP-NPC-2025-c44e61	\N	\N	6	1300.00	7800.00
+MRP-NPC-2025-287a0b	\N	\N	9	1400.00	12600.00
+MRP-NPC-2025-080112	\N	\N	3	1600.00	4800.00
+MRP-NPC-2025-2035c2	\N	\N	4	1700.00	6800.00
+MRP-NPC-2025-896379	\N	\N	12	1800.00	21600.00
+MRP-NPC-2025-b69e27	\N	\N	10	1900.00	19000.00
+MRP-NPC-2025-c7c1cf	\N	\N	7	2000.00	14000.00
+MRP-NPC-2025-428313	\N	\N	11	1500.00	16500.00
+MRP-NPC-2025-88c06d	\N	\N	14	2200.00	30800.00
+MRP-NPC-2025-e00285	\N	\N	8	2500.00	20000.00
+MRP-NPC-2025-ed5e73	\N	\N	5	2100.00	10500.00
+MRP-NPC-2025-026da9	\N	\N	13	2300.00	29900.00
+MRP-NPC-2025-5b6bc3	\N	\N	2	2400.00	4800.00
+MRP-NPC-2025-c4a42b	\N	\N	6	2600.00	15600.00
+MRP-NPC-2025-b46ad4	\N	\N	9	2700.00	24300.00
+MRP-NPC-2025-7c415a	\N	\N	5	1200.00	6000.00
+MRP-NPC-2025-2835df	\N	\N	3	1100.00	3300.00
+MRP-NPC-2025-ff3c70	\N	\N	7	1500.00	10500.00
+MRP-NPC-2025-cb98a9	\N	\N	10	800.00	8000.00
+MRP-NPC-2025-c8817b	\N	\N	15	500.00	7500.00
+MRP-NPC-2025-6e411b	\N	\N	2	2500.00	5000.00
+MRP-NPC-2025-342dbb	\N	\N	8	900.00	7200.00
+MRP-NPC-2025-ee4e2e	\N	\N	12	300.00	3600.00
+MRP-NPC-2025-a15daf	\N	\N	20	200.00	4000.00
+MRP-NPC-2025-e712b3	\N	\N	1	10000.00	10000.00
+MRP-NPC-2025-8e351c	\N	\N	6	1300.00	7800.00
+MRP-NPC-2025-28a825	\N	\N	9	1400.00	12600.00
+MRP-NPC-2025-b27d90	\N	\N	3	1600.00	4800.00
+MRP-NPC-2025-65f935	\N	\N	4	1700.00	6800.00
+MRP-NPC-2025-eb1d8b	\N	\N	12	1800.00	21600.00
+MRP-NPC-2025-457dff	\N	\N	10	1900.00	19000.00
+MRP-NPC-2025-7a2bbd	\N	\N	7	2000.00	14000.00
+MRP-NPC-2025-072537	\N	\N	11	1500.00	16500.00
+MRP-NPC-2025-cd519e	\N	\N	14	2200.00	30800.00
+MRP-NPC-2025-97f5a7	\N	\N	8	2500.00	20000.00
+MRP-NPC-2025-57aa34	\N	\N	5	2100.00	10500.00
+MRP-NPC-2025-3fdd10	\N	\N	13	2300.00	29900.00
+MRP-NPC-2025-f9105f	\N	\N	2	2400.00	4800.00
+MRP-NPC-2025-05a4f5	\N	\N	6	2600.00	15600.00
+MRP-NPC-2025-af6370	\N	\N	9	2700.00	24300.00
 \.
 
 
@@ -6443,7 +7844,57 @@ COPY mrp.non_project_order_pricing (non_project_costing_id, quantity, mrp_base_p
 -- Data for Name: overall_production; Type: TABLE DATA; Schema: mrp; Owner: postgres
 --
 
-COPY mrp.overall_production (cost_id, product_id, bom_id, cost_of_raw_materials, cost_of_production, labor_cost, total_mrp_cost) FROM stdin;
+COPY mrp.overall_production (cost_id, production_order_detail_id, product_id, bom_id, cost_of_raw_materials, labor_cost, total_mrp_cost) FROM stdin;
+MRP-CST-2025-a50f80	\N	\N	\N	500.00	300.00	2000.00
+MRP-CST-2025-afa584	\N	\N	\N	450.00	280.00	1830.00
+MRP-CST-2025-bc4527	\N	\N	\N	700.00	400.00	2600.00
+MRP-CST-2025-0b118f	\N	\N	\N	360.00	200.00	1360.00
+MRP-CST-2025-069041	\N	\N	\N	100.00	150.00	750.00
+MRP-CST-2025-0cd004	\N	\N	\N	600.00	500.00	3600.00
+MRP-CST-2025-c99618	\N	\N	\N	600.00	250.00	1750.00
+MRP-CST-2025-1fa09b	\N	\N	\N	250.00	100.00	650.00
+MRP-CST-2025-9e4291	\N	\N	\N	300.00	50.00	550.00
+MRP-CST-2025-4000e1	\N	\N	\N	1000.00	2000.00	13000.00
+MRP-CST-2025-dd11ad	\N	\N	\N	525.00	300.00	2125.00
+MRP-CST-2025-4b4cb1	\N	\N	\N	1125.00	350.00	2875.00
+MRP-CST-2025-f999a5	\N	\N	\N	1260.00	400.00	3260.00
+MRP-CST-2025-841404	\N	\N	\N	1320.00	420.00	3440.00
+MRP-CST-2025-412a12	\N	\N	\N	1600.00	450.00	3850.00
+MRP-CST-2025-8b3625	\N	\N	\N	900.00	380.00	3180.00
+MRP-CST-2025-130a30	\N	\N	\N	500.00	500.00	3000.00
+MRP-CST-2025-81e2b9	\N	\N	\N	900.00	350.00	2750.00
+MRP-CST-2025-8b671a	\N	\N	\N	1500.00	600.00	4300.00
+MRP-CST-2025-62458f	\N	\N	\N	250.00	700.00	3450.00
+MRP-CST-2025-95b6b1	\N	\N	\N	400.00	300.00	2800.00
+MRP-CST-2025-ace72f	\N	\N	\N	960.00	380.00	3640.00
+MRP-CST-2025-25b79c	\N	\N	\N	1100.00	400.00	3900.00
+MRP-CST-2025-5dae10	\N	\N	\N	420.00	500.00	3520.00
+MRP-CST-2025-17ad98	\N	\N	\N	2100.00	600.00	5400.00
+MRP-CST-2025-9af296	\N	\N	\N	500.00	300.00	2000.00
+MRP-CST-2025-cd0a16	\N	\N	\N	450.00	280.00	1830.00
+MRP-CST-2025-a4cb3a	\N	\N	\N	700.00	400.00	2600.00
+MRP-CST-2025-e77413	\N	\N	\N	360.00	200.00	1360.00
+MRP-CST-2025-8dbd39	\N	\N	\N	100.00	150.00	750.00
+MRP-CST-2025-7dba05	\N	\N	\N	600.00	500.00	3600.00
+MRP-CST-2025-fc76f1	\N	\N	\N	600.00	250.00	1750.00
+MRP-CST-2025-2531e2	\N	\N	\N	250.00	100.00	650.00
+MRP-CST-2025-2f4546	\N	\N	\N	300.00	50.00	550.00
+MRP-CST-2025-cad8ef	\N	\N	\N	1000.00	2000.00	13000.00
+MRP-CST-2025-c2354c	\N	\N	\N	525.00	300.00	2125.00
+MRP-CST-2025-3aded3	\N	\N	\N	1125.00	350.00	2875.00
+MRP-CST-2025-d98924	\N	\N	\N	1260.00	400.00	3260.00
+MRP-CST-2025-d560e8	\N	\N	\N	1320.00	420.00	3440.00
+MRP-CST-2025-d10a3e	\N	\N	\N	1600.00	450.00	3850.00
+MRP-CST-2025-2809f5	\N	\N	\N	900.00	380.00	3180.00
+MRP-CST-2025-9cbed2	\N	\N	\N	500.00	500.00	3000.00
+MRP-CST-2025-535c19	\N	\N	\N	900.00	350.00	2750.00
+MRP-CST-2025-9e8f71	\N	\N	\N	1500.00	600.00	4300.00
+MRP-CST-2025-2aac92	\N	\N	\N	250.00	700.00	3450.00
+MRP-CST-2025-414533	\N	\N	\N	400.00	300.00	2800.00
+MRP-CST-2025-44b277	\N	\N	\N	960.00	380.00	3640.00
+MRP-CST-2025-f086b1	\N	\N	\N	1100.00	400.00	3900.00
+MRP-CST-2025-d95bb8	\N	\N	\N	420.00	500.00	3520.00
+MRP-CST-2025-b19218	\N	\N	\N	2100.00	600.00	5400.00
 \.
 
 
@@ -6452,6 +7903,56 @@ COPY mrp.overall_production (cost_id, product_id, bom_id, cost_of_raw_materials,
 --
 
 COPY mrp.principal_items (principal_item_id, service_request_id, service_order_id, quantity, item_id, unit_price, markup_price, pricing_date) FROM stdin;
+MRP-PI-2025-f6a03c	\N	\N	10	\N	100.00	20.00	2024-03-09
+MRP-PI-2025-d99c28	\N	\N	8	\N	120.00	25.00	2024-03-09
+MRP-PI-2025-b880e1	\N	\N	15	\N	90.00	18.00	2024-03-09
+MRP-PI-2025-bb990f	\N	\N	12	\N	80.00	15.00	2024-03-10
+MRP-PI-2025-aae45c	\N	\N	20	\N	70.00	10.00	2024-03-10
+MRP-PI-2025-5505d5	\N	\N	5	\N	150.00	30.00	2024-03-11
+MRP-PI-2025-e378d1	\N	\N	18	\N	60.00	12.00	2024-03-11
+MRP-PI-2025-cd5fad	\N	\N	25	\N	40.00	8.00	2024-03-12
+MRP-PI-2025-204eb8	\N	\N	30	\N	50.00	10.00	2024-03-12
+MRP-PI-2025-cc8908	\N	\N	2	\N	200.00	40.00	2024-03-13
+MRP-PI-2025-b8da5a	\N	\N	7	\N	80.00	12.00	2024-03-14
+MRP-PI-2025-242956	\N	\N	5	\N	100.00	20.00	2024-03-14
+MRP-PI-2025-3fb970	\N	\N	3	\N	120.00	25.00	2024-03-15
+MRP-PI-2025-7f592c	\N	\N	4	\N	90.00	15.00	2024-03-15
+MRP-PI-2025-2b854e	\N	\N	8	\N	85.00	17.00	2024-03-16
+MRP-PI-2025-6e3534	\N	\N	6	\N	95.00	19.00	2024-03-16
+MRP-PI-2025-b522c8	\N	\N	10	\N	110.00	22.00	2024-03-17
+MRP-PI-2025-5fd1f6	\N	\N	12	\N	105.00	21.00	2024-03-17
+MRP-PI-2025-eec5de	\N	\N	15	\N	60.00	12.00	2024-03-18
+MRP-PI-2025-d7b85a	\N	\N	20	\N	70.00	14.00	2024-03-18
+MRP-PI-2025-77c162	\N	\N	9	\N	75.00	15.00	2024-03-19
+MRP-PI-2025-b64f40	\N	\N	11	\N	115.00	23.00	2024-03-19
+MRP-PI-2025-6bd65c	\N	\N	13	\N	125.00	25.00	2024-03-20
+MRP-PI-2025-d01c99	\N	\N	14	\N	130.00	26.00	2024-03-20
+MRP-PI-2025-a870dd	\N	\N	16	\N	140.00	28.00	2024-03-21
+MRP-PI-2025-93e02c	\N	\N	10	\N	100.00	20.00	2024-03-09
+MRP-PI-2025-a6b0e4	\N	\N	8	\N	120.00	25.00	2024-03-09
+MRP-PI-2025-ed7cfe	\N	\N	15	\N	90.00	18.00	2024-03-09
+MRP-PI-2025-1805a3	\N	\N	12	\N	80.00	15.00	2024-03-10
+MRP-PI-2025-20d07c	\N	\N	20	\N	70.00	10.00	2024-03-10
+MRP-PI-2025-a560d0	\N	\N	5	\N	150.00	30.00	2024-03-11
+MRP-PI-2025-bdbe7e	\N	\N	18	\N	60.00	12.00	2024-03-11
+MRP-PI-2025-64d69c	\N	\N	25	\N	40.00	8.00	2024-03-12
+MRP-PI-2025-44c6bd	\N	\N	30	\N	50.00	10.00	2024-03-12
+MRP-PI-2025-4c3e2b	\N	\N	2	\N	200.00	40.00	2024-03-13
+MRP-PI-2025-a69dca	\N	\N	7	\N	80.00	12.00	2024-03-14
+MRP-PI-2025-dcdebb	\N	\N	5	\N	100.00	20.00	2024-03-14
+MRP-PI-2025-d806f7	\N	\N	3	\N	120.00	25.00	2024-03-15
+MRP-PI-2025-6da31e	\N	\N	4	\N	90.00	15.00	2024-03-15
+MRP-PI-2025-a97785	\N	\N	8	\N	85.00	17.00	2024-03-16
+MRP-PI-2025-db87f5	\N	\N	6	\N	95.00	19.00	2024-03-16
+MRP-PI-2025-6fea28	\N	\N	10	\N	110.00	22.00	2024-03-17
+MRP-PI-2025-679ca9	\N	\N	12	\N	105.00	21.00	2024-03-17
+MRP-PI-2025-9e77e9	\N	\N	15	\N	60.00	12.00	2024-03-18
+MRP-PI-2025-06ef3a	\N	\N	20	\N	70.00	14.00	2024-03-18
+MRP-PI-2025-32ee0d	\N	\N	9	\N	75.00	15.00	2024-03-19
+MRP-PI-2025-89b536	\N	\N	11	\N	115.00	23.00	2024-03-19
+MRP-PI-2025-1bb315	\N	\N	13	\N	125.00	25.00	2024-03-20
+MRP-PI-2025-f172e5	\N	\N	14	\N	130.00	26.00	2024-03-20
+MRP-PI-2025-cc9f55	\N	\N	16	\N	140.00	28.00	2024-03-21
 \.
 
 
@@ -6460,6 +7961,46 @@ COPY mrp.principal_items (principal_item_id, service_request_id, service_order_i
 --
 
 COPY operations.document_header (document_id, document_type, vendor_code, document_no, transaction_id, module_request, status, posting_date, delivery_date, document_date, buyer, owner, initial_amount, discount_rate, discount_amount, freight, tax_rate, tax_amount, transaction_cost) FROM stdin;
+OPS-DOH-2025-cc2d00	GRPO	\N	1001	2001	Inventory	Open	2025-01-01	2025-01-05	2025-01-01	Alice Johnson	Bob Smith	5000.00	5.00	250.00	100.00	10.00	500.00	150.00
+OPS-DOH-2025-16b2fb	Removal_Request	\N	1002	2002	Operations	Closed	2025-01-02	2025-01-06	2025-01-02	Charlie Davis	Diana Ross	7000.00	7.00	490.00	120.00	12.00	840.00	175.00
+OPS-DOH-2025-9cc4e0	Goods_Issue	\N	1003	2003	Distribution	Cancelled	2025-01-03	2025-01-07	2025-01-03	Ethan Wright	Fiona Green	3000.00	4.50	135.00	90.00	8.50	255.00	100.00
+OPS-DOH-2025-3e20a3	Rework_Order	\N	1004	2004	Production	Draft	2025-01-04	2025-01-08	2025-01-04	George Hill	Hannah Lee	4500.00	6.00	270.00	110.00	9.00	405.00	130.00
+OPS-DOH-2025-5cc55a	Goods_Receipt	\N	1005	2005	Purchasing	Open	2025-01-05	2025-01-09	2025-01-05	Isaac Clark	Jessica Adams	6000.00	5.50	330.00	105.00	11.00	660.00	160.00
+OPS-DOH-2025-dc270a	GRPO	\N	1006	2006	Finance	Closed	2025-01-06	2025-01-10	2025-01-06	Kevin Brown	Lily Evans	8000.00	6.50	520.00	130.00	12.50	1000.00	190.00
+OPS-DOH-2025-26fa04	Removal_Request	\N	1007	2007	Admin	Cancelled	2025-01-07	2025-01-11	2025-01-07	Mason Walker	Nora White	2500.00	4.00	100.00	85.00	8.00	200.00	90.00
+OPS-DOH-2025-cded9e	Goods_Issue	\N	1008	2008	Sales	Draft	2025-01-08	2025-01-12	2025-01-08	Oliver Scott	Penelope Turner	5500.00	5.25	288.75	95.00	9.75	536.25	145.00
+OPS-DOH-2025-73c399	Rework_Order	\N	1009	2009	MRP	Open	2025-01-09	2025-01-13	2025-01-09	Quincy Harris	Rachel Green	3500.00	4.75	166.25	98.00	8.75	306.25	120.00
+OPS-DOH-2025-e6411c	Goods_Receipt	\N	1010	2010	Project Management	Closed	2025-01-10	2025-01-14	2025-01-10	Samuel Carter	Tina Brooks	7200.00	6.25	450.00	125.00	10.50	756.00	170.00
+OPS-DOH-2025-bb6dce	GRPO	\N	1011	2011	Operations	Open	2025-01-11	2025-01-15	2025-01-11	Ursula Lane	Victor Cruz	6300.00	5.75	362.25	110.00	10.25	645.75	165.00
+OPS-DOH-2025-e0171c	Goods_Issue	\N	1012	2012	Operations	Closed	2025-01-12	2025-01-16	2025-01-12	Walter Perry	Xena Blake	4800.00	5.00	240.00	108.00	9.50	456.00	140.00
+OPS-DOH-2025-21759f	Rework_Order	\N	1013	2013	Admin	Open	2025-01-13	2025-01-17	2025-01-13	Yara Bell	Zachary Owens	3900.00	4.25	165.75	92.00	8.25	321.75	115.00
+OPS-DOH-2025-052dd6	Goods_Receipt	\N	1014	2014	Human Resources	Draft	2025-01-14	2025-01-18	2025-01-14	Adam Reed	Beatrice Moore	5700.00	5.00	285.00	103.00	9.75	555.75	155.00
+OPS-DOH-2025-998e53	Removal_Request	\N	1015	2015	Admin	Cancelled	2025-01-15	2025-01-19	2025-01-15	Chris Young	Dana Fox	2600.00	3.75	97.50	78.00	7.50	195.00	85.00
+OPS-DOH-2025-c9dc20	GRPO	\N	1016	2016	Management	Open	2025-01-16	2025-01-20	2025-01-16	Ella Grant	Felix Harper	6900.00	6.00	414.00	120.00	11.00	759.00	180.00
+OPS-DOH-2025-4a9e70	Goods_Issue	\N	1017	2017	Operations	Open	2025-01-17	2025-01-21	2025-01-17	Grace Hunter	Henry Scott	5100.00	5.50	280.50	107.00	9.50	484.50	145.00
+OPS-DOH-2025-ef0906	Rework_Order	\N	1018	2018	Admin	Closed	2025-01-18	2025-01-22	2025-01-18	Ivy Coleman	Jack Daniels	4200.00	4.50	189.00	99.00	8.75	367.50	125.00
+OPS-DOH-2025-58415f	Goods_Receipt	\N	1019	2019	Services	Draft	2025-01-19	2025-01-23	2025-01-19	Karen Patel	Leo Richardson	6100.00	5.75	350.75	115.00	10.50	640.50	165.00
+OPS-DOH-2025-aa0f27	Removal_Request	\N	1020	2020	Finance	Open	2025-01-20	2025-01-24	2025-01-20	Megan Ford	Nathan Brown	2800.00	4.00	112.00	80.00	8.25	231.00	95.00
+OPS-DOH-2025-000602	GRPO	\N	1001	2001	Inventory	Open	2025-01-01	2025-01-05	2025-01-01	Alice Johnson	Bob Smith	5000.00	5.00	250.00	100.00	10.00	500.00	150.00
+OPS-DOH-2025-fa8b5c	Removal_Request	\N	1002	2002	Operations	Closed	2025-01-02	2025-01-06	2025-01-02	Charlie Davis	Diana Ross	7000.00	7.00	490.00	120.00	12.00	840.00	175.00
+OPS-DOH-2025-0cb234	Goods_Issue	\N	1003	2003	Distribution	Cancelled	2025-01-03	2025-01-07	2025-01-03	Ethan Wright	Fiona Green	3000.00	4.50	135.00	90.00	8.50	255.00	100.00
+OPS-DOH-2025-557118	Rework_Order	\N	1004	2004	Production	Draft	2025-01-04	2025-01-08	2025-01-04	George Hill	Hannah Lee	4500.00	6.00	270.00	110.00	9.00	405.00	130.00
+OPS-DOH-2025-f9ce77	Goods_Receipt	\N	1005	2005	Purchasing	Open	2025-01-05	2025-01-09	2025-01-05	Isaac Clark	Jessica Adams	6000.00	5.50	330.00	105.00	11.00	660.00	160.00
+OPS-DOH-2025-2cdf7c	GRPO	\N	1006	2006	Finance	Closed	2025-01-06	2025-01-10	2025-01-06	Kevin Brown	Lily Evans	8000.00	6.50	520.00	130.00	12.50	1000.00	190.00
+OPS-DOH-2025-8a5439	Removal_Request	\N	1007	2007	Admin	Cancelled	2025-01-07	2025-01-11	2025-01-07	Mason Walker	Nora White	2500.00	4.00	100.00	85.00	8.00	200.00	90.00
+OPS-DOH-2025-734cac	Goods_Issue	\N	1008	2008	Sales	Draft	2025-01-08	2025-01-12	2025-01-08	Oliver Scott	Penelope Turner	5500.00	5.25	288.75	95.00	9.75	536.25	145.00
+OPS-DOH-2025-0b8f56	Rework_Order	\N	1009	2009	MRP	Open	2025-01-09	2025-01-13	2025-01-09	Quincy Harris	Rachel Green	3500.00	4.75	166.25	98.00	8.75	306.25	120.00
+OPS-DOH-2025-36323c	Goods_Receipt	\N	1010	2010	Project Management	Closed	2025-01-10	2025-01-14	2025-01-10	Samuel Carter	Tina Brooks	7200.00	6.25	450.00	125.00	10.50	756.00	170.00
+OPS-DOH-2025-d73532	GRPO	\N	1011	2011	Operations	Open	2025-01-11	2025-01-15	2025-01-11	Ursula Lane	Victor Cruz	6300.00	5.75	362.25	110.00	10.25	645.75	165.00
+OPS-DOH-2025-7960b9	Goods_Issue	\N	1012	2012	Operations	Closed	2025-01-12	2025-01-16	2025-01-12	Walter Perry	Xena Blake	4800.00	5.00	240.00	108.00	9.50	456.00	140.00
+OPS-DOH-2025-d405ae	Rework_Order	\N	1013	2013	Admin	Open	2025-01-13	2025-01-17	2025-01-13	Yara Bell	Zachary Owens	3900.00	4.25	165.75	92.00	8.25	321.75	115.00
+OPS-DOH-2025-596c57	Goods_Receipt	\N	1014	2014	Human Resources	Draft	2025-01-14	2025-01-18	2025-01-14	Adam Reed	Beatrice Moore	5700.00	5.00	285.00	103.00	9.75	555.75	155.00
+OPS-DOH-2025-f4cb42	Removal_Request	\N	1015	2015	Admin	Cancelled	2025-01-15	2025-01-19	2025-01-15	Chris Young	Dana Fox	2600.00	3.75	97.50	78.00	7.50	195.00	85.00
+OPS-DOH-2025-5d93f2	GRPO	\N	1016	2016	Management	Open	2025-01-16	2025-01-20	2025-01-16	Ella Grant	Felix Harper	6900.00	6.00	414.00	120.00	11.00	759.00	180.00
+OPS-DOH-2025-a23e35	Goods_Issue	\N	1017	2017	Operations	Open	2025-01-17	2025-01-21	2025-01-17	Grace Hunter	Henry Scott	5100.00	5.50	280.50	107.00	9.50	484.50	145.00
+OPS-DOH-2025-30dd8c	Rework_Order	\N	1018	2018	Admin	Closed	2025-01-18	2025-01-22	2025-01-18	Ivy Coleman	Jack Daniels	4200.00	4.50	189.00	99.00	8.75	367.50	125.00
+OPS-DOH-2025-105fd7	Goods_Receipt	\N	1019	2019	Services	Draft	2025-01-19	2025-01-23	2025-01-19	Karen Patel	Leo Richardson	6100.00	5.75	350.75	115.00	10.50	640.50	165.00
+OPS-DOH-2025-755efd	Removal_Request	\N	1020	2020	Finance	Open	2025-01-20	2025-01-24	2025-01-20	Megan Ford	Nathan Brown	2800.00	4.00	112.00	80.00	8.25	231.00	95.00
 \.
 
 
@@ -6467,7 +8008,47 @@ COPY operations.document_header (document_id, document_type, vendor_code, docume
 -- Data for Name: document_items; Type: TABLE DATA; Schema: operations; Owner: postgres
 --
 
-COPY operations.document_items (content_id, item_id, document_id, material_id, serial_id, productdocu_id, external_id, quantity, total, batch_no, warehouse_loc) FROM stdin;
+COPY operations.document_items (content_id, asset_id, document_id, material_id, serial_id, productdocu_id, external_id, quantity, total, batch_no, warehouse_loc) FROM stdin;
+OPS-DOI-2025-580793	\N	OPS-DOH-2025-3e20a3	\N	OPS-SET-2025-929fe3	OPS-PDI-2025-02a050	\N	25	5000.00	BATCH004	Warehouse D
+OPS-DOI-2025-868602	\N	OPS-DOH-2025-26fa04	\N	OPS-SET-2025-def470	OPS-PDI-2025-0b44fa	\N	22	3300.00	BATCH007	Warehouse G
+OPS-DOI-2025-2475bf	\N	OPS-DOH-2025-e6411c	\N	OPS-SET-2025-512cbc	OPS-PDI-2025-1a7ae1	\N	26	6500.00	BATCH010	Warehouse J
+OPS-DOI-2025-15cf5e	\N	OPS-DOH-2025-4a9e70	\N	OPS-SET-2025-488355	OPS-PDI-2025-23c341	\N	29	7650.00	BATCH017	Warehouse Q
+OPS-DOI-2025-ce3634	\N	OPS-DOH-2025-c9dc20	\N	OPS-SET-2025-1b38bb	OPS-PDI-2025-32508b	\N	17	2550.00	BATCH016	Warehouse P
+OPS-DOI-2025-9aa1de	\N	OPS-DOH-2025-9cc4e0	\N	OPS-SET-2025-8b71a4	OPS-PDI-2025-4cff0d	\N	15	1500.00	BATCH003	Warehouse C
+OPS-DOI-2025-d9da34	\N	OPS-DOH-2025-ef0906	\N	OPS-SET-2025-cac80f	OPS-PDI-2025-4dc01b	\N	23	4600.00	BATCH018	Warehouse R
+OPS-DOI-2025-92f5ec	\N	OPS-DOH-2025-bb6dce	\N	OPS-SET-2025-c8bf3f	OPS-PDI-2025-62a347	\N	16	4200.00	BATCH011	Warehouse K
+OPS-DOI-2025-4ce035	\N	OPS-DOH-2025-cded9e	\N	OPS-SET-2025-e5ff40	OPS-PDI-2025-7116bb	\N	30	5250.00	BATCH008	Warehouse H
+OPS-DOI-2025-aeb836	\N	OPS-DOH-2025-58415f	\N	OPS-SET-2025-d68cb7	OPS-PDI-2025-800b9e	\N	31	8000.00	BATCH019	Warehouse S
+OPS-DOI-2025-31cedc	\N	OPS-DOH-2025-998e53	\N	OPS-SET-2025-f4b5d8	OPS-PDI-2025-80cb83	\N	21	3150.00	BATCH015	Warehouse O
+OPS-DOI-2025-cbfa3f	\N	OPS-DOH-2025-16b2fb	\N	OPS-SET-2025-69b218	OPS-PDI-2025-962f27	\N	20	1500.00	BATCH002	Warehouse B
+OPS-DOI-2025-9a1d86	\N	OPS-DOH-2025-aa0f27	\N	OPS-SET-2025-b1107d	OPS-PDI-2025-9d2954	\N	27	6750.00	BATCH020	Warehouse T
+OPS-DOI-2025-8b5191	\N	OPS-DOH-2025-cc2d00	\N	OPS-SET-2025-098aaa	OPS-PDI-2025-a0c364	\N	10	500.00	BATCH001	Warehouse A
+OPS-DOI-2025-98a745	\N	OPS-DOH-2025-e0171c	\N	OPS-SET-2025-8e7d04	OPS-PDI-2025-b26fa0	\N	28	7000.00	BATCH012	Warehouse L
+OPS-DOI-2025-657b69	\N	OPS-DOH-2025-73c399	\N	OPS-SET-2025-8fbdf2	OPS-PDI-2025-ce96fe	\N	14	3150.00	BATCH009	Warehouse I
+OPS-DOI-2025-551c7a	\N	OPS-DOH-2025-21759f	\N	OPS-SET-2025-5ec748	OPS-PDI-2025-d46864	\N	19	2850.00	BATCH013	Warehouse M
+OPS-DOI-2025-0e2bf7	\N	OPS-DOH-2025-052dd6	\N	OPS-SET-2025-bd00d1	OPS-PDI-2025-ed7f28	\N	24	4800.00	BATCH014	Warehouse N
+OPS-DOI-2025-44db25	\N	OPS-DOH-2025-dc270a	\N	OPS-SET-2025-9fe62d	OPS-PDI-2025-fc4ab2	\N	18	2250.00	BATCH006	Warehouse F
+OPS-DOI-2025-f7e4e8	\N	OPS-DOH-2025-5cc55a	\N	OPS-SET-2025-040233	OPS-PDI-2025-fd2671	\N	12	3600.00	BATCH005	Warehouse E
+OPS-DOI-2025-21b8ff	\N	OPS-DOH-2025-3e20a3	\N	OPS-SET-2025-929fe3	OPS-PDI-2025-02a050	\N	25	5000.00	BATCH004	Warehouse D
+OPS-DOI-2025-36ea6f	\N	OPS-DOH-2025-26fa04	\N	OPS-SET-2025-def470	OPS-PDI-2025-0b44fa	\N	22	3300.00	BATCH007	Warehouse G
+OPS-DOI-2025-bbbe22	\N	OPS-DOH-2025-e6411c	\N	OPS-SET-2025-512cbc	OPS-PDI-2025-1a7ae1	\N	26	6500.00	BATCH010	Warehouse J
+OPS-DOI-2025-b84bf0	\N	OPS-DOH-2025-4a9e70	\N	OPS-SET-2025-488355	OPS-PDI-2025-23c341	\N	29	7650.00	BATCH017	Warehouse Q
+OPS-DOI-2025-3451d7	\N	OPS-DOH-2025-c9dc20	\N	OPS-SET-2025-1b38bb	OPS-PDI-2025-32508b	\N	17	2550.00	BATCH016	Warehouse P
+OPS-DOI-2025-ca2702	\N	OPS-DOH-2025-9cc4e0	\N	OPS-SET-2025-8b71a4	OPS-PDI-2025-4cff0d	\N	15	1500.00	BATCH003	Warehouse C
+OPS-DOI-2025-e53325	\N	OPS-DOH-2025-ef0906	\N	OPS-SET-2025-cac80f	OPS-PDI-2025-4dc01b	\N	23	4600.00	BATCH018	Warehouse R
+OPS-DOI-2025-b21833	\N	OPS-DOH-2025-bb6dce	\N	OPS-SET-2025-c8bf3f	OPS-PDI-2025-62a347	\N	16	4200.00	BATCH011	Warehouse K
+OPS-DOI-2025-23b14a	\N	OPS-DOH-2025-cded9e	\N	OPS-SET-2025-e5ff40	OPS-PDI-2025-7116bb	\N	30	5250.00	BATCH008	Warehouse H
+OPS-DOI-2025-4441c3	\N	OPS-DOH-2025-58415f	\N	OPS-SET-2025-d68cb7	OPS-PDI-2025-800b9e	\N	31	8000.00	BATCH019	Warehouse S
+OPS-DOI-2025-c5879c	\N	OPS-DOH-2025-998e53	\N	OPS-SET-2025-f4b5d8	OPS-PDI-2025-80cb83	\N	21	3150.00	BATCH015	Warehouse O
+OPS-DOI-2025-b781e4	\N	OPS-DOH-2025-16b2fb	\N	OPS-SET-2025-69b218	OPS-PDI-2025-962f27	\N	20	1500.00	BATCH002	Warehouse B
+OPS-DOI-2025-223657	\N	OPS-DOH-2025-aa0f27	\N	OPS-SET-2025-b1107d	OPS-PDI-2025-9d2954	\N	27	6750.00	BATCH020	Warehouse T
+OPS-DOI-2025-4170d0	\N	OPS-DOH-2025-cc2d00	\N	OPS-SET-2025-098aaa	OPS-PDI-2025-a0c364	\N	10	500.00	BATCH001	Warehouse A
+OPS-DOI-2025-3fe2d6	\N	OPS-DOH-2025-e0171c	\N	OPS-SET-2025-8e7d04	OPS-PDI-2025-b26fa0	\N	28	7000.00	BATCH012	Warehouse L
+OPS-DOI-2025-210428	\N	OPS-DOH-2025-73c399	\N	OPS-SET-2025-8fbdf2	OPS-PDI-2025-ce96fe	\N	14	3150.00	BATCH009	Warehouse I
+OPS-DOI-2025-f88f11	\N	OPS-DOH-2025-21759f	\N	OPS-SET-2025-5ec748	OPS-PDI-2025-d46864	\N	19	2850.00	BATCH013	Warehouse M
+OPS-DOI-2025-9dccb4	\N	OPS-DOH-2025-052dd6	\N	OPS-SET-2025-bd00d1	OPS-PDI-2025-ed7f28	\N	24	4800.00	BATCH014	Warehouse N
+OPS-DOI-2025-6563b1	\N	OPS-DOH-2025-dc270a	\N	OPS-SET-2025-9fe62d	OPS-PDI-2025-fc4ab2	\N	18	2250.00	BATCH006	Warehouse F
+OPS-DOI-2025-a639db	\N	OPS-DOH-2025-5cc55a	\N	OPS-SET-2025-040233	OPS-PDI-2025-fd2671	\N	12	3600.00	BATCH005	Warehouse E
 \.
 
 
@@ -6475,7 +8056,7 @@ COPY operations.document_items (content_id, item_id, document_id, material_id, s
 -- Data for Name: external_module; Type: TABLE DATA; Schema: operations; Owner: postgres
 --
 
-COPY operations.external_module (external_id, purchase_id, approval_id, goods_issue_id, approval_request_id, billing_receipt_id, delivery_receipt_id, project_resources_id, project_tracking_id, project_request_id, production_order_detail_id, rework_id, depreciation_report_id) FROM stdin;
+COPY operations.external_module (external_id, purchase_id, request_id, approval_id, goods_issue_id, approval_request_id, billing_receipt_id, delivery_receipt_id, project_resources_id, project_tracking_id, project_request_id, production_order_detail_id, rework_id, depreciation_report_id) FROM stdin;
 \.
 
 
@@ -6484,6 +8065,46 @@ COPY operations.external_module (external_id, purchase_id, approval_id, goods_is
 --
 
 COPY operations.product_document_items (productdocu_id, product_id, quantity_rejected, defect_type, selling_price, manuf_date, expiry_date) FROM stdin;
+OPS-PDI-2025-a0c364	\N	2	Performance Defect	50.00	2024-01-01	2026-01-01
+OPS-PDI-2025-962f27	\N	1	Safety Defect	75.00	2024-02-01	2026-02-01
+OPS-PDI-2025-4cff0d	\N	3	Functional Defect	100.00	2024-03-01	2026-03-01
+OPS-PDI-2025-02a050	\N	0	Performance Defect	200.00	2024-04-01	2026-04-01
+OPS-PDI-2025-fd2671	\N	5	Safety Defect	300.00	2024-05-01	2026-05-01
+OPS-PDI-2025-fc4ab2	\N	2	Functional Defect	125.00	2024-06-01	2026-06-01
+OPS-PDI-2025-0b44fa	\N	1	Performance Defect	150.00	2024-07-01	2026-07-01
+OPS-PDI-2025-7116bb	\N	3	Safety Defect	175.00	2024-08-01	2026-08-01
+OPS-PDI-2025-ce96fe	\N	0	Functional Defect	225.00	2024-09-01	2026-09-01
+OPS-PDI-2025-1a7ae1	\N	5	Performance Defect	250.00	2024-10-01	2026-10-01
+OPS-PDI-2025-62a347	\N	4	Material Defect	275.00	2024-11-01	2026-11-01
+OPS-PDI-2025-b26fa0	\N	2	Durability Defect	180.00	2024-12-01	2026-12-01
+OPS-PDI-2025-d46864	\N	3	Performance Defect	320.00	2025-01-01	2027-01-01
+OPS-PDI-2025-ed7f28	\N	0	Safety Defect	400.00	2025-02-01	2027-02-01
+OPS-PDI-2025-80cb83	\N	1	Functional Defect	220.00	2025-03-01	2027-03-01
+OPS-PDI-2025-32508b	\N	5	Durability Defect	350.00	2025-04-01	2027-04-01
+OPS-PDI-2025-23c341	\N	2	Material Defect	275.00	2025-05-01	2027-05-01
+OPS-PDI-2025-4dc01b	\N	3	Performance Defect	195.00	2025-06-01	2027-06-01
+OPS-PDI-2025-800b9e	\N	0	Functional Defect	500.00	2025-07-01	2027-07-01
+OPS-PDI-2025-9d2954	\N	4	Safety Defect	275.00	2025-08-01	2027-08-01
+OPS-PDI-2025-13feb3	\N	2	Performance Defect	50.00	2024-01-01	2026-01-01
+OPS-PDI-2025-b684dc	\N	1	Safety Defect	75.00	2024-02-01	2026-02-01
+OPS-PDI-2025-ec912e	\N	3	Functional Defect	100.00	2024-03-01	2026-03-01
+OPS-PDI-2025-4aab56	\N	0	Performance Defect	200.00	2024-04-01	2026-04-01
+OPS-PDI-2025-02603b	\N	5	Safety Defect	300.00	2024-05-01	2026-05-01
+OPS-PDI-2025-fafea8	\N	2	Functional Defect	125.00	2024-06-01	2026-06-01
+OPS-PDI-2025-de9089	\N	1	Performance Defect	150.00	2024-07-01	2026-07-01
+OPS-PDI-2025-b73db0	\N	3	Safety Defect	175.00	2024-08-01	2026-08-01
+OPS-PDI-2025-478ea2	\N	0	Functional Defect	225.00	2024-09-01	2026-09-01
+OPS-PDI-2025-fb5227	\N	5	Performance Defect	250.00	2024-10-01	2026-10-01
+OPS-PDI-2025-31969b	\N	4	Material Defect	275.00	2024-11-01	2026-11-01
+OPS-PDI-2025-9f74e1	\N	2	Durability Defect	180.00	2024-12-01	2026-12-01
+OPS-PDI-2025-13f94f	\N	3	Performance Defect	320.00	2025-01-01	2027-01-01
+OPS-PDI-2025-2141ac	\N	0	Safety Defect	400.00	2025-02-01	2027-02-01
+OPS-PDI-2025-692c64	\N	1	Functional Defect	220.00	2025-03-01	2027-03-01
+OPS-PDI-2025-689287	\N	5	Durability Defect	350.00	2025-04-01	2027-04-01
+OPS-PDI-2025-14db8d	\N	2	Material Defect	275.00	2025-05-01	2027-05-01
+OPS-PDI-2025-2c7846	\N	3	Performance Defect	195.00	2025-06-01	2027-06-01
+OPS-PDI-2025-d5e216	\N	0	Functional Defect	500.00	2025-07-01	2027-07-01
+OPS-PDI-2025-17cdc9	\N	4	Safety Defect	275.00	2025-08-01	2027-08-01
 \.
 
 
@@ -6492,6 +8113,26 @@ COPY operations.product_document_items (productdocu_id, product_id, quantity_rej
 --
 
 COPY operations.serial_tracking (serial_id, document_id, serial_no) FROM stdin;
+OPS-SET-2025-098aaa	OPS-DOH-2025-cc2d00	SN001
+OPS-SET-2025-69b218	OPS-DOH-2025-16b2fb	SN002
+OPS-SET-2025-8b71a4	OPS-DOH-2025-9cc4e0	SN003
+OPS-SET-2025-929fe3	OPS-DOH-2025-3e20a3	SN004
+OPS-SET-2025-040233	OPS-DOH-2025-5cc55a	SN005
+OPS-SET-2025-9fe62d	OPS-DOH-2025-dc270a	SN006
+OPS-SET-2025-def470	OPS-DOH-2025-26fa04	SN007
+OPS-SET-2025-e5ff40	OPS-DOH-2025-cded9e	SN008
+OPS-SET-2025-8fbdf2	OPS-DOH-2025-73c399	SN009
+OPS-SET-2025-512cbc	OPS-DOH-2025-e6411c	SN010
+OPS-SET-2025-c8bf3f	OPS-DOH-2025-bb6dce	SN011
+OPS-SET-2025-8e7d04	OPS-DOH-2025-e0171c	SN012
+OPS-SET-2025-5ec748	OPS-DOH-2025-21759f	SN013
+OPS-SET-2025-bd00d1	OPS-DOH-2025-052dd6	SN014
+OPS-SET-2025-f4b5d8	OPS-DOH-2025-998e53	SN015
+OPS-SET-2025-1b38bb	OPS-DOH-2025-c9dc20	SN016
+OPS-SET-2025-488355	OPS-DOH-2025-4a9e70	SN017
+OPS-SET-2025-cac80f	OPS-DOH-2025-ef0906	SN018
+OPS-SET-2025-d68cb7	OPS-DOH-2025-58415f	SN019
+OPS-SET-2025-b1107d	OPS-DOH-2025-aa0f27	SN020
 \.
 
 
@@ -6500,6 +8141,46 @@ COPY operations.serial_tracking (serial_id, document_id, serial_no) FROM stdin;
 --
 
 COPY production.components (component_id, component_name, component_description, unit_of_measure, reorder_point, current_stock) FROM stdin;
+PROD-CMP-2025-555578	Metal Sheet (Aluminum)	1mm thick aluminum sheet	sh	50	75
+PROD-CMP-2025-b2a088	Screws (M4x20mm)	M4 screws 20mm length	bx	100	150
+PROD-CMP-2025-091f75	Resin (Black)	UV-curable black resin for 3D printing	L	10	5
+PROD-CMP-2025-d92dcd	Steel Tubing (25mm)	25mm diameter steel tubing	m	20	30
+PROD-CMP-2025-2e5a23	Paint (Red)	High-gloss red paint	gal	5	2
+PROD-CMP-2025-2d1c3a	Wood Panel (Oak)	1/2 inch oak wood panel	sh	15	25
+PROD-CMP-2025-e058f2	Nuts (M4)	M4 nuts	bx	120	180
+PROD-CMP-2025-4b8d89	Filament (PLA, White)	White PLA filament for 3D printing	kg	8	12
+PROD-CMP-2025-4f0c85	Copper Wire (14 AWG)	14 AWG copper wire	m	25	40
+PROD-CMP-2025-1c4124	Paint (Blue)	Matte blue paint	gal	4	3
+PROD-CMP-2025-99e4d8	Medical Grade Tubing	Flexible PVC tubing for fluid transfer	m	150	200
+PROD-CMP-2025-c95718	Sensor Electrode	Conductive electrode for biosensors	pcs	500	750
+PROD-CMP-2025-0523f7	Surgical Steel Rod	316L stainless steel rod for implants	m	20	30
+PROD-CMP-2025-4aa33e	Plastic Housing (ABS)	ABS plastic housing for medical device	pcs	100	150
+PROD-CMP-2025-09df82	LCD Display	Small LCD screen for user interface	unit	10	15
+PROD-CMP-2025-27071b	Microcontroller Unit	Microcontroller for device control	pcs	25	40
+PROD-CMP-2025-e55687	Battery (Lithium-Ion)	Rechargeable lithium-ion battery	pcs	12	18
+PROD-CMP-2025-314ecc	Silicone Membrane	Biocompatible silicone membrane	sh	8	12
+PROD-CMP-2025-67a2ee	Connector (USB)	USB connector for data transfer	pcs	300	450
+PROD-CMP-2025-efff8d	Packaging (Sterile)	Sterile packaging for disposables	set	50	60
+PROD-CMP-2025-0d80f4	Metal Sheet (Aluminum)	1mm thick aluminum sheet	sh	50	75
+PROD-CMP-2025-2eeec8	Screws (M4x20mm)	M4 screws 20mm length	bx	100	150
+PROD-CMP-2025-8df85e	Resin (Black)	UV-curable black resin for 3D printing	L	10	5
+PROD-CMP-2025-47e4f3	Steel Tubing (25mm)	25mm diameter steel tubing	m	20	30
+PROD-CMP-2025-529933	Paint (Red)	High-gloss red paint	gal	5	2
+PROD-CMP-2025-1dfabe	Wood Panel (Oak)	1/2 inch oak wood panel	sh	15	25
+PROD-CMP-2025-b4a03a	Nuts (M4)	M4 nuts	bx	120	180
+PROD-CMP-2025-8ccd7d	Filament (PLA, White)	White PLA filament for 3D printing	kg	8	12
+PROD-CMP-2025-fa83a6	Copper Wire (14 AWG)	14 AWG copper wire	m	25	40
+PROD-CMP-2025-ce2ca3	Paint (Blue)	Matte blue paint	gal	4	3
+PROD-CMP-2025-56304f	Medical Grade Tubing	Flexible PVC tubing for fluid transfer	m	150	200
+PROD-CMP-2025-040276	Sensor Electrode	Conductive electrode for biosensors	pcs	500	750
+PROD-CMP-2025-7724c6	Surgical Steel Rod	316L stainless steel rod for implants	m	20	30
+PROD-CMP-2025-4e14db	Plastic Housing (ABS)	ABS plastic housing for medical device	pcs	100	150
+PROD-CMP-2025-5a562a	LCD Display	Small LCD screen for user interface	unit	10	15
+PROD-CMP-2025-896768	Microcontroller Unit	Microcontroller for device control	pcs	25	40
+PROD-CMP-2025-8c6c2c	Battery (Lithium-Ion)	Rechargeable lithium-ion battery	pcs	12	18
+PROD-CMP-2025-4b78be	Silicone Membrane	Biocompatible silicone membrane	sh	8	12
+PROD-CMP-2025-5f0cc5	Connector (USB)	USB connector for data transfer	pcs	300	450
+PROD-CMP-2025-6610ee	Packaging (Sterile)	Sterile packaging for disposables	set	50	60
 \.
 
 
@@ -6508,6 +8189,46 @@ COPY production.components (component_id, component_name, component_description,
 --
 
 COPY production.delivery_requests (delivery_request_id, production_order_id, request_type, request_date, requested_delivery_date, component_id, quantity_requested) FROM stdin;
+PROD-DR-2025-6ff77b	\N	Material Request	2024-03-04 10:00:00	2024-03-05	\N	10
+PROD-DR-2025-a56a67	\N	Material Request	2024-03-09 11:00:00	2024-03-10	\N	5
+PROD-DR-2025-9a4593	\N	Material Request	2024-03-14 12:00:00	2024-03-15	\N	20
+PROD-DR-2025-22f4ef	\N	Material Request	2024-03-19 13:00:00	2024-03-20	\N	8
+PROD-DR-2025-1461fb	\N	Finished Goods Request	2024-03-24 14:00:00	2024-03-25	\N	16
+PROD-DR-2025-19c53b	\N	Material Request	2024-03-31 15:00:00	2024-04-01	\N	12
+PROD-DR-2025-2f59c6	\N	Finished Goods Request	2024-04-04 16:00:00	2024-04-05	\N	25
+PROD-DR-2025-d4e73c	\N	Material Request	2024-04-09 17:00:00	2024-04-10	\N	15
+PROD-DR-2025-5cac66	\N	Material Request	2024-04-14 18:00:00	2024-04-15	\N	30
+PROD-DR-2025-880155	\N	Finished Goods Request	2024-04-19 19:00:00	2024-04-20	\N	20
+PROD-DR-2025-295c05	\N	Material Request	2024-04-24 09:00:00	2024-04-25	\N	180
+PROD-DR-2025-1d8753	\N	Material Request	2024-04-29 10:00:00	2024-04-30	\N	10
+PROD-DR-2025-2f7c0a	\N	Material Request	2024-05-04 11:00:00	2024-05-05	\N	22
+PROD-DR-2025-431aac	\N	Finished Goods Request	2024-05-09 13:00:00	2024-05-10	\N	12
+PROD-DR-2025-fc1f62	\N	Material Request	2024-05-14 08:00:00	2024-05-15	\N	20
+PROD-DR-2025-c7cee4	\N	Material Request	2024-05-19 14:00:00	2024-05-20	\N	150
+PROD-DR-2025-36cd44	\N	Finished Goods Request	2024-05-24 09:00:00	2024-05-25	\N	28
+PROD-DR-2025-ecfc7b	\N	Material Request	2024-05-29 10:00:00	2024-05-30	\N	180
+PROD-DR-2025-1ef084	\N	Material Request	2024-06-04 11:00:00	2024-06-05	\N	35
+PROD-DR-2025-59a23b	\N	Finished Goods Request	2024-06-09 13:00:00	2024-06-10	\N	25
+PROD-DR-2025-21eb31	\N	Material Request	2024-03-04 10:00:00	2024-03-05	\N	10
+PROD-DR-2025-cefe1b	\N	Material Request	2024-03-09 11:00:00	2024-03-10	\N	5
+PROD-DR-2025-148885	\N	Material Request	2024-03-14 12:00:00	2024-03-15	\N	20
+PROD-DR-2025-ce5228	\N	Material Request	2024-03-19 13:00:00	2024-03-20	\N	8
+PROD-DR-2025-072558	\N	Finished Goods Request	2024-03-24 14:00:00	2024-03-25	\N	16
+PROD-DR-2025-40aa5b	\N	Material Request	2024-03-31 15:00:00	2024-04-01	\N	12
+PROD-DR-2025-44119b	\N	Finished Goods Request	2024-04-04 16:00:00	2024-04-05	\N	25
+PROD-DR-2025-3a136a	\N	Material Request	2024-04-09 17:00:00	2024-04-10	\N	15
+PROD-DR-2025-a1c26a	\N	Material Request	2024-04-14 18:00:00	2024-04-15	\N	30
+PROD-DR-2025-80a5dd	\N	Finished Goods Request	2024-04-19 19:00:00	2024-04-20	\N	20
+PROD-DR-2025-913317	\N	Material Request	2024-04-24 09:00:00	2024-04-25	\N	180
+PROD-DR-2025-149289	\N	Material Request	2024-04-29 10:00:00	2024-04-30	\N	10
+PROD-DR-2025-b53f15	\N	Material Request	2024-05-04 11:00:00	2024-05-05	\N	22
+PROD-DR-2025-a7b8f3	\N	Finished Goods Request	2024-05-09 13:00:00	2024-05-10	\N	12
+PROD-DR-2025-5c0809	\N	Material Request	2024-05-14 08:00:00	2024-05-15	\N	20
+PROD-DR-2025-8a3e14	\N	Material Request	2024-05-19 14:00:00	2024-05-20	\N	150
+PROD-DR-2025-692817	\N	Finished Goods Request	2024-05-24 09:00:00	2024-05-25	\N	28
+PROD-DR-2025-d6b907	\N	Material Request	2024-05-29 10:00:00	2024-05-30	\N	180
+PROD-DR-2025-4bcaec	\N	Material Request	2024-06-04 11:00:00	2024-06-05	\N	35
+PROD-DR-2025-378fae	\N	Finished Goods Request	2024-06-09 13:00:00	2024-06-10	\N	25
 \.
 
 
@@ -6516,6 +8237,46 @@ COPY production.delivery_requests (delivery_request_id, production_order_id, req
 --
 
 COPY production.equipment (equipment_id, equipment_name, description, availability_status, last_maintenance_date) FROM stdin;
+PROD-EQP-2025-c6aeaa	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23
+PROD-EQP-2025-19b866	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23
+PROD-EQP-2025-1131b1	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23
+PROD-EQP-2025-9b6dcb	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23
+PROD-EQP-2025-60339b	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23
+PROD-EQP-2025-8e9e71	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23
+PROD-EQP-2025-d01889	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23
+PROD-EQP-2025-eacd35	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05
+PROD-EQP-2025-92c613	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23
+PROD-EQP-2025-707c45	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23
+PROD-EQP-2025-66c9b8	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23
+PROD-EQP-2025-eae719	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23
+PROD-EQP-2025-22f08e	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23
+PROD-EQP-2025-652950	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23
+PROD-EQP-2025-34def6	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23
+PROD-EQP-2025-80bd5f	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23
+PROD-EQP-2025-5b08ab	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23
+PROD-EQP-2025-ec2c63	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23
+PROD-EQP-2025-987ea3	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23
+PROD-EQP-2025-d529cb	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23
+PROD-EQP-2025-854961	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23
+PROD-EQP-2025-235d6a	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23
+PROD-EQP-2025-470b47	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23
+PROD-EQP-2025-ac9d90	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23
+PROD-EQP-2025-b88b15	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23
+PROD-EQP-2025-8e8bf8	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23
+PROD-EQP-2025-484d01	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23
+PROD-EQP-2025-150f34	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05
+PROD-EQP-2025-56762b	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23
+PROD-EQP-2025-d4dd00	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23
+PROD-EQP-2025-74a017	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23
+PROD-EQP-2025-248637	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23
+PROD-EQP-2025-bf3c37	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23
+PROD-EQP-2025-cb1332	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23
+PROD-EQP-2025-e60ea2	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23
+PROD-EQP-2025-f0aecb	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23
+PROD-EQP-2025-2ab79d	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23
+PROD-EQP-2025-554a3e	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23
+PROD-EQP-2025-130f53	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23
+PROD-EQP-2025-5dbf97	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23
 \.
 
 
@@ -6524,6 +8285,46 @@ COPY production.equipment (equipment_id, equipment_name, description, availabili
 --
 
 COPY production.labor (labor_id, production_order_id, employee_id, date_worked, hours_worked) FROM stdin;
+PROD-LAB-2025-8c25e6	\N	\N	2024-03-05 13:00:00	8
+PROD-LAB-2025-5c24cd	\N	\N	2024-03-06 12:00:00	7
+PROD-LAB-2025-7a986a	\N	\N	2024-03-10 12:30:00	6
+PROD-LAB-2025-74cbf7	\N	\N	2024-03-11 13:00:00	5
+PROD-LAB-2025-d401f1	\N	\N	2024-03-15 11:00:00	8
+PROD-LAB-2025-3cbb41	\N	\N	2024-04-01 11:00:00	7
+PROD-LAB-2025-60834a	\N	\N	2024-04-05 10:30:00	6
+PROD-LAB-2025-e2d96a	\N	\N	2024-04-10 10:00:00	5
+PROD-LAB-2025-272dbd	\N	\N	2024-04-15 11:00:00	8
+PROD-LAB-2025-bead24	\N	\N	2024-04-20 11:00:00	7
+PROD-LAB-2025-c00964	\N	\N	2024-04-25 09:00:00	6
+PROD-LAB-2025-b6e9ed	\N	\N	2024-04-30 14:00:00	8
+PROD-LAB-2025-be2aab	\N	\N	2024-05-05 10:00:00	7
+PROD-LAB-2025-cd1d3d	\N	\N	2024-05-10 13:30:00	5
+PROD-LAB-2025-cd9e29	\N	\N	2024-05-15 08:00:00	9
+PROD-LAB-2025-56a288	\N	\N	2024-05-20 15:00:00	7
+PROD-LAB-2025-7e217b	\N	\N	2024-05-25 11:00:00	6
+PROD-LAB-2025-ce2efe	\N	\N	2024-05-30 09:00:00	8
+PROD-LAB-2025-aed2ab	\N	\N	2024-06-05 14:00:00	7
+PROD-LAB-2025-700133	\N	\N	2024-06-10 12:00:00	6
+PROD-LAB-2025-650e1b	\N	\N	2024-03-05 13:00:00	8
+PROD-LAB-2025-e5b0c7	\N	\N	2024-03-06 12:00:00	7
+PROD-LAB-2025-b76ae8	\N	\N	2024-03-10 12:30:00	6
+PROD-LAB-2025-db4ed9	\N	\N	2024-03-11 13:00:00	5
+PROD-LAB-2025-9e12c1	\N	\N	2024-03-15 11:00:00	8
+PROD-LAB-2025-244074	\N	\N	2024-04-01 11:00:00	7
+PROD-LAB-2025-ef02a2	\N	\N	2024-04-05 10:30:00	6
+PROD-LAB-2025-c9cdcd	\N	\N	2024-04-10 10:00:00	5
+PROD-LAB-2025-e713b0	\N	\N	2024-04-15 11:00:00	8
+PROD-LAB-2025-48bd38	\N	\N	2024-04-20 11:00:00	7
+PROD-LAB-2025-1cc4c3	\N	\N	2024-04-25 09:00:00	6
+PROD-LAB-2025-40dc16	\N	\N	2024-04-30 14:00:00	8
+PROD-LAB-2025-a969b0	\N	\N	2024-05-05 10:00:00	7
+PROD-LAB-2025-172a6e	\N	\N	2024-05-10 13:30:00	5
+PROD-LAB-2025-3f6bfe	\N	\N	2024-05-15 08:00:00	9
+PROD-LAB-2025-a1c724	\N	\N	2024-05-20 15:00:00	7
+PROD-LAB-2025-d707b9	\N	\N	2024-05-25 11:00:00	6
+PROD-LAB-2025-8396f5	\N	\N	2024-05-30 09:00:00	8
+PROD-LAB-2025-542fa8	\N	\N	2024-06-05 14:00:00	7
+PROD-LAB-2025-e99a6b	\N	\N	2024-06-10 12:00:00	6
 \.
 
 
@@ -6532,6 +8333,46 @@ COPY production.labor (labor_id, production_order_id, employee_id, date_worked, 
 --
 
 COPY production.production_orders_details (production_order_detail_id, production_order_id, actual_quantity, cost_of_production, miscellaneous_costs, equipment_id, rework_required, rework_notes, content_id) FROM stdin;
+PROD-POD-2025-c015f2	\N	10	1500.00	50.00	\N	f	\N	\N
+PROD-POD-2025-01f7d7	\N	5	800.00	20.00	\N	t	Minor adjustments needed due to tube leaks	\N
+PROD-POD-2025-3b6595	\N	20	800.00	60.00	\N	f	\N	\N
+PROD-POD-2025-bbacf5	\N	8	1200.00	30.00	\N	f	\N	\N
+PROD-POD-2025-645397	\N	16	1800.00	100.00	\N	f	\N	\N
+PROD-POD-2025-cdcd89	\N	12	900.00	40.00	\N	f	\N	\N
+PROD-POD-2025-e25f9d	\N	25	1100.00	70.00	\N	t	Recalibration needed for 3D printer	\N
+PROD-POD-2025-2794b3	\N	15	1600.00	80.00	\N	f	\N	\N
+PROD-POD-2025-e1b1e6	\N	30	2000.00	120.00	\N	f	\N	\N
+PROD-POD-2025-f124a5	\N	20	1300.00	90.00	\N	f	\N	\N
+PROD-POD-2025-6f5811	\N	18	2500.00	150.00	\N	f	\N	\N
+PROD-POD-2025-0c63f1	\N	10	1200.00	80.00	\N	t	Calibration needed for accuracy	\N
+PROD-POD-2025-95b3d9	\N	22	1800.00	110.00	\N	f	\N	\N
+PROD-POD-2025-5ef341	\N	12	1000.00	60.00	\N	f	\N	\N
+PROD-POD-2025-ae48f0	\N	20	2200.00	140.00	\N	f	\N	\N
+PROD-POD-2025-b96274	\N	15	1400.00	90.00	\N	t	Re-assembly required for one unit	\N
+PROD-POD-2025-076be0	\N	28	3000.00	180.00	\N	f	\N	\N
+PROD-POD-2025-567fee	\N	18	2000.00	130.00	\N	f	\N	\N
+PROD-POD-2025-2c8ccf	\N	35	2800.00	170.00	\N	f	\N	\N
+PROD-POD-2025-6ad37d	\N	25	1700.00	100.00	\N	t	Final adjustments needed	\N
+PROD-POD-2025-e3d78e	\N	10	1500.00	50.00	\N	f	\N	\N
+PROD-POD-2025-9d58b7	\N	5	800.00	20.00	\N	t	Minor adjustments needed due to tube leaks	\N
+PROD-POD-2025-6a0dae	\N	20	800.00	60.00	\N	f	\N	\N
+PROD-POD-2025-e57723	\N	8	1200.00	30.00	\N	f	\N	\N
+PROD-POD-2025-c974af	\N	16	1800.00	100.00	\N	f	\N	\N
+PROD-POD-2025-5c01c2	\N	12	900.00	40.00	\N	f	\N	\N
+PROD-POD-2025-61c06c	\N	25	1100.00	70.00	\N	t	Recalibration needed for 3D printer	\N
+PROD-POD-2025-b1c659	\N	15	1600.00	80.00	\N	f	\N	\N
+PROD-POD-2025-5d7fee	\N	30	2000.00	120.00	\N	f	\N	\N
+PROD-POD-2025-24432c	\N	20	1300.00	90.00	\N	f	\N	\N
+PROD-POD-2025-d03ce2	\N	18	2500.00	150.00	\N	f	\N	\N
+PROD-POD-2025-01e27b	\N	10	1200.00	80.00	\N	t	Calibration needed for accuracy	\N
+PROD-POD-2025-76f00a	\N	22	1800.00	110.00	\N	f	\N	\N
+PROD-POD-2025-51dc0d	\N	12	1000.00	60.00	\N	f	\N	\N
+PROD-POD-2025-81b6db	\N	20	2200.00	140.00	\N	f	\N	\N
+PROD-POD-2025-7f680a	\N	15	1400.00	90.00	\N	t	Re-assembly required for one unit	\N
+PROD-POD-2025-e101f3	\N	28	3000.00	180.00	\N	f	\N	\N
+PROD-POD-2025-ac36fe	\N	18	2000.00	130.00	\N	f	\N	\N
+PROD-POD-2025-410fe2	\N	35	2800.00	170.00	\N	f	\N	\N
+PROD-POD-2025-8b955a	\N	25	1700.00	100.00	\N	t	Final adjustments needed	\N
 \.
 
 
@@ -6540,6 +8381,46 @@ COPY production.production_orders_details (production_order_detail_id, productio
 --
 
 COPY production.production_orders_header (production_order_id, project_id, bom_id, start_date, end_date, status, target_quantity, notes) FROM stdin;
+PROD-PO-2025-17d230	\N	\N	2024-03-05 09:00:00	2024-03-15 17:00:00	Completed	10	Custom metal bed
+PROD-PO-2025-dc89b1	\N	\N	2024-03-10 10:00:00	2024-03-22 16:00:00	In Progress	5	Plastic tubes components
+PROD-PO-2025-dae692	\N	\N	2024-03-15 11:00:00	2024-04-05 15:00:00	Pending	20	Laser-cut panels for Project Gamma
+PROD-PO-2025-fa1cfa	\N	\N	2024-03-20 13:00:00	2024-03-28 17:00:00	Completed	8	Custom welded frame for Project Delta
+PROD-PO-2025-a784e5	\N	\N	2024-03-25 08:00:00	2024-04-10 16:00:00	In Progress	16	Custom painted casings for Project Epsilon
+PROD-PO-2025-17f231	\N	\N	2024-04-01 14:00:00	2024-04-12 10:00:00	Pending	12	Wooden display stands
+PROD-PO-2025-955928	\N	\N	2024-04-05 09:00:00	2024-04-18 17:00:00	Completed	25	3D printed components for drone
+PROD-PO-2025-fa2da0	\N	\N	2024-04-10 10:00:00	2024-04-25 16:00:00	In Progress	15	Custom copper wiring for electronics
+PROD-PO-2025-bcedfe	\N	\N	2024-04-15 11:00:00	2024-05-02 15:00:00	Pending	30	Painted metal casings for machinery
+PROD-PO-2025-27754c	\N	\N	2024-04-20 13:00:00	2024-04-30 17:00:00	Completed	20	Assembled electronic kits
+PROD-PO-2025-1fc2fc	\N	\N	2024-04-25 08:00:00	2024-05-05 17:00:00	Pending	18	Assembly of surgical tool
+PROD-PO-2025-084b98	\N	\N	2024-04-30 10:00:00	2024-05-12 16:00:00	In Progress	10	Production of diagnostic device
+PROD-PO-2025-9ad4d7	\N	\N	2024-05-05 11:00:00	2024-05-20 15:00:00	Pending	22	Manufacturing of patient monitor
+PROD-PO-2025-4f14d3	\N	\N	2024-05-10 13:00:00	2024-05-25 17:00:00	Completed	12	Fabrication of medical cart
+PROD-PO-2025-a14953	\N	\N	2024-05-15 08:00:00	2024-06-01 16:00:00	In Progress	20	Production of infusion pump
+PROD-PO-2025-0dbbdd	\N	\N	2024-05-20 14:00:00	2024-06-05 10:00:00	Pending	15	Assembly of patient handling equipment
+PROD-PO-2025-10227b	\N	\N	2024-05-25 09:00:00	2024-06-10 17:00:00	Completed	28	Manufacturing of surgical robot arm
+PROD-PO-2025-2f5eea	\N	\N	2024-05-30 10:00:00	2024-06-15 16:00:00	In Progress	18	Production of medical imaging system
+PROD-PO-2025-c632ed	\N	\N	2024-06-05 11:00:00	2024-06-22 15:00:00	Pending	35	Fabrication of hospital bed frames
+PROD-PO-2025-eebcf7	\N	\N	2024-06-10 13:00:00	2024-06-30 17:00:00	Completed	25	Assembly of surgical equipment
+PROD-PO-2025-d2aeb6	\N	\N	2024-03-05 09:00:00	2024-03-15 17:00:00	Completed	10	Custom metal bed
+PROD-PO-2025-bdcf40	\N	\N	2024-03-10 10:00:00	2024-03-22 16:00:00	In Progress	5	Plastic tubes components
+PROD-PO-2025-6ebf66	\N	\N	2024-03-15 11:00:00	2024-04-05 15:00:00	Pending	20	Laser-cut panels for Project Gamma
+PROD-PO-2025-f9e0a4	\N	\N	2024-03-20 13:00:00	2024-03-28 17:00:00	Completed	8	Custom welded frame for Project Delta
+PROD-PO-2025-7e5661	\N	\N	2024-03-25 08:00:00	2024-04-10 16:00:00	In Progress	16	Custom painted casings for Project Epsilon
+PROD-PO-2025-4a740c	\N	\N	2024-04-01 14:00:00	2024-04-12 10:00:00	Pending	12	Wooden display stands
+PROD-PO-2025-6049c8	\N	\N	2024-04-05 09:00:00	2024-04-18 17:00:00	Completed	25	3D printed components for drone
+PROD-PO-2025-e5fe34	\N	\N	2024-04-10 10:00:00	2024-04-25 16:00:00	In Progress	15	Custom copper wiring for electronics
+PROD-PO-2025-433639	\N	\N	2024-04-15 11:00:00	2024-05-02 15:00:00	Pending	30	Painted metal casings for machinery
+PROD-PO-2025-2f1f58	\N	\N	2024-04-20 13:00:00	2024-04-30 17:00:00	Completed	20	Assembled electronic kits
+PROD-PO-2025-af945e	\N	\N	2024-04-25 08:00:00	2024-05-05 17:00:00	Pending	18	Assembly of surgical tool
+PROD-PO-2025-10114e	\N	\N	2024-04-30 10:00:00	2024-05-12 16:00:00	In Progress	10	Production of diagnostic device
+PROD-PO-2025-dcd848	\N	\N	2024-05-05 11:00:00	2024-05-20 15:00:00	Pending	22	Manufacturing of patient monitor
+PROD-PO-2025-1985b7	\N	\N	2024-05-10 13:00:00	2024-05-25 17:00:00	Completed	12	Fabrication of medical cart
+PROD-PO-2025-880b7c	\N	\N	2024-05-15 08:00:00	2024-06-01 16:00:00	In Progress	20	Production of infusion pump
+PROD-PO-2025-59b6e4	\N	\N	2024-05-20 14:00:00	2024-06-05 10:00:00	Pending	15	Assembly of patient handling equipment
+PROD-PO-2025-305c71	\N	\N	2024-05-25 09:00:00	2024-06-10 17:00:00	Completed	28	Manufacturing of surgical robot arm
+PROD-PO-2025-81c350	\N	\N	2024-05-30 10:00:00	2024-06-15 16:00:00	In Progress	18	Production of medical imaging system
+PROD-PO-2025-087b15	\N	\N	2024-06-05 11:00:00	2024-06-22 15:00:00	Pending	35	Fabrication of hospital bed frames
+PROD-PO-2025-d3fb4a	\N	\N	2024-06-10 13:00:00	2024-06-30 17:00:00	Completed	25	Assembly of surgical equipment
 \.
 
 
@@ -6547,7 +8428,47 @@ COPY production.production_orders_header (production_order_id, project_id, bom_i
 -- Data for Name: contractual_worker_request; Type: TABLE DATA; Schema: project_management; Owner: postgres
 --
 
-COPY project_management.contractual_worker_request (request_id, intrnl_project_id, dept_id, job_title, job_description, required_position, employment_type) FROM stdin;
+COPY project_management.contractual_worker_request (request_id, intrnl_project_id, job_title, job_description, required_position, employment_type, dept_id) FROM stdin;
+PROJ-CWR-2025-0de939	\N	ERP Security Analyst	Ensure security compliance and system upgrades.	Cybersecurity Specialist	fixed-term	\N
+PROJ-CWR-2025-ec0fbb	\N	Training Coordinator	Organize and conduct employee training sessions.	Training Specialist	temporary employment	\N
+PROJ-CWR-2025-a3ffbd	\N	Business Process Consultant	Analyze and optimize department workflows.	Process Analyst	freelance	\N
+PROJ-CWR-2025-c85bf4	\N	Network Engineer	Enhance ERP cybersecurity and firewall setup.	Network Security Engineer	fixed-term	\N
+PROJ-CWR-2025-48804a	\N	Compliance Officer	Develop compliance training modules.	Regulatory Specialist	temporary employment	\N
+PROJ-CWR-2025-cba6bb	\N	Inventory System Analyst	Revamp and optimize inventory tracking.	Supply Chain Analyst	freelance	\N
+PROJ-CWR-2025-cd2461	\N	Software Integration Developer	Implement third-party software integrations.	Software Developer	fixed-term	\N
+PROJ-CWR-2025-89e446	\N	Leadership Coach	Conduct leadership development workshops.	Executive Trainer	freelance	\N
+PROJ-CWR-2025-a8d8d5	\N	HR Policy Analyst	Review and update HR policies.	HR Consultant	temporary employment	\N
+PROJ-CWR-2025-4f21ee	\N	IT Infrastructure Technician	Assist in upgrading IT infrastructure.	Infrastructure Specialist	internships	\N
+PROJ-CWR-2025-cf153e	\N	Software Developer	Develop and maintain ERP modules.	Backend Developer	fixed-term	\N
+PROJ-CWR-2025-621655	\N	Data Analyst	Analyze project performance data.	Business Intelligence Analyst	freelance	\N
+PROJ-CWR-2025-1b3c1c	\N	Cybersecurity Specialist	Enhance security measures for ERP.	Security Engineer	temporary employment	\N
+PROJ-CWR-2025-2c6562	\N	Training Coordinator	Organize internal training sessions.	Training Manager	internships	\N
+PROJ-CWR-2025-f2786d	\N	Project Manager	Oversee internal project execution.	Senior Project Manager	fixed-term	\N
+PROJ-CWR-2025-c52090	\N	Quality Assurance Tester	Test new system functionalities.	QA Engineer	freelance	\N
+PROJ-CWR-2025-19d3a5	\N	Network Administrator	Manage internal network infrastructure.	Network Engineer	temporary employment	\N
+PROJ-CWR-2025-6aa199	\N	UX/UI Designer	Redesign ERP user interface.	Senior Designer	fixed-term	\N
+PROJ-CWR-2025-6ac1bd	\N	HR Consultant	Improve employee onboarding strategies.	HR Specialist	freelance	\N
+PROJ-CWR-2025-098b84	\N	Database Administrator	Optimize internal database performance.	DBA	temporary employment	\N
+PROJ-CWR-2025-776c7e	\N	ERP Security Analyst	Ensure security compliance and system upgrades.	Cybersecurity Specialist	fixed-term	\N
+PROJ-CWR-2025-cbaea1	\N	Training Coordinator	Organize and conduct employee training sessions.	Training Specialist	temporary employment	\N
+PROJ-CWR-2025-105660	\N	Business Process Consultant	Analyze and optimize department workflows.	Process Analyst	freelance	\N
+PROJ-CWR-2025-b0f7df	\N	Network Engineer	Enhance ERP cybersecurity and firewall setup.	Network Security Engineer	fixed-term	\N
+PROJ-CWR-2025-e79897	\N	Compliance Officer	Develop compliance training modules.	Regulatory Specialist	temporary employment	\N
+PROJ-CWR-2025-67e759	\N	Inventory System Analyst	Revamp and optimize inventory tracking.	Supply Chain Analyst	freelance	\N
+PROJ-CWR-2025-1a8339	\N	Software Integration Developer	Implement third-party software integrations.	Software Developer	fixed-term	\N
+PROJ-CWR-2025-3beeba	\N	Leadership Coach	Conduct leadership development workshops.	Executive Trainer	freelance	\N
+PROJ-CWR-2025-a158ae	\N	HR Policy Analyst	Review and update HR policies.	HR Consultant	temporary employment	\N
+PROJ-CWR-2025-f74388	\N	IT Infrastructure Technician	Assist in upgrading IT infrastructure.	Infrastructure Specialist	internships	\N
+PROJ-CWR-2025-93366d	\N	Software Developer	Develop and maintain ERP modules.	Backend Developer	fixed-term	\N
+PROJ-CWR-2025-578eb5	\N	Data Analyst	Analyze project performance data.	Business Intelligence Analyst	freelance	\N
+PROJ-CWR-2025-952f25	\N	Cybersecurity Specialist	Enhance security measures for ERP.	Security Engineer	temporary employment	\N
+PROJ-CWR-2025-83f2ea	\N	Training Coordinator	Organize internal training sessions.	Training Manager	internships	\N
+PROJ-CWR-2025-295c62	\N	Project Manager	Oversee internal project execution.	Senior Project Manager	fixed-term	\N
+PROJ-CWR-2025-88e35f	\N	Quality Assurance Tester	Test new system functionalities.	QA Engineer	freelance	\N
+PROJ-CWR-2025-e74c71	\N	Network Administrator	Manage internal network infrastructure.	Network Engineer	temporary employment	\N
+PROJ-CWR-2025-5c0b1c	\N	UX/UI Designer	Redesign ERP user interface.	Senior Designer	fixed-term	\N
+PROJ-CWR-2025-b794a2	\N	HR Consultant	Improve employee onboarding strategies.	HR Specialist	freelance	\N
+PROJ-CWR-2025-339c15	\N	Database Administrator	Optimize internal database performance.	DBA	temporary employment	\N
 \.
 
 
@@ -6556,6 +8477,46 @@ COPY project_management.contractual_worker_request (request_id, intrnl_project_i
 --
 
 COPY project_management.external_project_cost_management (project_resources_id, project_id, cost_id, project_budget_approval) FROM stdin;
+PROJ-EPRM-2025-6f5357	\N	\N	approved
+PROJ-EPRM-2025-4488af	\N	\N	approved
+PROJ-EPRM-2025-818ab6	\N	\N	denied
+PROJ-EPRM-2025-775851	\N	\N	approved
+PROJ-EPRM-2025-8e57e3	\N	\N	approved
+PROJ-EPRM-2025-0f77bc	\N	\N	denied
+PROJ-EPRM-2025-c3912c	\N	\N	approved
+PROJ-EPRM-2025-15cb40	\N	\N	approved
+PROJ-EPRM-2025-ccd2c7	\N	\N	denied
+PROJ-EPRM-2025-b65c3d	\N	\N	approved
+PROJ-EPRM-2025-ec26c1	\N	\N	approved
+PROJ-EPRM-2025-c7c501	\N	\N	approved
+PROJ-EPRM-2025-d8041f	\N	\N	denied
+PROJ-EPRM-2025-c53df8	\N	\N	approved
+PROJ-EPRM-2025-579331	\N	\N	approved
+PROJ-EPRM-2025-c1ea74	\N	\N	denied
+PROJ-EPRM-2025-65d0c5	\N	\N	approved
+PROJ-EPRM-2025-d79860	\N	\N	approved
+PROJ-EPRM-2025-53e78f	\N	\N	denied
+PROJ-EPRM-2025-4c045f	\N	\N	approved
+PROJ-EPRM-2025-5cd6fe	\N	\N	approved
+PROJ-EPRM-2025-d74003	\N	\N	approved
+PROJ-EPRM-2025-dd858f	\N	\N	denied
+PROJ-EPRM-2025-11237b	\N	\N	approved
+PROJ-EPRM-2025-adb1fe	\N	\N	approved
+PROJ-EPRM-2025-a9d4e9	\N	\N	denied
+PROJ-EPRM-2025-585288	\N	\N	approved
+PROJ-EPRM-2025-200abf	\N	\N	approved
+PROJ-EPRM-2025-6d6f44	\N	\N	denied
+PROJ-EPRM-2025-688e5d	\N	\N	approved
+PROJ-EPRM-2025-4bad3d	\N	\N	approved
+PROJ-EPRM-2025-4df330	\N	\N	approved
+PROJ-EPRM-2025-7c5eb8	\N	\N	denied
+PROJ-EPRM-2025-849462	\N	\N	approved
+PROJ-EPRM-2025-fc0438	\N	\N	approved
+PROJ-EPRM-2025-33627c	\N	\N	denied
+PROJ-EPRM-2025-5fef9e	\N	\N	approved
+PROJ-EPRM-2025-01692c	\N	\N	approved
+PROJ-EPRM-2025-8876cd	\N	\N	denied
+PROJ-EPRM-2025-be1ba4	\N	\N	approved
 \.
 
 
@@ -6564,6 +8525,46 @@ COPY project_management.external_project_cost_management (project_resources_id, 
 --
 
 COPY project_management.external_project_details (project_id, ext_project_request_id, project_status) FROM stdin;
+PROJ-EPD-2025-dc9511	\N	not started
+PROJ-EPD-2025-5e62be	\N	in progress
+PROJ-EPD-2025-3c5d9e	\N	completed
+PROJ-EPD-2025-968452	\N	in progress
+PROJ-EPD-2025-2d1bca	\N	not started
+PROJ-EPD-2025-f2634d	\N	completed
+PROJ-EPD-2025-eb7c50	\N	in progress
+PROJ-EPD-2025-f40d51	\N	not started
+PROJ-EPD-2025-2baf4d	\N	completed
+PROJ-EPD-2025-a678b3	\N	in progress
+PROJ-EPD-2025-9a2056	\N	not started
+PROJ-EPD-2025-90722a	\N	in progress
+PROJ-EPD-2025-2e39f4	\N	completed
+PROJ-EPD-2025-1ecd23	\N	in progress
+PROJ-EPD-2025-4e8703	\N	not started
+PROJ-EPD-2025-b773eb	\N	completed
+PROJ-EPD-2025-6ee60f	\N	in progress
+PROJ-EPD-2025-5f190e	\N	not started
+PROJ-EPD-2025-aab24a	\N	completed
+PROJ-EPD-2025-a2f4e3	\N	in progress
+PROJ-EPD-2025-72bed2	\N	not started
+PROJ-EPD-2025-58fb3d	\N	in progress
+PROJ-EPD-2025-98336b	\N	completed
+PROJ-EPD-2025-37c7e5	\N	in progress
+PROJ-EPD-2025-169d1c	\N	not started
+PROJ-EPD-2025-84145c	\N	completed
+PROJ-EPD-2025-7a694d	\N	in progress
+PROJ-EPD-2025-94c960	\N	not started
+PROJ-EPD-2025-fbe18e	\N	completed
+PROJ-EPD-2025-5c9c8b	\N	in progress
+PROJ-EPD-2025-8ff2ad	\N	not started
+PROJ-EPD-2025-981b13	\N	in progress
+PROJ-EPD-2025-986551	\N	completed
+PROJ-EPD-2025-d08b7b	\N	in progress
+PROJ-EPD-2025-fddefa	\N	not started
+PROJ-EPD-2025-d510fc	\N	completed
+PROJ-EPD-2025-273042	\N	in progress
+PROJ-EPD-2025-77b32b	\N	not started
+PROJ-EPD-2025-7d9131	\N	completed
+PROJ-EPD-2025-e5349b	\N	in progress
 \.
 
 
@@ -6572,6 +8573,46 @@ COPY project_management.external_project_details (project_id, ext_project_reques
 --
 
 COPY project_management.external_project_labor (project_labor_id, project_id, employee_id) FROM stdin;
+PROJ-EPL-2025-c894fc	\N	\N
+PROJ-EPL-2025-e4ffd4	\N	\N
+PROJ-EPL-2025-ad3f8a	\N	\N
+PROJ-EPL-2025-97d2ff	\N	\N
+PROJ-EPL-2025-649124	\N	\N
+PROJ-EPL-2025-58c9b3	\N	\N
+PROJ-EPL-2025-64ec27	\N	\N
+PROJ-EPL-2025-8392ce	\N	\N
+PROJ-EPL-2025-03f798	\N	\N
+PROJ-EPL-2025-116f44	\N	\N
+PROJ-EPL-2025-e9cd01	\N	\N
+PROJ-EPL-2025-f04c8b	\N	\N
+PROJ-EPL-2025-da3788	\N	\N
+PROJ-EPL-2025-98f92c	\N	\N
+PROJ-EPL-2025-ad7925	\N	\N
+PROJ-EPL-2025-02ec1a	\N	\N
+PROJ-EPL-2025-1aaad8	\N	\N
+PROJ-EPL-2025-1cacff	\N	\N
+PROJ-EPL-2025-e11846	\N	\N
+PROJ-EPL-2025-fa9159	\N	\N
+PROJ-EPL-2025-168c77	\N	\N
+PROJ-EPL-2025-cc9ed3	\N	\N
+PROJ-EPL-2025-314b88	\N	\N
+PROJ-EPL-2025-f2df98	\N	\N
+PROJ-EPL-2025-f95329	\N	\N
+PROJ-EPL-2025-73f3ae	\N	\N
+PROJ-EPL-2025-f4ed45	\N	\N
+PROJ-EPL-2025-3a28f4	\N	\N
+PROJ-EPL-2025-8ad22a	\N	\N
+PROJ-EPL-2025-5fe57f	\N	\N
+PROJ-EPL-2025-4d272b	\N	\N
+PROJ-EPL-2025-506979	\N	\N
+PROJ-EPL-2025-5135c2	\N	\N
+PROJ-EPL-2025-f69753	\N	\N
+PROJ-EPL-2025-10daa9	\N	\N
+PROJ-EPL-2025-c1c84b	\N	\N
+PROJ-EPL-2025-d41b6b	\N	\N
+PROJ-EPL-2025-5ad4be	\N	\N
+PROJ-EPL-2025-fd8b5a	\N	\N
+PROJ-EPL-2025-2a119f	\N	\N
 \.
 
 
@@ -6580,6 +8621,46 @@ COPY project_management.external_project_labor (project_labor_id, project_id, em
 --
 
 COPY project_management.external_project_request (ext_project_request_id, ext_project_name, ext_project_description, approval_id, item_id) FROM stdin;
+PROJ-EPR-2025-1282fd	OEC Elite x10	Manufacturing 10 units of OEC Elite C-arm X-ray machines for the client.	\N	\N
+PROJ-EPR-2025-74c12d	Aquadis 56 x5	Producing 5 units of Aquadis 56 medical washer-disinfectors.	\N	\N
+PROJ-EPR-2025-f78e86	UA-66 x20	Client placed an order for 20 UA-66 ultrasound machines.	\N	\N
+PROJ-EPR-2025-1b1cb5	BeneVision N22/N19 x15	Hospital requires 15 BeneVision N22/N19 patient monitors.	\N	\N
+PROJ-EPR-2025-db503f	Senographe Pristina x8	Manufacturing 8 units of Senographe Pristina mammography systems.	\N	\N
+PROJ-EPR-2025-0aad0c	uMEC Series x12	Client ordered 12 uMEC Series patient monitors.	\N	\N
+PROJ-EPR-2025-b7c830	TNI HighFlow x25	Producing 25 TNI HighFlow respiratory therapy units.	\N	\N
+PROJ-EPR-2025-81a787	uMed 20 x30	Manufacturing 30 units of uMed 20 portable patient monitors.	\N	\N
+PROJ-EPR-2025-9bceda	Wato EX-20 x7	Client requested 7 Wato EX-20 anesthesia machines.	\N	\N
+PROJ-EPR-2025-6a2642	Rad-97 Pulse CO-Oximeter x18	Producing 18 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
+PROJ-EPR-2025-93126d	OEC Elite x12	Manufacturing 12 units of OEC Elite C-arm X-ray machines for the client.	\N	\N
+PROJ-EPR-2025-aa9d25	Aquadis 56 x8	Producing 8 units of Aquadis 56 medical washer-disinfectors.	\N	\N
+PROJ-EPR-2025-23b807	UA-66 x15	Client placed an order for 15 UA-66 ultrasound machines.	\N	\N
+PROJ-EPR-2025-9fc670	BeneVision N22/N19 x20	Hospital requires 20 BeneVision N22/N19 patient monitors.	\N	\N
+PROJ-EPR-2025-6ae4ad	Senographe Pristina x10	Manufacturing 10 units of Senographe Pristina mammography systems.	\N	\N
+PROJ-EPR-2025-4f1115	uMEC Series x18	Client ordered 18 uMEC Series patient monitors.	\N	\N
+PROJ-EPR-2025-ae339c	TNI HighFlow x30	Producing 30 TNI HighFlow respiratory therapy units.	\N	\N
+PROJ-EPR-2025-943eb8	uMed 20 x35	Manufacturing 35 units of uMed 20 portable patient monitors.	\N	\N
+PROJ-EPR-2025-e18c2a	Wato EX-20 x9	Client requested 9 Wato EX-20 anesthesia machines.	\N	\N
+PROJ-EPR-2025-d44e8a	Rad-97 Pulse CO-Oximeter x22	Producing 22 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
+PROJ-EPR-2025-d64ba1	OEC Elite x10	Manufacturing 10 units of OEC Elite C-arm X-ray machines for the client.	\N	\N
+PROJ-EPR-2025-374a73	Aquadis 56 x5	Producing 5 units of Aquadis 56 medical washer-disinfectors.	\N	\N
+PROJ-EPR-2025-1c9bef	UA-66 x20	Client placed an order for 20 UA-66 ultrasound machines.	\N	\N
+PROJ-EPR-2025-e62c43	BeneVision N22/N19 x15	Hospital requires 15 BeneVision N22/N19 patient monitors.	\N	\N
+PROJ-EPR-2025-79939a	Senographe Pristina x8	Manufacturing 8 units of Senographe Pristina mammography systems.	\N	\N
+PROJ-EPR-2025-5cbdbe	uMEC Series x12	Client ordered 12 uMEC Series patient monitors.	\N	\N
+PROJ-EPR-2025-ff671f	TNI HighFlow x25	Producing 25 TNI HighFlow respiratory therapy units.	\N	\N
+PROJ-EPR-2025-4035eb	uMed 20 x30	Manufacturing 30 units of uMed 20 portable patient monitors.	\N	\N
+PROJ-EPR-2025-1403fe	Wato EX-20 x7	Client requested 7 Wato EX-20 anesthesia machines.	\N	\N
+PROJ-EPR-2025-9f6f3e	Rad-97 Pulse CO-Oximeter x18	Producing 18 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
+PROJ-EPR-2025-336db5	OEC Elite x12	Manufacturing 12 units of OEC Elite C-arm X-ray machines for the client.	\N	\N
+PROJ-EPR-2025-4173b5	Aquadis 56 x8	Producing 8 units of Aquadis 56 medical washer-disinfectors.	\N	\N
+PROJ-EPR-2025-ed6131	UA-66 x15	Client placed an order for 15 UA-66 ultrasound machines.	\N	\N
+PROJ-EPR-2025-584a5a	BeneVision N22/N19 x20	Hospital requires 20 BeneVision N22/N19 patient monitors.	\N	\N
+PROJ-EPR-2025-e0b77d	Senographe Pristina x10	Manufacturing 10 units of Senographe Pristina mammography systems.	\N	\N
+PROJ-EPR-2025-ef8bb9	uMEC Series x18	Client ordered 18 uMEC Series patient monitors.	\N	\N
+PROJ-EPR-2025-04a82d	TNI HighFlow x30	Producing 30 TNI HighFlow respiratory therapy units.	\N	\N
+PROJ-EPR-2025-d3c20b	uMed 20 x35	Manufacturing 35 units of uMed 20 portable patient monitors.	\N	\N
+PROJ-EPR-2025-8416cd	Wato EX-20 x9	Client requested 9 Wato EX-20 anesthesia machines.	\N	\N
+PROJ-EPR-2025-14a373	Rad-97 Pulse CO-Oximeter x22	Producing 22 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
 \.
 
 
@@ -6587,7 +8668,49 @@ COPY project_management.external_project_request (ext_project_request_id, ext_pr
 -- Data for Name: external_project_task_list; Type: TABLE DATA; Schema: project_management; Owner: postgres
 --
 
-COPY project_management.external_project_task_list (task_id, project_id, task_description, task_status, task_deadline, employee_id) FROM stdin;
+COPY project_management.external_project_task_list (task_id, project_id, task_description, task_status, task_deadline, project_labor_id) FROM stdin;
+PROJ-EPT-2025-64732d	\N	Assemble OEC Elite frame	in_progress	2025-03-20	\N
+PROJ-EPT-2025-038c03	\N	Install imaging software	pending	2025-03-25	\N
+PROJ-EPT-2025-b391c1	\N	Quality check for Aquadis 56	completed	2025-03-10	\N
+PROJ-EPT-2025-4fbabc	\N	Calibrate UA-66 ultrasound sensors	in_progress	2025-03-18	\N
+PROJ-EPT-2025-293c1f	\N	Integrate BeneVision N22/N19 with hospital systems	pending	2025-03-30	\N
+PROJ-EPT-2025-c6dea0	\N	Final assembly of Senographe Pristina	completed	2025-03-12	\N
+PROJ-EPT-2025-2cb963	\N	Software update for uMEC Series monitors	in_progress	2025-03-22	\N
+PROJ-EPT-2025-e73476	\N	Test airflow mechanism in TNI HighFlow devices	pending	2025-03-28	\N
+PROJ-EPT-2025-d5af8e	\N	Assemble battery unit for uMed 20	completed	2025-03-15	\N
+PROJ-EPT-2025-fcf42a	\N	Verify gas flow calibration for Wato EX-20	in_progress	2025-03-24	\N
+PROJ-EPT-2025-eb507a	\N	Connect Rad-97 Pulse CO-Oximeter to wireless system	canceled	2025-03-26	\N
+PROJ-EPT-2025-0d2b80	\N	Assemble components for OEC Elite units	in_progress	2025-04-15	\N
+PROJ-EPT-2025-daaa0b	\N	Test quality control for Aquadis 56 units	pending	2025-04-20	\N
+PROJ-EPT-2025-81c94d	\N	Conduct performance calibration for UA-66	completed	2025-03-30	\N
+PROJ-EPT-2025-50192b	\N	Prepare software installation for BeneVision N22/N19	in_progress	2025-04-10	\N
+PROJ-EPT-2025-a6b942	\N	Finalize packaging for Senographe Pristina units	pending	2025-04-25	\N
+PROJ-EPT-2025-bf612f	\N	Perform electrical safety tests on uMEC Series	completed	2025-03-28	\N
+PROJ-EPT-2025-771bb8	\N	Ensure airflow accuracy for TNI HighFlow devices	in_progress	2025-05-01	\N
+PROJ-EPT-2025-e91adb	\N	Update firmware on uMed 20 units	pending	2025-05-05	\N
+PROJ-EPT-2025-ad97f2	\N	Verify gas flow on Wato EX-20 anesthesia machines	in_progress	2025-04-12	\N
+PROJ-EPT-2025-7f6e8c	\N	Check SpO2 sensor calibration on Rad-97 Pulse CO-Oximeter	completed	2025-06-01	\N
+PROJ-EPT-2025-0d5d06	\N	Assemble OEC Elite frame	in_progress	2025-03-20	\N
+PROJ-EPT-2025-11423a	\N	Install imaging software	pending	2025-03-25	\N
+PROJ-EPT-2025-880d16	\N	Quality check for Aquadis 56	completed	2025-03-10	\N
+PROJ-EPT-2025-0ba134	\N	Calibrate UA-66 ultrasound sensors	in_progress	2025-03-18	\N
+PROJ-EPT-2025-3ad9c2	\N	Integrate BeneVision N22/N19 with hospital systems	pending	2025-03-30	\N
+PROJ-EPT-2025-0587dd	\N	Final assembly of Senographe Pristina	completed	2025-03-12	\N
+PROJ-EPT-2025-cba7c1	\N	Software update for uMEC Series monitors	in_progress	2025-03-22	\N
+PROJ-EPT-2025-a87be3	\N	Test airflow mechanism in TNI HighFlow devices	pending	2025-03-28	\N
+PROJ-EPT-2025-16fc19	\N	Assemble battery unit for uMed 20	completed	2025-03-15	\N
+PROJ-EPT-2025-9c9e1b	\N	Verify gas flow calibration for Wato EX-20	in_progress	2025-03-24	\N
+PROJ-EPT-2025-9d3862	\N	Connect Rad-97 Pulse CO-Oximeter to wireless system	canceled	2025-03-26	\N
+PROJ-EPT-2025-a1a381	\N	Assemble components for OEC Elite units	in_progress	2025-04-15	\N
+PROJ-EPT-2025-531b66	\N	Test quality control for Aquadis 56 units	pending	2025-04-20	\N
+PROJ-EPT-2025-41ca8e	\N	Conduct performance calibration for UA-66	completed	2025-03-30	\N
+PROJ-EPT-2025-21bb69	\N	Prepare software installation for BeneVision N22/N19	in_progress	2025-04-10	\N
+PROJ-EPT-2025-5a335a	\N	Finalize packaging for Senographe Pristina units	pending	2025-04-25	\N
+PROJ-EPT-2025-80a004	\N	Perform electrical safety tests on uMEC Series	completed	2025-03-28	\N
+PROJ-EPT-2025-725fe2	\N	Ensure airflow accuracy for TNI HighFlow devices	in_progress	2025-05-01	\N
+PROJ-EPT-2025-f25e26	\N	Update firmware on uMed 20 units	pending	2025-05-05	\N
+PROJ-EPT-2025-75264e	\N	Verify gas flow on Wato EX-20 anesthesia machines	in_progress	2025-04-12	\N
+PROJ-EPT-2025-ec3471	\N	Check SpO2 sensor calibration on Rad-97 Pulse CO-Oximeter	completed	2025-06-01	\N
 \.
 
 
@@ -6596,6 +8719,46 @@ COPY project_management.external_project_task_list (task_id, project_id, task_de
 --
 
 COPY project_management.external_project_tracking (project_tracking_id, project_id, project_milestone, start_date, estimated_end_date, project_warranty_id, project_issue) FROM stdin;
+PROJ-EPTK-2025-3f7f46	\N	planning	2025-03-01	2025-03-10	\N	\N
+PROJ-EPTK-2025-9eaa73	\N	awaiting_approval	2025-03-05	2025-03-15	\N	Pending final client confirmation
+PROJ-EPTK-2025-3e3af7	\N	manufacturing	2025-03-10	2025-04-01	\N	\N
+PROJ-EPTK-2025-b7f288	\N	deployment	2025-03-12	2025-04-05	\N	Logistics delay in shipment
+PROJ-EPTK-2025-287e31	\N	installation	2025-03-15	2025-04-10	\N	\N
+PROJ-EPTK-2025-51d229	\N	completed	2025-02-20	2025-03-01	\N	\N
+PROJ-EPTK-2025-f7369a	\N	manufacturing	2025-03-18	2025-04-12	\N	Supplier delay in component delivery
+PROJ-EPTK-2025-c13a0d	\N	awaiting_approval	2025-03-22	2025-03-30	\N	\N
+PROJ-EPTK-2025-5d2edc	\N	deployment	2025-03-25	2025-04-15	\N	Client requested last-minute customization
+PROJ-EPTK-2025-dffc3c	\N	completed	2025-02-28	2025-03-08	\N	\N
+PROJ-EPTK-2025-c48f9d	\N	planning	2025-03-01	2025-04-15	\N	\N
+PROJ-EPTK-2025-cafe4a	\N	awaiting_approval	2025-03-05	2025-04-20	\N	Pending client feedback
+PROJ-EPTK-2025-7656aa	\N	manufacturing	2025-03-10	2025-05-01	\N	\N
+PROJ-EPTK-2025-01f02f	\N	deployment	2025-03-15	2025-05-10	\N	Supply chain delays
+PROJ-EPTK-2025-29979b	\N	installation	2025-03-20	2025-05-20	\N	\N
+PROJ-EPTK-2025-987832	\N	completed	2025-03-25	2025-04-30	\N	\N
+PROJ-EPTK-2025-5cb8cf	\N	planning	2025-04-01	2025-05-15	\N	Design revisions required
+PROJ-EPTK-2025-f71852	\N	awaiting_approval	2025-04-05	2025-05-20	\N	\N
+PROJ-EPTK-2025-3a08ec	\N	manufacturing	2025-04-10	2025-06-01	\N	Material shortage
+PROJ-EPTK-2025-ff7c6c	\N	deployment	2025-04-15	2025-06-10	\N	\N
+PROJ-EPTK-2025-13fa30	\N	planning	2025-03-01	2025-03-10	\N	\N
+PROJ-EPTK-2025-843606	\N	awaiting_approval	2025-03-05	2025-03-15	\N	Pending final client confirmation
+PROJ-EPTK-2025-b1db7b	\N	manufacturing	2025-03-10	2025-04-01	\N	\N
+PROJ-EPTK-2025-be53de	\N	deployment	2025-03-12	2025-04-05	\N	Logistics delay in shipment
+PROJ-EPTK-2025-a6d583	\N	installation	2025-03-15	2025-04-10	\N	\N
+PROJ-EPTK-2025-47740f	\N	completed	2025-02-20	2025-03-01	\N	\N
+PROJ-EPTK-2025-087649	\N	manufacturing	2025-03-18	2025-04-12	\N	Supplier delay in component delivery
+PROJ-EPTK-2025-1858c3	\N	awaiting_approval	2025-03-22	2025-03-30	\N	\N
+PROJ-EPTK-2025-d0c156	\N	deployment	2025-03-25	2025-04-15	\N	Client requested last-minute customization
+PROJ-EPTK-2025-560d65	\N	completed	2025-02-28	2025-03-08	\N	\N
+PROJ-EPTK-2025-82bf0c	\N	planning	2025-03-01	2025-04-15	\N	\N
+PROJ-EPTK-2025-fbe236	\N	awaiting_approval	2025-03-05	2025-04-20	\N	Pending client feedback
+PROJ-EPTK-2025-ea2276	\N	manufacturing	2025-03-10	2025-05-01	\N	\N
+PROJ-EPTK-2025-0865de	\N	deployment	2025-03-15	2025-05-10	\N	Supply chain delays
+PROJ-EPTK-2025-ec9b19	\N	installation	2025-03-20	2025-05-20	\N	\N
+PROJ-EPTK-2025-924c92	\N	completed	2025-03-25	2025-04-30	\N	\N
+PROJ-EPTK-2025-cae550	\N	planning	2025-04-01	2025-05-15	\N	Design revisions required
+PROJ-EPTK-2025-0baa11	\N	awaiting_approval	2025-04-05	2025-05-20	\N	\N
+PROJ-EPTK-2025-1003af	\N	manufacturing	2025-04-10	2025-06-01	\N	Material shortage
+PROJ-EPTK-2025-ed8d12	\N	deployment	2025-04-15	2025-06-10	\N	\N
 \.
 
 
@@ -6604,6 +8767,46 @@ COPY project_management.external_project_tracking (project_tracking_id, project_
 --
 
 COPY project_management.external_project_warranty (project_warranty_id, project_id, warranty_coverage_yr, warranty_start_date, warranty_end_date) FROM stdin;
+PROJ-EPW-2025-12af09	\N	3	2025-04-01	2028-04-01
+PROJ-EPW-2025-b42e3c	\N	2	2025-05-15	2027-05-15
+PROJ-EPW-2025-f9f9e2	\N	5	2025-06-10	2030-06-10
+PROJ-EPW-2025-168141	\N	3	2025-07-20	2028-07-20
+PROJ-EPW-2025-8f5c70	\N	4	2025-08-05	2029-08-05
+PROJ-EPW-2025-40e39a	\N	2	2025-09-12	2027-09-12
+PROJ-EPW-2025-a0b513	\N	3	2025-10-18	2028-10-18
+PROJ-EPW-2025-0d4154	\N	1	2025-11-22	2026-11-22
+PROJ-EPW-2025-f7f61a	\N	5	2025-12-30	2030-12-30
+PROJ-EPW-2025-c0f0fe	\N	4	2026-01-15	2030-01-15
+PROJ-EPW-2025-d41f85	\N	2	2025-04-01	2027-04-01
+PROJ-EPW-2025-2aea97	\N	3	2025-05-15	2028-05-15
+PROJ-EPW-2025-00a9b4	\N	1	2025-06-10	2026-06-10
+PROJ-EPW-2025-adb6c7	\N	5	2025-07-20	2030-07-20
+PROJ-EPW-2025-4b25e7	\N	2	2025-08-05	2027-08-05
+PROJ-EPW-2025-29fa9c	\N	4	2025-09-12	2029-09-12
+PROJ-EPW-2025-78a82a	\N	3	2025-10-18	2028-10-18
+PROJ-EPW-2025-464541	\N	2	2025-11-25	2027-11-25
+PROJ-EPW-2025-cae5dc	\N	1	2025-12-30	2026-12-30
+PROJ-EPW-2025-d76503	\N	5	2026-01-15	2031-01-15
+PROJ-EPW-2025-d3555d	\N	3	2025-04-01	2028-04-01
+PROJ-EPW-2025-86f933	\N	2	2025-05-15	2027-05-15
+PROJ-EPW-2025-43db10	\N	5	2025-06-10	2030-06-10
+PROJ-EPW-2025-1c5656	\N	3	2025-07-20	2028-07-20
+PROJ-EPW-2025-e17882	\N	4	2025-08-05	2029-08-05
+PROJ-EPW-2025-7cfbe3	\N	2	2025-09-12	2027-09-12
+PROJ-EPW-2025-09c83c	\N	3	2025-10-18	2028-10-18
+PROJ-EPW-2025-0c4573	\N	1	2025-11-22	2026-11-22
+PROJ-EPW-2025-273bd0	\N	5	2025-12-30	2030-12-30
+PROJ-EPW-2025-ff3488	\N	4	2026-01-15	2030-01-15
+PROJ-EPW-2025-a58d61	\N	2	2025-04-01	2027-04-01
+PROJ-EPW-2025-cc7be5	\N	3	2025-05-15	2028-05-15
+PROJ-EPW-2025-92cd81	\N	1	2025-06-10	2026-06-10
+PROJ-EPW-2025-2eb94f	\N	5	2025-07-20	2030-07-20
+PROJ-EPW-2025-2891ca	\N	2	2025-08-05	2027-08-05
+PROJ-EPW-2025-f481db	\N	4	2025-09-12	2029-09-12
+PROJ-EPW-2025-06d4c9	\N	3	2025-10-18	2028-10-18
+PROJ-EPW-2025-4cca5f	\N	2	2025-11-25	2027-11-25
+PROJ-EPW-2025-f43dee	\N	1	2025-12-30	2026-12-30
+PROJ-EPW-2025-94e9ab	\N	5	2026-01-15	2031-01-15
 \.
 
 
@@ -6612,6 +8815,46 @@ COPY project_management.external_project_warranty (project_warranty_id, project_
 --
 
 COPY project_management.internal_project_details (intrnl_project_id, project_request_id, intrnl_project_status) FROM stdin;
+PROJ-IPD-2025-0aef07	\N	not started
+PROJ-IPD-2025-591af6	\N	in progress
+PROJ-IPD-2025-5a61ac	\N	completed
+PROJ-IPD-2025-fe500e	\N	in progress
+PROJ-IPD-2025-5b562b	\N	not started
+PROJ-IPD-2025-87cc21	\N	completed
+PROJ-IPD-2025-0a52ed	\N	in progress
+PROJ-IPD-2025-fffdc9	\N	not started
+PROJ-IPD-2025-e9a578	\N	completed
+PROJ-IPD-2025-8bceec	\N	in progress
+PROJ-IPD-2025-6893da	\N	not started
+PROJ-IPD-2025-a3f9b1	\N	in progress
+PROJ-IPD-2025-cda6d8	\N	completed
+PROJ-IPD-2025-9c301c	\N	in progress
+PROJ-IPD-2025-55ae6e	\N	not started
+PROJ-IPD-2025-e5a8a2	\N	completed
+PROJ-IPD-2025-24b78a	\N	in progress
+PROJ-IPD-2025-d6e9da	\N	not started
+PROJ-IPD-2025-f93d44	\N	completed
+PROJ-IPD-2025-7ae63d	\N	in progress
+PROJ-IPD-2025-227d2c	\N	not started
+PROJ-IPD-2025-c97ea5	\N	in progress
+PROJ-IPD-2025-525765	\N	completed
+PROJ-IPD-2025-9f2544	\N	in progress
+PROJ-IPD-2025-dec5fa	\N	not started
+PROJ-IPD-2025-bd8320	\N	completed
+PROJ-IPD-2025-d4cb3f	\N	in progress
+PROJ-IPD-2025-dbb47c	\N	not started
+PROJ-IPD-2025-3c0587	\N	completed
+PROJ-IPD-2025-4a7703	\N	in progress
+PROJ-IPD-2025-2295c8	\N	not started
+PROJ-IPD-2025-982540	\N	in progress
+PROJ-IPD-2025-7813e5	\N	completed
+PROJ-IPD-2025-e22609	\N	in progress
+PROJ-IPD-2025-1e96b8	\N	not started
+PROJ-IPD-2025-98d10d	\N	completed
+PROJ-IPD-2025-df74b3	\N	in progress
+PROJ-IPD-2025-ce60e3	\N	not started
+PROJ-IPD-2025-b1bb23	\N	completed
+PROJ-IPD-2025-0990cb	\N	in progress
 \.
 
 
@@ -6620,6 +8863,62 @@ COPY project_management.internal_project_details (intrnl_project_id, project_req
 --
 
 COPY project_management.internal_project_labor (intrnl_project_labor_id, intrnl_project_id, employee_id) FROM stdin;
+PROJ-IPL-2025-3a150c	\N	\N
+PROJ-IPL-2025-c0bd29	\N	\N
+PROJ-IPL-2025-ac70d1	\N	\N
+PROJ-IPL-2025-46ee22	\N	\N
+PROJ-IPL-2025-b25d8e	\N	\N
+PROJ-IPL-2025-9e997c	\N	\N
+PROJ-IPL-2025-692b67	\N	\N
+PROJ-IPL-2025-b4bca9	\N	\N
+PROJ-IPL-2025-917450	\N	\N
+PROJ-IPL-2025-326e9f	\N	\N
+PROJ-IPL-2025-b4eabb	\N	\N
+PROJ-IPL-2025-c8df2f	\N	\N
+PROJ-IPL-2025-63451e	\N	\N
+PROJ-IPL-2025-89eecb	\N	\N
+PROJ-IPL-2025-97a6cd	\N	\N
+PROJ-IPL-2025-b37bd6	\N	\N
+PROJ-IPL-2025-f27e56	\N	\N
+PROJ-IPL-2025-c758d0	\N	\N
+PROJ-IPL-2025-a2eecd	\N	\N
+PROJ-IPL-2025-d798c4	\N	\N
+PROJ-IPL-2025-728c5b	\N	\N
+PROJ-IPL-2025-c353f2	\N	\N
+PROJ-IPL-2025-364646	\N	\N
+PROJ-IPL-2025-97afe1	\N	\N
+PROJ-IPL-2025-233fc9	\N	\N
+PROJ-IPL-2025-16bf3f	\N	\N
+PROJ-IPL-2025-2bb223	\N	\N
+PROJ-IPL-2025-789080	\N	\N
+PROJ-IPL-2025-974e81	\N	\N
+PROJ-IPL-2025-7c65e6	\N	\N
+PROJ-IPL-2025-f1390d	\N	\N
+PROJ-IPL-2025-0f5586	\N	\N
+PROJ-IPL-2025-e6fa42	\N	\N
+PROJ-IPL-2025-d8c6ae	\N	\N
+PROJ-IPL-2025-b2796c	\N	\N
+PROJ-IPL-2025-1bcdda	\N	\N
+PROJ-IPL-2025-bdd553	\N	\N
+PROJ-IPL-2025-28cf65	\N	\N
+PROJ-IPL-2025-bc794c	\N	\N
+PROJ-IPL-2025-3a76d3	\N	\N
+PROJ-IPL-2025-803abf	\N	\N
+PROJ-IPL-2025-6dd6a3	\N	\N
+PROJ-IPL-2025-44c78f	\N	\N
+PROJ-IPL-2025-a9b091	\N	\N
+PROJ-IPL-2025-724c08	\N	\N
+PROJ-IPL-2025-ae9fcb	\N	\N
+PROJ-IPL-2025-1dbc7e	\N	\N
+PROJ-IPL-2025-ba3714	\N	\N
+PROJ-IPL-2025-75fec3	\N	\N
+PROJ-IPL-2025-5b38cd	\N	\N
+PROJ-IPL-2025-d15714	\N	\N
+PROJ-IPL-2025-e38227	\N	\N
+PROJ-IPL-2025-4abd5e	\N	\N
+PROJ-IPL-2025-69b0c1	\N	\N
+PROJ-IPL-2025-ce59f6	\N	\N
+PROJ-IPL-2025-5dac94	\N	\N
 \.
 
 
@@ -6628,6 +8927,46 @@ COPY project_management.internal_project_labor (intrnl_project_labor_id, intrnl_
 --
 
 COPY project_management.internal_project_request (project_request_id, project_name, project_description, request_date, request_valid_date, request_starting_date, approval_id, employee_id, dept_id, project_type) FROM stdin;
+PROJ-IPR-2025-722507	ERP System Upgrade	Upgrade the ERP system with new security patches and features.	2025-03-01	2025-03-10	2025-03-15	\N	\N	\N	changes
+PROJ-IPR-2025-defacd	Employee Training Program	Conduct training sessions for new ERP functionalities.	2025-03-05	2025-03-12	2025-03-20	\N	\N	\N	trainings
+PROJ-IPR-2025-2cd880	Department Workflow Optimization	Revise department workflow for efficiency improvements.	2025-03-07	2025-03-14	2025-03-22	\N	\N	\N	plans
+PROJ-IPR-2025-36adc5	Cybersecurity Enhancement	Implement new security measures in the ERP system.	2025-03-10	2025-03-18	2025-03-25	\N	\N	\N	changes
+PROJ-IPR-2025-4688f3	Compliance Training	Train employees on new regulatory compliance policies.	2025-03-12	2025-03-20	2025-03-28	\N	\N	\N	trainings
+PROJ-IPR-2025-a15a32	Inventory Management Optimization	Redesign the inventory tracking system for better performance.	2025-03-15	2025-03-25	2025-04-01	\N	\N	\N	plans
+PROJ-IPR-2025-6c25e9	Software Integration Plan	Integrate third-party applications with the ERP system.	2025-03-18	2025-03-27	2025-04-05	\N	\N	\N	changes
+PROJ-IPR-2025-64fc1c	Leadership Training	Conduct leadership workshops for department managers.	2025-03-20	2025-03-30	2025-04-10	\N	\N	\N	trainings
+PROJ-IPR-2025-1d3e57	HR Policy Review	Analyze and update HR policies in accordance with new labor laws.	2025-03-22	2025-04-01	2025-04-08	\N	\N	\N	plans
+PROJ-IPR-2025-917f98	IT Infrastructure Upgrade	Upgrade servers and network infrastructure for better performance.	2025-03-25	2025-04-05	2025-04-12	\N	\N	\N	changes
+PROJ-IPR-2025-c7ca14	ERP System Upgrade	Upgrade the ERP system to improve performance and security.	2025-03-01	2025-03-10	2025-03-15	\N	\N	\N	plans
+PROJ-IPR-2025-0da378	New Compliance Training	Conduct training sessions for new regulatory compliance.	2025-03-05	2025-03-15	2025-03-20	\N	\N	\N	trainings
+PROJ-IPR-2025-255666	Inventory Management Overhaul	Redesign inventory tracking processes.	2025-03-10	2025-03-20	2025-03-25	\N	\N	\N	changes
+PROJ-IPR-2025-dc5c83	Cybersecurity Enhancement	Implement additional security protocols.	2025-03-12	2025-03-22	2025-03-30	\N	\N	\N	plans
+PROJ-IPR-2025-79a692	Employee Onboarding Program	Develop a structured onboarding process.	2025-03-15	2025-03-25	2025-04-01	\N	\N	\N	trainings
+PROJ-IPR-2025-50ef44	New Module Development	Add a new project tracking module.	2025-03-18	2025-03-28	2025-04-05	\N	\N	\N	changes
+PROJ-IPR-2025-705ff4	Medical Equipment Maintenance Plan	Create a preventive maintenance schedule.	2025-03-20	2025-03-30	2025-04-10	\N	\N	\N	plans
+PROJ-IPR-2025-d40d5c	Customer Support Training	Enhance training for customer support staff.	2025-03-22	2025-04-01	2025-04-12	\N	\N	\N	trainings
+PROJ-IPR-2025-2025ce	Data Migration Strategy	Plan for migrating legacy data to the new system.	2025-03-25	2025-04-05	2025-04-15	\N	\N	\N	plans
+PROJ-IPR-2025-c4d0da	Compliance Audit Preparation	Prepare for an external compliance audit.	2025-03-28	2025-04-08	2025-04-20	\N	\N	\N	changes
+PROJ-IPR-2025-e03a73	ERP System Upgrade	Upgrade the ERP system with new security patches and features.	2025-03-01	2025-03-10	2025-03-15	\N	\N	\N	changes
+PROJ-IPR-2025-5fbd37	Employee Training Program	Conduct training sessions for new ERP functionalities.	2025-03-05	2025-03-12	2025-03-20	\N	\N	\N	trainings
+PROJ-IPR-2025-2ace82	Department Workflow Optimization	Revise department workflow for efficiency improvements.	2025-03-07	2025-03-14	2025-03-22	\N	\N	\N	plans
+PROJ-IPR-2025-7d5787	Cybersecurity Enhancement	Implement new security measures in the ERP system.	2025-03-10	2025-03-18	2025-03-25	\N	\N	\N	changes
+PROJ-IPR-2025-198941	Compliance Training	Train employees on new regulatory compliance policies.	2025-03-12	2025-03-20	2025-03-28	\N	\N	\N	trainings
+PROJ-IPR-2025-10aa1d	Inventory Management Optimization	Redesign the inventory tracking system for better performance.	2025-03-15	2025-03-25	2025-04-01	\N	\N	\N	plans
+PROJ-IPR-2025-220cf9	Software Integration Plan	Integrate third-party applications with the ERP system.	2025-03-18	2025-03-27	2025-04-05	\N	\N	\N	changes
+PROJ-IPR-2025-212b19	Leadership Training	Conduct leadership workshops for department managers.	2025-03-20	2025-03-30	2025-04-10	\N	\N	\N	trainings
+PROJ-IPR-2025-49b674	HR Policy Review	Analyze and update HR policies in accordance with new labor laws.	2025-03-22	2025-04-01	2025-04-08	\N	\N	\N	plans
+PROJ-IPR-2025-3dfdde	IT Infrastructure Upgrade	Upgrade servers and network infrastructure for better performance.	2025-03-25	2025-04-05	2025-04-12	\N	\N	\N	changes
+PROJ-IPR-2025-47376a	ERP System Upgrade	Upgrade the ERP system to improve performance and security.	2025-03-01	2025-03-10	2025-03-15	\N	\N	\N	plans
+PROJ-IPR-2025-92fc2c	New Compliance Training	Conduct training sessions for new regulatory compliance.	2025-03-05	2025-03-15	2025-03-20	\N	\N	\N	trainings
+PROJ-IPR-2025-b20207	Inventory Management Overhaul	Redesign inventory tracking processes.	2025-03-10	2025-03-20	2025-03-25	\N	\N	\N	changes
+PROJ-IPR-2025-228e1b	Cybersecurity Enhancement	Implement additional security protocols.	2025-03-12	2025-03-22	2025-03-30	\N	\N	\N	plans
+PROJ-IPR-2025-0fb7ad	Employee Onboarding Program	Develop a structured onboarding process.	2025-03-15	2025-03-25	2025-04-01	\N	\N	\N	trainings
+PROJ-IPR-2025-eb1f21	New Module Development	Add a new project tracking module.	2025-03-18	2025-03-28	2025-04-05	\N	\N	\N	changes
+PROJ-IPR-2025-d796cb	Medical Equipment Maintenance Plan	Create a preventive maintenance schedule.	2025-03-20	2025-03-30	2025-04-10	\N	\N	\N	plans
+PROJ-IPR-2025-09c538	Customer Support Training	Enhance training for customer support staff.	2025-03-22	2025-04-01	2025-04-12	\N	\N	\N	trainings
+PROJ-IPR-2025-e8d751	Data Migration Strategy	Plan for migrating legacy data to the new system.	2025-03-25	2025-04-05	2025-04-15	\N	\N	\N	plans
+PROJ-IPR-2025-2c76d6	Compliance Audit Preparation	Prepare for an external compliance audit.	2025-03-28	2025-04-08	2025-04-20	\N	\N	\N	changes
 \.
 
 
@@ -6635,7 +8974,53 @@ COPY project_management.internal_project_request (project_request_id, project_na
 -- Data for Name: internal_project_task_list; Type: TABLE DATA; Schema: project_management; Owner: postgres
 --
 
-COPY project_management.internal_project_task_list (intrnl_task_id, intrnl_project_id, intrnl_task_description, intrnl_task_status, intrnl_task_deadline, employee_id) FROM stdin;
+COPY project_management.internal_project_task_list (intrnl_task_id, intrnl_project_id, intrnl_task_description, intrnl_task_status, intrnl_task_deadline, intrnl_project_labor_id) FROM stdin;
+PROJ-IPT-2025-04c6c1	\N	Gather requirements for ERP upgrade	in_progress	2025-04-15	\N
+PROJ-IPT-2025-a9dcc8	\N	Review security patches	pending	2025-04-20	\N
+PROJ-IPT-2025-eb2110	\N	Schedule training sessions	in_progress	2025-04-10	\N
+PROJ-IPT-2025-025a92	\N	Prepare training materials	completed	2025-03-30	\N
+PROJ-IPT-2025-581d51	\N	Analyze current workflow	completed	2025-03-15	\N
+PROJ-IPT-2025-d0b00c	\N	Develop cybersecurity guidelines	in_progress	2025-04-25	\N
+PROJ-IPT-2025-29607f	\N	Implement firewall upgrades	pending	2025-05-10	\N
+PROJ-IPT-2025-dc7d97	\N	Prepare compliance training module	completed	2025-03-28	\N
+PROJ-IPT-2025-a32d0e	\N	Revise inventory tracking system	pending	2025-05-01	\N
+PROJ-IPT-2025-954f51	\N	Evaluate third-party integrations	in_progress	2025-05-05	\N
+PROJ-IPT-2025-7e8b8d	\N	Organize leadership workshops	completed	2025-04-08	\N
+PROJ-IPT-2025-beb857	\N	Update HR policies	pending	2025-04-12	\N
+PROJ-IPT-2025-7afcb8	\N	Upgrade IT infrastructure	in_progress	2025-06-01	\N
+PROJ-IPT-2025-33e3a0	\N	Gather requirements from department heads.	pending	2025-04-10	\N
+PROJ-IPT-2025-8f747d	\N	Develop training materials for new ERP users.	in_progress	2025-04-15	\N
+PROJ-IPT-2025-b82ffb	\N	Conduct initial cybersecurity risk assessment.	pending	2025-04-20	\N
+PROJ-IPT-2025-48a057	\N	Review current inventory tracking methods.	in_progress	2025-04-25	\N
+PROJ-IPT-2025-a5db63	\N	Perform software testing on the upgraded module.	pending	2025-05-01	\N
+PROJ-IPT-2025-7bbb1e	\N	Create compliance checklist for upcoming audit.	completed	2025-05-05	\N
+PROJ-IPT-2025-0ef08f	\N	Schedule system migration meeting with IT team.	canceled	2025-05-10	\N
+PROJ-IPT-2025-4b755e	\N	Finalize new employee onboarding process.	in_progress	2025-05-15	\N
+PROJ-IPT-2025-0300fd	\N	Develop data backup strategy before migration.	pending	2025-05-20	\N
+PROJ-IPT-2025-53eb50	\N	Implement new customer support workflow.	completed	2025-05-25	\N
+PROJ-IPT-2025-491435	\N	Gather requirements for ERP upgrade	in_progress	2025-04-15	\N
+PROJ-IPT-2025-ff20e8	\N	Review security patches	pending	2025-04-20	\N
+PROJ-IPT-2025-dd4110	\N	Schedule training sessions	in_progress	2025-04-10	\N
+PROJ-IPT-2025-9b4b13	\N	Prepare training materials	completed	2025-03-30	\N
+PROJ-IPT-2025-a8c56e	\N	Analyze current workflow	completed	2025-03-15	\N
+PROJ-IPT-2025-d96bcf	\N	Develop cybersecurity guidelines	in_progress	2025-04-25	\N
+PROJ-IPT-2025-d9175a	\N	Implement firewall upgrades	pending	2025-05-10	\N
+PROJ-IPT-2025-6f09a9	\N	Prepare compliance training module	completed	2025-03-28	\N
+PROJ-IPT-2025-e60b6b	\N	Revise inventory tracking system	pending	2025-05-01	\N
+PROJ-IPT-2025-da6d56	\N	Evaluate third-party integrations	in_progress	2025-05-05	\N
+PROJ-IPT-2025-8c6e24	\N	Organize leadership workshops	completed	2025-04-08	\N
+PROJ-IPT-2025-44658d	\N	Update HR policies	pending	2025-04-12	\N
+PROJ-IPT-2025-b21d69	\N	Upgrade IT infrastructure	in_progress	2025-06-01	\N
+PROJ-IPT-2025-2049ca	\N	Gather requirements from department heads.	pending	2025-04-10	\N
+PROJ-IPT-2025-673346	\N	Develop training materials for new ERP users.	in_progress	2025-04-15	\N
+PROJ-IPT-2025-ac42de	\N	Conduct initial cybersecurity risk assessment.	pending	2025-04-20	\N
+PROJ-IPT-2025-f6995b	\N	Review current inventory tracking methods.	in_progress	2025-04-25	\N
+PROJ-IPT-2025-38b6e6	\N	Perform software testing on the upgraded module.	pending	2025-05-01	\N
+PROJ-IPT-2025-9050ef	\N	Create compliance checklist for upcoming audit.	completed	2025-05-05	\N
+PROJ-IPT-2025-2c6e18	\N	Schedule system migration meeting with IT team.	canceled	2025-05-10	\N
+PROJ-IPT-2025-fb3141	\N	Finalize new employee onboarding process.	in_progress	2025-05-15	\N
+PROJ-IPT-2025-0a91b1	\N	Develop data backup strategy before migration.	pending	2025-05-20	\N
+PROJ-IPT-2025-1ae492	\N	Implement new customer support workflow.	completed	2025-05-25	\N
 \.
 
 
@@ -6644,6 +9029,46 @@ COPY project_management.internal_project_task_list (intrnl_task_id, intrnl_proje
 --
 
 COPY project_management.internal_project_tracking (intrnl_project_tracking_id, intrnl_project_id, intrnl_start_date, intrnl_estimated_end_date, intrnl_project_issue) FROM stdin;
+PROJ-IPT-2025-41d75c	\N	2025-04-01	2025-06-01	\N
+PROJ-IPT-2025-e0f474	\N	2025-03-15	2025-05-20	Delayed due to scheduling conflicts
+PROJ-IPT-2025-e1d649	\N	2025-02-10	2025-03-30	\N
+PROJ-IPT-2025-70b6f7	\N	2025-03-20	2025-06-15	Technical issue with implementation
+PROJ-IPT-2025-29c4e4	\N	2025-04-05	2025-06-10	\N
+PROJ-IPT-2025-e3ad7e	\N	2025-01-25	2025-03-01	\N
+PROJ-IPT-2025-9462ed	\N	2025-03-18	2025-05-12	Resource allocation issue
+PROJ-IPT-2025-665b56	\N	2025-04-10	2025-07-01	\N
+PROJ-IPT-2025-c930c0	\N	2025-02-28	2025-04-15	Revisions needed in project scope
+PROJ-IPT-2025-0b82b2	\N	2025-03-25	2025-06-05	\N
+PROJ-IPT-2025-f46e51	\N	2025-04-01	2025-05-15	\N
+PROJ-IPT-2025-a0c290	\N	2025-04-05	2025-06-01	Resource allocation conflict
+PROJ-IPT-2025-3005da	\N	2025-04-10	2025-05-25	\N
+PROJ-IPT-2025-ec7c6a	\N	2025-04-15	2025-06-10	Delay in software implementation
+PROJ-IPT-2025-54a73f	\N	2025-04-20	2025-06-15	\N
+PROJ-IPT-2025-b04a7f	\N	2025-04-25	2025-06-20	Pending final approval
+PROJ-IPT-2025-9371ab	\N	2025-05-01	2025-06-30	\N
+PROJ-IPT-2025-27d796	\N	2025-05-05	2025-07-10	System testing required additional time
+PROJ-IPT-2025-6d2c41	\N	2025-05-10	2025-07-15	\N
+PROJ-IPT-2025-a4df5a	\N	2025-05-15	2025-07-20	Unexpected technical challenges
+PROJ-IPT-2025-b67fab	\N	2025-04-01	2025-06-01	\N
+PROJ-IPT-2025-48eefe	\N	2025-03-15	2025-05-20	Delayed due to scheduling conflicts
+PROJ-IPT-2025-569026	\N	2025-02-10	2025-03-30	\N
+PROJ-IPT-2025-9a5bb7	\N	2025-03-20	2025-06-15	Technical issue with implementation
+PROJ-IPT-2025-583902	\N	2025-04-05	2025-06-10	\N
+PROJ-IPT-2025-9fa084	\N	2025-01-25	2025-03-01	\N
+PROJ-IPT-2025-7556a1	\N	2025-03-18	2025-05-12	Resource allocation issue
+PROJ-IPT-2025-8d35db	\N	2025-04-10	2025-07-01	\N
+PROJ-IPT-2025-e1f440	\N	2025-02-28	2025-04-15	Revisions needed in project scope
+PROJ-IPT-2025-d2cb71	\N	2025-03-25	2025-06-05	\N
+PROJ-IPT-2025-a5b7d7	\N	2025-04-01	2025-05-15	\N
+PROJ-IPT-2025-7e395e	\N	2025-04-05	2025-06-01	Resource allocation conflict
+PROJ-IPT-2025-7d454d	\N	2025-04-10	2025-05-25	\N
+PROJ-IPT-2025-6799fb	\N	2025-04-15	2025-06-10	Delay in software implementation
+PROJ-IPT-2025-98aa5a	\N	2025-04-20	2025-06-15	\N
+PROJ-IPT-2025-395105	\N	2025-04-25	2025-06-20	Pending final approval
+PROJ-IPT-2025-a04e97	\N	2025-05-01	2025-06-30	\N
+PROJ-IPT-2025-c2c3e0	\N	2025-05-05	2025-07-10	System testing required additional time
+PROJ-IPT-2025-2201bf	\N	2025-05-10	2025-07-15	\N
+PROJ-IPT-2025-2287d9	\N	2025-05-15	2025-07-20	Unexpected technical challenges
 \.
 
 
@@ -6668,98 +9093,30 @@ COPY public.auth_group_permissions (id, group_id, permission_id) FROM stdin;
 --
 
 COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
-1	Can add permission	1	add_permission
-2	Can change permission	1	change_permission
-3	Can delete permission	1	delete_permission
-4	Can view permission	1	view_permission
-5	Can add group	2	add_group
-6	Can change group	2	change_group
-7	Can delete group	2	delete_group
-8	Can view group	2	view_group
-9	Can add user	3	add_user
-10	Can change user	3	change_user
-11	Can delete user	3	delete_user
-12	Can view user	3	view_user
-13	Can add content type	4	add_contenttype
-14	Can change content type	4	change_contenttype
-15	Can delete content type	4	delete_contenttype
-16	Can view content type	4	view_contenttype
-17	Can add session	5	add_session
-18	Can change session	5	change_session
-19	Can delete session	5	delete_session
-20	Can view session	5	view_session
-21	Can add log entry	6	add_logentry
-22	Can change log entry	6	change_logentry
-23	Can delete log entry	6	delete_logentry
-24	Can view log entry	6	view_logentry
-25	Can add blanket agreement	8	add_blanketagreement
-26	Can change blanket agreement	8	change_blanketagreement
-27	Can delete blanket agreement	8	delete_blanketagreement
-28	Can view blanket agreement	8	view_blanketagreement
-29	Can add sales costing	9	add_salescosting
-30	Can change sales costing	9	change_salescosting
-31	Can delete sales costing	9	delete_salescosting
-32	Can view sales costing	9	view_salescosting
-33	Can add campaigns	10	add_campaigns
-34	Can change campaigns	10	change_campaigns
-35	Can delete campaigns	10	delete_campaigns
-36	Can view campaigns	10	view_campaigns
-37	Can add leads	11	add_leads
-38	Can change leads	11	change_leads
-39	Can delete leads	11	delete_leads
-40	Can view leads	11	view_leads
-41	Can add campaign contacts	12	add_campaigncontacts
-42	Can change campaign contacts	12	change_campaigncontacts
-43	Can delete campaign contacts	12	delete_campaigncontacts
-44	Can view campaign contacts	12	view_campaigncontacts
-45	Can add opportunities	13	add_opportunities
-46	Can change opportunities	13	change_opportunities
-47	Can delete opportunities	13	delete_opportunities
-48	Can view opportunities	13	view_opportunities
-49	Can add ticket	14	add_ticket
-50	Can change ticket	14	change_ticket
-51	Can delete ticket	14	delete_ticket
-52	Can view ticket	14	view_ticket
-53	Can add ticket convo	15	add_ticketconvo
-54	Can change ticket convo	15	change_ticketconvo
-55	Can delete ticket convo	15	delete_ticketconvo
-56	Can view ticket convo	15	view_ticketconvo
-57	Can add customer	16	add_customer
-58	Can change customer	16	change_customer
-59	Can delete customer	16	delete_customer
-60	Can view customer	16	view_customer
-61	Can add shipping details	17	add_shippingdetails
-62	Can change shipping details	17	change_shippingdetails
-63	Can delete shipping details	17	delete_shippingdetails
-64	Can view shipping details	17	view_shippingdetails
-65	Can add sales invoices	18	add_salesinvoices
-66	Can change sales invoices	18	change_salesinvoices
-67	Can delete sales invoices	18	delete_salesinvoices
-68	Can view sales invoices	18	view_salesinvoices
-69	Can add order	19	add_order
-70	Can change order	19	change_order
-71	Can delete order	19	delete_order
-72	Can view order	19	view_order
-73	Can add quotation	20	add_quotation
-74	Can change quotation	20	change_quotation
-75	Can delete quotation	20	delete_quotation
-76	Can view quotation	20	view_quotation
-77	Can add statement	21	add_statement
-78	Can change statement	21	change_statement
-79	Can delete statement	21	delete_statement
-80	Can view statement	21	view_statement
-81	Can add statement item	7	add_statementitem
-82	Can change statement item	7	change_statementitem
-83	Can delete statement item	7	delete_statementitem
-84	Can view statement item	7	view_statementitem
-85	Can add payments	25	add_payments
-86	Can change payments	25	change_payments
-87	Can delete payments	25	delete_payments
-88	Can view payments	25	view_payments
-89	Can add receipt	26	add_receipt
-90	Can change receipt	26	change_receipt
-91	Can delete receipt	26	delete_receipt
-92	Can view receipt	26	view_receipt
+1	Can add log entry	1	add_logentry
+2	Can change log entry	1	change_logentry
+3	Can delete log entry	1	delete_logentry
+4	Can view log entry	1	view_logentry
+5	Can add permission	2	add_permission
+6	Can change permission	2	change_permission
+7	Can delete permission	2	delete_permission
+8	Can view permission	2	view_permission
+9	Can add group	3	add_group
+10	Can change group	3	change_group
+11	Can delete group	3	delete_group
+12	Can view group	3	view_group
+13	Can add user	4	add_user
+14	Can change user	4	change_user
+15	Can delete user	4	delete_user
+16	Can view user	4	view_user
+17	Can add content type	5	add_contenttype
+18	Can change content type	5	change_contenttype
+19	Can delete content type	5	delete_contenttype
+20	Can view content type	5	view_contenttype
+21	Can add session	6	add_session
+22	Can change session	6	change_session
+23	Can delete session	6	delete_session
+24	Can view session	6	view_session
 \.
 
 
@@ -6768,7 +9125,7 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
-1	pbkdf2_sha256$870000$1SUH5uhi1c8c1TQ3n0wr7u$hqwmH9tEAsqzGlFyXcrHB9tsqIxMnwfbFu9d2uZpXiI=	2025-03-22 15:43:24.696383+08	t	admin				t	t	2025-03-22 01:31:07.652069+08
+1	pbkdf2_sha256$870000$BVWDrj0ben2jpSa5hGO3le$AilXZyh322cdBNiubvkxSKcIe5Uya/t+Cyauq7ORl+c=	2025-03-23 10:21:05.745121+08	t	admin				t	t	2025-03-23 10:20:22.003192+08
 \.
 
 
@@ -6793,222 +9150,143 @@ COPY public.auth_user_user_permissions (id, user_id, permission_id) FROM stdin;
 --
 
 COPY public.django_admin_log (id, action_time, object_id, object_repr, action_flag, change_message, content_type_id, user_id) FROM stdin;
-1	2025-03-22 01:37:10.366265+08	SALES-QT-2025-640e87	Quotation object (SALES-QT-2025-640e87)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-2	2025-03-22 01:37:15.218201+08	SALES-QT-2025-6ab1ab	Quotation object (SALES-QT-2025-6ab1ab)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-3	2025-03-22 01:37:18.91358+08	SALES-QT-2025-9f9e0a	Quotation object (SALES-QT-2025-9f9e0a)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-4	2025-03-22 01:37:23.258041+08	SALES-QT-2025-a23d37	Quotation object (SALES-QT-2025-a23d37)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-5	2025-03-22 01:37:30.124389+08	SALES-QT-2025-c45dbc	Quotation object (SALES-QT-2025-c45dbc)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-6	2025-03-22 01:37:36.194919+08	SALES-QT-2025-cd75f0	Quotation object (SALES-QT-2025-cd75f0)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-7	2025-03-22 01:37:45.334043+08	SALES-QT-2025-d3f461	Quotation object (SALES-QT-2025-d3f461)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-8	2025-03-22 01:37:49.792446+08	SALES-QT-2025-d57143	Quotation object (SALES-QT-2025-d57143)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-9	2025-03-22 01:37:53.297009+08	SALES-QT-2025-d5d1e7	Quotation object (SALES-QT-2025-d5d1e7)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-10	2025-03-22 01:37:56.763286+08	SALES-QT-2025-f1469f	Quotation object (SALES-QT-2025-f1469f)	2	[{"changed": {"fields": ["Statement"]}}]	20	1
-11	2025-03-22 01:38:12.42929+08	SALES-STI-2025-fa61e8	StatementItem object (SALES-STI-2025-fa61e8)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-12	2025-03-22 01:38:20.929452+08	SALES-STI-2025-fa61e8	StatementItem object (SALES-STI-2025-fa61e8)	2	[{"changed": {"fields": ["Statement"]}}]	7	1
-13	2025-03-22 01:38:26.020156+08	SALES-STI-2025-eeb086	StatementItem object (SALES-STI-2025-eeb086)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-14	2025-03-22 01:38:29.965055+08	SALES-STI-2025-d66c43	StatementItem object (SALES-STI-2025-d66c43)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-15	2025-03-22 01:38:34.033841+08	SALES-STI-2025-cee3fb	StatementItem object (SALES-STI-2025-cee3fb)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-16	2025-03-22 01:38:39.89074+08	SALES-STI-2025-19e80b	StatementItem object (SALES-STI-2025-19e80b)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-17	2025-03-22 01:38:43.510457+08	SALES-STI-2025-217edd	StatementItem object (SALES-STI-2025-217edd)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-18	2025-03-22 01:38:47.504213+08	SALES-STI-2025-29d6a9	StatementItem object (SALES-STI-2025-29d6a9)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-19	2025-03-22 01:38:51.454907+08	SALES-STI-2025-378a01	StatementItem object (SALES-STI-2025-378a01)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-20	2025-03-22 01:38:57.337582+08	SALES-STI-2025-3834ab	StatementItem object (SALES-STI-2025-3834ab)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-21	2025-03-22 01:39:06.183699+08	SALES-STI-2025-3ae348	StatementItem object (SALES-STI-2025-3ae348)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-22	2025-03-22 01:39:09.886098+08	SALES-STI-2025-3ae348	StatementItem object (SALES-STI-2025-3ae348)	2	[]	7	1
-23	2025-03-22 01:39:15.573697+08	SALES-STI-2025-4794e4	StatementItem object (SALES-STI-2025-4794e4)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-24	2025-03-22 01:39:19.907013+08	SALES-STI-2025-4794e4	StatementItem object (SALES-STI-2025-4794e4)	2	[]	7	1
-25	2025-03-22 01:39:26.023852+08	SALES-STI-2025-6db696	StatementItem object (SALES-STI-2025-6db696)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-26	2025-03-22 01:39:34.30619+08	SALES-STI-2025-9affb3	StatementItem object (SALES-STI-2025-9affb3)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-27	2025-03-22 01:39:39.523988+08	SALES-STI-2025-b3d86b	StatementItem object (SALES-STI-2025-b3d86b)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	7	1
-28	2025-03-22 01:39:47.46544+08	SALES-STI-2025-d66c43	StatementItem object (SALES-STI-2025-d66c43)	2	[]	7	1
-29	2025-03-22 01:40:23.40104+08	SALES-STI-2025-19e80b	StatementItem object (SALES-STI-2025-19e80b)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-30	2025-03-22 01:40:27.817036+08	SALES-STI-2025-217edd	StatementItem object (SALES-STI-2025-217edd)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-31	2025-03-22 01:40:32.378359+08	SALES-STI-2025-29d6a9	StatementItem object (SALES-STI-2025-29d6a9)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-32	2025-03-22 01:40:57.139663+08	SALES-STI-2025-378a01	StatementItem object (SALES-STI-2025-378a01)	2	[{"changed": {"fields": ["Statement"]}}]	7	1
-33	2025-03-22 01:41:12.96623+08	SALES-STI-2025-19e80b	StatementItem object (SALES-STI-2025-19e80b)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-34	2025-03-22 01:41:16.732299+08	SALES-STI-2025-217edd	StatementItem object (SALES-STI-2025-217edd)	2	[]	7	1
-35	2025-03-22 01:41:20.914288+08	SALES-STI-2025-29d6a9	StatementItem object (SALES-STI-2025-29d6a9)	2	[]	7	1
-36	2025-03-22 01:41:24.19196+08	SALES-STI-2025-378a01	StatementItem object (SALES-STI-2025-378a01)	2	[]	7	1
-37	2025-03-22 01:41:27.406257+08	SALES-STI-2025-3834ab	StatementItem object (SALES-STI-2025-3834ab)	2	[]	7	1
-38	2025-03-22 01:41:29.911558+08	SALES-STI-2025-4794e4	StatementItem object (SALES-STI-2025-4794e4)	2	[]	7	1
-39	2025-03-22 01:41:41.827907+08	SALES-STI-2025-19e80b	StatementItem object (SALES-STI-2025-19e80b)	2	[]	7	1
-40	2025-03-22 01:41:53.37407+08	SALES-STI-2025-217edd	StatementItem object (SALES-STI-2025-217edd)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-41	2025-03-22 01:42:09.168552+08	SALES-STI-2025-29d6a9	StatementItem object (SALES-STI-2025-29d6a9)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-42	2025-03-22 01:42:44.977361+08	SALES-STI-2025-3834ab	StatementItem object (SALES-STI-2025-3834ab)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-43	2025-03-22 01:42:53.111818+08	SALES-STI-2025-3ae348	StatementItem object (SALES-STI-2025-3ae348)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-44	2025-03-22 01:43:07.186032+08	SALES-STI-2025-4794e4	StatementItem object (SALES-STI-2025-4794e4)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-45	2025-03-22 01:43:14.76894+08	SALES-STI-2025-6db696	StatementItem object (SALES-STI-2025-6db696)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-46	2025-03-22 01:43:29.632473+08	SALES-STI-2025-9affb3	StatementItem object (SALES-STI-2025-9affb3)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-47	2025-03-22 01:43:47.106047+08	SALES-STI-2025-b3d86b	StatementItem object (SALES-STI-2025-b3d86b)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-48	2025-03-22 01:44:05.148289+08	SALES-STI-2025-cee3fb	StatementItem object (SALES-STI-2025-cee3fb)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-49	2025-03-22 01:44:19.052117+08	SALES-STI-2025-d66c43	StatementItem object (SALES-STI-2025-d66c43)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-50	2025-03-22 01:44:29.108655+08	SALES-STI-2025-eeb086	StatementItem object (SALES-STI-2025-eeb086)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-51	2025-03-22 01:44:44.733482+08	SALES-STI-2025-fa61e8	StatementItem object (SALES-STI-2025-fa61e8)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-52	2025-03-22 01:45:17.777921+08	SALES-STI-2025-378a01	StatementItem object (SALES-STI-2025-378a01)	2	[{"changed": {"fields": ["Product"]}}]	7	1
-53	2025-03-22 01:46:44.93864+08	SALES-ORD-2025-ee1ff2	Order object (SALES-ORD-2025-ee1ff2)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-54	2025-03-22 01:46:48.969102+08	SALES-ORD-2025-e150d2	Order object (SALES-ORD-2025-e150d2)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-55	2025-03-22 01:46:54.599595+08	SALES-ORD-2025-e0deca	Order object (SALES-ORD-2025-e0deca)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-56	2025-03-22 01:47:02.462389+08	SALES-ORD-2025-dc2b39	Order object (SALES-ORD-2025-dc2b39)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-57	2025-03-22 01:47:09.657981+08	SALES-ORD-2025-8a5f44	Order object (SALES-ORD-2025-8a5f44)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-58	2025-03-22 01:47:17.436836+08	SALES-ORD-2025-889575	Order object (SALES-ORD-2025-889575)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-59	2025-03-22 01:47:25.323082+08	SALES-ORD-2025-5ae409	Order object (SALES-ORD-2025-5ae409)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-60	2025-03-22 01:47:31.578685+08	SALES-ORD-2025-26f2f7	Order object (SALES-ORD-2025-26f2f7)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-61	2025-03-22 01:47:36.907181+08	SALES-ORD-2025-1722d3	Order object (SALES-ORD-2025-1722d3)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-62	2025-03-22 01:47:42.181822+08	SALES-ORD-2025-04a32f	Order object (SALES-ORD-2025-04a32f)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	19	1
-63	2025-03-22 15:00:39.936904+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-64	2025-03-22 15:01:27.447997+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-65	2025-03-22 15:01:45.933569+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-66	2025-03-22 15:02:02.426398+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-67	2025-03-22 15:02:26.846213+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-68	2025-03-22 15:02:46.930036+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-69	2025-03-22 15:03:08.81314+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-70	2025-03-22 15:03:31.432569+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-71	2025-03-22 15:03:58.330267+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-72	2025-03-22 15:04:19.032578+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-73	2025-03-22 15:28:42.570503+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-74	2025-03-22 15:29:19.668156+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-75	2025-03-22 15:29:54.986661+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-76	2025-03-22 15:30:21.31509+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-77	2025-03-22 15:30:51.055823+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-78	2025-03-22 15:31:31.541901+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-79	2025-03-22 15:32:00.684792+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-80	2025-03-22 15:32:29.396795+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-81	2025-03-22 15:32:53.120303+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-82	2025-03-22 15:33:18.788552+08	a	Campaigns object (a)	1	[{"added": {}}]	10	1
-83	2025-03-22 15:34:15.83503+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-84	2025-03-22 15:34:37.668223+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-85	2025-03-22 15:34:59.580035+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-86	2025-03-22 15:35:22.841044+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-87	2025-03-22 15:35:49.097813+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-88	2025-03-22 15:36:14.086945+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-89	2025-03-22 15:36:38.983131+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-90	2025-03-22 15:36:59.474231+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-91	2025-03-22 15:37:18.749874+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-92	2025-03-22 15:37:36.746605+08	a	Leads object (a)	1	[{"added": {}}]	11	1
-93	2025-03-22 15:37:55.246886+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-94	2025-03-22 15:38:16.53007+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-95	2025-03-22 15:38:35.156533+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-96	2025-03-22 15:39:12.811588+08	SALES-CONTACT-2025-05ef71	CampaignContacts object (SALES-CONTACT-2025-05ef71)	2	[]	12	1
-97	2025-03-22 15:39:25.44467+08	SALES-CONTACT-2025-8a5985	CampaignContacts object (SALES-CONTACT-2025-8a5985)	2	[{"changed": {"fields": ["Campaign", "Response status"]}}]	12	1
-98	2025-03-22 15:39:35.650302+08	SALES-CONTACT-2025-cee938	CampaignContacts object (SALES-CONTACT-2025-cee938)	2	[{"changed": {"fields": ["Lead", "Response status"]}}]	12	1
-99	2025-03-22 15:39:50.263493+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-100	2025-03-22 15:40:02.917705+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-101	2025-03-22 15:40:27.70812+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-102	2025-03-22 15:40:40.090387+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-103	2025-03-22 15:40:54.726247+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-104	2025-03-22 15:41:04.651334+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-105	2025-03-22 15:41:10.938705+08	a	CampaignContacts object (a)	1	[{"added": {}}]	12	1
-106	2025-03-22 15:46:46.638925+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-107	2025-03-22 15:47:32.061463+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-108	2025-03-22 15:47:48.431442+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-109	2025-03-22 15:48:16.362988+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-110	2025-03-22 15:48:22.178102+08	ADMIN-PARTNER-2025-3c2564	BusinessPartnerMaster object (ADMIN-PARTNER-2025-3c2564)	2	[{"changed": {"fields": ["Category"]}}]	23	1
-111	2025-03-22 15:48:24.913037+08	ADMIN-PARTNER-2025-3c2564	BusinessPartnerMaster object (ADMIN-PARTNER-2025-3c2564)	2	[]	23	1
-112	2025-03-22 15:48:30.224645+08	ADMIN-PARTNER-2025-95223d	BusinessPartnerMaster object (ADMIN-PARTNER-2025-95223d)	2	[{"changed": {"fields": ["Category"]}}]	23	1
-113	2025-03-22 15:48:35.000371+08	ADMIN-PARTNER-2025-adcdfc	BusinessPartnerMaster object (ADMIN-PARTNER-2025-adcdfc)	2	[{"changed": {"fields": ["Category"]}}]	23	1
-114	2025-03-22 15:48:41.656695+08	ADMIN-PARTNER-2025-afee8b	BusinessPartnerMaster object (ADMIN-PARTNER-2025-afee8b)	2	[{"changed": {"fields": ["Category"]}}]	23	1
-115	2025-03-22 15:48:44.719013+08	ADMIN-PARTNER-2025-95223d	BusinessPartnerMaster object (ADMIN-PARTNER-2025-95223d)	2	[]	23	1
-116	2025-03-22 15:48:48.427452+08	ADMIN-PARTNER-2025-adcdfc	BusinessPartnerMaster object (ADMIN-PARTNER-2025-adcdfc)	2	[]	23	1
-117	2025-03-22 15:49:10.664392+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-118	2025-03-22 15:49:26.288765+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-119	2025-03-22 15:49:41.620995+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-120	2025-03-22 15:49:56.969232+08	a	BusinessPartnerMaster object (a)	1	[{"added": {}}]	23	1
-121	2025-03-22 15:50:58.404157+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-122	2025-03-22 15:51:34.233174+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-123	2025-03-22 15:52:00.741656+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-124	2025-03-22 15:52:39.303759+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-125	2025-03-22 15:53:34.45473+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-126	2025-03-22 15:54:34.903816+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-127	2025-03-22 15:55:15.771363+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-128	2025-03-22 15:55:46.76954+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-129	2025-03-22 15:56:21.556113+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-130	2025-03-22 15:56:51.057739+08	a	Opportunities object (a)	1	[{"added": {}}]	13	1
-131	2025-03-22 15:57:23.825559+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-132	2025-03-22 15:57:47.251512+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-133	2025-03-22 15:58:06.620696+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-134	2025-03-22 15:58:35.278004+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-135	2025-03-22 15:58:59.004711+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-136	2025-03-22 15:59:26.677603+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-137	2025-03-22 15:59:50.76351+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-138	2025-03-22 16:00:09.030421+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-139	2025-03-22 16:00:33.671249+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-140	2025-03-22 16:00:54.532733+08	a	Ticket object (a)	1	[{"added": {}}]	14	1
-141	2025-03-22 16:01:09.080757+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-142	2025-03-22 16:01:18.532963+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-143	2025-03-22 16:01:24.427953+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-144	2025-03-22 16:01:33.342922+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-145	2025-03-22 16:01:41.008414+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-146	2025-03-22 16:01:49.525054+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-147	2025-03-22 16:01:57.02158+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-148	2025-03-22 16:02:06.363152+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-149	2025-03-22 16:02:16.208987+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-150	2025-03-22 16:02:26.564357+08	a	TicketConvo object (a)	1	[{"added": {}}]	15	1
-151	2025-03-22 16:09:18.768739+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-152	2025-03-22 16:09:41.184672+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-153	2025-03-22 16:09:52.960073+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-154	2025-03-22 16:10:05.054675+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-155	2025-03-22 16:10:12.950495+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-156	2025-03-22 16:10:20.554863+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-157	2025-03-22 16:10:32.019498+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-158	2025-03-22 16:10:42.51072+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-159	2025-03-22 16:10:52.151296+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-160	2025-03-22 16:11:04.959048+08	a	OperationalCost object (a)	1	[{"added": {}}]	27	1
-161	2025-03-22 16:12:46.546368+08	a	ShipmentDetails object (a)	1	[{"added": {}}]	28	1
-162	2025-03-22 16:13:57.995986+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-163	2025-03-22 16:14:19.741606+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-164	2025-03-22 16:14:49.061464+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-165	2025-03-22 16:15:20.043458+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-166	2025-03-22 16:15:53.359145+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-167	2025-03-22 16:16:37.496506+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-168	2025-03-22 16:17:09.154923+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-169	2025-03-22 16:17:46.034617+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-170	2025-03-22 16:18:18.27518+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-171	2025-03-22 16:18:45.29849+08	a	ShippingDetails object (a)	1	[{"added": {}}]	17	1
-172	2025-03-22 16:19:42.952074+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-173	2025-03-22 16:20:18.029828+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-174	2025-03-22 16:20:44.239733+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-175	2025-03-22 16:21:13.303567+08	SALES-ORD-2025-dc2b39	Order object (SALES-ORD-2025-dc2b39)	2	[]	19	1
-176	2025-03-22 16:21:20.424663+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-177	2025-03-22 16:21:59.378386+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-178	2025-03-22 16:22:22.418202+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-179	2025-03-22 16:22:39.337115+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-180	2025-03-22 16:23:04.986826+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-181	2025-03-22 16:23:24.249591+08	a	SalesInvoices object (a)	1	[{"added": {}}]	18	1
-182	2025-03-22 16:23:44.674099+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-183	2025-03-22 16:23:53.351921+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-184	2025-03-22 16:24:07.958499+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-185	2025-03-22 16:24:17.589669+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-186	2025-03-22 16:24:38.575038+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-187	2025-03-22 16:24:51.631785+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-188	2025-03-22 16:25:01.870759+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-189	2025-03-22 16:25:12.332845+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-190	2025-03-22 16:25:20.754386+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-191	2025-03-22 16:25:37.32174+08	a	Payments object (a)	1	[{"added": {}}]	25	1
-192	2025-03-22 16:26:49.523407+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-193	2025-03-22 16:27:15.079646+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-194	2025-03-22 16:27:33.545431+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-195	2025-03-22 16:27:54.050112+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-196	2025-03-22 16:28:13.622545+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-197	2025-03-22 16:28:33.747293+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-198	2025-03-22 16:28:54.948723+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-199	2025-03-22 16:29:12.592097+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-200	2025-03-22 16:29:31.392894+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-201	2025-03-22 16:30:42.369503+08	a	Receipt object (a)	1	[{"added": {}}]	26	1
-202	2025-03-22 17:13:09.37104+08	SALES-STM-2025-ee064d	Statement object (SALES-STM-2025-ee064d)	3		21	1
-203	2025-03-22 17:21:42.352277+08	SALES-STM-2025-ffb6c1	Statement object (SALES-STM-2025-ffb6c1)	3		21	1
-204	2025-03-22 17:22:08.864027+08	SALES-STM-2025-e2aaf8	Statement object (SALES-STM-2025-e2aaf8)	3		21	1
-205	2025-03-22 17:28:10.989724+08	SALES-STM-2025-ac5694	Statement object (SALES-STM-2025-ac5694)	3		21	1
-206	2025-03-22 17:54:05.216455+08	SALES-STM-2025-3ea420	Statement object (SALES-STM-2025-3ea420)	3		21	1
-207	2025-03-22 17:55:29.812749+08	SALES-STM-2025-e4c672	Statement object (SALES-STM-2025-e4c672)	3		21	1
-208	2025-03-22 17:55:52.458471+08	SALES-STM-2025-baa13c	Statement object (SALES-STM-2025-baa13c)	3		21	1
-209	2025-03-22 17:59:20.9113+08	SALES-STM-2025-200dc3	Statement object (SALES-STM-2025-200dc3)	3		21	1
-210	2025-03-22 18:22:40.652393+08	SALES-STM-2025-3453ca	Statement object (SALES-STM-2025-3453ca)	3		21	1
-211	2025-03-22 18:23:21.681491+08	SALES-STM-2025-94f5f8	Statement object (SALES-STM-2025-94f5f8)	3		21	1
-212	2025-03-22 18:34:22.271672+08	SALES-STM-2025-9097bb	Statement object (SALES-STM-2025-9097bb)	3		21	1
-213	2025-03-22 18:34:27.177563+08	SALES-STM-2025-64031e	Statement object (SALES-STM-2025-64031e)	3		21	1
-214	2025-03-22 18:41:17.933647+08	SALES-STM-2025-af4bfb	Statement object (SALES-STM-2025-af4bfb)	3		21	1
-215	2025-03-22 18:41:52.71887+08	SALES-STM-2025-151935	Statement object (SALES-STM-2025-151935)	3		21	1
-216	2025-03-22 18:58:29.067131+08	SALES-STM-2025-4e095d	Statement object (SALES-STM-2025-4e095d)	3		21	1
+1	2025-03-23 10:22:11.721088+08	a	Employees object (a)	1	[{"added": {}}]	8	1
+2	2025-03-23 10:22:36.341817+08	a	Employees object (a)	1	[{"added": {}}]	8	1
+3	2025-03-23 10:22:59.595285+08	a	Employees object (a)	1	[{"added": {}}]	8	1
+4	2025-03-23 10:23:29.895653+08	SALES-STM-2025-600a2f	Statement object (SALES-STM-2025-600a2f)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+5	2025-03-23 10:25:22.330213+08	SALES-STM-2025-0b7990	Statement object (SALES-STM-2025-0b7990)	3		7	1
+6	2025-03-23 10:25:48.401881+08	SALES-STM-2025-f6b7d0	Statement object (SALES-STM-2025-f6b7d0)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+7	2025-03-23 10:26:10.57867+08	SALES-STM-2025-f4b14f	Statement object (SALES-STM-2025-f4b14f)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+8	2025-03-23 10:26:15.89947+08	SALES-STM-2025-c86ce6	Statement object (SALES-STM-2025-c86ce6)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+9	2025-03-23 10:26:23.832793+08	SALES-STM-2025-b90b4b	Statement object (SALES-STM-2025-b90b4b)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+10	2025-03-23 10:26:42.508144+08	SALES-STM-2025-948f52	Statement object (SALES-STM-2025-948f52)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+11	2025-03-23 10:26:53.039773+08	SALES-STM-2025-91058d	Statement object (SALES-STM-2025-91058d)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+12	2025-03-23 10:27:03.834388+08	SALES-STM-2025-755417	Statement object (SALES-STM-2025-755417)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+13	2025-03-23 10:27:13.380064+08	SALES-STM-2025-6b1653	Statement object (SALES-STM-2025-6b1653)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+14	2025-03-23 10:27:23.078719+08	SALES-STM-2025-656095	Statement object (SALES-STM-2025-656095)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+15	2025-03-23 10:27:37.296938+08	SALES-STM-2025-5e569c	Statement object (SALES-STM-2025-5e569c)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+16	2025-03-23 10:28:00.993354+08	SALES-STM-2025-3acfef	Statement object (SALES-STM-2025-3acfef)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+17	2025-03-23 10:28:07.78895+08	SALES-STM-2025-f6b7d0	Statement object (SALES-STM-2025-f6b7d0)	2	[]	7	1
+18	2025-03-23 10:28:20.015375+08	SALES-STM-2025-35c700	Statement object (SALES-STM-2025-35c700)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+19	2025-03-23 10:28:28.991818+08	SALES-STM-2025-29deb9	Statement object (SALES-STM-2025-29deb9)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+20	2025-03-23 10:28:37.354117+08	SALES-STM-2025-16fb8a	Statement object (SALES-STM-2025-16fb8a)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+21	2025-03-23 10:28:44.734828+08	SALES-STM-2025-2cc7f2	Statement object (SALES-STM-2025-2cc7f2)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+22	2025-03-23 10:28:54.228684+08	SALES-STM-2025-21f5af	Statement object (SALES-STM-2025-21f5af)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+23	2025-03-23 10:28:59.520125+08	SALES-STM-2025-2879fa	Statement object (SALES-STM-2025-2879fa)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+24	2025-03-23 10:29:16.097332+08	SALES-STM-2025-2f3fae	Statement object (SALES-STM-2025-2f3fae)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+25	2025-03-23 10:31:45.520582+08	SALES-STM-2025-251924	Statement object (SALES-STM-2025-251924)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	7	1
+26	2025-03-23 10:34:52.063218+08	SALES-STI-2025-fc3bec	StatementItem object (SALES-STI-2025-fc3bec)	2	[{"changed": {"fields": ["Statement", "Product", "Unit price", "Total price", "Tax amount"]}}]	10	1
+27	2025-03-23 10:38:23.372563+08	SALES-STM-2025-600a2f	Statement object (SALES-STM-2025-600a2f)	2	[{"changed": {"fields": ["Total amount", "Total tax"]}}]	7	1
+28	2025-03-23 10:38:59.295724+08	SALES-STI-2025-fbdf4d	StatementItem object (SALES-STI-2025-fbdf4d)	2	[{"changed": {"fields": ["Statement", "Product", "Unit price", "Total price", "Tax amount"]}}]	10	1
+29	2025-03-23 10:40:17.5999+08	SALES-STM-2025-c86ce6	Statement object (SALES-STM-2025-c86ce6)	2	[{"changed": {"fields": ["Total amount", "Total tax"]}}]	7	1
+30	2025-03-23 10:40:19.076254+08	SALES-STI-2025-f090bb	StatementItem object (SALES-STI-2025-f090bb)	2	[{"changed": {"fields": ["Statement", "Product", "Unit price", "Total price", "Tax amount"]}}]	10	1
+31	2025-03-23 10:42:27.654465+08	SALES-QT-2025-e3b105	Quotation object (SALES-QT-2025-e3b105)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+32	2025-03-23 10:42:34.679951+08	SALES-QT-2025-e28d7b	Quotation object (SALES-QT-2025-e28d7b)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+33	2025-03-23 10:42:38.555004+08	SALES-QT-2025-e10427	Quotation object (SALES-QT-2025-e10427)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+34	2025-03-23 10:42:42.35509+08	SALES-QT-2025-ce21a5	Quotation object (SALES-QT-2025-ce21a5)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+35	2025-03-23 10:42:47.437324+08	SALES-QT-2025-cb1443	Quotation object (SALES-QT-2025-cb1443)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+36	2025-03-23 10:42:53.56785+08	SALES-QT-2025-c17685	Quotation object (SALES-QT-2025-c17685)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+37	2025-03-23 10:43:02.956558+08	SALES-QT-2025-bdf73c	Quotation object (SALES-QT-2025-bdf73c)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+38	2025-03-23 10:43:12.037761+08	SALES-QT-2025-95ce9c	Quotation object (SALES-QT-2025-95ce9c)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+39	2025-03-23 10:43:22.494012+08	SALES-QT-2025-81ca39	Quotation object (SALES-QT-2025-81ca39)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+40	2025-03-23 10:43:34.846425+08	SALES-QT-2025-6e0ca3	Quotation object (SALES-QT-2025-6e0ca3)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+41	2025-03-23 10:43:46.370595+08	SALES-QT-2025-67ceb9	Quotation object (SALES-QT-2025-67ceb9)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+42	2025-03-23 10:43:54.681623+08	SALES-QT-2025-63b7fd	Quotation object (SALES-QT-2025-63b7fd)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+43	2025-03-23 10:44:00.303913+08	SALES-QT-2025-47f791	Quotation object (SALES-QT-2025-47f791)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+44	2025-03-23 10:44:09.513706+08	SALES-QT-2025-454ae0	Quotation object (SALES-QT-2025-454ae0)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+45	2025-03-23 10:44:18.906489+08	SALES-QT-2025-439eea	Quotation object (SALES-QT-2025-439eea)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+46	2025-03-23 10:44:28.941388+08	SALES-QT-2025-374ab7	Quotation object (SALES-QT-2025-374ab7)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+47	2025-03-23 10:44:33.328713+08	SALES-QT-2025-319285	Quotation object (SALES-QT-2025-319285)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+48	2025-03-23 10:44:39.622388+08	SALES-QT-2025-2735c1	Quotation object (SALES-QT-2025-2735c1)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+49	2025-03-23 10:44:44.139106+08	SALES-QT-2025-12b112	Quotation object (SALES-QT-2025-12b112)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+50	2025-03-23 10:44:48.043558+08	SALES-QT-2025-0815c0	Quotation object (SALES-QT-2025-0815c0)	2	[{"changed": {"fields": ["Statement"]}}]	12	1
+51	2025-03-23 10:45:31.44856+08	SALES-STI-2025-ca65f6	StatementItem object (SALES-STI-2025-ca65f6)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+52	2025-03-23 10:46:36.269049+08	SALES-STI-2025-c956cf	StatementItem object (SALES-STI-2025-c956cf)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+53	2025-03-23 10:47:15.768646+08	SALES-STI-2025-b58f6a	StatementItem object (SALES-STI-2025-b58f6a)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+54	2025-03-23 10:49:05.087067+08	SALES-STI-2025-b0fa0b	StatementItem object (SALES-STI-2025-b0fa0b)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+55	2025-03-23 10:49:39.841041+08	SALES-STI-2025-a09a62	StatementItem object (SALES-STI-2025-a09a62)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+56	2025-03-23 10:49:55.570106+08	SALES-STI-2025-900021	StatementItem object (SALES-STI-2025-900021)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+57	2025-03-23 10:50:01.660603+08	SALES-STI-2025-87ad28	StatementItem object (SALES-STI-2025-87ad28)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+58	2025-03-23 10:50:14.851981+08	SALES-STI-2025-6e1e9d	StatementItem object (SALES-STI-2025-6e1e9d)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+59	2025-03-23 10:50:28.654138+08	SALES-STI-2025-525ef8	StatementItem object (SALES-STI-2025-525ef8)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+60	2025-03-23 10:50:39.419083+08	SALES-STI-2025-391666	StatementItem object (SALES-STI-2025-391666)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+61	2025-03-23 10:51:02.201617+08	SALES-STI-2025-2d5b9f	StatementItem object (SALES-STI-2025-2d5b9f)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+62	2025-03-23 10:51:12.911939+08	SALES-STI-2025-284852	StatementItem object (SALES-STI-2025-284852)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+63	2025-03-23 10:51:29.330463+08	SALES-STI-2025-262ddf	StatementItem object (SALES-STI-2025-262ddf)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+64	2025-03-23 10:51:44.360271+08	SALES-STI-2025-22397f	StatementItem object (SALES-STI-2025-22397f)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+65	2025-03-23 10:51:52.172439+08	SALES-STI-2025-151818	StatementItem object (SALES-STI-2025-151818)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+66	2025-03-23 10:52:00.193902+08	SALES-STI-2025-0501db	StatementItem object (SALES-STI-2025-0501db)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+67	2025-03-23 10:52:08.972891+08	SALES-STI-2025-0361bc	StatementItem object (SALES-STI-2025-0361bc)	2	[{"changed": {"fields": ["Statement", "Product"]}}]	10	1
+68	2025-03-23 10:53:26.476335+08	SALES-STI-2025-a09a62	StatementItem object (SALES-STI-2025-a09a62)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+69	2025-03-23 10:53:57.01336+08	SALES-STI-2025-900021	StatementItem object (SALES-STI-2025-900021)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+70	2025-03-23 10:54:53.161586+08	SALES-STI-2025-87ad28	StatementItem object (SALES-STI-2025-87ad28)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+71	2025-03-23 10:55:43.786496+08	SALES-STI-2025-284852	StatementItem object (SALES-STI-2025-284852)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+72	2025-03-23 10:56:04.531124+08	SALES-STI-2025-22397f	StatementItem object (SALES-STI-2025-22397f)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+73	2025-03-23 10:56:24.05938+08	SALES-STI-2025-151818	StatementItem object (SALES-STI-2025-151818)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+74	2025-03-23 10:56:50.747615+08	SALES-STI-2025-0501db	StatementItem object (SALES-STI-2025-0501db)	2	[{"changed": {"fields": ["Statement"]}}]	10	1
+75	2025-03-23 10:58:25.415812+08	SALES-ORD-2025-e16c9e	Order object (SALES-ORD-2025-e16c9e)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+76	2025-03-23 10:58:33.683575+08	SALES-ORD-2025-db9aae	Order object (SALES-ORD-2025-db9aae)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+77	2025-03-23 10:58:40.004732+08	SALES-ORD-2025-d91eeb	Order object (SALES-ORD-2025-d91eeb)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+78	2025-03-23 10:58:49.581937+08	SALES-ORD-2025-be90ee	Order object (SALES-ORD-2025-be90ee)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+79	2025-03-23 10:58:56.914546+08	SALES-ORD-2025-b59c3e	Order object (SALES-ORD-2025-b59c3e)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+80	2025-03-23 10:59:06.2243+08	SALES-ORD-2025-b4a34b	Order object (SALES-ORD-2025-b4a34b)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+81	2025-03-23 10:59:52.31336+08	SALES-ORD-2025-b1447a	Order object (SALES-ORD-2025-b1447a)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+82	2025-03-23 11:00:12.679004+08	SALES-ORD-2025-a4ac3c	Order object (SALES-ORD-2025-a4ac3c)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+83	2025-03-23 11:00:21.899368+08	SALES-ORD-2025-a4359c	Order object (SALES-ORD-2025-a4359c)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+84	2025-03-23 11:00:30.570836+08	SALES-ORD-2025-9b8c27	Order object (SALES-ORD-2025-9b8c27)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+85	2025-03-23 11:00:36.068191+08	SALES-ORD-2025-9b8c27	Order object (SALES-ORD-2025-9b8c27)	2	[]	13	1
+86	2025-03-23 11:00:44.844978+08	SALES-ORD-2025-52e0c9	Order object (SALES-ORD-2025-52e0c9)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+87	2025-03-23 11:00:53.054558+08	SALES-ORD-2025-4118c6	Order object (SALES-ORD-2025-4118c6)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+88	2025-03-23 11:01:03.707079+08	SALES-ORD-2025-4109ce	Order object (SALES-ORD-2025-4109ce)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+89	2025-03-23 11:01:13.937395+08	SALES-ORD-2025-2bacb2	Order object (SALES-ORD-2025-2bacb2)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+90	2025-03-23 11:01:33.061534+08	SALES-ORD-2025-1fe99b	Order object (SALES-ORD-2025-1fe99b)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+91	2025-03-23 11:02:25.609526+08	SALES-ORD-2025-104654	Order object (SALES-ORD-2025-104654)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+92	2025-03-23 11:02:36.999076+08	SALES-ORD-2025-096d13	Order object (SALES-ORD-2025-096d13)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+93	2025-03-23 11:02:48.249297+08	SALES-ORD-2025-062e11	Order object (SALES-ORD-2025-062e11)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+94	2025-03-23 11:02:58.86841+08	SALES-ORD-2025-0479e3	Order object (SALES-ORD-2025-0479e3)	2	[{"changed": {"fields": ["Quotation", "Statement"]}}]	13	1
+95	2025-03-23 11:18:15.674313+08	SALES-STM-2025-16fb8a	Statement object (SALES-STM-2025-16fb8a)	2	[]	7	1
+96	2025-03-23 11:47:27.773857+08	SALES-AGRMNT-2025-f91ef4	BlanketAgreement object (SALES-AGRMNT-2025-f91ef4)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+97	2025-03-23 11:47:33.244723+08	SALES-AGRMNT-2025-f81d25	BlanketAgreement object (SALES-AGRMNT-2025-f81d25)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+98	2025-03-23 11:47:37.310803+08	SALES-AGRMNT-2025-f49f2f	BlanketAgreement object (SALES-AGRMNT-2025-f49f2f)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+99	2025-03-23 11:47:42.324289+08	SALES-AGRMNT-2025-f1b357	BlanketAgreement object (SALES-AGRMNT-2025-f1b357)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+100	2025-03-23 11:47:48.669081+08	SALES-AGRMNT-2025-f1b357	BlanketAgreement object (SALES-AGRMNT-2025-f1b357)	2	[]	14	1
+101	2025-03-23 11:47:53.367404+08	SALES-AGRMNT-2025-8efc83	BlanketAgreement object (SALES-AGRMNT-2025-8efc83)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+102	2025-03-23 11:48:00.302785+08	SALES-AGRMNT-2025-8abd25	BlanketAgreement object (SALES-AGRMNT-2025-8abd25)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+103	2025-03-23 11:48:08.394089+08	SALES-AGRMNT-2025-7efbf7	BlanketAgreement object (SALES-AGRMNT-2025-7efbf7)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+104	2025-03-23 11:48:14.751705+08	SALES-AGRMNT-2025-7368b1	BlanketAgreement object (SALES-AGRMNT-2025-7368b1)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+105	2025-03-23 11:48:19.683726+08	SALES-AGRMNT-2025-71cc89	BlanketAgreement object (SALES-AGRMNT-2025-71cc89)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+106	2025-03-23 11:48:26.569143+08	SALES-AGRMNT-2025-6c299a	BlanketAgreement object (SALES-AGRMNT-2025-6c299a)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+107	2025-03-23 11:48:32.930945+08	SALES-AGRMNT-2025-4212de	BlanketAgreement object (SALES-AGRMNT-2025-4212de)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+108	2025-03-23 11:48:37.941103+08	SALES-AGRMNT-2025-3b909d	BlanketAgreement object (SALES-AGRMNT-2025-3b909d)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+109	2025-03-23 11:48:43.1974+08	SALES-AGRMNT-2025-3aa3bf	BlanketAgreement object (SALES-AGRMNT-2025-3aa3bf)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+110	2025-03-23 11:48:49.402147+08	SALES-AGRMNT-2025-21bea4	BlanketAgreement object (SALES-AGRMNT-2025-21bea4)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+111	2025-03-23 11:48:58.295855+08	SALES-AGRMNT-2025-216957	BlanketAgreement object (SALES-AGRMNT-2025-216957)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+112	2025-03-23 11:49:05.384083+08	SALES-AGRMNT-2025-1a2def	BlanketAgreement object (SALES-AGRMNT-2025-1a2def)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+113	2025-03-23 11:49:14.68016+08	SALES-AGRMNT-2025-0f4ab6	BlanketAgreement object (SALES-AGRMNT-2025-0f4ab6)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+114	2025-03-23 11:49:24.628253+08	SALES-AGRMNT-2025-0ed260	BlanketAgreement object (SALES-AGRMNT-2025-0ed260)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+115	2025-03-23 11:49:32.112155+08	SALES-AGRMNT-2025-0cd5ff	BlanketAgreement object (SALES-AGRMNT-2025-0cd5ff)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+116	2025-03-23 11:49:36.560038+08	SALES-AGRMNT-2025-028745	BlanketAgreement object (SALES-AGRMNT-2025-028745)	2	[{"changed": {"fields": ["Statement"]}}]	14	1
+117	2025-03-23 12:08:15.774888+08	SALES-ORD-2025-9137d5	Order object (SALES-ORD-2025-9137d5)	2	[{"changed": {"fields": ["Statement"]}}]	13	1
+118	2025-03-23 12:13:30.873845+08	SALES-INV-2025-f79370	SalesInvoices object (SALES-INV-2025-f79370)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+119	2025-03-23 12:13:34.288722+08	SALES-INV-2025-f2bf0c	SalesInvoices object (SALES-INV-2025-f2bf0c)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+120	2025-03-23 12:13:39.067702+08	SALES-INV-2025-f2116f	SalesInvoices object (SALES-INV-2025-f2116f)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+121	2025-03-23 12:13:42.947343+08	SALES-INV-2025-e8b3f2	SalesInvoices object (SALES-INV-2025-e8b3f2)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+122	2025-03-23 12:13:48.812216+08	SALES-INV-2025-e37fbb	SalesInvoices object (SALES-INV-2025-e37fbb)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+123	2025-03-23 12:13:53.7136+08	SALES-INV-2025-e10c51	SalesInvoices object (SALES-INV-2025-e10c51)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+124	2025-03-23 12:13:58.810269+08	SALES-INV-2025-bba042	SalesInvoices object (SALES-INV-2025-bba042)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+125	2025-03-23 12:14:05.351853+08	SALES-INV-2025-b2442e	SalesInvoices object (SALES-INV-2025-b2442e)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+126	2025-03-23 12:14:11.620565+08	SALES-INV-2025-a444d2	SalesInvoices object (SALES-INV-2025-a444d2)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+127	2025-03-23 12:14:29.947059+08	SALES-INV-2025-93089c	SalesInvoices object (SALES-INV-2025-93089c)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+128	2025-03-23 12:14:40.192689+08	SALES-INV-2025-89a7db	SalesInvoices object (SALES-INV-2025-89a7db)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+129	2025-03-23 12:14:45.962635+08	SALES-INV-2025-6dafee	SalesInvoices object (SALES-INV-2025-6dafee)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+130	2025-03-23 12:14:51.696303+08	SALES-INV-2025-50b82f	SalesInvoices object (SALES-INV-2025-50b82f)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+131	2025-03-23 12:14:55.783658+08	SALES-INV-2025-4d9b44	SalesInvoices object (SALES-INV-2025-4d9b44)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+132	2025-03-23 12:15:00.827926+08	SALES-INV-2025-332d0b	SalesInvoices object (SALES-INV-2025-332d0b)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+133	2025-03-23 12:15:06.566609+08	SALES-INV-2025-2e3617	SalesInvoices object (SALES-INV-2025-2e3617)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+134	2025-03-23 12:15:12.663094+08	SALES-INV-2025-17475a	SalesInvoices object (SALES-INV-2025-17475a)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+135	2025-03-23 12:15:18.172016+08	SALES-INV-2025-1377a6	SalesInvoices object (SALES-INV-2025-1377a6)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+136	2025-03-23 12:15:29.215766+08	SALES-INV-2025-13772d	SalesInvoices object (SALES-INV-2025-13772d)	2	[{"changed": {"fields": ["Order"]}}]	15	1
+137	2025-03-23 12:15:37.195347+08	SALES-INV-2025-00a822	SalesInvoices object (SALES-INV-2025-00a822)	2	[{"changed": {"fields": ["Order"]}}]	15	1
 \.
 
 
@@ -7017,34 +9295,21 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 --
 
 COPY public.django_content_type (id, app_label, model) FROM stdin;
-1	auth	permission
-2	auth	group
-3	auth	user
-4	contenttypes	contenttype
-5	sessions	session
-6	admin	logentry
-7	statement	statementitem
-8	agreement	blanketagreement
-9	costing	salescosting
-10	CRM	campaigns
-11	CRM	leads
-12	CRM	campaigncontacts
-13	CRM	opportunities
-14	CRM	ticket
-15	CRM	ticketconvo
-16	customer	customer
-17	delivery	shippingdetails
-18	invoice	salesinvoices
-19	order	order
-20	quotation	quotation
-21	statement	statement
-22	misc	products
-23	misc	businesspartnermaster
-24	misc	employees
-25	invoice	payments
-26	invoice	receipt
-27	misc	operationalcost
-28	misc	shipmentdetails
+1	admin	logentry
+2	auth	permission
+3	auth	group
+4	auth	user
+5	contenttypes	contenttype
+6	sessions	session
+7	statement	statement
+8	misc	employees
+9	misc	departments
+10	statement	statementitem
+11	misc	products
+12	quotation	quotation
+13	order	order
+14	agreement	blanketagreement
+15	invoice	salesinvoices
 \.
 
 
@@ -7053,47 +9318,24 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 --
 
 COPY public.django_migrations (id, app, name, applied) FROM stdin;
-1	misc	0001_initial	2025-03-22 01:26:56.678373+08
-2	contenttypes	0001_initial	2025-03-22 01:29:06.589114+08
-3	auth	0001_initial	2025-03-22 01:29:06.635629+08
-4	contenttypes	0002_remove_content_type_name	2025-03-22 01:29:06.660729+08
-5	auth	0002_alter_permission_name_max_length	2025-03-22 01:29:06.667054+08
-6	auth	0003_alter_user_email_max_length	2025-03-22 01:29:06.673056+08
-7	auth	0004_alter_user_username_opts	2025-03-22 01:29:06.678247+08
-8	auth	0005_alter_user_last_login_null	2025-03-22 01:29:06.6845+08
-9	auth	0006_require_contenttypes_0002	2025-03-22 01:29:06.685501+08
-10	auth	0007_alter_validators_add_error_messages	2025-03-22 01:29:06.690598+08
-11	auth	0008_alter_user_username_max_length	2025-03-22 01:29:06.698025+08
-12	auth	0009_alter_user_last_name_max_length	2025-03-22 01:29:06.704025+08
-13	auth	0010_alter_group_name_max_length	2025-03-22 01:29:06.711219+08
-14	auth	0011_update_proxy_permissions	2025-03-22 01:29:06.73051+08
-15	auth	0012_alter_user_first_name_max_length	2025-03-22 01:29:06.735643+08
-16	sessions	0001_initial	2025-03-22 01:29:10.712341+08
-17	admin	0001_initial	2025-03-22 01:29:33.834834+08
-18	admin	0002_logentry_remove_auto_add	2025-03-22 01:29:33.84084+08
-19	admin	0003_logentry_add_action_flag_choices	2025-03-22 01:29:33.846978+08
-20	customer	0001_initial	2025-03-22 01:30:50.80796+08
-21	CRM	0001_initial	2025-03-22 01:30:50.813141+08
-22	CRM	0002_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 01:30:50.814144+08
-23	costing	0001_initial	2025-03-22 01:30:50.815141+08
-24	statement	0001_initial	2025-03-22 01:30:50.815394+08
-25	agreement	0001_initial	2025-03-22 01:30:50.815394+08
-26	costing	0002_alter_salescosting_created_at	2025-03-22 01:30:50.816409+08
-27	quotation	0001_initial	2025-03-22 01:30:50.816409+08
-28	order	0001_initial	2025-03-22 01:30:50.817409+08
-29	delivery	0001_initial	2025-03-22 01:30:50.817409+08
-30	invoice	0001_initial	2025-03-22 01:30:50.818407+08
-31	invoice	0002_alter_salesinvoices_invoice_date	2025-03-22 01:30:50.81941+08
-32	CRM	0003_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 01:35:27.369567+08
-33	costing	0003_alter_salescosting_created_at	2025-03-22 01:35:27.383718+08
-34	invoice	0003_alter_salesinvoices_invoice_date	2025-03-22 01:35:27.389856+08
-35	CRM	0004_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 01:36:12.183561+08
-36	costing	0004_rename_project_resources_id_salescosting_project_resources_and_more	2025-03-22 01:36:23.473259+08
-37	invoice	0004_alter_salesinvoices_invoice_date	2025-03-22 01:36:23.478251+08
-38	CRM	0005_alter_campaigns_end_date_alter_campaigns_start_date_and_more	2025-03-22 15:26:32.03084+08
-39	costing	0005_alter_salescosting_created_at	2025-03-22 15:26:32.037779+08
-40	invoice	0005_payments_alter_salesinvoices_invoice_date_and_more	2025-03-22 15:26:32.038524+08
-41	delivery	0002_auto_20250322_1607	2025-03-22 16:07:43.309387+08
+1	contenttypes	0001_initial	2025-03-23 10:20:07.366013+08
+2	auth	0001_initial	2025-03-23 10:20:07.406173+08
+3	admin	0001_initial	2025-03-23 10:20:07.410239+08
+4	admin	0002_logentry_remove_auto_add	2025-03-23 10:20:07.421818+08
+5	admin	0003_logentry_add_action_flag_choices	2025-03-23 10:20:07.427995+08
+6	contenttypes	0002_remove_content_type_name	2025-03-23 10:20:10.131894+08
+7	auth	0002_alter_permission_name_max_length	2025-03-23 10:20:10.151149+08
+8	auth	0003_alter_user_email_max_length	2025-03-23 10:20:10.15863+08
+9	auth	0004_alter_user_username_opts	2025-03-23 10:20:10.165449+08
+10	auth	0005_alter_user_last_login_null	2025-03-23 10:20:10.17289+08
+11	auth	0006_require_contenttypes_0002	2025-03-23 10:20:10.17289+08
+12	auth	0007_alter_validators_add_error_messages	2025-03-23 10:20:10.181401+08
+13	auth	0008_alter_user_username_max_length	2025-03-23 10:20:10.193499+08
+14	auth	0009_alter_user_last_name_max_length	2025-03-23 10:20:10.202672+08
+15	auth	0010_alter_group_name_max_length	2025-03-23 10:20:10.214738+08
+16	auth	0011_update_proxy_permissions	2025-03-23 10:20:10.220524+08
+17	auth	0012_alter_user_first_name_max_length	2025-03-23 10:20:10.224539+08
+18	sessions	0001_initial	2025-03-23 10:20:13.870314+08
 \.
 
 
@@ -7102,8 +9344,8 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 --
 
 COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
-19llfvc2kz55n2kkyiyppamjj7087bqt	.eJxVjDkOwjAUBe_iGll24iWhpOcM1l_8SQDZUpxUiLtDpBTQvpl5L5VgW6e0tbykmdVZWXX63RDokcsO-A7lVjXVsi4z6l3RB236Wjk_L4f7dzBBm751h0Io1nRMXT94CYZpQOrHmK0LyCgmOsgjOLGEBsXH2EvwzN6MA6J6fwALpTjr:1tvgG7:SEyVpXPbAs_XyhOX-0zMoHHOfHulOq6VF9mOweNvGBw	2025-04-05 01:34:15.06466+08
-jpujl1a12xo78zwl9fihjcwm0hbno4z2	.eJxVjDkOwjAUBe_iGll24iWhpOcM1l_8SQDZUpxUiLtDpBTQvpl5L5VgW6e0tbykmdVZWXX63RDokcsO-A7lVjXVsi4z6l3RB236Wjk_L4f7dzBBm751h0Io1nRMXT94CYZpQOrHmK0LyCgmOsgjOLGEBsXH2EvwzN6MA6J6fwALpTjr:1tvtVs:66gY7PTXYpUaFaIBXlKoVl_vJVNSY7TiWVqQqMuuVtw	2025-04-05 15:43:24.699377+08
+z37coi2n5ce9ovgonyqla4fqs59aa2vl	.eJxVjMsOwiAQRf-FtSEFHKAu3fcbyDAzSNXQpI-V8d-1SRe6veec-1IJt7WmbZE5jawuyqjT75aRHtJ2wHdst0nT1NZ5zHpX9EEXPUwsz-vh_h1UXOq37n0XhXNwkX0hJJBylt4JGgyWGaij3AGEIBGCddkwR1eoAFgqAl69PwfNONM:1twAwv:wXwJyAFyKAZgPwc4YwMN5LPUrIdWqD_UY9NlW8dLveA	2025-04-06 10:20:29.68385+08
+4xr7sxuso2ngyf2kfztp2m471hdb3y6x	.eJxVjMsOwiAQRf-FtSEFHKAu3fcbyDAzSNXQpI-V8d-1SRe6veec-1IJt7WmbZE5jawuyqjT75aRHtJ2wHdst0nT1NZ5zHpX9EEXPUwsz-vh_h1UXOq37n0XhXNwkX0hJJBylt4JGgyWGaij3AGEIBGCddkwR1eoAFgqAl69PwfNONM:1twAxV:Q3O8rG21n8UFGNtTeGOxcUqgWeaqpT418l76mWny0ss	2025-04-06 10:21:05.755136+08
 \.
 
 
@@ -7112,6 +9354,26 @@ jpujl1a12xo78zwl9fihjcwm0hbno4z2	.eJxVjDkOwjAUBe_iGll24iWhpOcM1l_8SQDZUpxUiLtDpB
 --
 
 COPY purchasing.batch_inspection (inspection_id, shipment_id, inspection_date, employee_id, inspection_result, remarks) FROM stdin;
+PURCHASING-BAI-2025-457fa2	\N	2025-03-15	\N	Pass	All items in good condition
+PURCHASING-BAI-2025-30bd57	\N	2025-03-16	\N	Pass	Minor cosmetic issues but acceptable
+PURCHASING-BAI-2025-df6aae	\N	2025-03-17	\N	Fail	One laptop has screen damage
+PURCHASING-BAI-2025-62cc4e	\N	2025-03-18	\N	Pass	All printers functioning properly
+PURCHASING-BAI-2025-a0a338	\N	2025-03-19	\N	Pass	Server rack assembled correctly
+PURCHASING-BAI-2025-63d942	\N	2025-03-20	\N	Fail	Two switches not functioning
+PURCHASING-BAI-2025-767080	\N	2025-03-21	\N	Pass	UPS batteries checked and working
+PURCHASING-BAI-2025-9daf76	\N	2025-03-22	\N	Pass	Conference table in perfect condition
+PURCHASING-BAI-2025-06892a	\N	2025-03-23	\N	Fail	One projector has color issues
+PURCHASING-BAI-2025-b93aaa	\N	2025-03-24	\N	Pass	All filing cabinets properly assembled
+PURCHASING-BAI-2025-e40872	\N	2025-03-15	\N	Pass	All items in good condition
+PURCHASING-BAI-2025-11ccfc	\N	2025-03-16	\N	Pass	Minor cosmetic issues but acceptable
+PURCHASING-BAI-2025-0a6b3e	\N	2025-03-17	\N	Fail	One laptop has screen damage
+PURCHASING-BAI-2025-bbc723	\N	2025-03-18	\N	Pass	All printers functioning properly
+PURCHASING-BAI-2025-6e8cce	\N	2025-03-19	\N	Pass	Server rack assembled correctly
+PURCHASING-BAI-2025-86ead0	\N	2025-03-20	\N	Fail	Two switches not functioning
+PURCHASING-BAI-2025-ff53a6	\N	2025-03-21	\N	Pass	UPS batteries checked and working
+PURCHASING-BAI-2025-13e0ed	\N	2025-03-22	\N	Pass	Conference table in perfect condition
+PURCHASING-BAI-2025-c94044	\N	2025-03-23	\N	Fail	One projector has color issues
+PURCHASING-BAI-2025-cc04b9	\N	2025-03-24	\N	Pass	All filing cabinets properly assembled
 \.
 
 
@@ -7120,6 +9382,26 @@ COPY purchasing.batch_inspection (inspection_id, shipment_id, inspection_date, e
 --
 
 COPY purchasing.credit_memo (credit_memo_id, inspection_id, status, document_no, document_date, delivery_date, due_date, total_credit, credit_balance, dpm_rate, dpm_amount, applied_amount, balance_due) FROM stdin;
+PURCHASING-CRM-2025-4c5bd2	\N	Approved	30001	2025-03-16	2025-03-15	2025-04-15	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-f024a4	\N	Approved	30002	2025-03-17	2025-03-16	2025-04-16	50.00	50.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-e16292	\N	Pending	30003	2025-03-18	2025-03-17	2025-04-17	1299.99	1299.99	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-d431b6	\N	Approved	30004	2025-03-19	2025-03-18	2025-04-18	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-e28a40	\N	Approved	30005	2025-03-20	2025-03-19	2025-04-19	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-303997	\N	Pending	30006	2025-03-21	2025-03-20	2025-04-20	299.98	299.98	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-9c7ed8	\N	Approved	30007	2025-03-22	2025-03-21	2025-04-21	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-bf1bfa	\N	Approved	30008	2025-03-23	2025-03-22	2025-04-22	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-12a120	\N	Pending	30009	2025-03-24	2025-03-23	2025-04-23	699.99	699.99	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-6ec3cb	\N	Approved	30010	2025-03-25	2025-03-24	2025-04-24	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-d4ec6a	\N	Approved	30001	2025-03-16	2025-03-15	2025-04-15	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-fa69dc	\N	Approved	30002	2025-03-17	2025-03-16	2025-04-16	50.00	50.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-296dbc	\N	Pending	30003	2025-03-18	2025-03-17	2025-04-17	1299.99	1299.99	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-82a356	\N	Approved	30004	2025-03-19	2025-03-18	2025-04-18	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-c25526	\N	Approved	30005	2025-03-20	2025-03-19	2025-04-19	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-5f68e8	\N	Pending	30006	2025-03-21	2025-03-20	2025-04-20	299.98	299.98	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-2ef3c9	\N	Approved	30007	2025-03-22	2025-03-21	2025-04-21	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-e7c0a4	\N	Approved	30008	2025-03-23	2025-03-22	2025-04-22	0.00	0.00	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-cce4ab	\N	Pending	30009	2025-03-24	2025-03-23	2025-04-23	699.99	699.99	0.00	0.00	0.00	0.00
+PURCHASING-CRM-2025-bcbfac	\N	Approved	30010	2025-03-25	2025-03-24	2025-04-24	0.00	0.00	0.00	0.00	0.00	0.00
 \.
 
 
@@ -7128,6 +9410,26 @@ COPY purchasing.credit_memo (credit_memo_id, inspection_id, status, document_no,
 --
 
 COPY purchasing.purchase_invoice (invoice_id, purchase_id, status, document_no, document_date, due_date, total_credit, credit_balance, dpm_rate, dpm_amount, applied_amount, balance_due) FROM stdin;
+PURCHASING-PUI-2025-c4bb98	\N	Completed	20001	2025-03-16	2025-04-15	0.00	0.00	0.00	0.00	1269.95	0.00
+PURCHASING-PUI-2025-a0da14	\N	Pending	20002	2025-03-17	2025-04-16	0.00	0.00	0.00	0.00	0.00	1924.90
+PURCHASING-PUI-2025-ffbefa	\N	Approved	20003	2025-03-18	2025-04-17	0.00	0.00	0.00	0.00	1000.00	2899.97
+PURCHASING-PUI-2025-1cee49	\N	Rejected	20004	2025-03-19	2025-04-18	0.00	0.00	0.00	0.00	0.00	900.48
+PURCHASING-PUI-2025-41a5c1	\N	Completed	20005	2025-03-20	2025-04-19	0.00	0.00	0.00	0.00	1199.99	0.00
+PURCHASING-PUI-2025-4c9576	\N	Pending	20006	2025-03-21	2025-04-20	0.00	0.00	0.00	0.00	0.00	416.72
+PURCHASING-PUI-2025-91587c	\N	Approved	20007	2025-03-22	2025-04-21	0.00	0.00	0.00	0.00	350.00	349.97
+PURCHASING-PUI-2025-691cfa	\N	Rejected	20008	2025-03-23	2025-04-22	0.00	0.00	0.00	0.00	0.00	779.99
+PURCHASING-PUI-2025-1ecbd6	\N	Completed	20009	2025-03-24	2025-04-23	0.00	0.00	0.00	0.00	1404.98	0.00
+PURCHASING-PUI-2025-5ca8da	\N	Pending	20010	2025-03-25	2025-04-24	0.00	0.00	0.00	0.00	0.00	518.96
+PURCHASING-PUI-2025-ad302d	\N	Completed	20001	2025-03-16	2025-04-15	0.00	0.00	0.00	0.00	1269.95	0.00
+PURCHASING-PUI-2025-f73a95	\N	Pending	20002	2025-03-17	2025-04-16	0.00	0.00	0.00	0.00	0.00	1924.90
+PURCHASING-PUI-2025-a572b5	\N	Approved	20003	2025-03-18	2025-04-17	0.00	0.00	0.00	0.00	1000.00	2899.97
+PURCHASING-PUI-2025-0502b8	\N	Rejected	20004	2025-03-19	2025-04-18	0.00	0.00	0.00	0.00	0.00	900.48
+PURCHASING-PUI-2025-b544ab	\N	Completed	20005	2025-03-20	2025-04-19	0.00	0.00	0.00	0.00	1199.99	0.00
+PURCHASING-PUI-2025-a75b37	\N	Pending	20006	2025-03-21	2025-04-20	0.00	0.00	0.00	0.00	0.00	416.72
+PURCHASING-PUI-2025-3b82ad	\N	Approved	20007	2025-03-22	2025-04-21	0.00	0.00	0.00	0.00	350.00	349.97
+PURCHASING-PUI-2025-fa6491	\N	Rejected	20008	2025-03-23	2025-04-22	0.00	0.00	0.00	0.00	0.00	779.99
+PURCHASING-PUI-2025-bec758	\N	Completed	20009	2025-03-24	2025-04-23	0.00	0.00	0.00	0.00	1404.98	0.00
+PURCHASING-PUI-2025-a85d32	\N	Pending	20010	2025-03-25	2025-04-24	0.00	0.00	0.00	0.00	0.00	518.96
 \.
 
 
@@ -7136,6 +9438,26 @@ COPY purchasing.purchase_invoice (invoice_id, purchase_id, status, document_no, 
 --
 
 COPY purchasing.purchase_order (purchase_id, quotation_id, order_date, delivery_date, document_date, status) FROM stdin;
+PURCHASING-PUO-2025-abb37b	\N	2025-03-05	2025-03-15	2025-03-05	Completed
+PURCHASING-PUO-2025-cee314	\N	2025-03-06	2025-03-16	2025-03-06	Pending
+PURCHASING-PUO-2025-a3061e	\N	2025-03-07	2025-03-17	2025-03-07	Approved
+PURCHASING-PUO-2025-099f11	\N	2025-03-08	2025-03-18	2025-03-08	Rejected
+PURCHASING-PUO-2025-62b0da	\N	2025-03-09	2025-03-19	2025-03-09	Completed
+PURCHASING-PUO-2025-8cdb07	\N	2025-03-10	2025-03-20	2025-03-10	Pending
+PURCHASING-PUO-2025-b7d54c	\N	2025-03-11	2025-03-21	2025-03-11	Approved
+PURCHASING-PUO-2025-aa4577	\N	2025-03-12	2025-03-22	2025-03-12	Rejected
+PURCHASING-PUO-2025-69e0bd	\N	2025-03-13	2025-03-23	2025-03-13	Completed
+PURCHASING-PUO-2025-cfc4e1	\N	2025-03-14	2025-03-24	2025-03-14	Pending
+PURCHASING-PUO-2025-2489e6	\N	2025-03-05	2025-03-15	2025-03-05	Completed
+PURCHASING-PUO-2025-ee9d68	\N	2025-03-06	2025-03-16	2025-03-06	Pending
+PURCHASING-PUO-2025-216324	\N	2025-03-07	2025-03-17	2025-03-07	Approved
+PURCHASING-PUO-2025-c4768e	\N	2025-03-08	2025-03-18	2025-03-08	Rejected
+PURCHASING-PUO-2025-64fa3b	\N	2025-03-09	2025-03-19	2025-03-09	Completed
+PURCHASING-PUO-2025-b3c549	\N	2025-03-10	2025-03-20	2025-03-10	Pending
+PURCHASING-PUO-2025-f02c48	\N	2025-03-11	2025-03-21	2025-03-11	Approved
+PURCHASING-PUO-2025-a89254	\N	2025-03-12	2025-03-22	2025-03-12	Rejected
+PURCHASING-PUO-2025-ef5cc9	\N	2025-03-13	2025-03-23	2025-03-13	Completed
+PURCHASING-PUO-2025-6c0a98	\N	2025-03-14	2025-03-24	2025-03-14	Pending
 \.
 
 
@@ -7144,6 +9466,26 @@ COPY purchasing.purchase_order (purchase_id, quotation_id, order_date, delivery_
 --
 
 COPY purchasing.purchase_quotation (quotation_id, vendor_code, quotation_content_id, status, document_no, valid_date, document_date, required_date, total_before_discount, discount_percent, freight, tax, total_payment) FROM stdin;
+PURCHASING-PUQ-2025-6bd319	\N	\N	Approved	10001	2025-04-01	2025-03-01	2025-03-15	1249.95	10.00	50.00	93.75	1269.95
+PURCHASING-PUQ-2025-aa5ce2	\N	\N	Pending	10002	2025-04-02	2025-03-02	2025-03-16	1899.90	5.00	75.00	142.49	1924.90
+PURCHASING-PUQ-2025-91fe84	\N	\N	Approved	10003	2025-04-03	2025-03-03	2025-03-17	3899.97	10.00	0.00	389.99	3899.97
+PURCHASING-PUQ-2025-9c71e0	\N	\N	Rejected	10004	2025-04-04	2025-03-04	2025-03-18	899.98	5.00	45.00	67.50	900.48
+PURCHASING-PUQ-2025-5d4133	\N	\N	Approved	10005	2025-04-05	2025-03-05	2025-03-19	999.99	0.00	100.00	100.00	1199.99
+PURCHASING-PUQ-2025-2b2196	\N	\N	Pending	10006	2025-04-06	2025-03-06	2025-03-20	449.97	15.00	30.00	33.75	416.72
+PURCHASING-PUQ-2025-911185	\N	\N	Approved	10007	2025-04-07	2025-03-07	2025-03-21	599.98	0.00	40.00	59.99	699.97
+PURCHASING-PUQ-2025-03ec5c	\N	\N	Rejected	10008	2025-04-08	2025-03-08	2025-03-22	799.99	10.00	60.00	72.00	779.99
+PURCHASING-PUQ-2025-673219	\N	\N	Approved	10009	2025-04-09	2025-03-09	2025-03-23	1399.98	5.00	70.00	105.00	1404.98
+PURCHASING-PUQ-2025-f1e646	\N	\N	Pending	10010	2025-04-10	2025-03-10	2025-03-24	519.96	5.00	35.00	39.00	518.96
+PURCHASING-PUQ-2025-bcdca4	\N	\N	Approved	10001	2025-04-01	2025-03-01	2025-03-15	1249.95	10.00	50.00	93.75	1269.95
+PURCHASING-PUQ-2025-aabc65	\N	\N	Pending	10002	2025-04-02	2025-03-02	2025-03-16	1899.90	5.00	75.00	142.49	1924.90
+PURCHASING-PUQ-2025-a52683	\N	\N	Approved	10003	2025-04-03	2025-03-03	2025-03-17	3899.97	10.00	0.00	389.99	3899.97
+PURCHASING-PUQ-2025-9b9f2c	\N	\N	Rejected	10004	2025-04-04	2025-03-04	2025-03-18	899.98	5.00	45.00	67.50	900.48
+PURCHASING-PUQ-2025-63f03c	\N	\N	Approved	10005	2025-04-05	2025-03-05	2025-03-19	999.99	0.00	100.00	100.00	1199.99
+PURCHASING-PUQ-2025-739c1a	\N	\N	Pending	10006	2025-04-06	2025-03-06	2025-03-20	449.97	15.00	30.00	33.75	416.72
+PURCHASING-PUQ-2025-4d5db5	\N	\N	Approved	10007	2025-04-07	2025-03-07	2025-03-21	599.98	0.00	40.00	59.99	699.97
+PURCHASING-PUQ-2025-1bdb5f	\N	\N	Rejected	10008	2025-04-08	2025-03-08	2025-03-22	799.99	10.00	60.00	72.00	779.99
+PURCHASING-PUQ-2025-7535f1	\N	\N	Approved	10009	2025-04-09	2025-03-09	2025-03-23	1399.98	5.00	70.00	105.00	1404.98
+PURCHASING-PUQ-2025-d15c71	\N	\N	Pending	10010	2025-04-10	2025-03-10	2025-03-24	519.96	5.00	35.00	39.00	518.96
 \.
 
 
@@ -7152,6 +9494,26 @@ COPY purchasing.purchase_quotation (quotation_id, vendor_code, quotation_content
 --
 
 COPY purchasing.purchase_requests (request_id, employee_id, approval_id, item_id, purchase_item, purchase_description, purchase_quantity, valid_date, document_date, required_date) FROM stdin;
+PURCHASING-PUR-2025-be70ff	\N	\N	\N	Office Desk	Standard office desk 150x70cm	5	2025-04-01	2025-03-01	2025-03-15
+PURCHASING-PUR-2025-0f1670	\N	\N	\N	Office Chair	Ergonomic office chair with adjustable armrests	10	2025-04-02	2025-03-02	2025-03-16
+PURCHASING-PUR-2025-def48a	\N	\N	\N	Laptop Computer	Business laptop with i7 processor and 16GB RAM	3	2025-04-03	2025-03-03	2025-03-17
+PURCHASING-PUR-2025-7296c5	\N	\N	\N	Printer	Color laser printer with scanner	2	2025-04-04	2025-03-04	2025-03-18
+PURCHASING-PUR-2025-fa0064	\N	\N	\N	Server Rack	Server rack 42U	1	2025-04-05	2025-03-05	2025-03-19
+PURCHASING-PUR-2025-5305d7	\N	\N	\N	Network Switch	24-port gigabit network switch	3	2025-04-06	2025-03-06	2025-03-20
+PURCHASING-PUR-2025-211fcf	\N	\N	\N	UPS Battery	Uninterruptible power supply 1500VA	2	2025-04-07	2025-03-07	2025-03-21
+PURCHASING-PUR-2025-f18c7d	\N	\N	\N	Conference Table	Large conference table for 12 people	1	2025-04-08	2025-03-08	2025-03-22
+PURCHASING-PUR-2025-79b0a1	\N	\N	\N	Projector	4K business projector	2	2025-04-09	2025-03-09	2025-03-23
+PURCHASING-PUR-2025-c14ffc	\N	\N	\N	Filing Cabinet	Metal filing cabinet with 4 drawers	4	2025-04-10	2025-03-10	2025-03-24
+PURCHASING-PUR-2025-e32e2a	\N	\N	\N	Office Desk	Standard office desk 150x70cm	5	2025-04-01	2025-03-01	2025-03-15
+PURCHASING-PUR-2025-2cc596	\N	\N	\N	Office Chair	Ergonomic office chair with adjustable armrests	10	2025-04-02	2025-03-02	2025-03-16
+PURCHASING-PUR-2025-c267b0	\N	\N	\N	Laptop Computer	Business laptop with i7 processor and 16GB RAM	3	2025-04-03	2025-03-03	2025-03-17
+PURCHASING-PUR-2025-f2c8dc	\N	\N	\N	Printer	Color laser printer with scanner	2	2025-04-04	2025-03-04	2025-03-18
+PURCHASING-PUR-2025-5ff2ed	\N	\N	\N	Server Rack	Server rack 42U	1	2025-04-05	2025-03-05	2025-03-19
+PURCHASING-PUR-2025-76234a	\N	\N	\N	Network Switch	24-port gigabit network switch	3	2025-04-06	2025-03-06	2025-03-20
+PURCHASING-PUR-2025-c6ed5b	\N	\N	\N	UPS Battery	Uninterruptible power supply 1500VA	2	2025-04-07	2025-03-07	2025-03-21
+PURCHASING-PUR-2025-340aa4	\N	\N	\N	Conference Table	Large conference table for 12 people	1	2025-04-08	2025-03-08	2025-03-22
+PURCHASING-PUR-2025-42af61	\N	\N	\N	Projector	4K business projector	2	2025-04-09	2025-03-09	2025-03-23
+PURCHASING-PUR-2025-c90bdf	\N	\N	\N	Filing Cabinet	Metal filing cabinet with 4 drawers	4	2025-04-10	2025-03-10	2025-03-24
 \.
 
 
@@ -7160,6 +9522,26 @@ COPY purchasing.purchase_requests (request_id, employee_id, approval_id, item_id
 --
 
 COPY purchasing.quotation_contents (quotation_content_id, request_id, unit_price, discount, tax_code, total) FROM stdin;
+PURCHASING-QUC-2025-8495c1	\N	249.99	10.00	TAX-001	1124.96
+PURCHASING-QUC-2025-23aa91	\N	189.99	5.00	TAX-002	1804.91
+PURCHASING-QUC-2025-877697	\N	1299.99	100.00	TAX-003	3599.97
+PURCHASING-QUC-2025-634644	\N	449.99	20.00	TAX-004	859.98
+PURCHASING-QUC-2025-d17fc4	\N	999.99	0.00	TAX-005	999.99
+PURCHASING-QUC-2025-0031e1	\N	149.99	15.00	TAX-006	382.47
+PURCHASING-QUC-2025-f00716	\N	299.99	0.00	TAX-007	599.98
+PURCHASING-QUC-2025-60da98	\N	799.99	50.00	TAX-008	749.99
+PURCHASING-QUC-2025-239234	\N	699.99	30.00	TAX-009	1369.98
+PURCHASING-QUC-2025-5a23f2	\N	129.99	5.00	TAX-010	494.96
+PURCHASING-QUC-2025-816cf2	\N	249.99	10.00	TAX-001	1124.96
+PURCHASING-QUC-2025-5fc36f	\N	189.99	5.00	TAX-002	1804.91
+PURCHASING-QUC-2025-461362	\N	1299.99	100.00	TAX-003	3599.97
+PURCHASING-QUC-2025-80b485	\N	449.99	20.00	TAX-004	859.98
+PURCHASING-QUC-2025-4d4cab	\N	999.99	0.00	TAX-005	999.99
+PURCHASING-QUC-2025-1652d7	\N	149.99	15.00	TAX-006	382.47
+PURCHASING-QUC-2025-94b122	\N	299.99	0.00	TAX-007	599.98
+PURCHASING-QUC-2025-c641d8	\N	799.99	50.00	TAX-008	749.99
+PURCHASING-QUC-2025-225934	\N	699.99	30.00	TAX-009	1369.98
+PURCHASING-QUC-2025-5ec069	\N	129.99	5.00	TAX-010	494.96
 \.
 
 
@@ -7168,6 +9550,26 @@ COPY purchasing.quotation_contents (quotation_content_id, request_id, unit_price
 --
 
 COPY purchasing.received_shipments (shipment_id, purchase_id, delivery_date) FROM stdin;
+PURCHASING-RES-2025-3403fd	\N	2025-03-15
+PURCHASING-RES-2025-494bc9	\N	2025-03-16
+PURCHASING-RES-2025-7a4737	\N	2025-03-17
+PURCHASING-RES-2025-1cd88f	\N	2025-03-18
+PURCHASING-RES-2025-4f2fbb	\N	2025-03-19
+PURCHASING-RES-2025-0f4724	\N	2025-03-20
+PURCHASING-RES-2025-7cf95f	\N	2025-03-21
+PURCHASING-RES-2025-8d3f73	\N	2025-03-22
+PURCHASING-RES-2025-d9fd04	\N	2025-03-23
+PURCHASING-RES-2025-b4473c	\N	2025-03-24
+PURCHASING-RES-2025-cdef9c	\N	2025-03-15
+PURCHASING-RES-2025-477a3b	\N	2025-03-16
+PURCHASING-RES-2025-6d8442	\N	2025-03-17
+PURCHASING-RES-2025-3ef3a3	\N	2025-03-18
+PURCHASING-RES-2025-3926e4	\N	2025-03-19
+PURCHASING-RES-2025-dfc92e	\N	2025-03-20
+PURCHASING-RES-2025-4ae06c	\N	2025-03-21
+PURCHASING-RES-2025-f94b42	\N	2025-03-22
+PURCHASING-RES-2025-86f3e5	\N	2025-03-23
+PURCHASING-RES-2025-069d39	\N	2025-03-24
 \.
 
 
@@ -7175,7 +9577,27 @@ COPY purchasing.received_shipments (shipment_id, purchase_id, delivery_date) FRO
 -- Data for Name: vendor_application; Type: TABLE DATA; Schema: purchasing; Owner: postgres
 --
 
-COPY purchasing.vendor_application (application_reference, vendor_code, status, company_name, tax_number, contact_person, title, vendor_address, phone, fax, vendor_email, tax_exempt, vendor_website, organization_type, separate_checks, purchasing_card, account_no, routing_no, requestor, date_requested) FROM stdin;
+COPY purchasing.vendor_application (application_reference, status, company_name, tax_number, contact_person, title, vendor_address, phone, fax, vendor_email, tax_exempt, vendor_website, organization_type, separate_checks, purchasing_card, account_no, routing_no, requestor, date_requested) FROM stdin;
+PURCHASING-VEP-2025-d81f79	Pending	Tech Solutions Inc	123456789	John Smith	CEO	123 Tech St, San Francisco, CA	5551234567	5551234568	contact@techsolutions.com	t	www.techsolutions.com	Corporation	f	t	987654321	123456	Mary Johnson	2025-01-15
+PURCHASING-VEP-2025-51bf05	Approved	Office Supplies Co	234567890	Jane Doe	Sales Manager	456 Supply Ave, Chicago, IL	5552345678	5552345679	sales@officesupplies.com	f	www.officesupplies.com	LLC	t	t	876543210	234567	Bob Williams	2025-01-16
+PURCHASING-VEP-2025-36a9a1	Rejected	Industrial Parts Ltd	345678901	Mike Brown	Director	789 Industry Blvd, Detroit, MI	5553456789	5553456780	info@industrialparts.com	f	www.industrialparts.com	Corporation	f	f	765432109	345678	Sarah Davis	2025-01-17
+PURCHASING-VEP-2025-6e015f	Pending	Global Traders	456789012	Lisa Chen	Procurement Officer	101 Trade Center, New York, NY	5554567890	5554567891	info@globaltraders.com	t	www.globaltraders.com	Partnership	t	f	654321098	456789	Tom Wilson	2025-01-18
+PURCHASING-VEP-2025-4d0128	Approved	Green Energy Solutions	567890123	David Green	Founder	202 Solar Way, Phoenix, AZ	5555678901	5555678902	contact@greenenergy.com	t	www.greenenergy.com	Nonprofit	f	t	543210987	567890	Emma Brown	2025-01-19
+PURCHASING-VEP-2025-8a5c05	Pending	Quality Manufacturing	678901234	Robert Taylor	Operations Manager	303 Quality Dr, Seattle, WA	5556789012	5556789013	operations@qualitymfg.com	f	www.qualitymfg.com	LLC	f	f	432109876	678901	Alex Johnson	2025-01-20
+PURCHASING-VEP-2025-d564d5	Approved	Food Distributors Inc	789012345	Maria Rodriguez	Supply Chain Manager	404 Food Way, Miami, FL	5557890123	5557890124	supply@fooddist.com	f	www.fooddist.com	Corporation	t	t	321098765	789012	Chris Lee	2025-01-21
+PURCHASING-VEP-2025-e9707e	Rejected	Construction Materials Co	890123456	James Wilson	President	505 Builder Ave, Denver, CO	5558901234	5558901235	info@constructionmat.com	f	www.constructionmat.com	Corporation	f	t	210987654	890123	Jennifer Adams	2025-01-22
+PURCHASING-VEP-2025-dfa806	Pending	Medical Supplies Ltd	901234567	Susan White	CEO	606 Health St, Boston, MA	5559012345	5559012346	contact@medicalsupplies.com	t	www.medicalsupplies.com	LLC	t	f	109876543	901234	Kevin Park	2025-01-23
+PURCHASING-VEP-2025-3ba1ae	Approved	Tech Innovations	123789456	Andrew Miller	Director	707 Innovation Way, Austin, TX	5551237894	5551237895	info@techinnovations.com	t	www.techinnovations.com	Sole Proprietorship	f	t	987123456	123789	Michelle Garcia	2025-01-24
+PURCHASING-VEP-2025-078fa8	Pending	Tech Solutions Inc	123456789	John Smith	CEO	123 Tech St, San Francisco, CA	5551234567	5551234568	contact@techsolutions.com	t	www.techsolutions.com	Corporation	f	t	987654321	123456	Mary Johnson	2025-01-15
+PURCHASING-VEP-2025-7b8b91	Approved	Office Supplies Co	234567890	Jane Doe	Sales Manager	456 Supply Ave, Chicago, IL	5552345678	5552345679	sales@officesupplies.com	f	www.officesupplies.com	LLC	t	t	876543210	234567	Bob Williams	2025-01-16
+PURCHASING-VEP-2025-a8f3bd	Rejected	Industrial Parts Ltd	345678901	Mike Brown	Director	789 Industry Blvd, Detroit, MI	5553456789	5553456780	info@industrialparts.com	f	www.industrialparts.com	Corporation	f	f	765432109	345678	Sarah Davis	2025-01-17
+PURCHASING-VEP-2025-8cfd01	Pending	Global Traders	456789012	Lisa Chen	Procurement Officer	101 Trade Center, New York, NY	5554567890	5554567891	info@globaltraders.com	t	www.globaltraders.com	Partnership	t	f	654321098	456789	Tom Wilson	2025-01-18
+PURCHASING-VEP-2025-0a5d51	Approved	Green Energy Solutions	567890123	David Green	Founder	202 Solar Way, Phoenix, AZ	5555678901	5555678902	contact@greenenergy.com	t	www.greenenergy.com	Nonprofit	f	t	543210987	567890	Emma Brown	2025-01-19
+PURCHASING-VEP-2025-96b335	Pending	Quality Manufacturing	678901234	Robert Taylor	Operations Manager	303 Quality Dr, Seattle, WA	5556789012	5556789013	operations@qualitymfg.com	f	www.qualitymfg.com	LLC	f	f	432109876	678901	Alex Johnson	2025-01-20
+PURCHASING-VEP-2025-ee62e7	Approved	Food Distributors Inc	789012345	Maria Rodriguez	Supply Chain Manager	404 Food Way, Miami, FL	5557890123	5557890124	supply@fooddist.com	f	www.fooddist.com	Corporation	t	t	321098765	789012	Chris Lee	2025-01-21
+PURCHASING-VEP-2025-dd6e1f	Rejected	Construction Materials Co	890123456	James Wilson	President	505 Builder Ave, Denver, CO	5558901234	5558901235	info@constructionmat.com	f	www.constructionmat.com	Corporation	f	t	210987654	890123	Jennifer Adams	2025-01-22
+PURCHASING-VEP-2025-086085	Pending	Medical Supplies Ltd	901234567	Susan White	CEO	606 Health St, Boston, MA	5559012345	5559012346	contact@medicalsupplies.com	t	www.medicalsupplies.com	LLC	t	f	109876543	901234	Kevin Park	2025-01-23
+PURCHASING-VEP-2025-d5be50	Approved	Tech Innovations	123789456	Andrew Miller	Director	707 Innovation Way, Austin, TX	5551237894	5551237895	info@techinnovations.com	t	www.techinnovations.com	Sole Proprietorship	f	t	987123456	123789	Michelle Garcia	2025-01-24
 \.
 
 
@@ -7184,6 +9606,26 @@ COPY purchasing.vendor_application (application_reference, vendor_code, status, 
 --
 
 COPY sales.blanket_agreement (agreement_id, statement_id, start_date, end_date, status, description, signed_date, agreement_method) FROM stdin;
+SALES-AGRMNT-2025-f91ef4	SALES-STM-2025-f4b14f	2026-05-01 00:00:00	2027-05-01 00:00:00	Active	Hospital IT Infrastructure	2026-05-02 00:00:00	Electronic
+SALES-AGRMNT-2025-f81d25	SALES-STM-2025-b90b4b	2025-07-01 00:00:00	2026-07-01 00:00:00	Active	Hospital Beds & Furniture	2025-07-02 00:00:00	Electronic
+SALES-AGRMNT-2025-f49f2f	SALES-STM-2025-948f52	2026-02-01 00:00:00	2027-02-01 00:00:00	Active	Orthopedic Implants Agreement	2026-02-02 00:00:00	Written
+SALES-AGRMNT-2025-f1b357	SALES-STM-2025-91058d	2025-12-01 00:00:00	2026-12-01 00:00:00	Expired	Dental Supplies Contract	2025-12-02 00:00:00	Electronic
+SALES-AGRMNT-2025-8efc83	SALES-STM-2025-755417	2025-06-01 00:00:00	2026-06-01 00:00:00	Active	Lab Equipment Agreement	2025-06-02 00:00:00	Written
+SALES-AGRMNT-2025-8abd25	SALES-STM-2025-6b1653	2025-01-01 00:00:00	2026-01-01 00:00:00	Active	Hospital Equipment Supply	2025-01-02 00:00:00	Written
+SALES-AGRMNT-2025-7efbf7	SALES-STM-2025-656095	2026-04-01 00:00:00	2027-04-01 00:00:00	Active	Medical Imaging Supplies	2026-04-02 00:00:00	Written
+SALES-AGRMNT-2025-7368b1	SALES-STM-2025-5e569c	2025-04-01 00:00:00	2026-04-01 00:00:00	Active	Pharmaceutical Supplies Contract	2025-04-02 00:00:00	Written
+SALES-AGRMNT-2025-71cc89	SALES-STM-2025-3acfef	2025-02-01 00:00:00	2026-02-01 00:00:00	Expired	Medical Device Agreement	2025-02-02 00:00:00	Electronic
+SALES-AGRMNT-2025-6c299a	SALES-STM-2025-f6b7d0	2026-03-01 00:00:00	2027-03-01 00:00:00	Cancelled	Anesthesia Equipment Supply	2026-03-02 00:00:00	Electronic
+SALES-AGRMNT-2025-4212de	SALES-STM-2025-35c700	2025-11-01 00:00:00	2026-11-01 00:00:00	Active	Radiology Equipment Supply	2025-11-02 00:00:00	Written
+SALES-AGRMNT-2025-3b909d	SALES-STM-2025-29deb9	2026-06-01 00:00:00	2027-06-01 00:00:00	Active	Pharmacy Automation Systems	2026-06-02 00:00:00	Oral
+SALES-AGRMNT-2025-3aa3bf	SALES-STM-2025-2cc7f2	2025-03-01 00:00:00	2026-03-01 00:00:00	Active	Diagnostic Equipment Supply	2025-03-02 00:00:00	Oral
+SALES-AGRMNT-2025-21bea4	SALES-STM-2025-21f5af	2025-09-01 00:00:00	2026-09-01 00:00:00	Expired	Surgical Equipment Agreement	2025-09-02 00:00:00	Written
+SALES-AGRMNT-2025-216957	SALES-STM-2025-2879fa	2025-10-01 00:00:00	2026-10-01 00:00:00	Active	Pediatric Medical Supplies	2025-10-02 00:00:00	Electronic
+SALES-AGRMNT-2025-1a2def	SALES-STM-2025-2f3fae	2026-01-01 00:00:00	2027-01-01 00:00:00	Active	Emergency Medical Kits	2026-01-02 00:00:00	Oral
+SALES-AGRMNT-2025-0f4ab6	SALES-STM-2025-251924	2026-07-01 00:00:00	2027-07-01 00:00:00	Expired	Rehabilitation Equipment	2026-07-02 00:00:00	Written
+SALES-AGRMNT-2025-0ed260	SALES-STM-2025-600a2f	2025-08-01 00:00:00	2026-08-01 00:00:00	Active	Pharmaceutical Distribution	2025-08-02 00:00:00	Oral
+SALES-AGRMNT-2025-0cd5ff	SALES-STM-2025-c86ce6	2026-08-01 00:00:00	2027-08-01 00:00:00	Active	Veterinary Medical Supplies	2026-08-02 00:00:00	Electronic
+SALES-AGRMNT-2025-028745	SALES-STM-2025-16fb8a	2025-05-01 00:00:00	2026-05-01 00:00:00	Cancelled	Medical Accessories Supply	2025-05-02 00:00:00	Electronic
 \.
 
 
@@ -7192,16 +9634,26 @@ COPY sales.blanket_agreement (agreement_id, statement_id, start_date, end_date, 
 --
 
 COPY sales.campaign_contacts (contact_id, lead_id, campaign_id, response_status) FROM stdin;
-SALES-CONTACT-2025-05ef71	SALES-LEAD-2025-f1283f	SALES-CMPGN-2025-69a6c1	Interested
-SALES-CONTACT-2025-8a5985	SALES-LEAD-2025-3d8bfa	SALES-CMPGN-2025-69a6c1	Not Interested
-SALES-CONTACT-2025-cee938	SALES-LEAD-2025-f02fda	SALES-CMPGN-2025-9cf2f8	Pending
-SALES-CONTACT-2025-6ee3b7	SALES-LEAD-2025-f1283f	SALES-CMPGN-2025-4c5dc7	Not Interested
-SALES-CONTACT-2025-1bd47c	SALES-LEAD-2025-1415f3	SALES-CMPGN-2025-dd1c17	Not Interested
-SALES-CONTACT-2025-e0c11c	SALES-LEAD-2025-08a7b4	SALES-CMPGN-2025-576de3	Interested
-SALES-CONTACT-2025-e901eb	SALES-LEAD-2025-86b33c	SALES-CMPGN-2025-f369d7	Pending
-SALES-CONTACT-2025-f24222	SALES-LEAD-2025-2e0761	SALES-CMPGN-2025-a4143a	Not Interested
-SALES-CONTACT-2025-190e01	SALES-LEAD-2025-f4c5ba	SALES-CMPGN-2025-2f6b81	Interested
-SALES-CONTACT-2025-773ffa	SALES-LEAD-2025-816089	SALES-CMPGN-2025-ed1260	Pending
+SALES-CONTACT-2025-45c7a5	\N	\N	Interested
+SALES-CONTACT-2025-7b555f	\N	\N	Not Interested
+SALES-CONTACT-2025-50ec63	\N	\N	Pending
+SALES-CONTACT-2025-721ecf	\N	\N	Interested
+SALES-CONTACT-2025-fbd269	\N	\N	Not Interested
+SALES-CONTACT-2025-357341	\N	\N	Interested
+SALES-CONTACT-2025-e0f42e	\N	\N	Pending
+SALES-CONTACT-2025-e98193	\N	\N	Not Interested
+SALES-CONTACT-2025-8f11c8	\N	\N	Interested
+SALES-CONTACT-2025-363ac0	\N	\N	Pending
+SALES-CONTACT-2025-d920b5	\N	\N	Interested
+SALES-CONTACT-2025-dfc91d	\N	\N	Not Interested
+SALES-CONTACT-2025-c8f8f4	\N	\N	Pending
+SALES-CONTACT-2025-717495	\N	\N	Interested
+SALES-CONTACT-2025-97d86c	\N	\N	Not Interested
+SALES-CONTACT-2025-017e9e	\N	\N	Interested
+SALES-CONTACT-2025-3a9c27	\N	\N	Pending
+SALES-CONTACT-2025-064025	\N	\N	Not Interested
+SALES-CONTACT-2025-9f36ed	\N	\N	Interested
+SALES-CONTACT-2025-ca59cc	\N	\N	Pending
 \.
 
 
@@ -7210,16 +9662,26 @@ SALES-CONTACT-2025-773ffa	SALES-LEAD-2025-816089	SALES-CMPGN-2025-ed1260	Pending
 --
 
 COPY sales.campaigns (campaign_id, campaign_name, type, start_date, end_date, status) FROM stdin;
-SALES-CMPGN-2025-69a6c1	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59	Planned
-SALES-CMPGN-2025-9cf2f8	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-15 23:59:59	Active
-SALES-CMPGN-2025-4c5dc7	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
-SALES-CMPGN-2025-dd1c17	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59	Planned
-SALES-CMPGN-2025-576de3	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
-SALES-CMPGN-2025-f369d7	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
-SALES-CMPGN-2025-a4143a	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59	Completed
-SALES-CMPGN-2025-2f6b81	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
-SALES-CMPGN-2025-ed1260	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Completed
-SALES-CMPGN-2025-c48d93	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59	Planned
+SALES-CMPGN-2025-59cd34	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59	Planned
+SALES-CMPGN-2025-bb9272	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-05 23:59:59	Active
+SALES-CMPGN-2025-a2fba8	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
+SALES-CMPGN-2025-846658	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59	Planned
+SALES-CMPGN-2025-85634d	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
+SALES-CMPGN-2025-ff71e8	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
+SALES-CMPGN-2025-e4d734	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59	Planned
+SALES-CMPGN-2025-3538c1	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
+SALES-CMPGN-2025-871a35	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Completed
+SALES-CMPGN-2025-76996e	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59	Planned
+SALES-CMPGN-2025-78ce57	Medical Equipment Expo 2025	Email	2025-05-01 08:00:00	2025-05-15 23:59:59	Planned
+SALES-CMPGN-2025-19cdfa	Pharmacy Discount Campaign	Email	2025-04-10 08:00:00	2025-04-25 23:59:59	Active
+SALES-CMPGN-2025-c3bcdb	Healthcare Innovation Webinar	Email	2025-03-25 08:00:00	2025-04-05 23:59:59	Completed
+SALES-CMPGN-2025-cc3288	Free Sample: Diagnostic Kits	Email	2025-05-05 08:00:00	2025-05-20 23:59:59	Planned
+SALES-CMPGN-2025-f796df	Loyalty Program for Hospitals	Email	2025-04-01 08:00:00	2025-04-30 23:59:59	Active
+SALES-CMPGN-2025-056a95	Medical Compliance Training	Email	2025-03-15 08:00:00	2025-03-25 23:59:59	Completed
+SALES-CMPGN-2025-a2fed5	Healthcare Summit Invitation	Email	2025-05-10 08:00:00	2025-05-30 23:59:59	Planned
+SALES-CMPGN-2025-59967a	Exclusive Offer: Lab Equipment	Email	2025-04-15 08:00:00	2025-04-30 23:59:59	Active
+SALES-CMPGN-2025-f3640c	New Product Launch: Ventilators	Email	2025-03-20 08:00:00	2025-04-10 23:59:59	Completed
+SALES-CMPGN-2025-30dc07	Emergency Supplies Discount	Email	2025-05-12 08:00:00	2025-05-25 23:59:59	Planned
 \.
 
 
@@ -7228,16 +9690,26 @@ SALES-CMPGN-2025-c48d93	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:0
 --
 
 COPY sales.customers (customer_id, gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt) FROM stdin;
-SALES-CUST-2025-e1cdff	\N	\N	St. Luke’s Medical Center	contact@stlukes.com.ph	+63-2-8723-0101\t279	E. Rodriguez Sr. Avenue	Quezon City	Quezon City	1112	Philippines	Client	Active	1500.00
-SALES-CUST-2025-d39ed9	\N	\N	Makati Medical Center	info@makatimed.com.ph	+63-2-8888-9999	2 Amorsolo Street	Legaspi Village	Makati	1229	Philippines	Client	Active	2500.00
-SALES-CUST-2025-ad49b6	\N	\N	The Medical City	support@medicalcity.com.ph	+63-2-8639-2000	Ortigas Avenue	Pasig City	Pasig	1605	Philippines	Client	Active	0.00
-SALES-CUST-2025-5e9b82	\N	\N	Asian Hospital and Medical Center	sales@asianhospital.com.ph	+63-2-8771-9000\t2205	Civic Drive	Filinvest City	Muntinlupa	1781	Philippines	Prospect	Active	500.00
-SALES-CUST-2025-8a8cdd	\N	\N	Philippine General Hospital	contact@pgh.gov.ph	+63-2-8554-8400	Taft Avenue	Ermita	Manila	1000	Philippines	Client	Active	2000.00
-SALES-CUST-2025-dd5896	\N	\N	Manila Doctors Hospital	support@maniladoctors.com.ph	+63-2-8558-0888	667 United Nations Avenue	Ermita	Manila	1000	Philippines	Client	Active	300.00
-SALES-CUST-2025-189efd	\N	\N	Cardinal Santos Medical Center	info@cardinalsantos.com.ph	+63-2-8727-0001	10 Wilson Street	Greenhills	San Juan	1502	Philippines	Client	Active	750.00
-SALES-CUST-2025-21c090	\N	\N	World Citi Medical Center	billing@worldciti.com.ph	+63-2-8913-8380	960 Aurora Blvd	Cubao	Quezon City	1109	Philippines	Prospect	Active	500.00
-SALES-CUST-2025-e482c1	\N	\N	Davao Doctors Hospital	orders@davaodoctors.com.ph	+63-82-222-8000	118 E. Quirino Avenue	Poblacion	Davao City	8000	Philippines	Client	Active	650.00
-SALES-CUST-2025-2d4994	\N	\N	Cebu Doctors University Hospital	contact@cebudoctors.com.ph	+63-32-255-5555	Osmeña Boulevard	Capitol Site	Cebu City	6000	Philippines	Client	Active	0.00
+SALES-CUST-2025-a6775c	\N	\N	St. Luke’s Medical Center	contact@stlukes.com.ph	+63-2-8723-0101	279 E. Rodriguez Sr. Avenue	Quezon City	Quezon City	1112	Philippines	Client	Active	1500.00
+SALES-CUST-2025-f7aa99	\N	\N	Makati Medical Center	info@makatimed.com.ph	+63-2-8888-9999	2 Amorsolo Street	Legaspi Village	Makati	1229	Philippines	Client	Active	2500.00
+SALES-CUST-2025-6a3167	\N	\N	The Medical City	support@medicalcity.com.ph	+63-2-8639-2000	Ortigas Avenue	Pasig City	Pasig	1605	Philippines	Client	Active	0.00
+SALES-CUST-2025-cbf858	\N	\N	Asian Hospital and Medical Center	sales@asianhospital.com.ph	+63-2-8771-9000	2205 Civic Drive	Filinvest City	Muntinlupa	1781	Philippines	Prospect	Active	500.00
+SALES-CUST-2025-941d72	\N	\N	Philippine General Hospital	contact@pgh.gov.ph	+63-2-8554-8400	Taft Avenue	Ermita	Manila	1000	Philippines	Client	Active	2000.00
+SALES-CUST-2025-3197ba	\N	\N	Manila Doctors Hospital	support@maniladoctors.com.ph	+63-2-8558-0888	667 United Nations Avenue	Ermita	Manila	1000	Philippines	Client	Active	300.00
+SALES-CUST-2025-8cdccd	\N	\N	Cardinal Santos Medical Center	info@cardinalsantos.com.ph	+63-2-8727-0001	10 Wilson Street	Greenhills	San Juan	1502	Philippines	Client	Active	750.00
+SALES-CUST-2025-dbfe2c	\N	\N	World Citi Medical Center	billing@worldciti.com.ph	+63-2-8913-8380	960 Aurora Blvd	Cubao	Quezon City	1109	Philippines	Prospect	Active	500.00
+SALES-CUST-2025-a42491	\N	\N	Davao Doctors Hospital	orders@davaodoctors.com.ph	+63-82-222-8000	118 E. Quirino Avenue	Poblacion	Davao City	8000	Philippines	Client	Active	650.00
+SALES-CUST-2025-614801	\N	\N	Cebu Doctors University Hospital	contact@cebudoctors.com.ph	+63-32-255-5555	Osmeña Boulevard	Capitol Site	Cebu City	6000	Philippines	Client	Active	0.00
+SALES-CUST-2025-b1576f	\N	\N	Metro Manila Medical Center	info@metromanilamed.com.ph	+63-2-8711-4141	1357 G. Masangkay Street	Binondo	Manila	1006	Philippines	Client	Active	1250.00
+SALES-CUST-2025-fbdaf0	\N	\N	East Avenue Medical Center	contact@eastave.com.ph	+63-2-8928-0611	East Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	950.00
+SALES-CUST-2025-d105ee	\N	\N	Capitol Medical Center	support@capitolmedical.com.ph	+63-2-8372-3825	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	1800.00
+SALES-CUST-2025-cd1d37	\N	\N	Ospital ng Makati	info@ospitalngmakati.com.ph	+63-2-8828-8443	J.P. Rizal Avenue	Poblacion	Makati	1210	Philippines	Prospect	Active	600.00
+SALES-CUST-2025-59eb62	\N	\N	Lung Center of the Philippines	contact@lungcenter.com.ph	+63-2-8924-6101	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	0.00
+SALES-CUST-2025-0294dc	\N	\N	National Kidney and Transplant Institute	support@nkti.gov.ph	+63-2-8981-0300	East Avenue	Diliman	Quezon City	1100	Philippines	Client	Active	2300.00
+SALES-CUST-2025-2597c0	\N	\N	Rizal Medical Center	info@rizalmed.com.ph	+63-2-8941-2911	Pasig Boulevard	Maybunga	Pasig	1607	Philippines	Client	Active	3000.00
+SALES-CUST-2025-df9ce6	\N	\N	Quirino Memorial Medical Center	support@quirinomemorial.com.ph	+63-2-8913-7890	Katipunan Avenue	Project 4	Quezon City	1109	Philippines	Client	Active	700.00
+SALES-CUST-2025-2ba07b	\N	\N	Jose R. Reyes Memorial Medical Center	info@jrrmmc.gov.ph	+63-2-8731-3229	Rizal Avenue	Sta. Cruz	Manila	1003	Philippines	Prospect	Active	400.00
+SALES-CUST-2025-eac405	\N	\N	Perpetual Help Medical Center	contact@perpetualhelp.com.ph	+63-2-8871-0639	Alabang-Zapote Road	Pamplona	Las Piñas	1740	Philippines	Client	Active	1250.00
 \.
 
 
@@ -7246,16 +9718,26 @@ SALES-CUST-2025-2d4994	\N	\N	Cebu Doctors University Hospital	contact@cebudoctor
 --
 
 COPY sales.leads (lead_id, salesrep_id, lead_name, lead_email, lead_phonenum, source, status) FROM stdin;
-SALES-LEAD-2025-f1283f	HR-EMP-2025-0bf227	Dr. Jose Martinez	jose.martinez@healthclinic.com	+63-917-555-1001	Referral	Contacted
-SALES-LEAD-2025-3d8bfa	HR-EMP-2025-bf22fd	Maria Santos	maria.santos@meditechph.com	+63-917-555-1002	Website	Qualified
-SALES-LEAD-2025-f02fda	HR-EMP-2025-c8223f	Carlos Dela Cruz	carlos.dc@lifelinediag.com	+63-917-555-1003	Cold Call	New
-SALES-LEAD-2025-906e99	HR-EMP-2025-0bf227	Anna Reyes	anna.reyes@biopharmph.com	+63-917-555-1004	Email	Converted
-SALES-LEAD-2025-1415f3	HR-EMP-2025-bf22fd	Rafael Gonzales	rafael.gonzales@pharmasolutions.com	+63-917-555-1005	Referral	Lost
-SALES-LEAD-2025-08a7b4	HR-EMP-2025-c8223f	Isabel Flores	isabel.flores@mediserveph.com	+63-917-555-1006	Website	Qualified
-SALES-LEAD-2025-86b33c	HR-EMP-2025-0bf227	Michael Torres	michael.torres@healthplus.com.ph	+63-917-555-1007	Cold Call	Contacted
-SALES-LEAD-2025-2e0761	HR-EMP-2025-bf22fd	Elena Cruz	elena.cruz@philmedpharma.com	63-917-555-1008	Email	Converted
-SALES-LEAD-2025-f4c5ba	HR-EMP-2025-c8223f	Luis Navarro	luis.navarro@vitalcareph.com	+63-917-555-1009	Referral	Qualified
-SALES-LEAD-2025-816089	HR-EMP-2025-0bf227	Patricia Mendoza	patricia.mendoza@pediacareph.com	+63-917-555-1010	Website	New
+SALES-LEAD-2025-303904	\N	Dr. Jose Martinez	jose.martinez@healthclinic.com	+63-917-555-1001	Referral	Contacted
+SALES-LEAD-2025-a83d44	\N	Maria Santos	maria.santos@meditechph.com	+63-917-555-1002	Website	Qualified
+SALES-LEAD-2025-449b6d	\N	Carlos Dela Cruz	carlos.dc@lifelinediag.com	+63-917-555-1003	Cold Call	New
+SALES-LEAD-2025-e74eb4	\N	Anna Reyes	anna.reyes@biopharmph.com	+63-917-555-1004	Email	Converted
+SALES-LEAD-2025-42c53e	\N	Rafael Gonzales	rafael.gonzales@pharmasolutions.com	+63-917-555-1005	Referral	Lost
+SALES-LEAD-2025-259440	\N	Isabel Flores	isabel.flores@mediserveph.com	+63-917-555-1006	Website	Qualified
+SALES-LEAD-2025-30b5e4	\N	Michael Torres	michael.torres@healthplus.com.ph	+63-917-555-1007	Cold Call	Contacted
+SALES-LEAD-2025-3864ce	\N	Elena Cruz	elena.cruz@philmedpharma.com	+63-917-555-1008	Email	Converted
+SALES-LEAD-2025-84165e	\N	Luis Navarro	luis.navarro@vitalcareph.com	+63-917-555-1009	Referral	Qualified
+SALES-LEAD-2025-38100d	\N	Patricia Mendoza	patricia.mendoza@pediacareph.com	+63-917-555-1010	Website	New
+SALES-LEAD-2025-5324b7	\N	Dr. Sofia Rivera	sofia.rivera@medicorp.com	+63-917-555-1011	Referral	Contacted
+SALES-LEAD-2025-54e824	\N	Juan Dela Rosa	juan.delarosa@healthtech.com	+63-917-555-1012	Website	Qualified
+SALES-LEAD-2025-a8ee0a	\N	Carmen Lopez	carmen.lopez@diagnostics.com	+63-917-555-1013	Cold Call	New
+SALES-LEAD-2025-7ccb64	\N	Ricardo Santos	ricardo.santos@pharmatech.com	+63-917-555-1014	Email	Converted
+SALES-LEAD-2025-b053ef	\N	Andrea Gomez	andrea.gomez@medisupply.com	+63-917-555-1015	Referral	Lost
+SALES-LEAD-2025-d1cb25	\N	Miguel Torres	miguel.torres@healthcare.com	+63-917-555-1016	Website	Qualified
+SALES-LEAD-2025-271501	\N	Elena Ramirez	elena.ramirez@medisolutions.com	+63-917-555-1017	Cold Call	Contacted
+SALES-LEAD-2025-540ae9	\N	Fernando Cruz	fernando.cruz@pharmalife.com	+63-917-555-1018	Email	Converted
+SALES-LEAD-2025-ef1257	\N	Lucia Fernandez	lucia.fernandez@vitalmed.com	+63-917-555-1019	Referral	Qualified
+SALES-LEAD-2025-4a4dab	\N	Roberto Alvarez	roberto.alvarez@medicore.com	+63-917-555-1020	Website	New
 \.
 
 
@@ -7264,16 +9746,26 @@ SALES-LEAD-2025-816089	HR-EMP-2025-0bf227	Patricia Mendoza	patricia.mendoza@pedi
 --
 
 COPY sales.opportunities (opportunity_id, customer_id, partner_id, salesrep_id, estimated_value, expected_closed_date, stage, status, description, reason_lost) FROM stdin;
-SALES-OPP-2025-d1ce3b	SALES-CUST-2025-e1cdff	ADMIN-PARTNER-2025-3c2564	HR-EMP-2025-0bf227	250000.00	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	
-SALES-OPP-2025-78fc41	SALES-CUST-2025-d39ed9	ADMIN-PARTNER-2025-afee8b	HR-EMP-2025-0bf227	150000.00	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	
-SALES-OPP-2025-cf6eee	SALES-CUST-2025-ad49b6	ADMIN-PARTNER-2025-95223d	HR-EMP-2025-bf22fd	10000.00	2025-03-30	Closed	Won	Sold 500 surgical gloves.	
-SALES-OPP-2025-9c439a	SALES-CUST-2025-5e9b82	ADMIN-PARTNER-2025-adcdfc	HR-EMP-2025-0bf227	75000.00	2025-06-01	Prospecting	Open	New client interested in defibrillators.	
-SALES-OPP-2025-ecf9df	SALES-CUST-2025-8a8cdd	ADMIN-PARTNER-2025-ead71e	HR-EMP-2025-c8223f	500000.00	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.
-SALES-OPP-2025-c001fe	SALES-CUST-2025-dd5896	ADMIN-PARTNER-2025-036cb7	HR-EMP-2025-c8223f	20000.00	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	
-SALES-OPP-2025-2c1db6	SALES-CUST-2025-189efd	ADMIN-PARTNER-2025-37f764	HR-EMP-2025-bf22fd	8000.00	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.
-SALES-OPP-2025-f119f5	SALES-CUST-2025-21c090	ADMIN-PARTNER-2025-f3081d	HR-EMP-2025-0bf227	95000.00	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	
-SALES-OPP-2025-49ece9	SALES-CUST-2025-e482c1	ADMIN-PARTNER-2025-3c2564	HR-EMP-2025-bf22fd	12000.00	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	
-SALES-OPP-2025-5e32c8	SALES-CUST-2025-2d4994	ADMIN-PARTNER-2025-ead71e	HR-EMP-2025-0bf227	180000.00	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	
+SALES-OPP-2025-6e9fef	\N	\N	\N	250000.00	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	\N
+SALES-OPP-2025-cf73e9	\N	\N	\N	150000.00	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	\N
+SALES-OPP-2025-1c1b9d	\N	\N	\N	10000.00	2025-03-30	Closed	Won	Sold 500 surgical gloves.	\N
+SALES-OPP-2025-041b10	\N	\N	\N	75000.00	2025-06-01	Prospecting	Open	New client interested in defibrillators.	\N
+SALES-OPP-2025-2f8710	\N	\N	\N	500000.00	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.
+SALES-OPP-2025-bcf781	\N	\N	\N	20000.00	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	\N
+SALES-OPP-2025-84846c	\N	\N	\N	8000.00	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.
+SALES-OPP-2025-a0bef8	\N	\N	\N	95000.00	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	\N
+SALES-OPP-2025-e1589d	\N	\N	\N	12000.00	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	\N
+SALES-OPP-2025-8570cd	\N	\N	\N	180000.00	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	\N
+SALES-OPP-2025-168ce4	\N	\N	\N	300000.00	2025-06-15	Prospecting	Open	Potential deal for CT scanners.	\N
+SALES-OPP-2025-0456fe	\N	\N	\N	120000.00	2025-05-20	Negotiation	Open	Negotiating pricing for ultrasound machines.	\N
+SALES-OPP-2025-1f3caf	\N	\N	\N	15000.00	2025-04-30	Closed	Won	Sold 1000 surgical masks.	\N
+SALES-OPP-2025-6ea508	\N	\N	\N	90000.00	2025-07-01	Prospecting	Open	New client interested in MRI machines.	\N
+SALES-OPP-2025-b98cab	\N	\N	\N	600000.00	2025-08-01	Negotiation	Lost	Large order for ventilators.	Customer chose competitor.
+SALES-OPP-2025-524755	\N	\N	\N	25000.00	2025-06-10	Closed	Won	Sold 300 syringes and 100 BP monitors.	\N
+SALES-OPP-2025-b26644	\N	\N	\N	10000.00	2025-05-25	Closed	Lost	Small clinic interested in X-ray machine.	Budget constraints.
+SALES-OPP-2025-544114	\N	\N	\N	110000.00	2025-06-20	Prospecting	Open	Potential deal for 5 new dialysis machines.	\N
+SALES-OPP-2025-6e4bbf	\N	\N	\N	18000.00	2025-07-10	Negotiation	Open	Service maintenance contract for lab equipment.	\N
+SALES-OPP-2025-e9b6c4	\N	\N	\N	200000.00	2025-07-30	Closed	Won	Bulk order for surgical gloves and hospital beds.	\N
 \.
 
 
@@ -7282,16 +9774,26 @@ SALES-OPP-2025-5e32c8	SALES-CUST-2025-2d4994	ADMIN-PARTNER-2025-ead71e	HR-EMP-20
 --
 
 COPY sales.orders (order_id, statement_id, quotation_id, rework_id, goods_issue_id, order_date, order_status, order_total_amount, order_type) FROM stdin;
-SALES-ORD-2025-ee1ff2	SALES-STM-2025-543ad0	SALES-QT-2025-640e87	\N	\N	2025-03-21 20:03:37.472554	Pending	437073.00	Scheduled
-SALES-ORD-2025-e150d2	SALES-STM-2025-e0f54f	SALES-QT-2025-6ab1ab	\N	\N	2025-03-21 20:03:08.777183	Pending	3544677.76	Direct
-SALES-ORD-2025-e0deca	SALES-STM-2025-95c41b	SALES-QT-2025-9f9e0a	\N	\N	2025-03-21 20:05:45.01596	Pending	244608.00	Direct
-SALES-ORD-2025-8a5f44	SALES-STM-2025-a51eff	SALES-QT-2025-c45dbc	\N	\N	2025-03-21 20:04:45.987747	Pending	290688.65	Direct
-SALES-ORD-2025-889575	SALES-STM-2025-5c03b9	SALES-QT-2025-cd75f0	\N	\N	2025-03-21 20:07:26.988051	Processed	404832.65	Direct
-SALES-ORD-2025-5ae409	SALES-STM-2025-001bc5	SALES-QT-2025-d3f461	\N	\N	2025-03-21 20:05:16.729245	Pending	333180.56	Scheduled
-SALES-ORD-2025-26f2f7	SALES-STM-2025-d979d6	SALES-QT-2025-d57143	\N	\N	2025-03-21 20:06:19.062515	Processed	12265.34	Direct
-SALES-ORD-2025-1722d3	SALES-STM-2025-52cff7	SALES-QT-2025-d5d1e7	\N	\N	2025-03-21 20:06:56.285375	Pending	234913.76	Direct
-SALES-ORD-2025-04a32f	SALES-STM-2025-54d93c	SALES-QT-2025-f1469f	\N	\N	2025-03-21 20:02:12.32394	Pending	77984.53	Direct
-SALES-ORD-2025-dc2b39	SALES-STM-2025-357582	SALES-QT-2025-a23d37	\N	\N	2025-03-21 20:04:05.814368	Pending	135266.04	Direct
+SALES-ORD-2025-e16c9e	SALES-STM-2025-f4b14f	SALES-QT-2025-e3b105	\N	\N	2025-03-21 20:04:05.814368	Pending	135266.04	Direct
+SALES-ORD-2025-db9aae	SALES-STM-2025-b90b4b	SALES-QT-2025-e28d7b	\N	\N	2025-03-22 11:15:21.987654	Pending	89934.00	Direct
+SALES-ORD-2025-d91eeb	SALES-STM-2025-948f52	SALES-QT-2025-e10427	\N	\N	2025-03-22 11:10:56.345678	Processed	598234.55	Direct
+SALES-ORD-2025-be90ee	SALES-STM-2025-948f52	SALES-QT-2025-ce21a5	\N	\N	2025-03-22 11:20:44.234567	Pending	475822.67	Scheduled
+SALES-ORD-2025-b59c3e	SALES-STM-2025-91058d	SALES-QT-2025-cb1443	\N	\N	2025-03-21 20:03:08.777183	Pending	3544677.76	Direct
+SALES-ORD-2025-b4a34b	SALES-STM-2025-755417	SALES-QT-2025-c17685	\N	\N	2025-03-22 11:45:55.678901	Processed	157893.45	Direct
+SALES-ORD-2025-b1447a	SALES-STM-2025-6b1653	SALES-QT-2025-bdf73c	\N	\N	2025-03-22 11:35:47.654321	Pending	324567.88	Direct
+SALES-ORD-2025-a4ac3c	SALES-STM-2025-656095	SALES-QT-2025-bdf73c	\N	\N	2025-03-22 11:25:59.876543	Pending	308764.00	Direct
+SALES-ORD-2025-a4359c	SALES-STM-2025-5e569c	SALES-QT-2025-95ce9c	\N	\N	2025-03-21 20:05:45.01596	Pending	244608.00	Direct
+SALES-ORD-2025-9b8c27	SALES-STM-2025-3acfef	SALES-QT-2025-81ca39	\N	\N	2025-03-21 20:05:16.729245	Pending	333180.56	Scheduled
+SALES-ORD-2025-52e0c9	SALES-STM-2025-f6b7d0	SALES-QT-2025-6e0ca3	\N	\N	2025-03-22 11:05:34.789012	Pending	267890.00	Scheduled
+SALES-ORD-2025-4118c6	SALES-STM-2025-35c700	SALES-QT-2025-67ceb9	\N	\N	2025-03-22 11:00:12.123456	Pending	150000.00	Direct
+SALES-ORD-2025-4109ce	SALES-STM-2025-29deb9	SALES-QT-2025-63b7fd	\N	\N	2025-03-22 11:30:33.123456	Processed	215432.99	Scheduled
+SALES-ORD-2025-2bacb2	SALES-STM-2025-29deb9	SALES-QT-2025-47f791	\N	\N	2025-03-22 11:40:11.56789	Pending	875690.40	Scheduled
+SALES-ORD-2025-1fe99b	SALES-STM-2025-29deb9	SALES-QT-2025-454ae0	\N	\N	2025-03-21 20:07:26.988051	Processed	404832.65	Direct
+SALES-ORD-2025-104654	SALES-STM-2025-16fb8a	SALES-QT-2025-439eea	\N	\N	2025-03-21 20:04:45.987747	Pending	290688.65	Direct
+SALES-ORD-2025-096d13	SALES-STM-2025-16fb8a	SALES-QT-2025-374ab7	\N	\N	2025-03-21 20:02:12.32394	Pending	77984.53	Direct
+SALES-ORD-2025-062e11	SALES-STM-2025-600a2f	SALES-QT-2025-12b112	\N	\N	2025-03-21 20:06:56.285375	Pending	234913.76	Direct
+SALES-ORD-2025-0479e3	SALES-STM-2025-c86ce6	SALES-QT-2025-0815c0	\N	\N	2025-03-21 20:06:19.062515	Processed	12265.34	Direct
+SALES-ORD-2025-9137d5	SALES-STM-2025-29deb9	\N	\N	\N	2025-03-21 20:03:37.472554	Pending	437073.00	Scheduled
 \.
 
 
@@ -7300,16 +9802,26 @@ SALES-ORD-2025-dc2b39	SALES-STM-2025-357582	SALES-QT-2025-a23d37	\N	\N	2025-03-2
 --
 
 COPY sales.payments (payment_id, order_id, payment_method, payment_status, payment_date) FROM stdin;
-SALES-PAY-2025-769113	SALES-ORD-2025-ee1ff2	Credit Card	Completed	2025-03-22 08:23:43
-SALES-PAY-2025-ce174d	SALES-ORD-2025-e150d2	Bank Transfer	Pending	2025-03-22 08:23:52
-SALES-PAY-2025-df2c35	SALES-ORD-2025-e0deca	Cash	Completed	2025-03-22 08:24:07
-SALES-PAY-2025-531409	SALES-ORD-2025-8a5f44	Credit Card	Failed	2025-03-22 08:24:16
-SALES-PAY-2025-faaefe	SALES-ORD-2025-889575	Bank Transfer	Completed	2025-03-22 08:24:37
-SALES-PAY-2025-baa287	SALES-ORD-2025-5ae409	Cash	Pending	2025-03-22 08:24:50
-SALES-PAY-2025-444af9	SALES-ORD-2025-26f2f7	Credit Card	Completed	2025-03-22 08:25:01
-SALES-PAY-2025-c52f69	SALES-ORD-2025-1722d3	Bank Transfer	Failed	2025-03-22 08:25:11
-SALES-PAY-2025-3899d1	SALES-ORD-2025-04a32f	Cash	Completed	2025-03-22 08:25:19
-SALES-PAY-2025-6323fd	SALES-ORD-2025-dc2b39	Credit Card	Pending	2025-03-22 08:25:32
+SALES-PAY-2025-96bfdd	\N	Credit Card	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-602824	\N	Bank Transfer	Pending	2025-03-23 10:19:43.981764
+SALES-PAY-2025-7797f2	\N	Cash	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-bd2afd	\N	Credit Card	Failed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-4e0f99	\N	Bank Transfer	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-28dfd5	\N	Cash	Pending	2025-03-23 10:19:43.981764
+SALES-PAY-2025-611d1a	\N	Credit Card	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-48202e	\N	Bank Transfer	Failed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-9c2acc	\N	Cash	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-7f5a87	\N	Credit Card	Pending	2025-03-23 10:19:43.981764
+SALES-PAY-2025-b2772d	\N	Credit Card	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-87d7f9	\N	Bank Transfer	Pending	2025-03-23 10:19:43.981764
+SALES-PAY-2025-4a4d97	\N	Cash	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-87a09b	\N	Credit Card	Failed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-30f806	\N	Bank Transfer	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-c84436	\N	Cash	Pending	2025-03-23 10:19:43.981764
+SALES-PAY-2025-c69308	\N	Credit Card	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-0c1315	\N	Bank Transfer	Failed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-e66e21	\N	Cash	Completed	2025-03-23 10:19:43.981764
+SALES-PAY-2025-48646d	\N	Credit Card	Pending	2025-03-23 10:19:43.981764
 \.
 
 
@@ -7318,17 +9830,27 @@ SALES-PAY-2025-6323fd	SALES-ORD-2025-dc2b39	Credit Card	Pending	2025-03-22 08:25
 --
 
 COPY sales.quotation (quotation_id, statement_id, agreement_id, date_issued, status) FROM stdin;
-SALES-QT-2025-640e87	SALES-STM-2025-543ad0	\N	2025-03-21 19:55:55.959812	Pending
-SALES-QT-2025-6ab1ab	SALES-STM-2025-e0f54f	\N	2025-03-21 19:56:02.079125	Pending
-SALES-QT-2025-9f9e0a	SALES-STM-2025-95c41b	\N	2025-03-21 19:55:29.491708	Pending
-SALES-QT-2025-a23d37	SALES-STM-2025-357582	\N	2025-03-21 19:54:59.786193	Pending
-SALES-QT-2025-c45dbc	SALES-STM-2025-a51eff	\N	2025-03-21 19:55:48.106718	Pending
-SALES-QT-2025-cd75f0	SALES-STM-2025-5c03b9	\N	2025-03-21 19:55:22.12001	Pending
-SALES-QT-2025-d3f461	SALES-STM-2025-001bc5	\N	2025-03-21 19:55:14.223794	Pending
-SALES-QT-2025-d57143	SALES-STM-2025-d979d6	\N	2025-03-21 19:55:41.775823	Pending
-SALES-QT-2025-d5d1e7	SALES-STM-2025-52cff7	\N	2025-03-21 19:54:49.552681	Pending
-SALES-QT-2025-f1469f	SALES-STM-2025-54d93c	\N	2025-03-21 19:55:06.977934	Pending
-SALES-QT-2025-dde3e4	SALES-STM-2025-5fc4f3	\N	2025-03-22 10:58:35.654454	Pending
+SALES-QT-2025-e3b105	SALES-STM-2025-f4b14f	\N	2025-03-22 10:00:12.123456	Pending
+SALES-QT-2025-e28d7b	SALES-STM-2025-b90b4b	\N	2025-03-21 19:54:59.786193	Pending
+SALES-QT-2025-e10427	SALES-STM-2025-948f52	\N	2025-03-22 10:35:47.654321	Pending
+SALES-QT-2025-ce21a5	SALES-STM-2025-91058d	\N	2025-03-21 19:55:22.12001	Pending
+SALES-QT-2025-cb1443	SALES-STM-2025-755417	\N	2025-03-21 19:55:29.491708	Pending
+SALES-QT-2025-c17685	SALES-STM-2025-6b1653	\N	2025-03-21 19:55:06.977934	Pending
+SALES-QT-2025-bdf73c	SALES-STM-2025-656095	\N	2025-03-22 10:45:55.678901	Pending
+SALES-QT-2025-95ce9c	SALES-STM-2025-5e569c	\N	2025-03-22 10:10:56.345678	Pending
+SALES-QT-2025-81ca39	SALES-STM-2025-3acfef	\N	2025-03-21 19:55:14.223794	Pending
+SALES-QT-2025-6e0ca3	SALES-STM-2025-f6b7d0	\N	2025-03-21 19:55:48.106718	Pending
+SALES-QT-2025-67ceb9	SALES-STM-2025-35c700	\N	2025-03-22 10:15:21.987654	Pending
+SALES-QT-2025-63b7fd	SALES-STM-2025-29deb9	\N	2025-03-22 10:40:11.56789	Pending
+SALES-QT-2025-47f791	SALES-STM-2025-16fb8a	\N	2025-03-21 19:55:55.959812	Pending
+SALES-QT-2025-454ae0	SALES-STM-2025-2cc7f2	\N	2025-03-21 19:56:02.079125	Pending
+SALES-QT-2025-439eea	SALES-STM-2025-21f5af	\N	2025-03-21 19:55:41.775823	Pending
+SALES-QT-2025-374ab7	SALES-STM-2025-2879fa	\N	2025-03-22 10:20:44.234567	Pending
+SALES-QT-2025-319285	SALES-STM-2025-2f3fae	\N	2025-03-22 10:30:33.123456	Pending
+SALES-QT-2025-2735c1	SALES-STM-2025-251924	\N	2025-03-21 19:54:49.552681	Pending
+SALES-QT-2025-12b112	SALES-STM-2025-600a2f	\N	2025-03-22 10:05:34.789012	Pending
+SALES-QT-2025-0815c0	SALES-STM-2025-c86ce6	\N	2025-03-22 10:25:59.876543	Pending
+SALES-QT-2025-93d3b0	SALES-STM-2025-a29318	\N	2025-03-23 11:18:29.014773	Pending
 \.
 
 
@@ -7337,16 +9859,26 @@ SALES-QT-2025-dde3e4	SALES-STM-2025-5fc4f3	\N	2025-03-22 10:58:35.654454	Pending
 --
 
 COPY sales.receipt (receipt_id, shipping_id, customer_id, payments_id, policy_id, date_signed, signed_docu, created_at) FROM stdin;
-SALES-REC-2025-3b7536	SALES-SHIP-2025-e5786a	SALES-CUST-2025-e1cdff	SALES-PAY-2025-769113	1	2025-03-22	receipt_1.pdf	2025-03-18 08:26:48
-SALES-REC-2025-5fcf88	SALES-SHIP-2025-32000a	SALES-CUST-2025-d39ed9	SALES-PAY-2025-ce174d	2	2025-03-19	receipt_2.pdf	2025-03-22 08:27:13
-SALES-REC-2025-cdbbfa	SALES-SHIP-2025-6e91d8	SALES-CUST-2025-ad49b6	SALES-PAY-2025-df2c35	a	2025-03-20	receipt_3.pdf	2025-03-22 08:27:26
-SALES-REC-2025-03f221	SALES-SHIP-2025-c34d24	SALES-CUST-2025-5e9b82	SALES-PAY-2025-531409	4	2025-03-21	receipt_4.pdf	2025-03-22 08:27:53
-SALES-REC-2025-b63949	SALES-SHIP-2025-5a4857	SALES-CUST-2025-8a8cdd	SALES-PAY-2025-faaefe	5	2025-03-22	receipt_5.pdf	2025-03-22 08:28:12
-SALES-REC-2025-e0d9d9	SALES-SHIP-2025-ac591e	SALES-CUST-2025-dd5896	SALES-PAY-2025-baa287	6	2025-03-23	receipt_5.pdf	2025-03-22 08:28:32
-SALES-REC-2025-0a319a	SALES-SHIP-2025-8b5148	SALES-CUST-2025-189efd	SALES-PAY-2025-444af9	7	2025-03-24	receipt_7.pdf	2025-03-22 08:28:54
-SALES-REC-2025-5cf577	SALES-SHIP-2025-1699a2	SALES-CUST-2025-21c090	SALES-PAY-2025-c52f69	8	2025-03-25	receipt_8.pdf	2025-03-22 08:29:11
-SALES-REC-2025-6abb08	SALES-SHIP-2025-185532	SALES-CUST-2025-e482c1	SALES-PAY-2025-3899d1	9	2025-03-26	receipt_9.pdf	2025-03-22 08:29:30
-SALES-REC-2025-b83b7e	SALES-SHIP-2025-b43c1d	SALES-CUST-2025-2d4994	SALES-PAY-2025-6323fd	10	2025-03-27	receipt_10.pdf	2025-03-22 08:30:40
+SALES-REC-2025-a90ea4	\N	\N	\N	\N	2025-03-18	receipt_1.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-e61102	\N	\N	\N	\N	2025-03-19	receipt_2.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-18eb55	\N	\N	\N	\N	2025-03-20	receipt_3.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-452592	\N	\N	\N	\N	2025-03-21	receipt_4.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-995ef8	\N	\N	\N	\N	2025-03-22	receipt_5.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-ea85d8	\N	\N	\N	\N	2025-03-23	receipt_6.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-de5cf7	\N	\N	\N	\N	2025-03-24	receipt_7.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-9bcbca	\N	\N	\N	\N	2025-03-25	receipt_8.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-e44a58	\N	\N	\N	\N	2025-03-26	receipt_9.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-e4eeba	\N	\N	\N	\N	2025-03-27	receipt_10.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-7e75c0	\N	\N	\N	\N	2025-03-28	receipt_11.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-b43694	\N	\N	\N	\N	2025-03-29	receipt_12.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-e99a38	\N	\N	\N	\N	2025-03-30	receipt_13.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-82c750	\N	\N	\N	\N	2025-03-31	receipt_14.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-016e19	\N	\N	\N	\N	2025-04-01	receipt_15.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-6e18c9	\N	\N	\N	\N	2025-04-02	receipt_16.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-1a5517	\N	\N	\N	\N	2025-04-03	receipt_17.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-b779b6	\N	\N	\N	\N	2025-04-04	receipt_18.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-4f5b6d	\N	\N	\N	\N	2025-04-05	receipt_19.pdf	2025-03-23 10:19:43.982827
+SALES-REC-2025-ce40e6	\N	\N	\N	\N	2025-04-06	receipt_20.pdf	2025-03-23 10:19:43.982827
 \.
 
 
@@ -7355,6 +9887,26 @@ SALES-REC-2025-b83b7e	SALES-SHIP-2025-b43c1d	SALES-CUST-2025-2d4994	SALES-PAY-20
 --
 
 COPY sales.renewal_warranty (renewal_id, order_id, customer_id, product_id, payments_id, service_request_id, original_warranty_start, original_warranty_end, renewal_warranty_start, renewal_warranty_end, renewal_status, created_at, updated_at, renewal_fee) FROM stdin;
+SALES-RENEW-2025-c9e48c	\N	\N	\N	\N	\N	2023-04-01	2024-04-01	2024-04-02	2025-04-01	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	5000.00
+SALES-RENEW-2025-ba4c35	\N	\N	\N	\N	\N	2023-06-01	2024-06-01	2024-06-02	2025-06-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	3000.00
+SALES-RENEW-2025-2fc9a8	\N	\N	\N	\N	\N	2023-07-15	2024-07-15	2024-07-16	2025-07-15	Rejected	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	2000.00
+SALES-RENEW-2025-df1fc1	\N	\N	\N	\N	\N	2022-08-01	2023-08-01	2023-08-02	2024-08-01	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	7000.00
+SALES-RENEW-2025-ca493a	\N	\N	\N	\N	\N	2023-05-01	2024-05-01	2024-05-02	2025-05-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	4000.00
+SALES-RENEW-2025-330c29	\N	\N	\N	\N	\N	2023-09-10	2024-09-10	2024-09-11	2025-09-10	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	1500.00
+SALES-RENEW-2025-84c872	\N	\N	\N	\N	\N	2023-10-20	2024-10-20	2024-10-21	2025-10-20	Rejected	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	2500.00
+SALES-RENEW-2025-3265e5	\N	\N	\N	\N	\N	2023-11-05	2024-11-05	2024-11-06	2025-11-05	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	6000.00
+SALES-RENEW-2025-f8cc21	\N	\N	\N	\N	\N	2023-12-01	2024-12-01	2024-12-02	2025-12-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	5000.00
+SALES-RENEW-2025-eacfd5	\N	\N	\N	\N	\N	2023-03-15	2024-03-15	2024-03-16	2025-03-15	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	3500.00
+SALES-RENEW-2025-b48144	\N	\N	\N	\N	\N	2023-05-01	2024-05-01	2024-05-02	2025-05-01	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	5500.00
+SALES-RENEW-2025-5d2b1f	\N	\N	\N	\N	\N	2023-07-01	2024-07-01	2024-07-02	2025-07-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	3200.00
+SALES-RENEW-2025-d992a4	\N	\N	\N	\N	\N	2023-08-15	2024-08-15	2024-08-16	2025-08-15	Rejected	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	2200.00
+SALES-RENEW-2025-bca972	\N	\N	\N	\N	\N	2022-09-01	2023-09-01	2023-09-02	2024-09-01	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	7500.00
+SALES-RENEW-2025-428c15	\N	\N	\N	\N	\N	2023-06-01	2024-06-01	2024-06-02	2025-06-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	4200.00
+SALES-RENEW-2025-fe7a01	\N	\N	\N	\N	\N	2023-10-10	2024-10-10	2024-10-11	2025-10-10	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	1600.00
+SALES-RENEW-2025-5e5625	\N	\N	\N	\N	\N	2023-11-20	2024-11-20	2024-11-21	2025-11-20	Rejected	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	2600.00
+SALES-RENEW-2025-b76217	\N	\N	\N	\N	\N	2023-12-05	2024-12-05	2024-12-06	2025-12-05	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	6200.00
+SALES-RENEW-2025-1796b1	\N	\N	\N	\N	\N	2024-01-01	2025-01-01	2025-01-02	2026-01-01	Pending	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	5100.00
+SALES-RENEW-2025-13bd03	\N	\N	\N	\N	\N	2023-04-15	2024-04-15	2024-04-16	2025-04-15	Approved	2025-03-23 10:19:43.9945	2025-03-23 10:19:43.9945	3600.00
 \.
 
 
@@ -7363,6 +9915,26 @@ COPY sales.renewal_warranty (renewal_id, order_id, customer_id, product_id, paym
 --
 
 COPY sales.sales_costing (sales_costing_id, non_project_costing_id, project_resources_id, created_at, updated_at) FROM stdin;
+SALES-SC-2025-879eae	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-b950f5	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-16ef3f	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-884d41	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-ef8bfa	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-d080af	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-6d9e11	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-1f8718	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-ba258b	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-b5f937	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-30765d	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-c6826a	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-bff9d4	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-d2f25d	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-bb0b9c	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-0d2ce0	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-40f406	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-e9bdaf	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-9380b4	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
+SALES-SC-2025-fa67ca	\N	\N	2025-03-23 10:19:43.974208	2025-03-23 10:19:43.974208
 \.
 
 
@@ -7371,25 +9943,26 @@ COPY sales.sales_costing (sales_costing_id, non_project_costing_id, project_reso
 --
 
 COPY sales.sales_invoices (invoice_id, order_id, invoice_date, total_amount, invoice_status, payment_status, due_date) FROM stdin;
-SALES-INV-2025-ff0877	SALES-ORD-2025-ee1ff2	2025-03-22 14:59:44	437073.00	Pending	Pending	2025-04-01
-SALES-INV-2025-7d6ccf	SALES-ORD-2025-e150d2	2025-03-16 14:59:44	3544677.76	Pending	Pending	2025-04-17
-SALES-INV-2025-1dc625	SALES-ORD-2025-e0deca	2025-03-22 14:59:44	244608.00	Pending	Pending	2025-03-30
-SALES-INV-2025-28f8b5	SALES-ORD-2025-dc2b39	2025-03-22 14:59:44	135266.04	Pending	Pending	2025-03-23
-SALES-INV-2025-bce93a	SALES-ORD-2025-8a5f44	2025-03-22 14:59:44	290688.65	Pending	Pending	2025-03-24
-SALES-INV-2025-2b8f41	SALES-ORD-2025-889575	2025-03-22 14:59:44	404832.65	Paid	Completed	2025-03-23
-SALES-INV-2025-805837	SALES-ORD-2025-5ae409	2025-03-22 14:59:44	333180.56	Pending	Pending	2025-03-29
-SALES-INV-2025-420b51	SALES-ORD-2025-26f2f7	2025-03-22 14:59:44	12265.34	Paid	Pending	2025-03-23
-SALES-INV-2025-62acc3	SALES-ORD-2025-1722d3	2025-03-22 14:59:44	234913.76	Pending	Pending	2025-03-24
-SALES-INV-2025-f27bbf	SALES-ORD-2025-04a32f	2025-03-22 14:59:44	77984.53	Pending	Pending	2025-03-24
-SALES-INV-2025-4cab2b	SALES-ORD-2025-ee1ff2	2025-03-22 16:06:06	437073.00	Pending	Pending	2025-04-01
-SALES-INV-2025-d7d36d	SALES-ORD-2025-e150d2	2025-03-22 16:06:06	3544677.76	Paid	Completed	2025-03-25
-SALES-INV-2025-acdf1b	SALES-ORD-2025-e0deca	2025-03-22 16:06:06	244608.00	Overdue	Pending	2025-03-28
-SALES-INV-2025-20d6ce	SALES-ORD-2025-dc2b39	2025-03-22 16:06:06	135266.04	Paid	Completed	2025-03-23
-SALES-INV-2025-90d7f2	SALES-ORD-2025-889575	2025-03-22 16:06:06	290688.65	Pending	Failed	2025-03-22
-SALES-INV-2025-8218c9	SALES-ORD-2025-5ae409	2025-03-22 16:06:06	404832.65	Paid	Completed	2025-03-23
-SALES-INV-2025-9727c6	SALES-ORD-2025-26f2f7	2025-03-22 16:06:06	12265.34	Paid	Completed	2025-03-28
-SALES-INV-2025-b060f6	SALES-ORD-2025-04a32f	2025-03-22 16:06:06	234913.76	Overdue	Pending	2025-03-21
-SALES-INV-2025-e63d35	SALES-ORD-2025-dc2b39	2025-03-22 16:06:06	77984.53	Pending	Pending	2025-03-25
+SALES-INV-2025-f79370	SALES-ORD-2025-e16c9e	2025-03-23 10:19:43	750.00	Pending	Pending	2025-04-05
+SALES-INV-2025-f2bf0c	SALES-ORD-2025-db9aae	2025-03-23 10:19:43	2750.00	Overdue	Failed	2025-03-12
+SALES-INV-2025-f2116f	SALES-ORD-2025-d91eeb	2025-03-23 10:19:43	1200.00	Paid	Completed	2025-03-18
+SALES-INV-2025-e8b3f2	SALES-ORD-2025-be90ee	2025-03-23 10:19:43	2500.00	Overdue	Pending	2025-03-10
+SALES-INV-2025-e37fbb	SALES-ORD-2025-b59c3e	2025-03-23 10:19:43	3000.00	Overdue	Pending	2025-03-15
+SALES-INV-2025-e10c51	SALES-ORD-2025-b4a34b	2025-03-23 10:19:43	500.00	Pending	Pending	2025-04-01
+SALES-INV-2025-bba042	SALES-ORD-2025-b1447a	2025-03-23 10:19:43	3200.00	Paid	Completed	2025-03-25
+SALES-INV-2025-b2442e	SALES-ORD-2025-a4ac3c	2025-03-23 10:19:43	8000.00	Overdue	Pending	2025-03-15
+SALES-INV-2025-a444d2	SALES-ORD-2025-a4359c	2025-03-23 10:19:43	9000.00	Pending	Pending	2025-04-10
+SALES-INV-2025-93089c	SALES-ORD-2025-a4359c	2025-03-23 10:19:43	5000.00	Paid	Completed	2025-03-20
+SALES-INV-2025-89a7db	SALES-ORD-2025-9b8c27	2025-03-23 10:19:43	4000.00	Pending	Pending	2025-04-10
+SALES-INV-2025-6dafee	SALES-ORD-2025-52e0c9	2025-03-23 10:19:43	3200.00	Paid	Completed	2025-03-22
+SALES-INV-2025-50b82f	SALES-ORD-2025-4118c6	2025-03-23 10:19:43	600.00	Paid	Completed	2025-03-18
+SALES-INV-2025-4d9b44	SALES-ORD-2025-4109ce	2025-03-23 10:19:43	1800.00	Paid	Completed	2025-03-25
+SALES-INV-2025-332d0b	SALES-ORD-2025-2bacb2	2025-03-23 10:19:43	1200.00	Paid	Completed	2025-03-20
+SALES-INV-2025-2e3617	SALES-ORD-2025-1fe99b	2025-03-23 10:19:43	7000.00	Overdue	Failed	2025-03-10
+SALES-INV-2025-17475a	SALES-ORD-2025-104654	2025-03-23 10:19:43	4500.00	Overdue	Pending	2025-03-12
+SALES-INV-2025-1377a6	SALES-ORD-2025-096d13	2025-03-23 10:19:43	950.00	Paid	Completed	2025-03-22
+SALES-INV-2025-13772d	SALES-ORD-2025-062e11	2025-03-23 10:19:43	1500.00	Pending	Pending	2025-04-05
+SALES-INV-2025-00a822	SALES-ORD-2025-0479e3	2025-03-23 10:19:43	2000.00	Pending	Pending	2025-04-01
 \.
 
 
@@ -7398,16 +9971,26 @@ SALES-INV-2025-e63d35	SALES-ORD-2025-dc2b39	2025-03-22 16:06:06	77984.53	Pending
 --
 
 COPY sales.shipping_details (shipping_id, order_id, operational_cost_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status) FROM stdin;
-SALES-SHIP-2025-e5786a	SALES-ORD-2025-ee1ff2	DIS-OS-2025-5b37de	a	Standard	TRK1001	2025-03-22 08:13:34	2025-04-01 10:00:00	Pending
-SALES-SHIP-2025-32000a	SALES-ORD-2025-e150d2	DIS-OS-2025-48963a	a	Express	TRK1002	2025-03-22 08:14:13	2025-03-22 08:14:14	Shipped
-SALES-SHIP-2025-6e91d8	SALES-ORD-2025-e0deca	DIS-OS-2025-ad8e07	a	Overnight	TRK1003	2025-03-20 08:14:40	2025-03-21 08:14:42	Delivered
-SALES-SHIP-2025-c34d24	SALES-ORD-2025-dc2b39	DIS-OS-2025-40855e	a	Same-Day	TRK1004	2025-03-19 08:15:09	2025-03-19 14:15:13	Delivered
-SALES-SHIP-2025-5a4857	SALES-ORD-2025-8a5f44	DIS-OS-2025-3de59c	a	International	TRK1005	2025-03-22 08:15:42	2025-04-10 08:15:52	Pending
-SALES-SHIP-2025-ac591e	SALES-ORD-2025-889575	DIS-OS-2025-30d8db	a	Local	TRK1006	2025-03-22 08:16:28	2025-03-25 08:16:35	Shipped
-SALES-SHIP-2025-8b5148	SALES-ORD-2025-5ae409	DIS-OS-2025-1bc391	a	Standard	TRK1007	2025-03-22 08:16:52	2025-03-23 09:00:00	Pending
-SALES-SHIP-2025-1699a2	SALES-ORD-2025-26f2f7	DIS-OS-2025-129b85	a	Express	TRK1008	2025-03-17 08:17:31	2025-03-21 08:17:43	Delivered
-SALES-SHIP-2025-185532	SALES-ORD-2025-1722d3	DIS-OS-2025-9f398e	a	Overnight	TRK1009	2025-03-23 08:18:02	2025-03-24 08:18:10	Pending
-SALES-SHIP-2025-b43c1d	SALES-ORD-2025-04a32f	DIS-OS-2025-30ba25	a	Same-Day	TRK1010	2025-03-22 08:18:33	2025-03-22 11:18:35	Shipped
+SALES-SHIP-2025-14a85b	\N	\N	\N	Standard	TRK1001	2025-03-23 10:19:43.984056	2025-04-01 10:00:00	Pending
+SALES-SHIP-2025-e41c25	\N	\N	\N	Express	TRK1002	2025-03-23 10:19:43.984056	2025-03-22 15:00:00	Shipped
+SALES-SHIP-2025-354b3d	\N	\N	\N	Overnight	TRK1003	2025-03-23 10:19:43.984056	2025-03-20 08:00:00	Delivered
+SALES-SHIP-2025-7e8842	\N	\N	\N	Same-Day	TRK1004	2025-03-23 10:19:43.984056	2025-03-19 12:00:00	Delivered
+SALES-SHIP-2025-4ce37b	\N	\N	\N	International	TRK1005	2025-03-23 10:19:43.984056	2025-04-10 18:00:00	Pending
+SALES-SHIP-2025-8e202c	\N	\N	\N	Local	TRK1006	2025-03-23 10:19:43.984056	2025-03-25 14:00:00	Shipped
+SALES-SHIP-2025-d22837	\N	\N	\N	Standard	TRK1007	2025-03-23 10:19:43.984056	2025-04-02 11:00:00	Pending
+SALES-SHIP-2025-55e8ed	\N	\N	\N	Express	TRK1008	2025-03-23 10:19:43.984056	2025-03-21 17:00:00	Delivered
+SALES-SHIP-2025-76d661	\N	\N	\N	Overnight	TRK1009	2025-03-23 10:19:43.984056	2025-03-23 09:00:00	Pending
+SALES-SHIP-2025-c7d03b	\N	\N	\N	Same-Day	TRK1010	2025-03-23 10:19:43.984056	2025-03-24 13:00:00	Shipped
+SALES-SHIP-2025-2df594	\N	\N	\N	Standard	TRK1011	2025-03-23 10:19:43.984056	2025-04-07 10:00:00	Pending
+SALES-SHIP-2025-47b86b	\N	\N	\N	Express	TRK1012	2025-03-23 10:19:43.984056	2025-04-08 15:00:00	Shipped
+SALES-SHIP-2025-8d6b73	\N	\N	\N	Overnight	TRK1013	2025-03-23 10:19:43.984056	2025-04-09 08:00:00	Delivered
+SALES-SHIP-2025-db3852	\N	\N	\N	Same-Day	TRK1014	2025-03-23 10:19:43.984056	2025-04-10 12:00:00	Delivered
+SALES-SHIP-2025-857565	\N	\N	\N	International	TRK1015	2025-03-23 10:19:43.984056	2025-04-11 18:00:00	Pending
+SALES-SHIP-2025-29899d	\N	\N	\N	Local	TRK1016	2025-03-23 10:19:43.984056	2025-04-12 14:00:00	Shipped
+SALES-SHIP-2025-9be599	\N	\N	\N	Standard	TRK1017	2025-03-23 10:19:43.984056	2025-04-13 11:00:00	Pending
+SALES-SHIP-2025-3ccc7b	\N	\N	\N	Express	TRK1018	2025-03-23 10:19:43.984056	2025-04-14 17:00:00	Delivered
+SALES-SHIP-2025-861e56	\N	\N	\N	Overnight	TRK1019	2025-03-23 10:19:43.984056	2025-04-15 09:00:00	Pending
+SALES-SHIP-2025-9f6c43	\N	\N	\N	Same-Day	TRK1020	2025-03-23 10:19:43.984056	2025-04-16 13:00:00	Shipped
 \.
 
 
@@ -7416,19 +9999,27 @@ SALES-SHIP-2025-b43c1d	SALES-ORD-2025-04a32f	DIS-OS-2025-30ba25	a	Same-Day	TRK10
 --
 
 COPY sales.statement (statement_id, customer_id, salesrep_id, total_amount, discount, type, total_tax) FROM stdin;
-SALES-STM-2025-543ad0	SALES-CUST-2025-2ab5ef	HR-EMP-2025-74bbe0	77984.53	0.00	Non-Project-Based	12500
-SALES-STM-2025-e0f54f	SALES-CUST-2025-3a8030	HR-EMP-2025-0d2686	3744677.76	200000.00	Non-Project-Based	401280
-SALES-STM-2025-95c41b	SALES-CUST-2025-3d056a	HR-EMP-2025-d4c668	437073.00	0.00	Project-Based	244881
-SALES-STM-2025-357582	SALES-CUST-2025-4924d8	HR-EMP-2025-74bbe0	135266.04	0.00	Non-Project-Based	16232
-SALES-STM-2025-a51eff	SALES-CUST-2025-5f1828	HR-EMP-2025-0d2686	259543.44	0.00	Non-Project-Based	31145
-SALES-STM-2025-5c03b9	SALES-CUST-2025-bd4084	HR-EMP-2025-d4c668	297482.64	0.00	Non-Project-Based	35698
-SALES-STM-2025-001bc5	SALES-CUST-2025-bf996e	HR-EMP-2025-74bbe0	218400.00	0.00	Non-Project-Based	26208
-SALES-STM-2025-d979d6	SALES-CUST-2025-856b59	HR-EMP-2025-0d2686	10951.20	0.00	Non-Project-Based	1314
-SALES-STM-2025-52cff7	SALES-CUST-2025-94a450	HR-EMP-2025-d4c668	218673.00	10000.00	Non-Project-Based	26241
-SALES-STM-2025-54d93c	SALES-CUST-2025-83a030	HR-EMP-2025-74bbe0	388243.44	30000.00	Non-Project-Based	46589
-SALES-STM-2025-633f58	SALES-CUST-2025-d39ed9	HR-EMP-2025-c8223f	80580.24	2560.00	Non-Project-Based	9670
-SALES-STM-2025-01ae9c	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	5051292.80	0.00	Non-Project-Based	496829
-SALES-STM-2025-5fc4f3	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	5051292.80	0.00	Non-Project-Based	496829
+SALES-STM-2025-f4b14f	SALES-CUST-2025-a6775c	HR-EMP-2025-b15e2f	150000.00	5000.00	Project-Based	18000
+SALES-STM-2025-b90b4b	SALES-CUST-2025-cbf858	HR-EMP-2025-f0cffe	598234.55	25000.00	Project-Based	71788
+SALES-STM-2025-948f52	SALES-CUST-2025-941d72	HR-EMP-2025-b15e2f	875690.40	30000.00	Non-Project-Based	105083
+SALES-STM-2025-91058d	SALES-CUST-2025-3197ba	HR-EMP-2025-9e7313	297482.64	0.00	Non-Project-Based	35698
+SALES-STM-2025-755417	SALES-CUST-2025-8cdccd	HR-EMP-2025-f0cffe	308764.00	0.00	Non-Project-Based	37052
+SALES-STM-2025-6b1653	SALES-CUST-2025-dbfe2c	HR-EMP-2025-b15e2f	388243.44	30000.00	Non-Project-Based	46589
+SALES-STM-2025-656095	SALES-CUST-2025-a42491	HR-EMP-2025-9e7313	157893.45	5000.00	Project-Based	18947
+SALES-STM-2025-5e569c	SALES-CUST-2025-614801	HR-EMP-2025-f0cffe	215432.99	5000.00	Non-Project-Based	25852
+SALES-STM-2025-3acfef	SALES-CUST-2025-d105ee	HR-EMP-2025-b15e2f	10951.20	0.00	Non-Project-Based	1314
+SALES-STM-2025-f6b7d0	SALES-CUST-2025-a6775c	HR-EMP-2025-f0cffe	218400.00	0.00	Non-Project-Based	26208
+SALES-STM-2025-35c700	SALES-CUST-2025-2597c0	HR-EMP-2025-9e7313	135266.04	0.00	Non-Project-Based	16232
+SALES-STM-2025-29deb9	SALES-CUST-2025-2ba07b	HR-EMP-2025-9e7313	259543.44	0.00	Non-Project-Based	31145
+SALES-STM-2025-2cc7f2	SALES-CUST-2025-fbdaf0	HR-EMP-2025-f0cffe	437073.00	0.00	Project-Based	244881
+SALES-STM-2025-21f5af	SALES-CUST-2025-fbdaf0	HR-EMP-2025-b15e2f	475822.67	15000.00	Project-Based	57099
+SALES-STM-2025-2879fa	SALES-CUST-2025-b1576f	HR-EMP-2025-f0cffe	267890.00	10000.00	Non-Project-Based	32147
+SALES-STM-2025-2f3fae	SALES-CUST-2025-a42491	HR-EMP-2025-f0cffe	3744677.76	200000.00	Non-Project-Based	401280
+SALES-STM-2025-251924	SALES-CUST-2025-a6775c	HR-EMP-2025-f0cffe	89934.00	0.00	Non-Project-Based	10792
+SALES-STM-2025-600a2f	SALES-CUST-2025-a6775c	HR-EMP-2025-f0cffe	174891.80	0.00	Non-Project-Based	19810
+SALES-STM-2025-c86ce6	SALES-CUST-2025-6a3167	HR-EMP-2025-cb0e4c	6289.92	0.00	Non-Project-Based	674
+SALES-STM-2025-16fb8a	SALES-CUST-2025-59eb62	HR-EMP-2025-b15e2f	324567.88	10000.00	Project-Based	38948
+SALES-STM-2025-a29318	SALES-CUST-2025-6a3167	HR-EMP-2025-9e7313	9782.61	0.00	Non-Project-Based	943
 \.
 
 
@@ -7437,22 +10028,28 @@ SALES-STM-2025-5fc4f3	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	5051292.80	0.00	
 --
 
 COPY sales.statement_item (statement_item_id, statement_id, sales_costing_id, product_id, item_md_id, quantity, unit_price, total_price, markup_percentage, demand_level, discount, tax_amount) FROM stdin;
-SALES-STI-2025-378a01	SALES-STM-2025-e0f54f	\N	ADMIN-PROD-2025-a83254	\N	1	10951.20	10951.20	20.00	Low	0.00	1314
-SALES-STI-2025-b81438	SALES-STM-2025-5fc4f3	\N	ADMIN-PROD-2025-a83254	\N	150	10951.20	1642680.00	20.00	Low	0.00	197122
-SALES-STI-2025-e45446	SALES-STM-2025-5fc4f3	\N	ADMIN-PROD-2025-fdabb5	\N	10	249756.00	2497560.00	20.00	Low	0.00	299707
-SALES-STI-2025-19e80b	SALES-STM-2025-543ad0	\N	ADMIN-PROD-2025-ea1ddb	\N	1	218673.00	218673.00	20.00	Low	0.00	26241
-SALES-STI-2025-217edd	SALES-STM-2025-543ad0	\N	ADMIN-PROD-2025-bb2e86	\N	1	218400.00	218400.00	20.00	Low	0.00	26208
-SALES-STI-2025-29d6a9	SALES-STM-2025-e0f54f	\N	ADMIN-PROD-2025-ac0665	\N	1	135266.04	135266.04	20.00	Low	0.00	16232
-SALES-STI-2025-3834ab	SALES-STM-2025-357582	\N	ADMIN-PROD-2025-e9ce12	\N	1	259543.44	259543.44	20.00	Low	0.00	31145
-SALES-STI-2025-3ae348	SALES-STM-2025-a51eff	\N	ADMIN-PROD-2025-09e97d	\N	1	47726.64	47726.64	20.00	Low	0.00	5727
-SALES-STI-2025-4794e4	SALES-STM-2025-5c03b9	\N	ADMIN-PROD-2025-09e97d	\N	1	47726.64	47726.64	20.00	Low	0.00	5727
-SALES-STI-2025-6db696	SALES-STM-2025-5c03b9	\N	ADMIN-PROD-2025-a83254	\N	2	10951.20	21902.40	20.00	Low	0.00	2628
-SALES-STI-2025-9affb3	SALES-STM-2025-001bc5	\N	ADMIN-PROD-2025-ea1ddb	\N	2	218673.00	437346.00	20.00	Low	0.00	52482
-SALES-STI-2025-b3d86b	SALES-STM-2025-d979d6	\N	ADMIN-PROD-2025-fdabb5	\N	1	249756.00	249756.00	20.00	Low	0.00	29971
-SALES-STI-2025-cee3fb	SALES-STM-2025-001bc5	\N	ADMIN-PROD-2025-04fd80	\N	1	128700.00	128700.00	20.00	Low	0.00	15444
-SALES-STI-2025-d66c43	SALES-STM-2025-d979d6	\N	ADMIN-PROD-2025-328a5f	\N	3	1114666.00	3343998.00	20.00	Low	0.00	401280
-SALES-STI-2025-eeb086	SALES-STM-2025-52cff7	\N	ADMIN-PROD-2025-bb2e86	\N	1	218400.00	218400.00	20.00	Low	10000.00	26208
-SALES-STI-2025-fa61e8	SALES-STM-2025-54d93c	\N	ADMIN-PROD-2025-e9ce12	\N	1	259543.44	259543.44	20.00	Low	0.00	31145
+SALES-STI-2025-fc3bec	SALES-STM-2025-251924	\N	ADMIN-PROD-2025-2e0ab6	\N	3	47726.64	150361.51	60.00	High	10000.00	17182
+SALES-STI-2025-fbdf4d	SALES-STM-2025-600a2f	\N	ADMIN-PROD-2025-5598cf	\N	2	10951.20	24530.69	20.00	Low	0.00	2628
+SALES-STI-2025-f090bb	SALES-STM-2025-c86ce6	\N	ADMIN-PROD-2025-09e33a	\N	1	5616.00	6289.92	20.00	Low	0.00	674
+SALES-STI-2025-ca65f6	SALES-STM-2025-91058d	\N	ADMIN-PROD-2025-941c5b	\N	1	218400.00	218400.00	20.00	Low	0.00	26208
+SALES-STI-2025-c956cf	SALES-STM-2025-755417	\N	ADMIN-PROD-2025-a17047	\N	1	249756.00	249756.00	20.00	Low	0.00	29971
+SALES-STI-2025-b58f6a	SALES-STM-2025-755417	\N	ADMIN-PROD-2025-941c5b	\N	3	1114666.00	3343998.00	20.00	Low	0.00	401280
+SALES-STI-2025-b0fa0b	SALES-STM-2025-6b1653	\N	ADMIN-PROD-2025-115147	\N	1	128700.00	128700.00	20.00	Low	0.00	15444
+SALES-STI-2025-6e1e9d	SALES-STM-2025-656095	\N	ADMIN-PROD-2025-2e0ab6	\N	1	135266.04	135266.04	20.00	Low	0.00	16232
+SALES-STI-2025-525ef8	SALES-STM-2025-f6b7d0	\N	ADMIN-PROD-2025-a68481	\N	1	598234.55	598234.55	20.00	Low	25000.00	71788
+SALES-STI-2025-391666	SALES-STM-2025-35c700	\N	ADMIN-PROD-2025-83adb5	\N	1	10951.20	10951.20	20.00	Low	0.00	1314
+SALES-STI-2025-2d5b9f	SALES-STM-2025-2cc7f2	\N	ADMIN-PROD-2025-a68481	\N	1	47726.64	47726.64	20.00	Low	0.00	5727
+SALES-STI-2025-262ddf	SALES-STM-2025-2f3fae	\N	ADMIN-PROD-2025-0e6337	\N	2	44967.00	89934.00	20.00	Low	0.00	10792
+SALES-STI-2025-0361bc	SALES-STM-2025-c86ce6	\N	ADMIN-PROD-2025-8698b7	\N	2	154382.00	308764.00	40.00	Medium	0.00	37052
+SALES-STI-2025-a09a62	SALES-STM-2025-f4b14f	\N	ADMIN-PROD-2025-83adb5	\N	2	50000.00	100000.00	40.00	Medium	5000.00	12000
+SALES-STI-2025-900021	SALES-STM-2025-b90b4b	\N	ADMIN-PROD-2025-b022f3	\N	1	47726.64	47726.64	20.00	Low	0.00	5727
+SALES-STI-2025-87ad28	SALES-STM-2025-948f52	\N	ADMIN-PROD-2025-115147	\N	2	10951.20	21902.40	20.00	Low	0.00	2628
+SALES-STI-2025-284852	SALES-STM-2025-5e569c	\N	ADMIN-PROD-2025-2e0ab6	\N	1	475822.67	475822.67	60.00	High	15000.00	57099
+SALES-STI-2025-22397f	SALES-STM-2025-3acfef	\N	ADMIN-PROD-2025-115147	\N	1	259543.44	259543.44	20.00	Low	0.00	31145
+SALES-STI-2025-151818	SALES-STM-2025-21f5af	\N	ADMIN-PROD-2025-a68481	\N	1	259543.44	259543.44	20.00	Low	0.00	31145
+SALES-STI-2025-0501db	SALES-STM-2025-2879fa	\N	ADMIN-PROD-2025-c5c83a	\N	1	218400.00	218400.00	20.00	Low	10000.00	26208
+SALES-STI-2025-2e17d5	SALES-STM-2025-a29318	\N	ADMIN-PROD-2025-51838d	\N	1	3900.00	3900.00	20.00	Low	0.00	0
+SALES-STI-2025-0ad966	SALES-STM-2025-a29318	\N	ADMIN-PROD-2025-6db12d	\N	1	3954.60	3954.60	20.00	Low	0.00	0
 \.
 
 
@@ -7461,16 +10058,26 @@ SALES-STI-2025-fa61e8	SALES-STM-2025-54d93c	\N	ADMIN-PROD-2025-e9ce12	\N	1	25954
 --
 
 COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, created_at) FROM stdin;
-SALES-TICKET-2025-e017e3	SALES-CUST-2025-e1cdff	HR-EMP-2025-0bf227	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-03-22 15:42:09
-SALES-TICKET-2025-45e1d1	SALES-CUST-2025-d39ed9	HR-EMP-2025-bf22fd	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-03-22 15:42:09
-SALES-TICKET-2025-81301c	SALES-CUST-2025-ad49b6	HR-EMP-2025-c8223f	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-03-22 15:42:09
-SALES-TICKET-2025-8833c0	SALES-CUST-2025-5e9b82	HR-EMP-2025-0bf227	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-03-22 15:42:09
-SALES-TICKET-2025-234095	SALES-CUST-2025-8a8cdd	HR-EMP-2025-bf22fd	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-03-22 15:42:09
-SALES-TICKET-2025-ea6204	SALES-CUST-2025-dd5896	HR-EMP-2025-c8223f	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-03-22 15:42:09
-SALES-TICKET-2025-dbd816	SALES-CUST-2025-189efd	HR-EMP-2025-0bf227	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-03-22 15:42:09
-SALES-TICKET-2025-72f8f2	SALES-CUST-2025-21c090	HR-EMP-2025-bf22fd	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly	Open	Urgent	2025-03-22 15:42:09
-SALES-TICKET-2025-f50510	SALES-CUST-2025-e482c1	HR-EMP-2025-c8223f	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-03-22 15:42:09
-SALES-TICKET-2025-6ba730	SALES-CUST-2025-2d4994	HR-EMP-2025-bf22fd	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-03-22 15:42:09
+SALES-TICKET-2025-b3f9aa	\N	\N	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-5e4d37	\N	\N	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-ff7bff	\N	\N	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-83ddd0	\N	\N	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-5ac348	\N	\N	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-be11e9	\N	\N	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-1341f1	\N	\N	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-d09df6	\N	\N	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-2660cd	\N	\N	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-71c901	\N	\N	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-e15712	\N	\N	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-8800ea	\N	\N	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-50b93a	\N	\N	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-7cda14	\N	\N	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-6858fe	\N	\N	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-2dd80e	\N	\N	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-2ac11f	\N	\N	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-409109	\N	\N	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-ab24c9	\N	\N	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	2025-03-23 10:19:43.986949
+SALES-TICKET-2025-29180a	\N	\N	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	2025-03-23 10:19:43.986949
 \.
 
 
@@ -7479,16 +10086,26 @@ SALES-TICKET-2025-6ba730	SALES-CUST-2025-2d4994	HR-EMP-2025-bf22fd	On-Site Inspe
 --
 
 COPY sales.ticket_convo (convo_id, ticket_id, content, created_at) FROM stdin;
-SALES-CONVO-2025-851a86	SALES-TICKET-2025-e017e3	Technician scheduled for MRI maintenance on April 5.	2025-03-22 15:42:09
-SALES-CONVO-2025-075f2c	SALES-TICKET-2025-45e1d1	Calibration tools dispatched, technician visit confirmed.	2025-03-22 15:42:09
-SALES-CONVO-2025-ebb3dd	SALES-TICKET-2025-81301c	ECG training session scheduled for March 15.	2025-03-22 15:42:09
-SALES-CONVO-2025-e39c6d	SALES-TICKET-2025-8833c0	Software update package sent, remote installation guide provided.	2025-03-22 15:42:09
-SALES-CONVO-2025-226f05	SALES-TICKET-2025-234095	Warranty repair approved, dispatching service team.	2025-03-22 15:42:09
-SALES-CONVO-2025-7f80e7	SALES-TICKET-2025-ea6204	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-03-22 15:42:09
-SALES-CONVO-2025-62eefd	SALES-TICKET-2025-dbd816	MRI relocation assistance team confirmed for March 20.	2025-03-22 15:42:09
-SALES-CONVO-2025-aa866b	SALES-TICKET-2025-72f8f2	Investigating motorized hospital bed issues, awaiting technician report.	2025-03-22 15:42:09
-SALES-CONVO-2025-220719	SALES-TICKET-2025-f50510	Battery order placed, estimated arrival March 10.	2025-03-22 15:42:09
-SALES-CONVO-2025-eb1c61	SALES-TICKET-2025-6ba730	On-site inspection scheduled for April 1, report to follow.	2025-03-22 15:42:09
+SALES-CONVO-2025-3068cd	\N	Technician scheduled for MRI maintenance on April 5.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-e847a8	\N	Calibration tools dispatched, technician visit confirmed.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-973459	\N	ECG training session scheduled for March 15.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-6af977	\N	Software update package sent, remote installation guide provided.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-de6616	\N	Warranty repair approved, dispatching service team.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-b5952d	\N	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-8e2e60	\N	MRI relocation assistance team confirmed for March 20.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-8fbe5d	\N	Investigating motorized hospital bed issues, awaiting technician report.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-487475	\N	Battery order placed, estimated arrival March 10.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-f18241	\N	On-site inspection scheduled for April 1, report to follow.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-602a0c	\N	CT scanner calibration scheduled for April 10.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-dddecd	\N	Ultrasound training session confirmed for March 25.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-876889	\N	Warranty repair approved, technician dispatched.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-78a581	\N	MRI software update completed remotely.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-4a6bf5	\N	Ventilator relocation team confirmed for April 5.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-eb2279	\N	Defibrillator troubleshooting guide sent.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-241b90	\N	Hospital bed repair completed successfully.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-2cdc6b	\N	Battery replacement order placed, ETA March 15.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-390197	\N	Lab equipment inspection scheduled for April 8.	2025-03-23 10:19:43.988251
+SALES-CONVO-2025-f62a12	\N	Surgical tools training session confirmed for March 30.	2025-03-23 10:19:43.988251
 \.
 
 
@@ -7496,23 +10113,47 @@ SALES-CONVO-2025-eb1c61	SALES-TICKET-2025-6ba730	On-site inspection scheduled fo
 -- Data for Name: after_analysis_sched; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.after_analysis_sched (analysis_sched_id, service_request_id, service_date, technician_id, description, service_status) FROM stdin;
-\.
-
-
---
--- Data for Name: chat_message; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.chat_message (message_id, session_id, sender_id, sender_role, message_text, "timestamp") FROM stdin;
-\.
-
-
---
--- Data for Name: comm_session; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.comm_session (session_id, technician_id, customer_id, session_type, start_time, end_time, status) FROM stdin;
+COPY services.after_analysis_sched (analysis_sched_id, analysis_id, service_date, technician_id, description, service_status) FROM stdin;
+SERVICES-SCHED-2025-705bef	\N	2025-08-01	\N	Scheduled follow-up for system inspection.	Scheduled
+SERVICES-SCHED-2025-3d5374	\N	2025-08-02	\N	Finalizing security setup analysis.	Completed
+SERVICES-SCHED-2025-ded454	\N	2025-08-03	\N	Customer requested additional assessment.	Cancelled
+SERVICES-SCHED-2025-169ff8	\N	2025-08-04	\N	Re-checking heating unit.	In Progress
+SERVICES-SCHED-2025-1986c6	\N	2025-08-05	\N	Scheduled analysis for network issues.	Scheduled
+SERVICES-SCHED-2025-966c98	\N	2025-08-06	\N	Assessment for smart home devices.	Completed
+SERVICES-SCHED-2025-50dd06	\N	2025-08-07	\N	Checking air conditioning efficiency.	Cancelled
+SERVICES-SCHED-2025-7c2d03	\N	2025-08-08	\N	Verifying repair status.	In Progress
+SERVICES-SCHED-2025-5c1536	\N	2025-08-09	\N	System performance test.	Scheduled
+SERVICES-SCHED-2025-04ccfb	\N	2025-08-10	\N	Final service check.	Completed
+SERVICES-SCHED-2025-f4b49b	\N	2025-08-11	\N	Evaluating wiring safety.	Cancelled
+SERVICES-SCHED-2025-1bbda2	\N	2025-08-12	\N	Assessing HVAC maintenance.	In Progress
+SERVICES-SCHED-2025-469e16	\N	2025-08-13	\N	Reviewing previous service order.	Scheduled
+SERVICES-SCHED-2025-ba7b08	\N	2025-08-14	\N	Analyzing cooling system performance.	Completed
+SERVICES-SCHED-2025-0935ff	\N	2025-08-15	\N	Inspection for updated configurations.	Cancelled
+SERVICES-SCHED-2025-319cee	\N	2025-08-16	\N	Scheduled quality check.	In Progress
+SERVICES-SCHED-2025-bf0988	\N	2025-08-17	\N	Follow-up on system upgrade.	Scheduled
+SERVICES-SCHED-2025-303a25	\N	2025-08-18	\N	Security lock system evaluation.	Completed
+SERVICES-SCHED-2025-a79b3f	\N	2025-08-19	\N	Customer requested additional service.	Cancelled
+SERVICES-SCHED-2025-9fbed9	\N	2025-08-20	\N	Finalizing post-repair service.	In Progress
+SERVICES-SCHED-2025-cea183	\N	2025-08-01	\N	Scheduled follow-up for system inspection.	Scheduled
+SERVICES-SCHED-2025-86a2c4	\N	2025-08-02	\N	Finalizing security setup analysis.	Completed
+SERVICES-SCHED-2025-371f9e	\N	2025-08-03	\N	Customer requested additional assessment.	Cancelled
+SERVICES-SCHED-2025-d76dcc	\N	2025-08-04	\N	Re-checking heating unit.	In Progress
+SERVICES-SCHED-2025-d6814f	\N	2025-08-05	\N	Scheduled analysis for network issues.	Scheduled
+SERVICES-SCHED-2025-8fa29b	\N	2025-08-06	\N	Assessment for smart home devices.	Completed
+SERVICES-SCHED-2025-ce1753	\N	2025-08-07	\N	Checking air conditioning efficiency.	Cancelled
+SERVICES-SCHED-2025-455f7a	\N	2025-08-08	\N	Verifying repair status.	In Progress
+SERVICES-SCHED-2025-eaa02f	\N	2025-08-09	\N	System performance test.	Scheduled
+SERVICES-SCHED-2025-c3787e	\N	2025-08-10	\N	Final service check.	Completed
+SERVICES-SCHED-2025-3b37a4	\N	2025-08-11	\N	Evaluating wiring safety.	Cancelled
+SERVICES-SCHED-2025-fb108c	\N	2025-08-12	\N	Assessing HVAC maintenance.	In Progress
+SERVICES-SCHED-2025-8dc197	\N	2025-08-13	\N	Reviewing previous service order.	Scheduled
+SERVICES-SCHED-2025-46920a	\N	2025-08-14	\N	Analyzing cooling system performance.	Completed
+SERVICES-SCHED-2025-ecdc05	\N	2025-08-15	\N	Inspection for updated configurations.	Cancelled
+SERVICES-SCHED-2025-e53cf7	\N	2025-08-16	\N	Scheduled quality check.	In Progress
+SERVICES-SCHED-2025-d3424d	\N	2025-08-17	\N	Follow-up on system upgrade.	Scheduled
+SERVICES-SCHED-2025-ed734f	\N	2025-08-18	\N	Security lock system evaluation.	Completed
+SERVICES-SCHED-2025-efe40c	\N	2025-08-19	\N	Customer requested additional service.	Cancelled
+SERVICES-SCHED-2025-c3f159	\N	2025-08-20	\N	Finalizing post-repair service.	In Progress
 \.
 
 
@@ -7520,15 +10161,47 @@ COPY services.comm_session (session_id, technician_id, customer_id, session_type
 -- Data for Name: delivery_order; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.delivery_order (delivery_order_id, service_purchase_id, service_order_id, service_billing_id, customer_id, customer_address, delivery_status, service_billing_amount, delivery_date) FROM stdin;
-\.
-
-
---
--- Data for Name: renewal_history; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.renewal_history (renewal_id, contract_id, customer_id, previous_start_date, previous_end_date, renewal_date, date_renewed, new_end_date, status) FROM stdin;
+COPY services.delivery_order (delivery_order_id, service_order_item_id, customer_id, customer_address, delivery_status, delivery_date) FROM stdin;
+SERVICES-DO-2025-604d83	\N	\N	123 Elm Street, NY	Pending	2025-09-01
+SERVICES-DO-2025-23cea3	\N	\N	456 Oak Avenue, CA	Shipped	2025-09-02
+SERVICES-DO-2025-cf1386	\N	\N	789 Pine Road, TX	Delivered	2025-09-03
+SERVICES-DO-2025-9c7b91	\N	\N	321 Maple Drive, FL	Pending	2025-09-04
+SERVICES-DO-2025-9f098a	\N	\N	654 Cedar Lane, WA	Shipped	2025-09-05
+SERVICES-DO-2025-78a27c	\N	\N	987 Birch Boulevard, IL	Delivered	2025-09-06
+SERVICES-DO-2025-92956f	\N	\N	159 Walnut Street, GA	Pending	2025-09-07
+SERVICES-DO-2025-3a785d	\N	\N	753 Chestnut Road, CO	Shipped	2025-09-08
+SERVICES-DO-2025-48f4e2	\N	\N	852 Redwood Ave, OR	Delivered	2025-09-09
+SERVICES-DO-2025-ed3f63	\N	\N	951 Spruce Circle, NV	Pending	2025-09-10
+SERVICES-DO-2025-9cff2b	\N	\N	753 Cypress Street, AZ	Shipped	2025-09-11
+SERVICES-DO-2025-e9d255	\N	\N	357 Palm Lane, NJ	Delivered	2025-09-12
+SERVICES-DO-2025-3d38e0	\N	\N	258 Juniper Road, MI	Pending	2025-09-13
+SERVICES-DO-2025-c0f86a	\N	\N	369 Aspen Drive, MO	Shipped	2025-09-14
+SERVICES-DO-2025-97c78a	\N	\N	741 Magnolia Blvd, TN	Delivered	2025-09-15
+SERVICES-DO-2025-7b4696	\N	\N	147 Hickory Street, OH	Pending	2025-09-16
+SERVICES-DO-2025-ee7b3c	\N	\N	369 Willow Avenue, VA	Shipped	2025-09-17
+SERVICES-DO-2025-5d94a1	\N	\N	258 Dogwood Road, KY	Delivered	2025-09-18
+SERVICES-DO-2025-447cb8	\N	\N	357 Fir Lane, MA	Pending	2025-09-19
+SERVICES-DO-2025-ce7b1a	\N	\N	753 Poplar Blvd, MN	Shipped	2025-09-20
+SERVICES-DO-2025-f9ec53	\N	\N	123 Elm Street, NY	Pending	2025-09-01
+SERVICES-DO-2025-7a0507	\N	\N	456 Oak Avenue, CA	Shipped	2025-09-02
+SERVICES-DO-2025-35dfe5	\N	\N	789 Pine Road, TX	Delivered	2025-09-03
+SERVICES-DO-2025-d3c3e6	\N	\N	321 Maple Drive, FL	Pending	2025-09-04
+SERVICES-DO-2025-0fd201	\N	\N	654 Cedar Lane, WA	Shipped	2025-09-05
+SERVICES-DO-2025-42d740	\N	\N	987 Birch Boulevard, IL	Delivered	2025-09-06
+SERVICES-DO-2025-414e3a	\N	\N	159 Walnut Street, GA	Pending	2025-09-07
+SERVICES-DO-2025-ffc706	\N	\N	753 Chestnut Road, CO	Shipped	2025-09-08
+SERVICES-DO-2025-d7376d	\N	\N	852 Redwood Ave, OR	Delivered	2025-09-09
+SERVICES-DO-2025-ca652c	\N	\N	951 Spruce Circle, NV	Pending	2025-09-10
+SERVICES-DO-2025-f98e16	\N	\N	753 Cypress Street, AZ	Shipped	2025-09-11
+SERVICES-DO-2025-8dce5c	\N	\N	357 Palm Lane, NJ	Delivered	2025-09-12
+SERVICES-DO-2025-f5f1b0	\N	\N	258 Juniper Road, MI	Pending	2025-09-13
+SERVICES-DO-2025-6bfabc	\N	\N	369 Aspen Drive, MO	Shipped	2025-09-14
+SERVICES-DO-2025-185e7c	\N	\N	741 Magnolia Blvd, TN	Delivered	2025-09-15
+SERVICES-DO-2025-242eff	\N	\N	147 Hickory Street, OH	Pending	2025-09-16
+SERVICES-DO-2025-e77e7a	\N	\N	369 Willow Avenue, VA	Shipped	2025-09-17
+SERVICES-DO-2025-3c1269	\N	\N	258 Dogwood Road, KY	Delivered	2025-09-18
+SERVICES-DO-2025-b59678	\N	\N	357 Fir Lane, MA	Pending	2025-09-19
+SERVICES-DO-2025-bc0d61	\N	\N	753 Poplar Blvd, MN	Shipped	2025-09-20
 \.
 
 
@@ -7536,7 +10209,47 @@ COPY services.renewal_history (renewal_id, contract_id, customer_id, previous_st
 -- Data for Name: service_analysis; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_analysis (analysis_id, service_request_id, analysis_date, technician_id, customer_id, analysis_description, product_id) FROM stdin;
+COPY services.service_analysis (analysis_id, service_request_id, analysis_date, technician_id, customer_id, analysis_status, analysis_description, product_id, contract_id, labor_cost) FROM stdin;
+SERVICES-ANALYSIS-2025-cd3b50	\N	2025-07-01	\N	\N	Scheduled	Initial diagnosis scheduled.	\N	\N	50.00
+SERVICES-ANALYSIS-2025-e0de6f	\N	2025-07-02	\N	\N	Done	Repair assessment completed.	\N	\N	75.00
+SERVICES-ANALYSIS-2025-1b4456	\N	2025-07-03	\N	\N	Scheduled	Pending analysis for heating system.	\N	\N	60.00
+SERVICES-ANALYSIS-2025-80094c	\N	2025-07-04	\N	\N	Done	Inspection completed for smart home setup.	\N	\N	85.00
+SERVICES-ANALYSIS-2025-7ab076	\N	2025-07-05	\N	\N	Scheduled	Customer reported strange noises.	\N	\N	45.00
+SERVICES-ANALYSIS-2025-f890bc	\N	2025-07-06	\N	\N	Done	Analysis completed for security system.	\N	\N	100.00
+SERVICES-ANALYSIS-2025-e73106	\N	2025-07-07	\N	\N	Scheduled	Diagnosing air conditioning malfunction.	\N	\N	55.00
+SERVICES-ANALYSIS-2025-812545	\N	2025-07-08	\N	\N	Done	Troubleshooting completed.	\N	\N	90.00
+SERVICES-ANALYSIS-2025-428ed4	\N	2025-07-09	\N	\N	Scheduled	System update analysis.	\N	\N	65.00
+SERVICES-ANALYSIS-2025-43a6c0	\N	2025-07-10	\N	\N	Done	Inspection for hardware damage.	\N	\N	110.00
+SERVICES-ANALYSIS-2025-d6e150	\N	2025-07-11	\N	\N	Scheduled	Checking electrical components.	\N	\N	70.00
+SERVICES-ANALYSIS-2025-fd630a	\N	2025-07-12	\N	\N	Done	Repair feasibility analysis done.	\N	\N	95.00
+SERVICES-ANALYSIS-2025-885959	\N	2025-07-13	\N	\N	Scheduled	Reviewing software issues.	\N	\N	80.00
+SERVICES-ANALYSIS-2025-2edc42	\N	2025-07-14	\N	\N	Done	Completed analysis for smart door lock.	\N	\N	120.00
+SERVICES-ANALYSIS-2025-a969ed	\N	2025-07-15	\N	\N	Scheduled	Analyzing cooling system efficiency.	\N	\N	75.00
+SERVICES-ANALYSIS-2025-d8e0f2	\N	2025-07-16	\N	\N	Done	Inspection for wiring issues.	\N	\N	85.00
+SERVICES-ANALYSIS-2025-ba325f	\N	2025-07-17	\N	\N	Scheduled	Assessing panel installation.	\N	\N	95.00
+SERVICES-ANALYSIS-2025-034458	\N	2025-07-18	\N	\N	Done	Analysis of network connectivity issues.	\N	\N	130.00
+SERVICES-ANALYSIS-2025-90c15c	\N	2025-07-19	\N	\N	Scheduled	Checking operational safety.	\N	\N	100.00
+SERVICES-ANALYSIS-2025-57369f	\N	2025-07-20	\N	\N	Done	Final analysis for machine performance.	\N	\N	140.00
+SERVICES-ANALYSIS-2025-1d764a	\N	2025-07-01	\N	\N	Scheduled	Initial diagnosis scheduled.	\N	\N	50.00
+SERVICES-ANALYSIS-2025-f983aa	\N	2025-07-02	\N	\N	Done	Repair assessment completed.	\N	\N	75.00
+SERVICES-ANALYSIS-2025-070a8d	\N	2025-07-03	\N	\N	Scheduled	Pending analysis for heating system.	\N	\N	60.00
+SERVICES-ANALYSIS-2025-c59144	\N	2025-07-04	\N	\N	Done	Inspection completed for smart home setup.	\N	\N	85.00
+SERVICES-ANALYSIS-2025-a00973	\N	2025-07-05	\N	\N	Scheduled	Customer reported strange noises.	\N	\N	45.00
+SERVICES-ANALYSIS-2025-6b23cb	\N	2025-07-06	\N	\N	Done	Analysis completed for security system.	\N	\N	100.00
+SERVICES-ANALYSIS-2025-08d326	\N	2025-07-07	\N	\N	Scheduled	Diagnosing air conditioning malfunction.	\N	\N	55.00
+SERVICES-ANALYSIS-2025-5b9f77	\N	2025-07-08	\N	\N	Done	Troubleshooting completed.	\N	\N	90.00
+SERVICES-ANALYSIS-2025-a5a9fb	\N	2025-07-09	\N	\N	Scheduled	System update analysis.	\N	\N	65.00
+SERVICES-ANALYSIS-2025-331842	\N	2025-07-10	\N	\N	Done	Inspection for hardware damage.	\N	\N	110.00
+SERVICES-ANALYSIS-2025-b91bb0	\N	2025-07-11	\N	\N	Scheduled	Checking electrical components.	\N	\N	70.00
+SERVICES-ANALYSIS-2025-3de05b	\N	2025-07-12	\N	\N	Done	Repair feasibility analysis done.	\N	\N	95.00
+SERVICES-ANALYSIS-2025-cba254	\N	2025-07-13	\N	\N	Scheduled	Reviewing software issues.	\N	\N	80.00
+SERVICES-ANALYSIS-2025-63c013	\N	2025-07-14	\N	\N	Done	Completed analysis for smart door lock.	\N	\N	120.00
+SERVICES-ANALYSIS-2025-5a0a54	\N	2025-07-15	\N	\N	Scheduled	Analyzing cooling system efficiency.	\N	\N	75.00
+SERVICES-ANALYSIS-2025-c114c1	\N	2025-07-16	\N	\N	Done	Inspection for wiring issues.	\N	\N	85.00
+SERVICES-ANALYSIS-2025-bf427e	\N	2025-07-17	\N	\N	Scheduled	Assessing panel installation.	\N	\N	95.00
+SERVICES-ANALYSIS-2025-200ce2	\N	2025-07-18	\N	\N	Done	Analysis of network connectivity issues.	\N	\N	130.00
+SERVICES-ANALYSIS-2025-e4d575	\N	2025-07-19	\N	\N	Scheduled	Checking operational safety.	\N	\N	100.00
+SERVICES-ANALYSIS-2025-644df4	\N	2025-07-20	\N	\N	Done	Final analysis for machine performance.	\N	\N	140.00
 \.
 
 
@@ -7544,7 +10257,47 @@ COPY services.service_analysis (analysis_id, service_request_id, analysis_date, 
 -- Data for Name: service_billing; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_billing (service_billing_id, service_purchase_id, service_order_id, service_request_id, charge_type, product_id, warranty_status, service_billing_amount, billing_status, date_paid) FROM stdin;
+COPY services.service_billing (service_billing_id, service_order_item_id, analysis_id, service_request_id, charge_type, item_name, service_billing_amount, outsource_fee, order_item_price, total_payable, date_paid) FROM stdin;
+SERVICES-BILL-2025-976118	\N	\N	\N	Labor	Installation Service	150.00	10.00	0.00	160.00	2025-09-01
+SERVICES-BILL-2025-1dfe78	\N	\N	\N	Parts	Replacement Fan	50.00	5.00	0.00	55.00	2025-09-02
+SERVICES-BILL-2025-4b4d0e	\N	\N	\N	Other	On-Site Inspection	75.00	0.00	0.00	75.00	\N
+SERVICES-BILL-2025-023c44	\N	\N	\N	Labor	Repair Service	200.00	15.00	0.00	215.00	2025-09-04
+SERVICES-BILL-2025-7375e4	\N	\N	\N	Parts	New Motherboard	250.00	10.00	0.00	260.00	\N
+SERVICES-BILL-2025-e3094e	\N	\N	\N	Labor	Software Installation	100.00	0.00	0.00	100.00	2025-09-06
+SERVICES-BILL-2025-f80e89	\N	\N	\N	Other	Diagnostic Service	50.00	5.00	0.00	55.00	\N
+SERVICES-BILL-2025-a23163	\N	\N	\N	Parts	Graphics Card Replacement	400.00	20.00	0.00	420.00	2025-09-08
+SERVICES-BILL-2025-a3dd13	\N	\N	\N	Labor	General Maintenance	120.00	5.00	0.00	125.00	\N
+SERVICES-BILL-2025-9f0516	\N	\N	\N	Parts	Power Supply Unit	90.00	0.00	0.00	90.00	2025-09-10
+SERVICES-BILL-2025-5d35c6	\N	\N	\N	Labor	Printer Repair	180.00	0.00	0.00	180.00	2025-09-11
+SERVICES-BILL-2025-fb6d49	\N	\N	\N	Parts	Laptop Battery Replacement	85.00	5.00	0.00	90.00	\N
+SERVICES-BILL-2025-49ce64	\N	\N	\N	Other	Remote IT Support	60.00	0.00	0.00	60.00	2025-09-13
+SERVICES-BILL-2025-a14bc4	\N	\N	\N	Labor	Security System Setup	250.00	10.00	0.00	260.00	\N
+SERVICES-BILL-2025-b479b6	\N	\N	\N	Parts	SSD Upgrade	150.00	5.00	0.00	155.00	2025-09-15
+SERVICES-BILL-2025-c8bc7a	\N	\N	\N	Labor	Network Configuration	175.00	0.00	0.00	175.00	\N
+SERVICES-BILL-2025-114344	\N	\N	\N	Parts	External Hard Drive	130.00	5.00	0.00	135.00	2025-09-17
+SERVICES-BILL-2025-8c4c32	\N	\N	\N	Other	System Optimization	70.00	0.00	0.00	70.00	\N
+SERVICES-BILL-2025-8eec34	\N	\N	\N	Labor	Backup & Recovery Service	90.00	0.00	0.00	90.00	2025-09-19
+SERVICES-BILL-2025-20e584	\N	\N	\N	Parts	Wireless Adapter	45.00	0.00	0.00	45.00	\N
+SERVICES-BILL-2025-d342ae	\N	\N	\N	Labor	Installation Service	150.00	10.00	0.00	160.00	2025-09-01
+SERVICES-BILL-2025-635511	\N	\N	\N	Parts	Replacement Fan	50.00	5.00	0.00	55.00	2025-09-02
+SERVICES-BILL-2025-85770c	\N	\N	\N	Other	On-Site Inspection	75.00	0.00	0.00	75.00	\N
+SERVICES-BILL-2025-f39267	\N	\N	\N	Labor	Repair Service	200.00	15.00	0.00	215.00	2025-09-04
+SERVICES-BILL-2025-c9bd9c	\N	\N	\N	Parts	New Motherboard	250.00	10.00	0.00	260.00	\N
+SERVICES-BILL-2025-3d2738	\N	\N	\N	Labor	Software Installation	100.00	0.00	0.00	100.00	2025-09-06
+SERVICES-BILL-2025-76adbd	\N	\N	\N	Other	Diagnostic Service	50.00	5.00	0.00	55.00	\N
+SERVICES-BILL-2025-37d20d	\N	\N	\N	Parts	Graphics Card Replacement	400.00	20.00	0.00	420.00	2025-09-08
+SERVICES-BILL-2025-671d61	\N	\N	\N	Labor	General Maintenance	120.00	5.00	0.00	125.00	\N
+SERVICES-BILL-2025-8e6114	\N	\N	\N	Parts	Power Supply Unit	90.00	0.00	0.00	90.00	2025-09-10
+SERVICES-BILL-2025-577bcd	\N	\N	\N	Labor	Printer Repair	180.00	0.00	0.00	180.00	2025-09-11
+SERVICES-BILL-2025-529137	\N	\N	\N	Parts	Laptop Battery Replacement	85.00	5.00	0.00	90.00	\N
+SERVICES-BILL-2025-be7bf9	\N	\N	\N	Other	Remote IT Support	60.00	0.00	0.00	60.00	2025-09-13
+SERVICES-BILL-2025-775eea	\N	\N	\N	Labor	Security System Setup	250.00	10.00	0.00	260.00	\N
+SERVICES-BILL-2025-cc3175	\N	\N	\N	Parts	SSD Upgrade	150.00	5.00	0.00	155.00	2025-09-15
+SERVICES-BILL-2025-d359e3	\N	\N	\N	Labor	Network Configuration	175.00	0.00	0.00	175.00	\N
+SERVICES-BILL-2025-f68cd3	\N	\N	\N	Parts	External Hard Drive	130.00	5.00	0.00	135.00	2025-09-17
+SERVICES-BILL-2025-de33f6	\N	\N	\N	Other	System Optimization	70.00	0.00	0.00	70.00	\N
+SERVICES-BILL-2025-72ec13	\N	\N	\N	Labor	Backup & Recovery Service	90.00	0.00	0.00	90.00	2025-09-19
+SERVICES-BILL-2025-eff7c0	\N	\N	\N	Parts	Wireless Adapter	45.00	0.00	0.00	45.00	\N
 \.
 
 
@@ -7552,31 +10305,47 @@ COPY services.service_billing (service_billing_id, service_purchase_id, service_
 -- Data for Name: service_call; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_call (service_call_id, date_created, customer_id, customer_name, queue, call_type, technician_id, call_status, date_closed, origin, contract_id, end_date, priority_level, resolution) FROM stdin;
-\.
-
-
---
--- Data for Name: service_call_history; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.service_call_history (service_call_id, date_update, time_update, status, description) FROM stdin;
-\.
-
-
---
--- Data for Name: service_contract; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.service_contract (contract_id, customer_id, contract_description, start_date, end_date, termination_date, service_type, contract_type, product_id, contract_status, active_items, remarks, renewal, date_renewed, date_last_renewed, approval_remarks, approval_date, approved_by) FROM stdin;
-\.
-
-
---
--- Data for Name: service_cost; Type: TABLE DATA; Schema: services; Owner: postgres
---
-
-COPY services.service_cost (service_cost_id, analysis_id, service_billing_id, cost_type, outsource_fee, cost_amount) FROM stdin;
+COPY services.service_call (service_call_id, date_created, service_ticket_id, customer_id, call_type, technician_id, call_status, date_closed, contract_no, end_date, priority_level, resolution) FROM stdin;
+SERVICES-CALL-2025-135d52	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2025-12-31	Low	Pending investigation
+SERVICES-CALL-2025-63411a	2025-03-23 10:19:43.998024	\N	\N	Request	\N	In Progress	\N	\N	2026-06-30	High	Assigned technician
+SERVICES-CALL-2025-6ea1fc	2025-03-23 10:19:43.998024	\N	\N	Other	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-09-30	Medium	Resolved
+SERVICES-CALL-2025-f683bb	2025-03-23 10:19:43.998024	\N	\N	Request	\N	Open	\N	\N	2026-01-15	High	Pending approval
+SERVICES-CALL-2025-946733	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2025-11-20	Low	Customer follow-up needed
+SERVICES-CALL-2025-708049	2025-03-23 10:19:43.998024	\N	\N	Request	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-10-10	Medium	Issue fixed
+SERVICES-CALL-2025-36b861	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2026-02-28	Low	Awaiting response
+SERVICES-CALL-2025-79e7be	2025-03-23 10:19:43.998024	\N	\N	Other	\N	In Progress	\N	\N	2025-08-15	Medium	Investigation ongoing
+SERVICES-CALL-2025-1169fb	2025-03-23 10:19:43.998024	\N	\N	Request	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-12-10	High	Replacement provided
+SERVICES-CALL-2025-72316d	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2026-03-01	Low	Awaiting technician feedback
+SERVICES-CALL-2025-010c1f	2025-03-23 10:19:43.998024	\N	\N	Request	\N	In Progress	\N	\N	2026-04-05	High	Technician dispatched
+SERVICES-CALL-2025-ca57b4	2025-03-23 10:19:43.998024	\N	\N	Other	\N	Open	\N	\N	2025-09-20	Medium	Escalated to management
+SERVICES-CALL-2025-f61fca	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-07-15	Low	Customer satisfied
+SERVICES-CALL-2025-37e9f1	2025-03-23 10:19:43.998024	\N	\N	Request	\N	Open	\N	\N	2026-05-30	High	Pending supervisor approval
+SERVICES-CALL-2025-3e8965	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2025-11-05	Medium	Awaiting additional info
+SERVICES-CALL-2025-c86c06	2025-03-23 10:19:43.998024	\N	\N	Other	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-08-22	Low	Duplicate request
+SERVICES-CALL-2025-af94c7	2025-03-23 10:19:43.998024	\N	\N	Request	\N	In Progress	\N	\N	2025-10-18	High	Parts ordered
+SERVICES-CALL-2025-7c5ae9	2025-03-23 10:19:43.998024	\N	\N	Inquiry	\N	Open	\N	\N	2026-01-12	Medium	Customer needs demo
+SERVICES-CALL-2025-f84e6a	2025-03-23 10:19:43.998024	\N	\N	Other	\N	Closed	2025-03-23 10:19:43.998024	\N	2025-12-07	Low	Issue not reproducible
+SERVICES-CALL-2025-0d6f1a	2025-03-23 10:19:43.998024	\N	\N	Request	\N	Open	\N	\N	2026-02-05	High	Requires escalation
+SERVICES-CALL-2025-287284	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2025-12-31	Low	Pending investigation
+SERVICES-CALL-2025-45a53d	2025-03-23 10:19:44.105522	\N	\N	Request	\N	In Progress	\N	\N	2026-06-30	High	Assigned technician
+SERVICES-CALL-2025-271241	2025-03-23 10:19:44.105522	\N	\N	Other	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-09-30	Medium	Resolved
+SERVICES-CALL-2025-226893	2025-03-23 10:19:44.105522	\N	\N	Request	\N	Open	\N	\N	2026-01-15	High	Pending approval
+SERVICES-CALL-2025-5d88a6	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2025-11-20	Low	Customer follow-up needed
+SERVICES-CALL-2025-e80161	2025-03-23 10:19:44.105522	\N	\N	Request	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-10-10	Medium	Issue fixed
+SERVICES-CALL-2025-902b94	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2026-02-28	Low	Awaiting response
+SERVICES-CALL-2025-4e4a7a	2025-03-23 10:19:44.105522	\N	\N	Other	\N	In Progress	\N	\N	2025-08-15	Medium	Investigation ongoing
+SERVICES-CALL-2025-7a1e21	2025-03-23 10:19:44.105522	\N	\N	Request	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-12-10	High	Replacement provided
+SERVICES-CALL-2025-7fa6ae	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2026-03-01	Low	Awaiting technician feedback
+SERVICES-CALL-2025-2641fb	2025-03-23 10:19:44.105522	\N	\N	Request	\N	In Progress	\N	\N	2026-04-05	High	Technician dispatched
+SERVICES-CALL-2025-cfc91f	2025-03-23 10:19:44.105522	\N	\N	Other	\N	Open	\N	\N	2025-09-20	Medium	Escalated to management
+SERVICES-CALL-2025-4d4f7e	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-07-15	Low	Customer satisfied
+SERVICES-CALL-2025-c44461	2025-03-23 10:19:44.105522	\N	\N	Request	\N	Open	\N	\N	2026-05-30	High	Pending supervisor approval
+SERVICES-CALL-2025-cf3300	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2025-11-05	Medium	Awaiting additional info
+SERVICES-CALL-2025-df7e22	2025-03-23 10:19:44.105522	\N	\N	Other	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-08-22	Low	Duplicate request
+SERVICES-CALL-2025-af78dc	2025-03-23 10:19:44.105522	\N	\N	Request	\N	In Progress	\N	\N	2025-10-18	High	Parts ordered
+SERVICES-CALL-2025-9649e3	2025-03-23 10:19:44.105522	\N	\N	Inquiry	\N	Open	\N	\N	2026-01-12	Medium	Customer needs demo
+SERVICES-CALL-2025-a01d74	2025-03-23 10:19:44.105522	\N	\N	Other	\N	Closed	2025-03-23 10:19:44.105522	\N	2025-12-07	Low	Issue not reproducible
+SERVICES-CALL-2025-d00da0	2025-03-23 10:19:44.105522	\N	\N	Request	\N	Open	\N	\N	2026-02-05	High	Requires escalation
 \.
 
 
@@ -7584,15 +10353,95 @@ COPY services.service_cost (service_cost_id, analysis_id, service_billing_id, co
 -- Data for Name: service_order; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_order (service_order_id, analysis_id, customer_id, item_id, item_name, item_availability, item_price) FROM stdin;
+COPY services.service_order (service_order_id, analysis_id, customer_id, order_date) FROM stdin;
+SERVICES-SO-2025-30b7e6	\N	\N	2025-09-01 10:15:00
+SERVICES-SO-2025-a4e2d7	\N	\N	2025-09-02 11:30:00
+SERVICES-SO-2025-18ed20	\N	\N	2025-09-03 12:45:00
+SERVICES-SO-2025-6f2b8f	\N	\N	2025-09-04 14:00:00
+SERVICES-SO-2025-7a3cfd	\N	\N	2025-09-05 15:15:00
+SERVICES-SO-2025-c5244d	\N	\N	2025-09-06 16:30:00
+SERVICES-SO-2025-fff563	\N	\N	2025-09-07 17:45:00
+SERVICES-SO-2025-bdb6aa	\N	\N	2025-09-08 18:00:00
+SERVICES-SO-2025-b6f5a3	\N	\N	2025-09-09 19:15:00
+SERVICES-SO-2025-e70a1f	\N	\N	2025-09-10 20:30:00
+SERVICES-SO-2025-9b2ad4	\N	\N	2025-09-11 21:45:00
+SERVICES-SO-2025-01b65d	\N	\N	2025-09-12 22:00:00
+SERVICES-SO-2025-1e5b31	\N	\N	2025-09-13 23:15:00
+SERVICES-SO-2025-f7cc9c	\N	\N	2025-09-14 08:30:00
+SERVICES-SO-2025-66a733	\N	\N	2025-09-15 09:45:00
+SERVICES-SO-2025-30152a	\N	\N	2025-09-16 10:00:00
+SERVICES-SO-2025-794d47	\N	\N	2025-09-17 11:15:00
+SERVICES-SO-2025-66e6f9	\N	\N	2025-09-18 12:30:00
+SERVICES-SO-2025-f587ef	\N	\N	2025-09-19 13:45:00
+SERVICES-SO-2025-a0236c	\N	\N	2025-09-20 15:00:00
+SERVICES-SO-2025-68d4de	\N	\N	2025-09-01 10:15:00
+SERVICES-SO-2025-61a15d	\N	\N	2025-09-02 11:30:00
+SERVICES-SO-2025-ffac0b	\N	\N	2025-09-03 12:45:00
+SERVICES-SO-2025-8f6ba1	\N	\N	2025-09-04 14:00:00
+SERVICES-SO-2025-b8bec9	\N	\N	2025-09-05 15:15:00
+SERVICES-SO-2025-16ec13	\N	\N	2025-09-06 16:30:00
+SERVICES-SO-2025-7a463f	\N	\N	2025-09-07 17:45:00
+SERVICES-SO-2025-50ab4c	\N	\N	2025-09-08 18:00:00
+SERVICES-SO-2025-57d820	\N	\N	2025-09-09 19:15:00
+SERVICES-SO-2025-1766ed	\N	\N	2025-09-10 20:30:00
+SERVICES-SO-2025-f0617a	\N	\N	2025-09-11 21:45:00
+SERVICES-SO-2025-dfa960	\N	\N	2025-09-12 22:00:00
+SERVICES-SO-2025-f14228	\N	\N	2025-09-13 23:15:00
+SERVICES-SO-2025-cc9b89	\N	\N	2025-09-14 08:30:00
+SERVICES-SO-2025-3ff04f	\N	\N	2025-09-15 09:45:00
+SERVICES-SO-2025-963e23	\N	\N	2025-09-16 10:00:00
+SERVICES-SO-2025-d85575	\N	\N	2025-09-17 11:15:00
+SERVICES-SO-2025-18ae7f	\N	\N	2025-09-18 12:30:00
+SERVICES-SO-2025-4bd96e	\N	\N	2025-09-19 13:45:00
+SERVICES-SO-2025-1a317a	\N	\N	2025-09-20 15:00:00
 \.
 
 
 --
--- Data for Name: service_purchase; Type: TABLE DATA; Schema: services; Owner: postgres
+-- Data for Name: service_order_item; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_purchase (service_purchase_id, service_order_id, principal_item_id, item_id, item_name, request_date, quantity, markup_price, customer_id) FROM stdin;
+COPY services.service_order_item (service_order_item_id, service_order_id, principal_item_id, item_name, item_quantity, item_price) FROM stdin;
+SOIT-2025-c812ed	\N	\N	Cooling Fan	2	49.99
+SOIT-2025-bab379	\N	\N	Motherboard	1	199.99
+SOIT-2025-3e2357	\N	\N	Power Supply Unit	1	89.99
+SOIT-2025-8a29fd	\N	\N	Laptop Charger	3	29.99
+SOIT-2025-9130b7	\N	\N	Solid State Drive (SSD)	2	119.99
+SOIT-2025-761ef8	\N	\N	Graphics Card	1	399.99
+SOIT-2025-7135bf	\N	\N	Wireless Router	1	79.99
+SOIT-2025-1b743c	\N	\N	USB Keyboard	4	19.99
+SOIT-2025-098562	\N	\N	LED Monitor	1	149.99
+SOIT-2025-43690e	\N	\N	Desktop RAM 16GB	2	69.99
+SOIT-2025-c967b7	\N	\N	Bluetooth Speaker	1	59.99
+SOIT-2025-1aa439	\N	\N	Smartphone Screen Protector	5	9.99
+SOIT-2025-e86bbf	\N	\N	Headset with Microphone	2	39.99
+SOIT-2025-7da722	\N	\N	Portable Hard Drive 1TB	1	129.99
+SOIT-2025-9cef94	\N	\N	Webcam HD 1080p	2	49.99
+SOIT-2025-48b262	\N	\N	Mechanical Keyboard	1	89.99
+SOIT-2025-83d47f	\N	\N	Wireless Mouse	3	24.99
+SOIT-2025-c476b7	\N	\N	Printer Ink Cartridge	2	34.99
+SOIT-2025-ca49fa	\N	\N	External Sound Card	1	79.99
+SOIT-2025-eb6dc0	\N	\N	Surge Protector	2	19.99
+SOIT-2025-061fab	\N	\N	Cooling Fan	2	49.99
+SOIT-2025-f6d675	\N	\N	Motherboard	1	199.99
+SOIT-2025-f57baa	\N	\N	Power Supply Unit	1	89.99
+SOIT-2025-c0ee94	\N	\N	Laptop Charger	3	29.99
+SOIT-2025-17d54b	\N	\N	Solid State Drive (SSD)	2	119.99
+SOIT-2025-c97baa	\N	\N	Graphics Card	1	399.99
+SOIT-2025-d059c6	\N	\N	Wireless Router	1	79.99
+SOIT-2025-20e697	\N	\N	USB Keyboard	4	19.99
+SOIT-2025-c17aca	\N	\N	LED Monitor	1	149.99
+SOIT-2025-6273f4	\N	\N	Desktop RAM 16GB	2	69.99
+SOIT-2025-a2c5ea	\N	\N	Bluetooth Speaker	1	59.99
+SOIT-2025-da2167	\N	\N	Smartphone Screen Protector	5	9.99
+SOIT-2025-69b12b	\N	\N	Headset with Microphone	2	39.99
+SOIT-2025-d7ad56	\N	\N	Portable Hard Drive 1TB	1	129.99
+SOIT-2025-54ae1e	\N	\N	Webcam HD 1080p	2	49.99
+SOIT-2025-4e7d42	\N	\N	Mechanical Keyboard	1	89.99
+SOIT-2025-a547a1	\N	\N	Wireless Mouse	3	24.99
+SOIT-2025-8d63f7	\N	\N	Printer Ink Cartridge	2	34.99
+SOIT-2025-9bd63f	\N	\N	External Sound Card	1	79.99
+SOIT-2025-fa33c3	\N	\N	Surge Protector	2	19.99
 \.
 
 
@@ -7600,7 +10449,47 @@ COPY services.service_purchase (service_purchase_id, service_order_id, principal
 -- Data for Name: service_report; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_report (report_id, service_call_id, service_billing_id, technician_id, description, report_status, submission_date) FROM stdin;
+COPY services.service_report (report_id, service_call_id, service_ticket_id, service_billing_id, technician_id, description, report_status, submission_date) FROM stdin;
+SERVICES-REPORT-2025-43d259	\N	\N	\N	\N	Routine maintenance check completed	Submitted	2025-09-01
+SERVICES-REPORT-2025-70bf56	\N	\N	\N	\N	Replaced faulty power supply	Reviewed	2025-09-02
+SERVICES-REPORT-2025-5ec33a	\N	\N	\N	\N	Diagnosed network issue and provided solution	Draft	\N
+SERVICES-REPORT-2025-640d11	\N	\N	\N	\N	Resolved software compatibility issue	Submitted	2025-09-04
+SERVICES-REPORT-2025-426d39	\N	\N	\N	\N	Customer requested additional inspection	Reviewed	\N
+SERVICES-REPORT-2025-c544d4	\N	\N	\N	\N	Upgraded storage capacity on request	Draft	2025-09-06
+SERVICES-REPORT-2025-b10c7c	\N	\N	\N	\N	Fixed printer connectivity issue	Reviewed	2025-09-07
+SERVICES-REPORT-2025-3c32e5	\N	\N	\N	\N	Replaced defective laptop screen	Submitted	\N
+SERVICES-REPORT-2025-15cc46	\N	\N	\N	\N	Carried out a complete system diagnostics	Draft	2025-09-09
+SERVICES-REPORT-2025-579523	\N	\N	\N	\N	Provided training on security best practices	Submitted	2025-09-10
+SERVICES-REPORT-2025-a9e771	\N	\N	\N	\N	Installed new software update	Reviewed	2025-09-11
+SERVICES-REPORT-2025-10f8c6	\N	\N	\N	\N	Resolved customer complaint about slow system performance	Draft	\N
+SERVICES-REPORT-2025-81e0b8	\N	\N	\N	\N	Reconfigured wireless network	Submitted	2025-09-13
+SERVICES-REPORT-2025-9accd3	\N	\N	\N	\N	Completed installation of new security cameras	Reviewed	\N
+SERVICES-REPORT-2025-7c2312	\N	\N	\N	\N	Checked for overheating issue and applied fix	Draft	2025-09-15
+SERVICES-REPORT-2025-5c74be	\N	\N	\N	\N	Assisted with remote desktop configuration	Reviewed	2025-09-16
+SERVICES-REPORT-2025-c2bb10	\N	\N	\N	\N	Performed regular maintenance on enterprise server	Submitted	\N
+SERVICES-REPORT-2025-adfef6	\N	\N	\N	\N	Updated customer’s software licenses	Draft	2025-09-18
+SERVICES-REPORT-2025-2819e7	\N	\N	\N	\N	Checked and repaired external storage drive	Reviewed	2025-09-19
+SERVICES-REPORT-2025-cfca14	\N	\N	\N	\N	Advised customer on system upgrades	Submitted	\N
+SERVICES-REPORT-2025-b94009	\N	\N	\N	\N	Routine maintenance check completed	Submitted	2025-09-01
+SERVICES-REPORT-2025-fb87ff	\N	\N	\N	\N	Replaced faulty power supply	Reviewed	2025-09-02
+SERVICES-REPORT-2025-b66689	\N	\N	\N	\N	Diagnosed network issue and provided solution	Draft	\N
+SERVICES-REPORT-2025-a0a2af	\N	\N	\N	\N	Resolved software compatibility issue	Submitted	2025-09-04
+SERVICES-REPORT-2025-d9390e	\N	\N	\N	\N	Customer requested additional inspection	Reviewed	\N
+SERVICES-REPORT-2025-ec587b	\N	\N	\N	\N	Upgraded storage capacity on request	Draft	2025-09-06
+SERVICES-REPORT-2025-e79153	\N	\N	\N	\N	Fixed printer connectivity issue	Reviewed	2025-09-07
+SERVICES-REPORT-2025-ce34d1	\N	\N	\N	\N	Replaced defective laptop screen	Submitted	\N
+SERVICES-REPORT-2025-1162a9	\N	\N	\N	\N	Carried out a complete system diagnostics	Draft	2025-09-09
+SERVICES-REPORT-2025-a637d5	\N	\N	\N	\N	Provided training on security best practices	Submitted	2025-09-10
+SERVICES-REPORT-2025-157725	\N	\N	\N	\N	Installed new software update	Reviewed	2025-09-11
+SERVICES-REPORT-2025-43188f	\N	\N	\N	\N	Resolved customer complaint about slow system performance	Draft	\N
+SERVICES-REPORT-2025-0a4a53	\N	\N	\N	\N	Reconfigured wireless network	Submitted	2025-09-13
+SERVICES-REPORT-2025-37ee31	\N	\N	\N	\N	Completed installation of new security cameras	Reviewed	\N
+SERVICES-REPORT-2025-e1401b	\N	\N	\N	\N	Checked for overheating issue and applied fix	Draft	2025-09-15
+SERVICES-REPORT-2025-faa64d	\N	\N	\N	\N	Assisted with remote desktop configuration	Reviewed	2025-09-16
+SERVICES-REPORT-2025-2132d5	\N	\N	\N	\N	Performed regular maintenance on enterprise server	Submitted	\N
+SERVICES-REPORT-2025-9fcc31	\N	\N	\N	\N	Updated customer’s software licenses	Draft	2025-09-18
+SERVICES-REPORT-2025-1a2546	\N	\N	\N	\N	Checked and repaired external storage drive	Reviewed	2025-09-19
+SERVICES-REPORT-2025-29efd3	\N	\N	\N	\N	Advised customer on system upgrades	Submitted	\N
 \.
 
 
@@ -7608,7 +10497,47 @@ COPY services.service_report (report_id, service_call_id, service_billing_id, te
 -- Data for Name: service_request; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_request (service_request_id, service_call_id, request_date, customer_id, technician_id, request_type, request_status, contract_type, request_description, request_remarks) FROM stdin;
+COPY services.service_request (service_request_id, service_call_id, request_date, customer_id, technician_id, request_type, request_status, request_description, request_remarks) FROM stdin;
+SERVICES-SR-2025-3b49b7	\N	2025-06-01	\N	\N	Repair	Pending	Customer reported an issue with the device.	Waiting for approval
+SERVICES-SR-2025-80a853	\N	2025-06-02	\N	\N	Installation	Approved	New installation request for office.	Scheduled for next week
+SERVICES-SR-2025-b292eb	\N	2025-06-03	\N	\N	Maintenance	Rejected	Routine maintenance request.	Customer cancelled request
+SERVICES-SR-2025-900394	\N	2025-06-04	\N	\N	Other	In Progress	General inquiry about service.	Assigned to technician
+SERVICES-SR-2025-2e303c	\N	2025-06-05	\N	\N	Repair	Pending	Device is not turning on.	Waiting for spare parts
+SERVICES-SR-2025-e0293e	\N	2025-06-06	\N	\N	Installation	Approved	Installation of security system.	Installation team assigned
+SERVICES-SR-2025-b35ddf	\N	2025-06-07	\N	\N	Maintenance	In Progress	Quarterly maintenance check.	Technician on site
+SERVICES-SR-2025-f97f20	\N	2025-06-08	\N	\N	Other	Pending	Customer wants a consultation.	Waiting for supervisor approval
+SERVICES-SR-2025-b2a551	\N	2025-06-09	\N	\N	Repair	Rejected	Request for warranty repair.	Warranty expired
+SERVICES-SR-2025-659409	\N	2025-06-10	\N	\N	Installation	Approved	Home automation installation.	Confirmed for installation
+SERVICES-SR-2025-c3415c	\N	2025-06-11	\N	\N	Maintenance	Pending	Air conditioning system check.	Waiting for available slot
+SERVICES-SR-2025-ffd301	\N	2025-06-12	\N	\N	Other	In Progress	Inquiry about service plans.	Transferred to sales team
+SERVICES-SR-2025-d67890	\N	2025-06-13	\N	\N	Repair	Approved	Laptop screen replacement.	Parts ordered
+SERVICES-SR-2025-2e63d8	\N	2025-06-14	\N	\N	Installation	Rejected	Request for additional cameras.	Not supported in package
+SERVICES-SR-2025-9d653c	\N	2025-06-15	\N	\N	Maintenance	Pending	Preventive maintenance check.	Assigned for next month
+SERVICES-SR-2025-14be47	\N	2025-06-16	\N	\N	Other	Approved	Customer inquiry about upgrade.	Follow-up required
+SERVICES-SR-2025-34d24d	\N	2025-06-17	\N	\N	Repair	In Progress	Power supply issue.	Technician diagnosing issue
+SERVICES-SR-2025-60a729	\N	2025-06-18	\N	\N	Installation	Pending	Smart lock installation.	Awaiting confirmation from customer
+SERVICES-SR-2025-c895a5	\N	2025-06-19	\N	\N	Maintenance	Approved	HVAC system inspection.	Scheduled for maintenance
+SERVICES-SR-2025-76904d	\N	2025-06-20	\N	\N	Other	Rejected	General support request.	Not within service scope
+SERVICES-SR-2025-8b466c	\N	2025-06-01	\N	\N	Repair	Pending	Customer reported an issue with the device.	Waiting for approval
+SERVICES-SR-2025-693d36	\N	2025-06-02	\N	\N	Installation	Approved	New installation request for office.	Scheduled for next week
+SERVICES-SR-2025-11dd3a	\N	2025-06-03	\N	\N	Maintenance	Rejected	Routine maintenance request.	Customer cancelled request
+SERVICES-SR-2025-038c9e	\N	2025-06-04	\N	\N	Other	In Progress	General inquiry about service.	Assigned to technician
+SERVICES-SR-2025-c48029	\N	2025-06-05	\N	\N	Repair	Pending	Device is not turning on.	Waiting for spare parts
+SERVICES-SR-2025-f3c241	\N	2025-06-06	\N	\N	Installation	Approved	Installation of security system.	Installation team assigned
+SERVICES-SR-2025-fa9fe2	\N	2025-06-07	\N	\N	Maintenance	In Progress	Quarterly maintenance check.	Technician on site
+SERVICES-SR-2025-bd8029	\N	2025-06-08	\N	\N	Other	Pending	Customer wants a consultation.	Waiting for supervisor approval
+SERVICES-SR-2025-3ff15e	\N	2025-06-09	\N	\N	Repair	Rejected	Request for warranty repair.	Warranty expired
+SERVICES-SR-2025-e2a235	\N	2025-06-10	\N	\N	Installation	Approved	Home automation installation.	Confirmed for installation
+SERVICES-SR-2025-dc8028	\N	2025-06-11	\N	\N	Maintenance	Pending	Air conditioning system check.	Waiting for available slot
+SERVICES-SR-2025-754626	\N	2025-06-12	\N	\N	Other	In Progress	Inquiry about service plans.	Transferred to sales team
+SERVICES-SR-2025-5e352e	\N	2025-06-13	\N	\N	Repair	Approved	Laptop screen replacement.	Parts ordered
+SERVICES-SR-2025-7799e4	\N	2025-06-14	\N	\N	Installation	Rejected	Request for additional cameras.	Not supported in package
+SERVICES-SR-2025-5f9392	\N	2025-06-15	\N	\N	Maintenance	Pending	Preventive maintenance check.	Assigned for next month
+SERVICES-SR-2025-890753	\N	2025-06-16	\N	\N	Other	Approved	Customer inquiry about upgrade.	Follow-up required
+SERVICES-SR-2025-10f23c	\N	2025-06-17	\N	\N	Repair	In Progress	Power supply issue.	Technician diagnosing issue
+SERVICES-SR-2025-5b892e	\N	2025-06-18	\N	\N	Installation	Pending	Smart lock installation.	Awaiting confirmation from customer
+SERVICES-SR-2025-0d9090	\N	2025-06-19	\N	\N	Maintenance	Approved	HVAC system inspection.	Scheduled for maintenance
+SERVICES-SR-2025-0f4bad	\N	2025-06-20	\N	\N	Other	Rejected	General support request.	Not within service scope
 \.
 
 
@@ -7616,7 +10545,47 @@ COPY services.service_request (service_request_id, service_call_id, request_date
 -- Data for Name: service_ticket; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.service_ticket (service_ticket_id) FROM stdin;
+COPY services.service_ticket (service_ticket_id, ticket_id) FROM stdin;
+SERVICES-TICKET-2025-b56295	\N
+SERVICES-TICKET-2025-49545c	\N
+SERVICES-TICKET-2025-e6e99e	\N
+SERVICES-TICKET-2025-04c023	\N
+SERVICES-TICKET-2025-69c282	\N
+SERVICES-TICKET-2025-73518d	\N
+SERVICES-TICKET-2025-6d89e1	\N
+SERVICES-TICKET-2025-85d08f	\N
+SERVICES-TICKET-2025-0e328d	\N
+SERVICES-TICKET-2025-f5cd58	\N
+SERVICES-TICKET-2025-144a60	\N
+SERVICES-TICKET-2025-17a735	\N
+SERVICES-TICKET-2025-3109ca	\N
+SERVICES-TICKET-2025-12fe69	\N
+SERVICES-TICKET-2025-eff3b3	\N
+SERVICES-TICKET-2025-3ca891	\N
+SERVICES-TICKET-2025-2fbd5f	\N
+SERVICES-TICKET-2025-edf213	\N
+SERVICES-TICKET-2025-8e13ea	\N
+SERVICES-TICKET-2025-d3ebdf	\N
+SERVICES-TICKET-2025-95f74d	\N
+SERVICES-TICKET-2025-9e9e66	\N
+SERVICES-TICKET-2025-448c79	\N
+SERVICES-TICKET-2025-ff2448	\N
+SERVICES-TICKET-2025-4abc5b	\N
+SERVICES-TICKET-2025-558264	\N
+SERVICES-TICKET-2025-770720	\N
+SERVICES-TICKET-2025-2c32ea	\N
+SERVICES-TICKET-2025-f0ecb1	\N
+SERVICES-TICKET-2025-773435	\N
+SERVICES-TICKET-2025-23f9b3	\N
+SERVICES-TICKET-2025-f4fad7	\N
+SERVICES-TICKET-2025-d9dd52	\N
+SERVICES-TICKET-2025-7c6874	\N
+SERVICES-TICKET-2025-70650c	\N
+SERVICES-TICKET-2025-c53da6	\N
+SERVICES-TICKET-2025-cb1a9c	\N
+SERVICES-TICKET-2025-bf3971	\N
+SERVICES-TICKET-2025-81c103	\N
+SERVICES-TICKET-2025-b12d38	\N
 \.
 
 
@@ -7624,15 +10593,48 @@ COPY services.service_ticket (service_ticket_id) FROM stdin;
 -- Data for Name: technician; Type: TABLE DATA; Schema: services; Owner: postgres
 --
 
-COPY services.technician (technician_id) FROM stdin;
+COPY services.technician (technician_id, employee_id) FROM stdin;
+SERVICES-TECH-2025-e93062	\N
+SERVICES-TECH-2025-b50541	\N
+SERVICES-TECH-2025-d2aaac	\N
+SERVICES-TECH-2025-afabe5	\N
+SERVICES-TECH-2025-c21156	\N
+SERVICES-TECH-2025-fa7152	\N
+SERVICES-TECH-2025-beb1b4	\N
+SERVICES-TECH-2025-a37eb3	\N
+SERVICES-TECH-2025-b49897	\N
+SERVICES-TECH-2025-e7b80d	\N
+SERVICES-TECH-2025-9da258	\N
+SERVICES-TECH-2025-498659	\N
+SERVICES-TECH-2025-594a7a	\N
+SERVICES-TECH-2025-423b82	\N
+SERVICES-TECH-2025-2a2a57	\N
+SERVICES-TECH-2025-34c675	\N
+SERVICES-TECH-2025-7ec428	\N
+SERVICES-TECH-2025-fcadf0	\N
+SERVICES-TECH-2025-72a17a	\N
+SERVICES-TECH-2025-5724a2	\N
+SERVICES-TECH-2025-f60f37	\N
+SERVICES-TECH-2025-671954	\N
+SERVICES-TECH-2025-5eb9a0	\N
+SERVICES-TECH-2025-85feea	\N
+SERVICES-TECH-2025-3f37d0	\N
+SERVICES-TECH-2025-afb57d	\N
+SERVICES-TECH-2025-b58db6	\N
+SERVICES-TECH-2025-30166e	\N
+SERVICES-TECH-2025-30ca40	\N
+SERVICES-TECH-2025-842d41	\N
+SERVICES-TECH-2025-5a7e00	\N
+SERVICES-TECH-2025-6b5997	\N
+SERVICES-TECH-2025-831e25	\N
+SERVICES-TECH-2025-4a8ab5	\N
+SERVICES-TECH-2025-7cf554	\N
+SERVICES-TECH-2025-521d8a	\N
+SERVICES-TECH-2025-c088ea	\N
+SERVICES-TECH-2025-7748dd	\N
+SERVICES-TECH-2025-c88410	\N
+SERVICES-TECH-2025-3bcf14	\N
 \.
-
-
---
--- Name: delivery_receipt_delivery_receipt_id_seq; Type: SEQUENCE SET; Schema: distribution; Owner: postgres
---
-
-SELECT pg_catalog.setval('distribution.delivery_receipt_delivery_receipt_id_seq', 1, false);
 
 
 --
@@ -7653,7 +10655,7 @@ SELECT pg_catalog.setval('public.auth_group_permissions_id_seq', 1, false);
 -- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_permission_id_seq', 92, true);
+SELECT pg_catalog.setval('public.auth_permission_id_seq', 24, true);
 
 
 --
@@ -7681,28 +10683,21 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 216, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 137, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 28, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 15, true);
 
 
 --
 -- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_migrations_id_seq', 41, true);
-
-
---
--- Name: service_call_queue_seq; Type: SEQUENCE SET; Schema: services; Owner: postgres
---
-
-SELECT pg_catalog.setval('services.service_call_queue_seq', 1, false);
+SELECT pg_catalog.setval('public.django_migrations_id_seq', 18, true);
 
 
 --
@@ -7710,7 +10705,7 @@ SELECT pg_catalog.setval('services.service_call_queue_seq', 1, false);
 --
 
 ALTER TABLE ONLY accounting.chart_of_accounts
-    ADD CONSTRAINT chart_of_accounts_pkey PRIMARY KEY (account_id);
+    ADD CONSTRAINT chart_of_accounts_pkey PRIMARY KEY (account_code);
 
 
 --
@@ -7743,6 +10738,14 @@ ALTER TABLE ONLY accounting.journal_entries
 
 ALTER TABLE ONLY accounting.journal_entry_lines
     ADD CONSTRAINT journal_entry_lines_pkey PRIMARY KEY (entry_line_id);
+
+
+--
+-- Name: official_receipts official_receipts_pkey; Type: CONSTRAINT; Schema: accounting; Owner: postgres
+--
+
+ALTER TABLE ONLY accounting.official_receipts
+    ADD CONSTRAINT official_receipts_pkey PRIMARY KEY (or_id);
 
 
 --
@@ -7862,7 +10865,7 @@ ALTER TABLE ONLY distribution.carrier
 --
 
 ALTER TABLE ONLY distribution.delivery_order
-    ADD CONSTRAINT delivery_order_pkey PRIMARY KEY (delivery_order_id);
+    ADD CONSTRAINT delivery_order_pkey PRIMARY KEY (del_order_id);
 
 
 --
@@ -7966,7 +10969,7 @@ ALTER TABLE ONLY distribution.shipping_cost
 --
 
 ALTER TABLE ONLY finance.budget_approvals
-    ADD CONSTRAINT budget_approvals_pkey PRIMARY KEY (validation_id);
+    ADD CONSTRAINT budget_approvals_pkey PRIMARY KEY (budget_approvals_id);
 
 
 --
@@ -8135,6 +11138,14 @@ ALTER TABLE ONLY inventory.inventory_item
 
 ALTER TABLE ONLY inventory.warehouse_movement
     ADD CONSTRAINT warehouse_movement_pkey PRIMARY KEY (movement_id);
+
+
+--
+-- Name: management_approvals management_approvals_pkey; Type: CONSTRAINT; Schema: management; Owner: postgres
+--
+
+ALTER TABLE ONLY management.management_approvals
+    ADD CONSTRAINT management_approvals_pkey PRIMARY KEY (approval_id);
 
 
 --
@@ -8754,35 +11765,11 @@ ALTER TABLE ONLY services.after_analysis_sched
 
 
 --
--- Name: chat_message chat_message_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.chat_message
-    ADD CONSTRAINT chat_message_pkey PRIMARY KEY (message_id);
-
-
---
--- Name: comm_session comm_session_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.comm_session
-    ADD CONSTRAINT comm_session_pkey PRIMARY KEY (session_id);
-
-
---
 -- Name: delivery_order delivery_order_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
 --
 
 ALTER TABLE ONLY services.delivery_order
     ADD CONSTRAINT delivery_order_pkey PRIMARY KEY (delivery_order_id);
-
-
---
--- Name: renewal_history renewal_history_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.renewal_history
-    ADD CONSTRAINT renewal_history_pkey PRIMARY KEY (renewal_id);
 
 
 --
@@ -8802,14 +11789,6 @@ ALTER TABLE ONLY services.service_billing
 
 
 --
--- Name: service_call_history service_call_history_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.service_call_history
-    ADD CONSTRAINT service_call_history_pkey PRIMARY KEY (service_call_id);
-
-
---
 -- Name: service_call service_call_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
 --
 
@@ -8818,19 +11797,11 @@ ALTER TABLE ONLY services.service_call
 
 
 --
--- Name: service_contract service_contract_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
+-- Name: service_order_item service_order_item_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
 --
 
-ALTER TABLE ONLY services.service_contract
-    ADD CONSTRAINT service_contract_pkey PRIMARY KEY (contract_id);
-
-
---
--- Name: service_cost service_cost_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.service_cost
-    ADD CONSTRAINT service_cost_pkey PRIMARY KEY (service_cost_id);
+ALTER TABLE ONLY services.service_order_item
+    ADD CONSTRAINT service_order_item_pkey PRIMARY KEY (service_order_item_id);
 
 
 --
@@ -8839,14 +11810,6 @@ ALTER TABLE ONLY services.service_cost
 
 ALTER TABLE ONLY services.service_order
     ADD CONSTRAINT service_order_pkey PRIMARY KEY (service_order_id);
-
-
---
--- Name: service_purchase service_purchase_pkey; Type: CONSTRAINT; Schema: services; Owner: postgres
---
-
-ALTER TABLE ONLY services.service_purchase
-    ADD CONSTRAINT service_purchase_pkey PRIMARY KEY (service_purchase_id);
 
 
 --
@@ -8973,20 +11936,6 @@ CREATE INDEX django_session_session_key_c0390e0f_like ON public.django_session U
 
 
 --
--- Name: chart_of_accounts before_insert_chart_of_accounts; Type: TRIGGER; Schema: accounting; Owner: postgres
---
-
-CREATE TRIGGER before_insert_chart_of_accounts BEFORE INSERT ON accounting.chart_of_accounts FOR EACH ROW EXECUTE FUNCTION accounting.generate_account_id();
-
-
---
--- Name: currency before_insert_currency; Type: TRIGGER; Schema: accounting; Owner: postgres
---
-
-CREATE TRIGGER before_insert_currency BEFORE INSERT ON accounting.currency FOR EACH ROW EXECUTE FUNCTION accounting.generate_currency_id();
-
-
---
 -- Name: general_ledger_accounts before_insert_general_ledger_accounts; Type: TRIGGER; Schema: accounting; Owner: postgres
 --
 
@@ -9005,6 +11954,13 @@ CREATE TRIGGER before_insert_journal_entries BEFORE INSERT ON accounting.journal
 --
 
 CREATE TRIGGER before_insert_journal_entry_lines BEFORE INSERT ON accounting.journal_entry_lines FOR EACH ROW EXECUTE FUNCTION accounting.generate_entry_line_id();
+
+
+--
+-- Name: official_receipts before_insert_official_receipts; Type: TRIGGER; Schema: accounting; Owner: postgres
+--
+
+CREATE TRIGGER before_insert_official_receipts BEFORE INSERT ON accounting.official_receipts FOR EACH ROW EXECUTE FUNCTION accounting.generate_or_id();
 
 
 --
@@ -9102,7 +12058,7 @@ CREATE TRIGGER before_insert_carrier BEFORE INSERT ON distribution.carrier FOR E
 -- Name: delivery_order before_insert_delivery_order; Type: TRIGGER; Schema: distribution; Owner: postgres
 --
 
-CREATE TRIGGER before_insert_delivery_order BEFORE INSERT ON distribution.delivery_order FOR EACH ROW EXECUTE FUNCTION distribution.generate_delivery_order_id();
+CREATE TRIGGER before_insert_delivery_order BEFORE INSERT ON distribution.delivery_order FOR EACH ROW EXECUTE FUNCTION distribution.generate_del_order_id();
 
 
 --
@@ -9176,6 +12132,13 @@ CREATE TRIGGER before_insert_rework_order BEFORE INSERT ON distribution.rework_o
 
 
 --
+-- Name: shipment_details before_insert_shipment_details; Type: TRIGGER; Schema: distribution; Owner: postgres
+--
+
+CREATE TRIGGER before_insert_shipment_details BEFORE INSERT ON distribution.shipment_details FOR EACH ROW EXECUTE FUNCTION distribution.generate_shipment_details_id();
+
+
+--
 -- Name: shipping_cost before_insert_shipping_cost; Type: TRIGGER; Schema: distribution; Owner: postgres
 --
 
@@ -9186,7 +12149,7 @@ CREATE TRIGGER before_insert_shipping_cost BEFORE INSERT ON distribution.shippin
 -- Name: budget_approvals before_insert_budget_approvals; Type: TRIGGER; Schema: finance; Owner: postgres
 --
 
-CREATE TRIGGER before_insert_budget_approvals BEFORE INSERT ON finance.budget_approvals FOR EACH ROW EXECUTE FUNCTION finance.generate_validation_id();
+CREATE TRIGGER before_insert_budget_approvals BEFORE INSERT ON finance.budget_approvals FOR EACH ROW EXECUTE FUNCTION finance.generate_budget_approvals_id();
 
 
 --
@@ -9313,6 +12276,13 @@ CREATE TRIGGER before_insert_inventory_item_master_data BEFORE INSERT ON invento
 --
 
 CREATE TRIGGER before_insert_warehouse_movement BEFORE INSERT ON inventory.warehouse_movement FOR EACH ROW EXECUTE FUNCTION inventory.generate_movement_id();
+
+
+--
+-- Name: management_approvals before_insert_management_approvals; Type: TRIGGER; Schema: management; Owner: postgres
+--
+
+CREATE TRIGGER before_insert_management_approvals BEFORE INSERT ON management.management_approvals FOR EACH ROW EXECUTE FUNCTION management.generate_approval_id();
 
 
 --
@@ -9631,10 +12601,10 @@ CREATE TRIGGER before_insert_opportunity BEFORE INSERT ON sales.opportunities FO
 
 
 --
--- Name: orders before_insert_order; Type: TRIGGER; Schema: sales; Owner: postgres
+-- Name: orders before_insert_orders; Type: TRIGGER; Schema: sales; Owner: postgres
 --
 
-CREATE TRIGGER before_insert_order BEFORE INSERT ON sales.orders FOR EACH ROW EXECUTE FUNCTION sales.generate_order_id();
+CREATE TRIGGER before_insert_orders BEFORE INSERT ON sales.orders FOR EACH ROW EXECUTE FUNCTION sales.generate_order_id();
 
 
 --
@@ -9708,31 +12678,10 @@ CREATE TRIGGER before_insert_after_analysis_sched BEFORE INSERT ON services.afte
 
 
 --
--- Name: chat_message before_insert_chat_message; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_chat_message BEFORE INSERT ON services.chat_message FOR EACH ROW EXECUTE FUNCTION services.generate_message_id();
-
-
---
--- Name: comm_session before_insert_comm_session; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_comm_session BEFORE INSERT ON services.comm_session FOR EACH ROW EXECUTE FUNCTION services.generate_session_id();
-
-
---
 -- Name: delivery_order before_insert_delivery_order; Type: TRIGGER; Schema: services; Owner: postgres
 --
 
 CREATE TRIGGER before_insert_delivery_order BEFORE INSERT ON services.delivery_order FOR EACH ROW EXECUTE FUNCTION services.generate_delivery_order_id();
-
-
---
--- Name: renewal_history before_insert_renewal_history; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_renewal_history BEFORE INSERT ON services.renewal_history FOR EACH ROW EXECUTE FUNCTION services.generate_renewal_history_id();
 
 
 --
@@ -9757,27 +12706,6 @@ CREATE TRIGGER before_insert_service_call BEFORE INSERT ON services.service_call
 
 
 --
--- Name: service_call_history before_insert_service_call_history; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_service_call_history BEFORE INSERT ON services.service_call_history FOR EACH ROW EXECUTE FUNCTION services.generate_service_call_history_id();
-
-
---
--- Name: service_contract before_insert_service_contract; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_service_contract BEFORE INSERT ON services.service_contract FOR EACH ROW EXECUTE FUNCTION services.generate_contract_id();
-
-
---
--- Name: service_cost before_insert_service_cost; Type: TRIGGER; Schema: services; Owner: postgres
---
-
-CREATE TRIGGER before_insert_service_cost BEFORE INSERT ON services.service_cost FOR EACH ROW EXECUTE FUNCTION services.generate_service_cost_id();
-
-
---
 -- Name: service_order before_insert_service_order; Type: TRIGGER; Schema: services; Owner: postgres
 --
 
@@ -9785,10 +12713,10 @@ CREATE TRIGGER before_insert_service_order BEFORE INSERT ON services.service_ord
 
 
 --
--- Name: service_purchase before_insert_service_purchase; Type: TRIGGER; Schema: services; Owner: postgres
+-- Name: service_order_item before_insert_service_order_item; Type: TRIGGER; Schema: services; Owner: postgres
 --
 
-CREATE TRIGGER before_insert_service_purchase BEFORE INSERT ON services.service_purchase FOR EACH ROW EXECUTE FUNCTION services.generate_service_purchase_id();
+CREATE TRIGGER before_insert_service_order_item BEFORE INSERT ON services.service_order_item FOR EACH ROW EXECUTE FUNCTION services.generate_service_order_item_id();
 
 
 --
@@ -9803,6 +12731,20 @@ CREATE TRIGGER before_insert_service_report BEFORE INSERT ON services.service_re
 --
 
 CREATE TRIGGER before_insert_service_request BEFORE INSERT ON services.service_request FOR EACH ROW EXECUTE FUNCTION services.generate_service_request_id();
+
+
+--
+-- Name: service_ticket before_insert_service_ticket; Type: TRIGGER; Schema: services; Owner: postgres
+--
+
+CREATE TRIGGER before_insert_service_ticket BEFORE INSERT ON services.service_ticket FOR EACH ROW EXECUTE FUNCTION services.generate_service_ticket_id();
+
+
+--
+-- Name: technician before_insert_technician; Type: TRIGGER; Schema: services; Owner: postgres
+--
+
+CREATE TRIGGER before_insert_technician BEFORE INSERT ON services.technician FOR EACH ROW EXECUTE FUNCTION services.generate_technician_id();
 
 
 --
@@ -10015,6 +12957,13 @@ GRANT SELECT,INSERT,UPDATE ON TABLE accounting.journal_entries TO erp_user;
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE accounting.journal_entry_lines TO erp_user;
+
+
+--
+-- Name: TABLE official_receipts; Type: ACL; Schema: accounting; Owner: postgres
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE accounting.official_receipts TO erp_user;
 
 
 --
@@ -10330,6 +13279,13 @@ GRANT SELECT,INSERT,UPDATE ON TABLE inventory.inventory_item_master_data TO erp_
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE inventory.warehouse_movement TO erp_user;
+
+
+--
+-- Name: TABLE management_approvals; Type: ACL; Schema: management; Owner: postgres
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE management.management_approvals TO erp_user;
 
 
 --
@@ -10725,31 +13681,10 @@ GRANT SELECT,INSERT,UPDATE ON TABLE services.after_analysis_sched TO erp_user;
 
 
 --
--- Name: TABLE chat_message; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.chat_message TO erp_user;
-
-
---
--- Name: TABLE comm_session; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.comm_session TO erp_user;
-
-
---
 -- Name: TABLE delivery_order; Type: ACL; Schema: services; Owner: postgres
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE services.delivery_order TO erp_user;
-
-
---
--- Name: TABLE renewal_history; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.renewal_history TO erp_user;
 
 
 --
@@ -10774,27 +13709,6 @@ GRANT SELECT,INSERT,UPDATE ON TABLE services.service_call TO erp_user;
 
 
 --
--- Name: TABLE service_call_history; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.service_call_history TO erp_user;
-
-
---
--- Name: TABLE service_contract; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.service_contract TO erp_user;
-
-
---
--- Name: TABLE service_cost; Type: ACL; Schema: services; Owner: postgres
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE services.service_cost TO erp_user;
-
-
---
 -- Name: TABLE service_order; Type: ACL; Schema: services; Owner: postgres
 --
 
@@ -10802,10 +13716,10 @@ GRANT SELECT,INSERT,UPDATE ON TABLE services.service_order TO erp_user;
 
 
 --
--- Name: TABLE service_purchase; Type: ACL; Schema: services; Owner: postgres
+-- Name: TABLE service_order_item; Type: ACL; Schema: services; Owner: postgres
 --
 
-GRANT SELECT,INSERT,UPDATE ON TABLE services.service_purchase TO erp_user;
+GRANT SELECT,INSERT,UPDATE ON TABLE services.service_order_item TO erp_user;
 
 
 --
