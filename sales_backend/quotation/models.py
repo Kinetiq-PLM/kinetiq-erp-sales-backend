@@ -70,7 +70,7 @@ class Quotation(models.Model):
                 """
                 UPDATE sales.quotation 
                 SET statement_id = %s, agreement_id = %s, date_issued = %s, status = %s
-                WHERE quotation_id = %s
+                WHERE quotation_id = %s;
             """,
                 [
                     self.statement.statement_id,
