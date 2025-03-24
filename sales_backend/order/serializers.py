@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from .models import *
 from statement.serializers import *
+from quotation.serializers import *
 
 
 class OrderSerializer(serializers.ModelSerializer):
     statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
+    quotation = serializers.PrimaryKeyRelatedField(queryset=Quotation.objects.all())
 
     class Meta:
         model = Order

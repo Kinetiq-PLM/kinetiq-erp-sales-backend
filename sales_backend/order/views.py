@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from rest_framework import status
 from quotation.models import Quotation
+from misc.project_management.models import ExternalProjectRequest
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -37,15 +38,16 @@ class OrderViewSet(viewsets.ModelViewSet):
                 },
         }
         """
+        print(request.data)
         order_data = request.data.pop("order_data", {})
         items_data = order_data.pop("items", [])
-
+        statement_data = request.data.pop("statement_data", {})
         try:
             with transaction.atomic():
                 quotation_id = order_data.pop("quotation_id", None)
 
                 statement_serializer = StatementSerializer(
-                    data=request.data, context={"items": items_data}
+                    data=statement_data, context={"items": items_data}
                 )
                 if statement_serializer.is_valid():
                     statement: Statement = statement_serializer.save()
@@ -59,10 +61,16 @@ class OrderViewSet(viewsets.ModelViewSet):
 
                     order = Order.objects.create(
                         statement=statement,
-                        order_total_amount=statement.total_amount,
                         quotation=Quotation.objects.get(pk=quotation_id),
                         **order_data,
                     )
+
+                    # if project based, create an external project request
+                    # if statement.type == Statement.Type.PROJECT_BASED:
+                    #     ExternalProjectRequest.objects.create(
+                    #         ext_project_name=
+                    #     )
+                    # if non-project based, get bill of materials
 
                     return Response(
                         OrderSerializer(order).data,
