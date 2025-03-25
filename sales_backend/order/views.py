@@ -2,15 +2,51 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from .serializers import *
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.db import transaction
 from rest_framework import status
 from quotation.models import Quotation
 from misc.project_management.models import ExternalProjectRequest
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
+
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        order_status = params.get("order_status")
+        order_type = params.get("order_type")
+        period = params.get("period")
+        start_date = date.today()
+        end_date = date.today()
+        match period:
+            case "month":
+                start_date = date.today() - relativedelta(months=1)
+            case "year":
+                start_date = date.today() - relativedelta(years=1)
+            case "all":
+                start_date = datetime.fromtimestamp(0).date()
+            case "day":
+                pass
+            case other:
+                if other is not None:
+                    return Response(
+                        {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
+                    )
+        filters = {}
+        if order_status:
+            filters["order_status"] = order_status
+        if order_type:
+            filters["order_type"] = order_type
+        if period:
+            filters["order_date__range"] = (start_date, end_date)
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filters), many=True).data
+        )
 
     def create(self, request, *args, **kwargs):
         """
@@ -38,10 +74,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                 },
         }
         """
-        print(request.data)
         order_data = request.data.pop("order_data", {})
         items_data = order_data.pop("items", [])
         statement_data = request.data.pop("statement_data", {})
+
         try:
             with transaction.atomic():
                 quotation_id = order_data.pop("quotation_id", None)
@@ -59,11 +95,16 @@ class OrderViewSet(viewsets.ModelViewSet):
                         else:
                             raise Exception(item_serializer.errors)
 
+                    quotation = Quotation.objects.get(pk=quotation_id)
                     order = Order.objects.create(
                         statement=statement,
-                        quotation=Quotation.objects.get(pk=quotation_id),
+                        quotation=quotation,
                         **order_data,
                     )
+
+                    # set quotation as appr
+                    if quotation:
+                        quotation.status = Quotation.Status.APPROVED
 
                     # if project based, create an external project request
                     # if statement.type == Statement.Type.PROJECT_BASED:

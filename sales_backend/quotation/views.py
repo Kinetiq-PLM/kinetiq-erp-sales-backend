@@ -6,11 +6,44 @@ from rest_framework.request import Request
 from django.db import transaction
 from statement.serializers import *
 from rest_framework import status
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class QuotationViewSet(viewsets.ModelViewSet):
     queryset = Quotation.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
+
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        status = params.get("status")
+        period = params.get("period")
+        start_date = date.today()
+        end_date = date.today()
+        match period:
+            case "month":
+                start_date = date.today() - relativedelta(months=1)
+            case "year":
+                start_date = date.today() - relativedelta(years=1)
+            case "all":
+                start_date = datetime.fromtimestamp(0).date()
+            case "day":
+                pass
+            case other:
+                if other is not None:
+                    return Response(
+                        {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
+                    )
+
+        filtered = {}
+        if status:
+            filtered["status"] = status
+        if period:
+            filtered["date_issued__range"] = (start_date, end_date)
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+        )
 
     def create(self, request: Request, *args, **kwargs):
         """
