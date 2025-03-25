@@ -4,7 +4,7 @@ from .serializers import *
 
 
 class ShippingDetailsViewSet(viewsets.ModelViewSet):
-    queryset = ShippingDetails.objects.all()
+    queryset = ShippingDetails.objects.all().order_by("-shipping_date")
     serializer_class = ShippingDetailsSerializer
 
     def create(self, request, *args, **kwargs):

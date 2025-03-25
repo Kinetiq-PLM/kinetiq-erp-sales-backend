@@ -3,6 +3,7 @@ from .models import *
 from customer.serializers import *
 from django.shortcuts import get_object_or_404, get_list_or_404
 from misc.human_resources.models import Employees
+from django.forms import model_to_dict
 
 
 class StatementItemSerializer(serializers.ModelSerializer):
@@ -52,6 +53,10 @@ class StatementSerializer(serializers.ModelSerializer):
         data["customer"] = CustomerSerializer(
             Customer.objects.get(pk=data.pop("customer"))
         ).data
+        data["salesrep"] = model_to_dict(
+            instance.salesrep,
+            fields=[field.name for field in Employees._meta.fields],
+        )
         return data
 
     def get_items(self, obj):
