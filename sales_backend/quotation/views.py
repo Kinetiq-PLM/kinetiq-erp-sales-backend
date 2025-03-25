@@ -70,7 +70,6 @@ class QuotationViewSet(viewsets.ModelViewSet):
             quotation_data: {
                 status
             },
-            copy_to: 'Order' | 'Blanket Agreement' | null
         }
         """
 

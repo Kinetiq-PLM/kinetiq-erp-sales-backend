@@ -4,6 +4,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from django.db import transaction
+from statement.serializers import *
+from rest_framework import status
 
 
 class BlanketAgreementViewSet(viewsets.ModelViewSet):
@@ -73,11 +76,10 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                 description,
                 agreement_method
             },
-            copy_to: 'Order' | 'Blanket Agreement' | null
         }
         """
 
-        quotation_data = request.data.pop("quotation_data", {})
+        agreement_data = request.data.pop("agreement_data", {})
         statement_data = request.data.pop("statement_data", {})
         items_data = statement_data.pop("items", [])
 
@@ -96,12 +98,12 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                         else:
                             raise Exception(item_serializer.errors)
 
-                    quotation = Quotation.objects.create(
-                        statement=statement, **quotation_data
+                    agreement = BlanketAgreement.objects.create(
+                        statement=statement, **agreement_data
                     )
 
                     return Response(
-                        QuotationSerializer(quotation).data,
+                        BlanketAgreementSerializer(agreement).data,
                         status=status.HTTP_201_CREATED,
                     )
                 else:
