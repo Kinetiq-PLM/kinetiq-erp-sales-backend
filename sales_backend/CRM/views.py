@@ -11,7 +11,7 @@ class LeadsViewSet(viewsets.ModelViewSet):
 
 
 class CampaignsViewSet(viewsets.ModelViewSet):
-    queryset = Campaigns.objects.all()
+    queryset = Campaigns.objects.all().order_by("-end_date")
     serializer_class = CampaignsSerializer
 
 
