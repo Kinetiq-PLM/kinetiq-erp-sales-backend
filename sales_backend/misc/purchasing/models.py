@@ -9,10 +9,8 @@ from django.db import models
 
 
 class BatchInspection(models.Model):
-    inspection_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    shipment = models.ForeignKey(
-        "ReceivedShipments", models.DO_NOTHING, blank=True, null=True
-    )
+    inspection_id = models.CharField(primary_key=True, max_length=255)
+    shipment_id = models.CharField(max_length=255, blank=True, null=True)
     inspection_date = models.DateField(blank=True, null=True)
     employee_id = models.CharField(max_length=255, blank=True, null=True)
     inspection_result = models.TextField(
@@ -26,10 +24,8 @@ class BatchInspection(models.Model):
 
 
 class CreditMemo(models.Model):
-    credit_memo_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    inspection = models.ForeignKey(
-        BatchInspection, models.DO_NOTHING, blank=True, null=True
-    )
+    credit_memo_id = models.CharField(primary_key=True, max_length=255)
+    inspection_id = models.CharField(max_length=255, blank=True, null=True)
     status = models.TextField(blank=True, null=True)  # This field type is a guess.
     document_no = models.IntegerField(blank=True, null=True)
     document_date = models.DateField(blank=True, null=True)
@@ -60,10 +56,8 @@ class CreditMemo(models.Model):
 
 
 class PurchaseInvoice(models.Model):
-    invoice_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    purchase = models.ForeignKey(
-        "PurchaseOrder", models.DO_NOTHING, blank=True, null=True
-    )
+    invoice_id = models.CharField(primary_key=True, max_length=255)
+    purchase_id = models.CharField(max_length=255, blank=True, null=True)
     status = models.TextField(blank=True, null=True)  # This field type is a guess.
     document_no = models.IntegerField(blank=True, null=True)
     document_date = models.DateField(blank=True, null=True)
@@ -93,10 +87,8 @@ class PurchaseInvoice(models.Model):
 
 
 class PurchaseOrder(models.Model):
-    purchase_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    quotation = models.ForeignKey(
-        "PurchaseQuotation", models.DO_NOTHING, blank=True, null=True
-    )
+    purchase_id = models.CharField(primary_key=True, max_length=255)
+    quotation_id = models.CharField(max_length=255, blank=True, null=True)
     order_date = models.DateField(blank=True, null=True)
     delivery_date = models.DateField(blank=True, null=True)
     document_date = models.DateField(blank=True, null=True)
@@ -108,11 +100,9 @@ class PurchaseOrder(models.Model):
 
 
 class PurchaseQuotation(models.Model):
-    quotation_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    quotation_id = models.CharField(primary_key=True, max_length=255)
     vendor_code = models.CharField(max_length=255, blank=True, null=True)
-    quotation_content = models.ForeignKey(
-        "QuotationContents", models.DO_NOTHING, blank=True, null=True
-    )
+    quotation_content_id = models.CharField(max_length=255, blank=True, null=True)
     status = models.TextField(blank=True, null=True)  # This field type is a guess.
     document_no = models.IntegerField(blank=True, null=True)
     valid_date = models.DateField(blank=True, null=True)
@@ -138,10 +128,10 @@ class PurchaseQuotation(models.Model):
 
 
 class PurchaseRequests(models.Model):
-    request_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    request_id = models.CharField(primary_key=True, max_length=255)
     employee_id = models.CharField(max_length=255, blank=True, null=True)
     approval_id = models.CharField(max_length=255, blank=True, null=True)
-    item_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
     purchase_item = models.CharField(max_length=255, blank=True, null=True)
     purchase_description = models.TextField(blank=True, null=True)
     purchase_quantity = models.IntegerField(blank=True, null=True)
@@ -155,12 +145,8 @@ class PurchaseRequests(models.Model):
 
 
 class QuotationContents(models.Model):
-    quotation_content_id = models.CharField(
-        primary_key=True, blank=True, max_length=255
-    )
-    request = models.ForeignKey(
-        PurchaseRequests, models.DO_NOTHING, blank=True, null=True
-    )
+    quotation_content_id = models.CharField(primary_key=True, max_length=255)
+    request_id = models.CharField(max_length=255, blank=True, null=True)
     unit_price = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
@@ -176,10 +162,8 @@ class QuotationContents(models.Model):
 
 
 class ReceivedShipments(models.Model):
-    shipment_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    purchase = models.ForeignKey(
-        PurchaseOrder, models.DO_NOTHING, blank=True, null=True
-    )
+    shipment_id = models.CharField(primary_key=True, max_length=255)
+    purchase_id = models.CharField(max_length=255, blank=True, null=True)
     delivery_date = models.DateField(blank=True, null=True)
 
     class Meta:
@@ -188,9 +172,7 @@ class ReceivedShipments(models.Model):
 
 
 class VendorApplication(models.Model):
-    application_reference = models.CharField(
-        primary_key=True, blank=True, max_length=255
-    )
+    application_reference = models.CharField(primary_key=True, max_length=255)
     status = models.TextField(blank=True, null=True)  # This field type is a guess.
     company_name = models.CharField(blank=True, null=True)
     tax_number = models.IntegerField(blank=True, null=True)

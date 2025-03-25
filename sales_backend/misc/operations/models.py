@@ -9,12 +9,11 @@ from django.db import models
 
 
 class DocumentHeader(models.Model):
-    document_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    document_id = models.CharField(primary_key=True, max_length=255)
     document_type = models.TextField()  # This field type is a guess.
     vendor_code = models.CharField(max_length=255, blank=True, null=True)
     document_no = models.IntegerField()
     transaction_id = models.CharField(max_length=255)
-    module_request = models.TextField()  # This field type is a guess.
     status = models.TextField()  # This field type is a guess.
     posting_date = models.DateField()
     delivery_date = models.DateField(blank=True, null=True)
@@ -39,25 +38,27 @@ class DocumentHeader(models.Model):
 
 
 class DocumentItems(models.Model):
-    content_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    content_id = models.CharField(primary_key=True, max_length=255)
     asset_id = models.CharField(max_length=255, blank=True, null=True)
-    document = models.ForeignKey(
-        DocumentHeader, models.DO_NOTHING, blank=True, null=True
-    )
+    document_id = models.CharField(max_length=255, blank=True, null=True)
     material_id = models.CharField(max_length=255, blank=True, null=True)
-    serial = models.ForeignKey(
-        "SerialTracking", models.DO_NOTHING, blank=True, null=True
-    )
-    productdocu = models.ForeignKey(
-        "ProductDocumentItems", models.DO_NOTHING, blank=True, null=True
-    )
-    external = models.ForeignKey(
-        "ExternalModule", models.DO_NOTHING, blank=True, null=True
-    )
+    serial_id = models.CharField(max_length=255, blank=True, null=True)
+    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
+    external_id = models.CharField(max_length=255, blank=True, null=True)
     quantity = models.IntegerField()
     total = models.DecimalField(max_digits=18, decimal_places=2)
     batch_no = models.CharField(max_length=100)
     warehouse_loc = models.CharField(max_length=255)
+    delivery_request_id = models.CharField(max_length=255, blank=True, null=True)
+    request_date = models.DateField(blank=True, null=True)
+    delivery_type = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
+    receiving_module = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
+    cost = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
@@ -65,7 +66,7 @@ class DocumentItems(models.Model):
 
 
 class ExternalModule(models.Model):
-    external_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    external_id = models.CharField(primary_key=True, max_length=255)
     purchase_id = models.CharField(max_length=255, blank=True, null=True)
     request_id = models.CharField(max_length=255, blank=True, null=True)
     approval_id = models.CharField(max_length=255, blank=True, null=True)
@@ -78,7 +79,7 @@ class ExternalModule(models.Model):
     project_request_id = models.CharField(max_length=255, blank=True, null=True)
     production_order_detail_id = models.CharField(max_length=255, blank=True, null=True)
     rework_id = models.CharField(max_length=255, blank=True, null=True)
-    depreciation_report_id = models.CharField(max_length=255, blank=True, null=True)
+    deprecation_report_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -86,13 +87,16 @@ class ExternalModule(models.Model):
 
 
 class ProductDocumentItems(models.Model):
-    productdocu_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    productdocu_id = models.CharField(primary_key=True, max_length=255)
     product_id = models.CharField(max_length=255, blank=True, null=True)
     quantity_rejected = models.IntegerField()
     defect_type = models.CharField(max_length=155)
-    selling_price = models.DecimalField(max_digits=18, decimal_places=2)
     manuf_date = models.DateField()
     expiry_date = models.DateField()
+    uom = models.TextField(blank=True, null=True)  # This field type is a guess.
+    serial = models.ForeignKey(
+        "SerialTracking", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -100,10 +104,8 @@ class ProductDocumentItems(models.Model):
 
 
 class SerialTracking(models.Model):
-    serial_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    document = models.ForeignKey(
-        DocumentHeader, models.DO_NOTHING, blank=True, null=True
-    )
+    serial_id = models.CharField(primary_key=True, max_length=255)
+    document_id = models.CharField(max_length=255, blank=True, null=True)
     serial_no = models.CharField(unique=True, max_length=50)
 
     class Meta:

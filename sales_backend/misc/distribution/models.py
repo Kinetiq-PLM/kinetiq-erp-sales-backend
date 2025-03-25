@@ -9,7 +9,7 @@ from django.db import models
 
 
 class BillingReceipt(models.Model):
-    billing_receipt_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    billing_receipt_id = models.CharField(primary_key=True, max_length=255)
     delivery_receipt = models.ForeignKey(
         "DeliveryReceipt", models.DO_NOTHING, blank=True, null=True
     )
@@ -22,7 +22,7 @@ class BillingReceipt(models.Model):
 
 
 class Carrier(models.Model):
-    carrier_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    carrier_id = models.CharField(primary_key=True, max_length=255)
     carrier_name = models.CharField(max_length=255)
     service_type = models.TextField(
         blank=True, null=True
@@ -35,7 +35,7 @@ class Carrier(models.Model):
 
 
 class DeliveryOrder(models.Model):
-    del_order_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    del_order_id = models.CharField(primary_key=True, max_length=255)
     order_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
@@ -50,9 +50,7 @@ class DeliveryOrder(models.Model):
     production_request_id = models.CharField(max_length=255, blank=True, null=True)
     stock_transfer_id = models.CharField(max_length=255, blank=True, null=True)
     sales_order_id = models.CharField(max_length=255, blank=True, null=True)
-    approval_request = models.ForeignKey(
-        "LogisticsApprovalRequest", models.DO_NOTHING, blank=True, null=True
-    )
+    approval_request_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -60,7 +58,7 @@ class DeliveryOrder(models.Model):
 
 
 class DeliveryReceipt(models.Model):
-    delivery_receipt_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    delivery_receipt_id = models.CharField(primary_key=True, max_length=255)
     delivery_date = models.DateField(blank=True, null=True)
     received_by = models.CharField(max_length=255, blank=True, null=True)
     signature = models.TextField()
@@ -77,7 +75,7 @@ class DeliveryReceipt(models.Model):
 
 
 class FailedShipment(models.Model):
-    failed_shipment_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    failed_shipment_id = models.CharField(primary_key=True, max_length=255)
     failure_date = models.DateField(blank=True, null=True)
     failure_reason = models.TextField()
     resolution_status = models.TextField(
@@ -93,7 +91,7 @@ class FailedShipment(models.Model):
 
 
 class GoodsIssue(models.Model):
-    goods_issue_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    goods_issue_id = models.CharField(primary_key=True, max_length=255)
     issue_date = models.DateField(blank=True, null=True)
     issued_by = models.CharField(max_length=255, blank=True, null=True)
     billing_receipt = models.ForeignKey(
@@ -106,7 +104,7 @@ class GoodsIssue(models.Model):
 
 
 class LogisticsApprovalRequest(models.Model):
-    approval_request_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    approval_request_id = models.CharField(primary_key=True, max_length=255)
     request_date = models.DateField(blank=True, null=True)
     approval_status = models.TextField(
         blank=True, null=True
@@ -123,7 +121,7 @@ class LogisticsApprovalRequest(models.Model):
 
 
 class OperationalCost(models.Model):
-    operational_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    operational_cost_id = models.CharField(primary_key=True, max_length=255)
     additional_cost = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
@@ -143,7 +141,7 @@ class OperationalCost(models.Model):
 
 
 class PackingCost(models.Model):
-    packing_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    packing_cost_id = models.CharField(primary_key=True, max_length=255)
     material_cost = models.DecimalField(max_digits=10, decimal_places=2)
     labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
     total_packing_cost = models.DecimalField(max_digits=10, decimal_places=2)
@@ -154,7 +152,7 @@ class PackingCost(models.Model):
 
 
 class PackingList(models.Model):
-    packing_list_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    packing_list_id = models.CharField(primary_key=True, max_length=255)
     packed_by = models.CharField(max_length=255, blank=True, null=True)
     packing_status = models.TextField(
         blank=True, null=True
@@ -176,7 +174,7 @@ class PackingList(models.Model):
 
 
 class PickingList(models.Model):
-    picking_list_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    picking_list_id = models.CharField(primary_key=True, max_length=255)
     warehouse_id = models.CharField(max_length=255, blank=True, null=True)
     picked_by = models.CharField(max_length=255, blank=True, null=True)
     picked_status = models.TextField(
@@ -193,7 +191,7 @@ class PickingList(models.Model):
 
 
 class Rejection(models.Model):
-    rejection_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    rejection_id = models.CharField(primary_key=True, max_length=255)
     rejection_status = models.TextField(
         blank=True, null=True
     )  # This field type is a guess.
@@ -209,7 +207,7 @@ class Rejection(models.Model):
 
 
 class ReworkOrder(models.Model):
-    rework_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    rework_id = models.CharField(primary_key=True, max_length=255)
     assigned_to = models.CharField(max_length=255, blank=True, null=True)
     rework_status = models.TextField(
         blank=True, null=True
@@ -227,7 +225,7 @@ class ReworkOrder(models.Model):
 
 
 class ShipmentDetails(models.Model):
-    shipment_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    shipment_id = models.CharField(primary_key=True, max_length=255)
     carrier = models.ForeignKey(Carrier, models.DO_NOTHING, blank=True, null=True)
     shipment_date = models.DateField(blank=True, null=True)
     shipment_status = models.TextField(
@@ -252,7 +250,7 @@ class ShipmentDetails(models.Model):
 
 
 class ShippingCost(models.Model):
-    shipping_cost_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    shipping_cost_id = models.CharField(primary_key=True, max_length=255)
     packing_list = models.ForeignKey(
         PackingList, models.DO_NOTHING, blank=True, null=True
     )

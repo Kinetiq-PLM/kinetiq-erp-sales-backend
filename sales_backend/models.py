@@ -8,154 +8,196 @@
 from django.db import models
 
 
-class AfterAnalysisSched(models.Model):
-    analysis_sched_id = models.CharField(primary_key=True, max_length=255)
-    analysis = models.ForeignKey('ServiceAnalysis', models.DO_NOTHING, blank=True, null=True)
-    service_date = models.DateField()
-    technician = models.ForeignKey('Technician', models.DO_NOTHING, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    service_status = models.TextField()
+class BillingReceipt(models.Model):
+    billing_receipt_id = models.CharField(primary_key=True, max_length=255)
+    delivery_receipt = models.ForeignKey('DeliveryReceipt', models.DO_NOTHING, blank=True, null=True)
+    sales_invoice_id = models.CharField(max_length=255, blank=True, null=True)
+    service_billing_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'after_analysis_sched'
+        db_table = 'billing_receipt'
+
+
+class Carrier(models.Model):
+    carrier_id = models.CharField(primary_key=True, max_length=255)
+    carrier_name = models.CharField(max_length=255)
+    service_type = models.TextField(blank=True, null=True)  # This field type is a guess.
+    carrier_count = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'carrier'
 
 
 class DeliveryOrder(models.Model):
-    delivery_order_id = models.CharField(primary_key=True, max_length=255)
-    service_order_item = models.ForeignKey('ServiceOrderItem', models.DO_NOTHING, blank=True, null=True)
-    customer_id = models.CharField(max_length=255, blank=True, null=True)
-    customer_address = models.TextField(blank=True, null=True)
-    delivery_status = models.TextField()
-    delivery_date = models.DateField(blank=True, null=True)
+    del_order_id = models.CharField(primary_key=True, max_length=255)
+    order_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    content_id = models.CharField(max_length=255, blank=True, null=True)
+    is_project_based = models.TextField(blank=True, null=True)  # This field type is a guess.
+    is_partial_delivery = models.TextField(blank=True, null=True)  # This field type is a guess.
+    service_order_id = models.CharField(max_length=255, blank=True, null=True)
+    production_request_id = models.CharField(max_length=255, blank=True, null=True)
+    stock_transfer_id = models.CharField(max_length=255, blank=True, null=True)
+    sales_order_id = models.CharField(max_length=255, blank=True, null=True)
+    approval_request_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'delivery_order'
 
 
-class ServiceAnalysis(models.Model):
-    analysis_id = models.CharField(primary_key=True, max_length=255)
-    service_request = models.ForeignKey('ServiceRequest', models.DO_NOTHING, blank=True, null=True)
-    analysis_date = models.DateField(blank=True, null=True)
-    technician = models.ForeignKey('Technician', models.DO_NOTHING, blank=True, null=True)
-    customer_id = models.CharField(max_length=255, blank=True, null=True)
-    analysis_status = models.TextField()
-    analysis_description = models.TextField(blank=True, null=True)
-    product_id = models.CharField(max_length=255, blank=True, null=True)
-    contract_id = models.CharField(max_length=255, blank=True, null=True)
-    labor_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+class DeliveryReceipt(models.Model):
+    delivery_receipt_id = models.CharField(primary_key=True, max_length=255)
+    delivery_date = models.DateField(blank=True, null=True)
+    received_by = models.CharField(max_length=255, blank=True, null=True)
+    signature = models.TextField()
+    receipt_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    shipment = models.ForeignKey('ShipmentDetails', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'service_analysis'
+        db_table = 'delivery_receipt'
 
 
-class ServiceBilling(models.Model):
-    service_billing_id = models.CharField(primary_key=True, max_length=255)
-    service_order_item = models.ForeignKey('ServiceOrderItem', models.DO_NOTHING, blank=True, null=True)
-    analysis_id = models.CharField(max_length=255, blank=True, null=True)
-    service_request = models.ForeignKey('ServiceRequest', models.DO_NOTHING, blank=True, null=True)
-    charge_type = models.TextField()
-    item_name = models.CharField(max_length=255, blank=True, null=True)
-    service_billing_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    outsource_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    order_item_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    total_payable = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    date_paid = models.DateField(blank=True, null=True)
+class FailedShipment(models.Model):
+    failed_shipment_id = models.CharField(primary_key=True, max_length=255)
+    failure_date = models.DateField(blank=True, null=True)
+    failure_reason = models.TextField()
+    resolution_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    shipment = models.ForeignKey('ShipmentDetails', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'service_billing'
+        db_table = 'failed_shipment'
 
 
-class ServiceCall(models.Model):
-    service_call_id = models.CharField(primary_key=True, max_length=255)
-    date_created = models.DateTimeField(blank=True, null=True)
-    service_ticket = models.ForeignKey('ServiceTicket', models.DO_NOTHING, blank=True, null=True)
-    customer_id = models.CharField(max_length=255, blank=True, null=True)
-    call_type = models.TextField()
-    technician = models.ForeignKey('Technician', models.DO_NOTHING, blank=True, null=True)
-    call_status = models.TextField()
-    date_closed = models.DateTimeField(blank=True, null=True)
-    contract_no = models.CharField(max_length=255, blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
-    priority_level = models.TextField()
-    resolution = models.TextField(blank=True, null=True)
+class GoodsIssue(models.Model):
+    goods_issue_id = models.CharField(primary_key=True, max_length=255)
+    issue_date = models.DateField(blank=True, null=True)
+    issued_by = models.CharField(max_length=255, blank=True, null=True)
+    billing_receipt = models.ForeignKey(BillingReceipt, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'service_call'
+        db_table = 'goods_issue'
 
 
-class ServiceOrder(models.Model):
-    service_order_id = models.CharField(primary_key=True, max_length=255)
-    analysis = models.ForeignKey(ServiceAnalysis, models.DO_NOTHING, blank=True, null=True)
-    customer_id = models.CharField(max_length=255, blank=True, null=True)
-    order_date = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'service_order'
-
-
-class ServiceOrderItem(models.Model):
-    service_order_item_id = models.CharField(primary_key=True, max_length=255)
-    service_order = models.ForeignKey(ServiceOrder, models.DO_NOTHING, blank=True, null=True)
-    principal_item_id = models.CharField(max_length=255, blank=True, null=True)
-    item_name = models.CharField(max_length=255, blank=True, null=True)
-    item_quantity = models.IntegerField(blank=True, null=True)
-    item_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'service_order_item'
-
-
-class ServiceReport(models.Model):
-    report_id = models.CharField(primary_key=True, max_length=255)
-    service_call = models.ForeignKey(ServiceCall, models.DO_NOTHING, blank=True, null=True)
-    service_ticket = models.ForeignKey('ServiceTicket', models.DO_NOTHING, blank=True, null=True)
-    service_billing = models.ForeignKey(ServiceBilling, models.DO_NOTHING, blank=True, null=True)
-    technician = models.ForeignKey('Technician', models.DO_NOTHING, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    report_status = models.TextField()
-    submission_date = models.DateField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'service_report'
-
-
-class ServiceRequest(models.Model):
-    service_request_id = models.CharField(primary_key=True, max_length=255)
-    service_call = models.ForeignKey(ServiceCall, models.DO_NOTHING, blank=True, null=True)
+class LogisticsApprovalRequest(models.Model):
+    approval_request_id = models.CharField(primary_key=True, max_length=255)
     request_date = models.DateField(blank=True, null=True)
-    customer_id = models.CharField(max_length=255, blank=True, null=True)
-    technician = models.ForeignKey('Technician', models.DO_NOTHING, blank=True, null=True)
-    request_type = models.TextField()
-    request_status = models.TextField()
-    request_description = models.TextField(blank=True, null=True)
-    request_remarks = models.TextField(blank=True, null=True)
+    approval_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    approval_date = models.DateField(blank=True, null=True)
+    approved_by = models.CharField(max_length=255, blank=True, null=True)
+    del_order = models.ForeignKey(DeliveryOrder, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'service_request'
+        db_table = 'logistics_approval_request'
 
 
-class ServiceTicket(models.Model):
-    service_ticket_id = models.CharField(primary_key=True, max_length=255)
-    ticket_id = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'service_ticket'
-
-
-class Technician(models.Model):
-    technician_id = models.CharField(primary_key=True, max_length=255)
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
+class OperationalCost(models.Model):
+    operational_cost_id = models.CharField(primary_key=True, max_length=255)
+    additional_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_operational_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    shipping_cost = models.ForeignKey('ShippingCost', models.DO_NOTHING, blank=True, null=True)
+    packing_cost = models.ForeignKey('PackingCost', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'technician'
+        db_table = 'operational_cost'
+
+
+class PackingCost(models.Model):
+    packing_cost_id = models.CharField(primary_key=True, max_length=255)
+    material_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    total_packing_cost = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'packing_cost'
+
+
+class PackingList(models.Model):
+    packing_list_id = models.CharField(primary_key=True, max_length=255)
+    packed_by = models.CharField(max_length=255, blank=True, null=True)
+    packing_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    packing_type = models.TextField(blank=True, null=True)  # This field type is a guess.
+    total_items_packed = models.IntegerField(blank=True, null=True)
+    packing_cost = models.ForeignKey(PackingCost, models.DO_NOTHING, blank=True, null=True)
+    picking_list = models.ForeignKey('PickingList', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'packing_list'
+
+
+class PickingList(models.Model):
+    picking_list_id = models.CharField(primary_key=True, max_length=255)
+    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
+    picked_by = models.CharField(max_length=255, blank=True, null=True)
+    picked_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    picked_date = models.DateField(blank=True, null=True)
+    approval_request = models.ForeignKey(LogisticsApprovalRequest, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'picking_list'
+
+
+class Rejection(models.Model):
+    rejection_id = models.CharField(primary_key=True, max_length=255)
+    rejection_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    rejection_reason = models.TextField()
+    rejection_date = models.DateField(blank=True, null=True)
+    delivery_receipt = models.ForeignKey(DeliveryReceipt, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'rejection'
+
+
+class ReworkOrder(models.Model):
+    rework_id = models.CharField(primary_key=True, max_length=255)
+    assigned_to = models.CharField(max_length=255, blank=True, null=True)
+    rework_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    rework_date = models.DateField(blank=True, null=True)
+    expected_completion = models.DateTimeField(blank=True, null=True)
+    rejection = models.ForeignKey(Rejection, models.DO_NOTHING, blank=True, null=True)
+    failed_shipment = models.ForeignKey(FailedShipment, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'rework_order'
+
+
+class ShipmentDetails(models.Model):
+    shipment_id = models.CharField(primary_key=True, max_length=255)
+    carrier = models.ForeignKey(Carrier, models.DO_NOTHING, blank=True, null=True)
+    shipment_date = models.DateField(blank=True, null=True)
+    shipment_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    tracking_number = models.CharField(max_length=100)
+    estimated_arrival_date = models.DateTimeField(blank=True, null=True)
+    actual_arrival_date = models.DateTimeField(blank=True, null=True)
+    failed_shipment = models.ForeignKey(FailedShipment, models.DO_NOTHING, blank=True, null=True)
+    packing_list = models.ForeignKey(PackingList, models.DO_NOTHING, blank=True, null=True)
+    shipping_cost = models.ForeignKey('ShippingCost', models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shipment_details'
+
+
+class ShippingCost(models.Model):
+    shipping_cost_id = models.CharField(primary_key=True, max_length=255)
+    packing_list = models.ForeignKey(PackingList, models.DO_NOTHING, blank=True, null=True)
+    cost_per_kg = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    cost_per_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    weight_kg = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    distance_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shipping_cost'
