@@ -102,9 +102,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                         **order_data,
                     )
 
-                    # set quotation as appr
+                    # set quotation as approved
                     if quotation:
                         quotation.status = Quotation.Status.APPROVED
+                        quotation.save()
 
                     # if project based, create an external project request
                     # if statement.type == Statement.Type.PROJECT_BASED:

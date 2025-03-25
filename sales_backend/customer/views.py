@@ -3,11 +3,26 @@ from .serializers import *
 from django.db import transaction, connection
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.request import Request
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        status = params.get("status")
+        type = params.get("type")
+        filters = {}
+        if status:
+            filters["status"] = status
+        if type:
+            filters["type"] = type
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filters), many=True).data
+        )
 
     def create(self, request, *args, **kwargs):
         """
