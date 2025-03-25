@@ -39,7 +39,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         if status:
             filtered["status"] = status
         if period:
-            filtered["date_issued__range"] = (start_date, end_date)
+            filtered["start_date__range"] = (start_date, end_date)
         if method:
             filtered["agreement_method"] = method
 
