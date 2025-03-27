@@ -5665,6 +5665,7 @@ CREATE TABLE sales.customers (
     customer_type public.customer_type_enum,
     status public.status_enum,
     debt numeric(10,2) DEFAULT 0.00,
+    contact_person character varying(255),
     CONSTRAINT customers_debt_check CHECK ((debt >= (0)::numeric))
 );
 
@@ -9982,30 +9983,30 @@ SALES-CMPGN-2025-30dc07	Emergency Supplies Discount	Email	2025-05-12 08:00:00	20
 -- Data for Name: customers; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.customers (customer_id, gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt) FROM stdin;
-SALES-CUST-2025-a6775c	\N	\N	St. Luke’s Medical Center	contact@stlukes.com.ph	+63-2-8723-0101	279 E. Rodriguez Sr. Avenue	Quezon City	Quezon City	1112	Philippines	Client	Active	1500.00
-SALES-CUST-2025-f7aa99	\N	\N	Makati Medical Center	info@makatimed.com.ph	+63-2-8888-9999	2 Amorsolo Street	Legaspi Village	Makati	1229	Philippines	Client	Active	2500.00
-SALES-CUST-2025-6a3167	\N	\N	The Medical City	support@medicalcity.com.ph	+63-2-8639-2000	Ortigas Avenue	Pasig City	Pasig	1605	Philippines	Client	Active	0.00
-SALES-CUST-2025-cbf858	\N	\N	Asian Hospital and Medical Center	sales@asianhospital.com.ph	+63-2-8771-9000	2205 Civic Drive	Filinvest City	Muntinlupa	1781	Philippines	Prospect	Active	500.00
-SALES-CUST-2025-941d72	\N	\N	Philippine General Hospital	contact@pgh.gov.ph	+63-2-8554-8400	Taft Avenue	Ermita	Manila	1000	Philippines	Client	Active	2000.00
-SALES-CUST-2025-3197ba	\N	\N	Manila Doctors Hospital	support@maniladoctors.com.ph	+63-2-8558-0888	667 United Nations Avenue	Ermita	Manila	1000	Philippines	Client	Active	300.00
-SALES-CUST-2025-8cdccd	\N	\N	Cardinal Santos Medical Center	info@cardinalsantos.com.ph	+63-2-8727-0001	10 Wilson Street	Greenhills	San Juan	1502	Philippines	Client	Active	750.00
-SALES-CUST-2025-dbfe2c	\N	\N	World Citi Medical Center	billing@worldciti.com.ph	+63-2-8913-8380	960 Aurora Blvd	Cubao	Quezon City	1109	Philippines	Prospect	Active	500.00
-SALES-CUST-2025-a42491	\N	\N	Davao Doctors Hospital	orders@davaodoctors.com.ph	+63-82-222-8000	118 E. Quirino Avenue	Poblacion	Davao City	8000	Philippines	Client	Active	650.00
-SALES-CUST-2025-614801	\N	\N	Cebu Doctors University Hospital	contact@cebudoctors.com.ph	+63-32-255-5555	Osmeña Boulevard	Capitol Site	Cebu City	6000	Philippines	Client	Active	0.00
-SALES-CUST-2025-b1576f	\N	\N	Metro Manila Medical Center	info@metromanilamed.com.ph	+63-2-8711-4141	1357 G. Masangkay Street	Binondo	Manila	1006	Philippines	Client	Active	1250.00
-SALES-CUST-2025-fbdaf0	\N	\N	East Avenue Medical Center	contact@eastave.com.ph	+63-2-8928-0611	East Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	950.00
-SALES-CUST-2025-d105ee	\N	\N	Capitol Medical Center	support@capitolmedical.com.ph	+63-2-8372-3825	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	1800.00
-SALES-CUST-2025-cd1d37	\N	\N	Ospital ng Makati	info@ospitalngmakati.com.ph	+63-2-8828-8443	J.P. Rizal Avenue	Poblacion	Makati	1210	Philippines	Prospect	Active	600.00
-SALES-CUST-2025-59eb62	\N	\N	Lung Center of the Philippines	contact@lungcenter.com.ph	+63-2-8924-6101	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	0.00
-SALES-CUST-2025-0294dc	\N	\N	National Kidney and Transplant Institute	support@nkti.gov.ph	+63-2-8981-0300	East Avenue	Diliman	Quezon City	1100	Philippines	Client	Active	2300.00
-SALES-CUST-2025-2597c0	\N	\N	Rizal Medical Center	info@rizalmed.com.ph	+63-2-8941-2911	Pasig Boulevard	Maybunga	Pasig	1607	Philippines	Client	Active	3000.00
-SALES-CUST-2025-df9ce6	\N	\N	Quirino Memorial Medical Center	support@quirinomemorial.com.ph	+63-2-8913-7890	Katipunan Avenue	Project 4	Quezon City	1109	Philippines	Client	Active	700.00
-SALES-CUST-2025-2ba07b	\N	\N	Jose R. Reyes Memorial Medical Center	info@jrrmmc.gov.ph	+63-2-8731-3229	Rizal Avenue	Sta. Cruz	Manila	1003	Philippines	Prospect	Active	400.00
-SALES-CUST-2025-eac405	\N	\N	Perpetual Help Medical Center	contact@perpetualhelp.com.ph	+63-2-8871-0639	Alabang-Zapote Road	Pamplona	Las Piñas	1740	Philippines	Client	Active	1250.00
-SALES-CUST-2025-665436	\N	ADMIN-PARTNER-2025-76666b	Medical Center Inc.	sales@medicalcenter.com	09123456789	120 Washington Avenue	26 Carmine St	New York	07007	United States	Client	Active	0.00
-SALES-CUST-2025-641c4a	\N	ADMIN-PARTNER-2025-cc0ffb	The Very Best Medical	mail@tvbm.com	09123456789	3525 Sunrise Hwy	134 Division St	New York	07008	United States	Client	Active	0.00
-SALES-CUST-2025-3f84fe	\N	ADMIN-PARTNER-2025-f74e96	Miramax Medical	business@miramax.com	09123456789	1897 Uday Chand Marg	3 Bhagwan Bhavan	Delhi	400053	India	Client	Active	0.00
+COPY sales.customers (customer_id, gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt, contact_person) FROM stdin;
+SALES-CUST-2025-a6775c	\N	\N	St. Luke’s Medical Center	contact@stlukes.com.ph	+63-2-8723-0101	279 E. Rodriguez Sr. Avenue	Quezon City	Quezon City	1112	Philippines	Client	Active	1500.00	\N
+SALES-CUST-2025-f7aa99	\N	\N	Makati Medical Center	info@makatimed.com.ph	+63-2-8888-9999	2 Amorsolo Street	Legaspi Village	Makati	1229	Philippines	Client	Active	2500.00	\N
+SALES-CUST-2025-6a3167	\N	\N	The Medical City	support@medicalcity.com.ph	+63-2-8639-2000	Ortigas Avenue	Pasig City	Pasig	1605	Philippines	Client	Active	0.00	\N
+SALES-CUST-2025-cbf858	\N	\N	Asian Hospital and Medical Center	sales@asianhospital.com.ph	+63-2-8771-9000	2205 Civic Drive	Filinvest City	Muntinlupa	1781	Philippines	Prospect	Active	500.00	\N
+SALES-CUST-2025-941d72	\N	\N	Philippine General Hospital	contact@pgh.gov.ph	+63-2-8554-8400	Taft Avenue	Ermita	Manila	1000	Philippines	Client	Active	2000.00	\N
+SALES-CUST-2025-3197ba	\N	\N	Manila Doctors Hospital	support@maniladoctors.com.ph	+63-2-8558-0888	667 United Nations Avenue	Ermita	Manila	1000	Philippines	Client	Active	300.00	\N
+SALES-CUST-2025-8cdccd	\N	\N	Cardinal Santos Medical Center	info@cardinalsantos.com.ph	+63-2-8727-0001	10 Wilson Street	Greenhills	San Juan	1502	Philippines	Client	Active	750.00	\N
+SALES-CUST-2025-dbfe2c	\N	\N	World Citi Medical Center	billing@worldciti.com.ph	+63-2-8913-8380	960 Aurora Blvd	Cubao	Quezon City	1109	Philippines	Prospect	Active	500.00	\N
+SALES-CUST-2025-a42491	\N	\N	Davao Doctors Hospital	orders@davaodoctors.com.ph	+63-82-222-8000	118 E. Quirino Avenue	Poblacion	Davao City	8000	Philippines	Client	Active	650.00	\N
+SALES-CUST-2025-614801	\N	\N	Cebu Doctors University Hospital	contact@cebudoctors.com.ph	+63-32-255-5555	Osmeña Boulevard	Capitol Site	Cebu City	6000	Philippines	Client	Active	0.00	\N
+SALES-CUST-2025-b1576f	\N	\N	Metro Manila Medical Center	info@metromanilamed.com.ph	+63-2-8711-4141	1357 G. Masangkay Street	Binondo	Manila	1006	Philippines	Client	Active	1250.00	\N
+SALES-CUST-2025-fbdaf0	\N	\N	East Avenue Medical Center	contact@eastave.com.ph	+63-2-8928-0611	East Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	950.00	\N
+SALES-CUST-2025-d105ee	\N	\N	Capitol Medical Center	support@capitolmedical.com.ph	+63-2-8372-3825	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	1800.00	\N
+SALES-CUST-2025-cd1d37	\N	\N	Ospital ng Makati	info@ospitalngmakati.com.ph	+63-2-8828-8443	J.P. Rizal Avenue	Poblacion	Makati	1210	Philippines	Prospect	Active	600.00	\N
+SALES-CUST-2025-59eb62	\N	\N	Lung Center of the Philippines	contact@lungcenter.com.ph	+63-2-8924-6101	Quezon Avenue	Diliman	Quezon City	1101	Philippines	Client	Active	0.00	\N
+SALES-CUST-2025-0294dc	\N	\N	National Kidney and Transplant Institute	support@nkti.gov.ph	+63-2-8981-0300	East Avenue	Diliman	Quezon City	1100	Philippines	Client	Active	2300.00	\N
+SALES-CUST-2025-2597c0	\N	\N	Rizal Medical Center	info@rizalmed.com.ph	+63-2-8941-2911	Pasig Boulevard	Maybunga	Pasig	1607	Philippines	Client	Active	3000.00	\N
+SALES-CUST-2025-df9ce6	\N	\N	Quirino Memorial Medical Center	support@quirinomemorial.com.ph	+63-2-8913-7890	Katipunan Avenue	Project 4	Quezon City	1109	Philippines	Client	Active	700.00	\N
+SALES-CUST-2025-2ba07b	\N	\N	Jose R. Reyes Memorial Medical Center	info@jrrmmc.gov.ph	+63-2-8731-3229	Rizal Avenue	Sta. Cruz	Manila	1003	Philippines	Prospect	Active	400.00	\N
+SALES-CUST-2025-eac405	\N	\N	Perpetual Help Medical Center	contact@perpetualhelp.com.ph	+63-2-8871-0639	Alabang-Zapote Road	Pamplona	Las Piñas	1740	Philippines	Client	Active	1250.00	\N
+SALES-CUST-2025-665436	\N	ADMIN-PARTNER-2025-76666b	Medical Center Inc.	sales@medicalcenter.com	09123456789	120 Washington Avenue	26 Carmine St	New York	07007	United States	Client	Active	0.00	\N
+SALES-CUST-2025-641c4a	\N	ADMIN-PARTNER-2025-cc0ffb	The Very Best Medical	mail@tvbm.com	09123456789	3525 Sunrise Hwy	134 Division St	New York	07008	United States	Client	Active	0.00	\N
+SALES-CUST-2025-3f84fe	\N	ADMIN-PARTNER-2025-f74e96	Miramax Medical	business@miramax.com	09123456789	1897 Uday Chand Marg	3 Bhagwan Bhavan	Delhi	400053	India	Client	Active	0.00	\N
 \.
 
 
