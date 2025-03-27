@@ -2854,6 +2854,39 @@ $$;
 ALTER FUNCTION public.generate_sales_invoice() OWNER TO postgres;
 
 --
+-- Name: insert_order_based_on_type(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.insert_order_based_on_type() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    order_type quotation_type_enum; 
+BEGIN
+    -- Retrieve the quotation type directly
+    SELECT s.type INTO order_type
+    FROM sales.statement s
+    JOIN sales.orders o ON s.statement_id = o.statement_id
+    WHERE o.order_id = NEW.order_id;
+
+    -- Insert into the correct table based on quotation type
+    IF order_type = 'Non-Project-Based' THEN
+        INSERT INTO mrp.non_project_order_pricing (non_project_costing_id, order_id, product_id, quantity, mrp_base_price, final_price)
+        VALUES (NEW.order_id, NEW.order_id, NULL, 0, 0.00, 0.00);
+    
+    ELSIF order_type = 'Project-Based' THEN
+        INSERT INTO project_management.external_project_request (ext_project_request_id, ext_project_name, ext_project_description, approval_id, item_id)
+        VALUES (NEW.order_id, 'Project for Order ' || NEW.order_id, 'Automatically generated project request', NULL, NEW.order_id);
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.insert_order_based_on_type() OWNER TO postgres;
+
+--
 -- Name: update_demand_level(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -6238,6 +6271,16 @@ ACC-GLA-2025-d82c55	Customer - botik	ACC-COA-2025-NA1130	\N	Active	2025-03-18 21
 ACC-GLA-2025-eb908f	Vendor- BioFlex Composites	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
 ACC-GLA-2025-6375e2	Vendor- BioGrade Metals	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
 ACC-GLA-2025-5b4184	Vendor- CryoBond Precision	ACC-COA-2025-CL2010	\N	Active	2025-03-08 02:00:00
+ACC-GLA-2025-382491	asdf	SALES-CUST-2025-2ef739	SALES-CUST-2025-2ef739	Active	2025-03-27 13:38:29.805076
+ACC-GLA-2025-cee598	asdf	SALES-CUST-2025-a24733	SALES-CUST-2025-a24733	Active	2025-03-27 13:44:00.43948
+ACC-GLA-2025-edba20	asdf	SALES-CUST-2025-daccd5	SALES-CUST-2025-daccd5	Active	2025-03-27 13:49:16.193707
+ACC-GLA-2025-d08e7d	asdf	SALES-CUST-2025-8d1c2b	SALES-CUST-2025-8d1c2b	Active	2025-03-27 13:56:13.315607
+ACC-GLA-2025-bb19f5	asd	SALES-CUST-2025-0d5a51	SALES-CUST-2025-0d5a51	Active	2025-03-27 13:56:49.78112
+ACC-GLA-2025-ab0a61	asdf	SALES-CUST-2025-11c743	SALES-CUST-2025-11c743	Active	2025-03-27 14:00:54.94692
+ACC-GLA-2025-4d9883	asf	SALES-CUST-2025-924d40	SALES-CUST-2025-924d40	Active	2025-03-27 14:01:33.634803
+ACC-GLA-2025-53ab9c	asdf	SALES-CUST-2025-c2a631	SALES-CUST-2025-c2a631	Active	2025-03-27 14:02:03.269042
+ACC-GLA-2025-2f99ba	asdf	SALES-CUST-2025-946136	SALES-CUST-2025-946136	Active	2025-03-27 14:05:45.09741
+ACC-GLA-2025-339823	asdfasdf	SALES-CUST-2025-bbed7f	SALES-CUST-2025-bbed7f	Active	2025-03-27 14:06:19.790605
 \.
 
 
@@ -6509,6 +6552,16 @@ ADMIN-PARTNER-2025-dad54c	\N	\N	SALES-CUST-2025-fe939e	asdf	Customer	09123456789
 ADMIN-PARTNER-2025-9f9fa0	\N	\N	SALES-CUST-2025-975270	asfd	Customer	09123456789
 ADMIN-PARTNER-2025-308730	\N	\N	SALES-CUST-2025-4b238f	asdf	Customer	09123456789
 ADMIN-PARTNER-2025-99ef98	\N	\N	SALES-CUST-2025-28c4e5	asfd	Customer	09123456789
+ADMIN-PARTNER-2025-247a9d	\N	\N	SALES-CUST-2025-2ef739	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-333d7f	\N	\N	SALES-CUST-2025-a24733	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-60e36e	\N	\N	SALES-CUST-2025-daccd5	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-bfe5bd	\N	\N	SALES-CUST-2025-8d1c2b	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-cb29c5	\N	\N	SALES-CUST-2025-0d5a51	asd	Customer	09123456789
+ADMIN-PARTNER-2025-248472	\N	\N	SALES-CUST-2025-11c743	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-246d1d	\N	\N	SALES-CUST-2025-924d40	asf	Customer	09123456789
+ADMIN-PARTNER-2025-9daa2e	\N	\N	SALES-CUST-2025-c2a631	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-b8f8f5	\N	\N	SALES-CUST-2025-946136	asdf	Customer	09123456789
+ADMIN-PARTNER-2025-8bb554	\N	\N	SALES-CUST-2025-bbed7f	asdfasdf	Customer	09123457895
 \.
 
 
@@ -8064,6 +8117,7 @@ MRP-NPC-2025-3fdd10	\N	\N	13	2300.00	29900.00
 MRP-NPC-2025-f9105f	\N	\N	2	2400.00	4800.00
 MRP-NPC-2025-05a4f5	\N	\N	6	2600.00	15600.00
 MRP-NPC-2025-af6370	\N	\N	9	2700.00	24300.00
+MRP-NPC-2025-6b1c52	SALES-ORD-2025-6a18e4	\N	0	0.00	0.00
 \.
 
 
@@ -8792,6 +8846,7 @@ PROJ-EPR-2025-04a82d	TNI HighFlow x30	Producing 30 TNI HighFlow respiratory ther
 PROJ-EPR-2025-d3c20b	uMed 20 x35	Manufacturing 35 units of uMed 20 portable patient monitors.	\N	\N
 PROJ-EPR-2025-8416cd	Wato EX-20 x9	Client requested 9 Wato EX-20 anesthesia machines.	\N	\N
 PROJ-EPR-2025-14a373	Rad-97 Pulse CO-Oximeter x22	Producing 22 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
+PROJ-EPR-2025-8ee690	Project for Order SALES-ORD-2025-8fef5b	Automatically generated project request	\N	SALES-ORD-2025-8fef5b
 \.
 
 
@@ -9514,6 +9569,8 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 234	2025-03-27 21:10:57.480887+08	SALES-PAY-2025-28dfd5	Payments object (SALES-PAY-2025-28dfd5)	2	[{"changed": {"fields": ["Order", "Payment status"]}}]	23	1
 235	2025-03-27 21:24:14.356883+08	SALES-ORD-2025-9137d5	Order object (SALES-ORD-2025-9137d5)	2	[{"changed": {"fields": ["Goods issue"]}}]	13	1
 236	2025-03-27 21:26:07.190639+08	SALES-ORD-2025-0479e3	Order object (SALES-ORD-2025-0479e3)	2	[{"changed": {"fields": ["Goods issue"]}}]	13	1
+237	2025-03-27 22:39:02.726288+08	asdf	Order object (asdf)	1	[{"added": {}}]	13	1
+238	2025-03-27 22:45:19.776973+08	a	Order object (a)	1	[{"added": {}}]	13	1
 \.
 
 
@@ -9545,6 +9602,7 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 21	misc	businesspartnermaster
 22	misc	generalledgeraccounts
 23	invoice	payments
+24	misc	nonprojectorderpricing
 \.
 
 
@@ -10033,6 +10091,8 @@ SALES-ORD-2025-062e11	SALES-STM-2025-600a2f	SALES-QT-2025-12b112	\N	\N	2025-03-2
 SALES-ORD-2025-524028	SALES-STM-2025-6b3b58	SALES-QT-2025-5e2bf2	\N	\N	2025-03-24 04:50:36.216	Pending	23309.69	Direct
 SALES-ORD-2025-9137d5	SALES-STM-2025-29deb9	\N	\N	DIS-GI-2025-e521b4	2025-03-21 20:03:37.472554	Delivered	437073.00	Scheduled
 SALES-ORD-2025-0479e3	SALES-STM-2025-c86ce6	SALES-QT-2025-0815c0	\N	DIS-GI-2025-3336f2	2025-03-21 20:06:19.062515	Delivered	12265.34	Direct
+SALES-ORD-2025-6a18e4	SALES-STM-2025-600a2f	\N	\N	\N	2025-03-27 14:39:02.717057	Pending	1234.00	Direct
+SALES-ORD-2025-8fef5b	SALES-STM-2025-656095	\N	\N	\N	2025-03-27 14:45:19.76953	Pending	1234.00	Direct
 \.
 
 
@@ -10987,14 +11047,14 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 236, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 238, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 23, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 24, true);
 
 
 --
@@ -13017,6 +13077,13 @@ CREATE TRIGGER trg_create_gl_account AFTER INSERT ON sales.customers FOR EACH RO
 --
 
 CREATE TRIGGER trg_generate_sales_invoice AFTER UPDATE ON sales.payments FOR EACH ROW EXECUTE FUNCTION public.generate_sales_invoice();
+
+
+--
+-- Name: orders trg_insert_order_based_on_type; Type: TRIGGER; Schema: sales; Owner: postgres
+--
+
+CREATE TRIGGER trg_insert_order_based_on_type AFTER INSERT ON sales.orders FOR EACH ROW EXECUTE FUNCTION public.insert_order_based_on_type();
 
 
 --
