@@ -68,6 +68,13 @@ class StatementItem(models.Model):
         VERY_HIGH = "Very High"
         SEASONAL = "Seasonal"
 
+    class ReturnAction(models.TextChoices):
+        CREDIT = "Credit"
+        REPAIR = "Repair"
+        REPLACE = "Replace"
+        RETURN = "Return"
+        DEFINE_NEW = "Define New"
+
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
     sales_costing = models.ForeignKey(
@@ -83,6 +90,8 @@ class StatementItem(models.Model):
     demand_level = models.TextField(choices=DemandLevel, default=DemandLevel.LOW)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    return_reason = models.TextField(blank=True, null=True)
+    return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
 
     class Meta:
         managed = False

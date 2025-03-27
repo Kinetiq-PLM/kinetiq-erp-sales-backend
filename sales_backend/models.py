@@ -8,196 +8,287 @@
 from django.db import models
 
 
-class BillingReceipt(models.Model):
-    billing_receipt_id = models.CharField(primary_key=True, max_length=255)
-    delivery_receipt = models.ForeignKey('DeliveryReceipt', models.DO_NOTHING, blank=True, null=True)
-    sales_invoice_id = models.CharField(max_length=255, blank=True, null=True)
-    service_billing_id = models.CharField(max_length=255, blank=True, null=True)
+class BlanketAgreement(models.Model):
+    agreement_id = models.CharField(primary_key=True, max_length=255)
+    statement_id = models.CharField(max_length=255, blank=True, null=True)
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    description = models.TextField(blank=True, null=True)
+    signed_date = models.DateTimeField(blank=True, null=True)
+    agreement_method = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'billing_receipt'
+        db_table = 'blanket_agreement'
 
 
-class Carrier(models.Model):
-    carrier_id = models.CharField(primary_key=True, max_length=255)
-    carrier_name = models.CharField(max_length=255)
-    service_type = models.TextField(blank=True, null=True)  # This field type is a guess.
-    carrier_count = models.IntegerField(blank=True, null=True)
+class CampaignContacts(models.Model):
+    contact_id = models.CharField(primary_key=True, max_length=255)
+    lead_id = models.CharField(max_length=255, blank=True, null=True)
+    campaign_id = models.CharField(max_length=255, blank=True, null=True)
+    response_status = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'carrier'
+        db_table = 'campaign_contacts'
 
 
-class DeliveryOrder(models.Model):
-    del_order_id = models.CharField(primary_key=True, max_length=255)
+class Campaigns(models.Model):
+    campaign_id = models.CharField(primary_key=True, max_length=255)
+    campaign_name = models.CharField(max_length=255, blank=True, null=True)
+    type = models.TextField(blank=True, null=True)  # This field type is a guess.
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'campaigns'
+
+
+class Customers(models.Model):
+    customer_id = models.CharField(primary_key=True, max_length=255)
+    gl_account_id = models.CharField(max_length=255, blank=True, null=True)
+    partner_id = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    email_address = models.CharField(unique=True, max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    address_line1 = models.CharField(max_length=255, blank=True, null=True)
+    address_line2 = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    customer_type = models.TextField(blank=True, null=True)  # This field type is a guess.
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    debt = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    contact_person = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'customers'
+
+
+class Leads(models.Model):
+    lead_id = models.CharField(primary_key=True, max_length=255)
+    salesrep_id = models.CharField(max_length=255, blank=True, null=True)
+    lead_name = models.CharField(max_length=255, blank=True, null=True)
+    lead_email = models.CharField(unique=True, max_length=255, blank=True, null=True)
+    lead_phonenum = models.CharField(max_length=20, blank=True, null=True)
+    source = models.TextField(blank=True, null=True)  # This field type is a guess.
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'leads'
+
+
+class Opportunities(models.Model):
+    opportunity_id = models.CharField(primary_key=True, max_length=255)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    partner_id = models.CharField(max_length=255, blank=True, null=True)
+    salesrep_id = models.CharField(max_length=255, blank=True, null=True)
+    estimated_value = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    expected_closed_date = models.DateField(blank=True, null=True)
+    stage = models.TextField(blank=True, null=True)  # This field type is a guess.
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    description = models.TextField(blank=True, null=True)
+    reason_lost = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'opportunities'
+
+
+class Orders(models.Model):
+    order_id = models.CharField(primary_key=True, max_length=255)
+    statement_id = models.CharField(max_length=255, blank=True, null=True)
+    quotation_id = models.CharField(max_length=255, blank=True, null=True)
+    rework_id = models.CharField(max_length=255, blank=True, null=True)
+    goods_issue_id = models.CharField(max_length=255, blank=True, null=True)
+    order_date = models.DateTimeField(blank=True, null=True)
     order_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    content_id = models.CharField(max_length=255, blank=True, null=True)
-    is_project_based = models.TextField(blank=True, null=True)  # This field type is a guess.
-    is_partial_delivery = models.TextField(blank=True, null=True)  # This field type is a guess.
-    service_order_id = models.CharField(max_length=255, blank=True, null=True)
-    production_request_id = models.CharField(max_length=255, blank=True, null=True)
-    stock_transfer_id = models.CharField(max_length=255, blank=True, null=True)
-    sales_order_id = models.CharField(max_length=255, blank=True, null=True)
-    approval_request_id = models.CharField(max_length=255, blank=True, null=True)
+    order_total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    order_type = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'delivery_order'
+        db_table = 'orders'
 
 
-class DeliveryReceipt(models.Model):
-    delivery_receipt_id = models.CharField(primary_key=True, max_length=255)
-    delivery_date = models.DateField(blank=True, null=True)
-    received_by = models.CharField(max_length=255, blank=True, null=True)
-    signature = models.TextField()
-    receipt_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    shipment = models.ForeignKey('ShipmentDetails', models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'delivery_receipt'
-
-
-class FailedShipment(models.Model):
-    failed_shipment_id = models.CharField(primary_key=True, max_length=255)
-    failure_date = models.DateField(blank=True, null=True)
-    failure_reason = models.TextField()
-    resolution_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    shipment = models.ForeignKey('ShipmentDetails', models.DO_NOTHING, blank=True, null=True)
+class Payments(models.Model):
+    payment_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    payment_method = models.TextField(blank=True, null=True)  # This field type is a guess.
+    payment_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    payment_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'failed_shipment'
+        db_table = 'payments'
 
 
-class GoodsIssue(models.Model):
-    goods_issue_id = models.CharField(primary_key=True, max_length=255)
-    issue_date = models.DateField(blank=True, null=True)
-    issued_by = models.CharField(max_length=255, blank=True, null=True)
-    billing_receipt = models.ForeignKey(BillingReceipt, models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'goods_issue'
-
-
-class LogisticsApprovalRequest(models.Model):
-    approval_request_id = models.CharField(primary_key=True, max_length=255)
-    request_date = models.DateField(blank=True, null=True)
-    approval_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    approval_date = models.DateField(blank=True, null=True)
-    approved_by = models.CharField(max_length=255, blank=True, null=True)
-    del_order = models.ForeignKey(DeliveryOrder, models.DO_NOTHING, blank=True, null=True)
+class Quotation(models.Model):
+    quotation_id = models.CharField(primary_key=True, max_length=255)
+    statement_id = models.CharField(max_length=255, blank=True, null=True)
+    agreement_id = models.CharField(max_length=255, blank=True, null=True)
+    date_issued = models.DateTimeField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'logistics_approval_request'
+        db_table = 'quotation'
 
 
-class OperationalCost(models.Model):
-    operational_cost_id = models.CharField(primary_key=True, max_length=255)
-    additional_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    total_operational_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    shipping_cost = models.ForeignKey('ShippingCost', models.DO_NOTHING, blank=True, null=True)
-    packing_cost = models.ForeignKey('PackingCost', models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'operational_cost'
-
-
-class PackingCost(models.Model):
-    packing_cost_id = models.CharField(primary_key=True, max_length=255)
-    material_cost = models.DecimalField(max_digits=10, decimal_places=2)
-    labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
-    total_packing_cost = models.DecimalField(max_digits=10, decimal_places=2)
+class Receipt(models.Model):
+    receipt_id = models.CharField(primary_key=True, max_length=255)
+    shipping_id = models.CharField(max_length=255, blank=True, null=True)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    payments_id = models.CharField(max_length=255, blank=True, null=True)
+    policy_id = models.CharField(max_length=255, blank=True, null=True)
+    date_signed = models.DateField(blank=True, null=True)
+    signed_docu = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'packing_cost'
+        db_table = 'receipt'
 
 
-class PackingList(models.Model):
-    packing_list_id = models.CharField(primary_key=True, max_length=255)
-    packed_by = models.CharField(max_length=255, blank=True, null=True)
-    packing_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    packing_type = models.TextField(blank=True, null=True)  # This field type is a guess.
-    total_items_packed = models.IntegerField(blank=True, null=True)
-    packing_cost = models.ForeignKey(PackingCost, models.DO_NOTHING, blank=True, null=True)
-    picking_list = models.ForeignKey('PickingList', models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'packing_list'
-
-
-class PickingList(models.Model):
-    picking_list_id = models.CharField(primary_key=True, max_length=255)
-    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
-    picked_by = models.CharField(max_length=255, blank=True, null=True)
-    picked_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    picked_date = models.DateField(blank=True, null=True)
-    approval_request = models.ForeignKey(LogisticsApprovalRequest, models.DO_NOTHING, blank=True, null=True)
+class RenewalWarranty(models.Model):
+    renewal_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    payments_id = models.CharField(max_length=255, blank=True, null=True)
+    service_request_id = models.CharField(max_length=255, blank=True, null=True)
+    original_warranty_start = models.DateField(blank=True, null=True)
+    original_warranty_end = models.DateField(blank=True, null=True)
+    renewal_warranty_start = models.DateField(blank=True, null=True)
+    renewal_warranty_end = models.DateField(blank=True, null=True)
+    renewal_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    created_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(blank=True, null=True)
+    renewal_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'picking_list'
+        db_table = 'renewal_warranty'
 
 
-class Rejection(models.Model):
-    rejection_id = models.CharField(primary_key=True, max_length=255)
-    rejection_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    rejection_reason = models.TextField()
-    rejection_date = models.DateField(blank=True, null=True)
-    delivery_receipt = models.ForeignKey(DeliveryReceipt, models.DO_NOTHING, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'rejection'
-
-
-class ReworkOrder(models.Model):
-    rework_id = models.CharField(primary_key=True, max_length=255)
-    assigned_to = models.CharField(max_length=255, blank=True, null=True)
-    rework_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    rework_date = models.DateField(blank=True, null=True)
-    expected_completion = models.DateTimeField(blank=True, null=True)
-    rejection = models.ForeignKey(Rejection, models.DO_NOTHING, blank=True, null=True)
-    failed_shipment = models.ForeignKey(FailedShipment, models.DO_NOTHING, blank=True, null=True)
+class Return(models.Model):
+    return_id = models.CharField(primary_key=True, max_length=255)
+    statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
+    shipping = models.ForeignKey('ShippingDetails', models.DO_NOTHING, blank=True, null=True)
+    return_date = models.DateTimeField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    remarks = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'rework_order'
+        db_table = 'return'
 
 
-class ShipmentDetails(models.Model):
-    shipment_id = models.CharField(primary_key=True, max_length=255)
-    carrier = models.ForeignKey(Carrier, models.DO_NOTHING, blank=True, null=True)
-    shipment_date = models.DateField(blank=True, null=True)
-    shipment_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    tracking_number = models.CharField(max_length=100)
-    estimated_arrival_date = models.DateTimeField(blank=True, null=True)
-    actual_arrival_date = models.DateTimeField(blank=True, null=True)
-    failed_shipment = models.ForeignKey(FailedShipment, models.DO_NOTHING, blank=True, null=True)
-    packing_list = models.ForeignKey(PackingList, models.DO_NOTHING, blank=True, null=True)
-    shipping_cost = models.ForeignKey('ShippingCost', models.DO_NOTHING, blank=True, null=True)
+class SalesCosting(models.Model):
+    sales_costing_id = models.CharField(primary_key=True, max_length=255)
+    non_project_costing_id = models.CharField(max_length=255, blank=True, null=True)
+    project_resources_id = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'shipment_details'
+        db_table = 'sales_costing'
 
 
-class ShippingCost(models.Model):
-    shipping_cost_id = models.CharField(primary_key=True, max_length=255)
-    packing_list = models.ForeignKey(PackingList, models.DO_NOTHING, blank=True, null=True)
-    cost_per_kg = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    cost_per_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    weight_kg = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    distance_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    total_shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+class SalesInvoices(models.Model):
+    invoice_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    invoice_date = models.DateTimeField(blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    invoice_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    payment_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    due_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'shipping_cost'
+        db_table = 'sales_invoices'
+
+
+class ShippingDetails(models.Model):
+    shipping_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    operational_cost_id = models.CharField(max_length=255, blank=True, null=True)
+    shipment_id = models.CharField(max_length=255, blank=True, null=True)
+    shipping_method = models.TextField(blank=True, null=True)  # This field type is a guess.
+    tracking_num = models.CharField(unique=True, max_length=50, blank=True, null=True)
+    shipping_date = models.DateTimeField(blank=True, null=True)
+    estimated_delivery = models.DateTimeField(blank=True, null=True)
+    delivery_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
+    delivery_date = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shipping_details'
+
+
+class Statement(models.Model):
+    statement_id = models.CharField(primary_key=True, max_length=255)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    salesrep_id = models.CharField(max_length=255, blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    type = models.TextField(blank=True, null=True)  # This field type is a guess.
+    total_tax = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'statement'
+
+
+class StatementItem(models.Model):
+    statement_item_id = models.CharField(primary_key=True, max_length=255)
+    statement_id = models.CharField(max_length=255, blank=True, null=True)
+    sales_costing_id = models.CharField(max_length=255, blank=True, null=True)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    item_md_id = models.CharField(max_length=255, blank=True, null=True)
+    quantity = models.IntegerField(blank=True, null=True)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    markup_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    demand_level = models.TextField(blank=True, null=True)  # This field type is a guess.
+    discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    tax_amount = models.IntegerField(blank=True, null=True)
+    return_reason = models.TextField(blank=True, null=True)
+    return_action = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'statement_item'
+
+
+class Ticket(models.Model):
+    ticket_id = models.CharField(primary_key=True, max_length=255)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)
+    salesrep_id = models.CharField(max_length=255, blank=True, null=True)
+    subject = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    priority = models.TextField(blank=True, null=True)  # This field type is a guess.
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ticket'
+
+
+class TicketConvo(models.Model):
+    convo_id = models.CharField(primary_key=True, max_length=255)
+    ticket_id = models.CharField(max_length=255, blank=True, null=True)
+    content = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ticket_convo'
