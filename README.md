@@ -28,7 +28,7 @@ $ pip install -r requirements.txt
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kinetiq",
+        "NAME": "kinetiq_temp",
         "USER": <your_username>,
         "PASSWORD": <your_password>,
         "HOST": "localhost",
@@ -40,8 +40,8 @@ DATABASES = {
 ### Create database
 
 ```
-$ psql -U <username> -c "CREATE DATABASE kinetiq;"
-$ psql -U <username> kinetiq < kinetiq.sql
+$ psql -U <username> -c "CREATE DATABASE kinetiq_temp;"
+$ psql -U <username> kinetiq_temp < kinetiq_temp.sql
 ```
 
 ### Run Django migrations
