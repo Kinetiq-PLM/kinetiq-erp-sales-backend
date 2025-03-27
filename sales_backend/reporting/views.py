@@ -94,7 +94,7 @@ def get_sales_report(request: Request):
         data[str_date]["invoices"] = prev + 1
 
     res = []
-    for key in data.keys():
+    for key in sorted(data.keys(), key=lambda x: datetime.strptime(x, "%Y-%m-%d")):
         res.append({"date": key, **data[key]})
 
     return Response({"start_date": start_date, "end_date": end_date, "data": res})
