@@ -6,7 +6,7 @@ from django.forms import model_to_dict
 
 class CustomerSerializer(serializers.ModelSerializer):
     partner = serializers.PrimaryKeyRelatedField(
-        queryset=BusinessPartnerMaster.objects.all()
+        queryset=BusinessPartnerMaster.objects.all(), allow_null=True, required=False
     )
 
     class Meta:
