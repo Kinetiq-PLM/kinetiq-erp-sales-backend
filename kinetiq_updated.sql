@@ -6252,7 +6252,6 @@ ADMIN-PARTNER-2025-4f46f8	\N	\N	SALES-CUST-2025-502442	asd	Customer	09123456789
 ADMIN-PARTNER-2025-0fe584	\N	\N	SALES-CUST-2025-cca636	asdf	Customer	09123456789
 ADMIN-PARTNER-2025-dad54c	\N	\N	SALES-CUST-2025-fe939e	asdf	Customer	09123456789
 ADMIN-PARTNER-2025-9f9fa0	\N	\N	SALES-CUST-2025-975270	asfd	Customer	09123456789
-ADMIN-PARTNER-2025-fc7fd6	\N	\N	SALES-CUST-2025-fc0cad	asfd	Customer	09123456789
 ADMIN-PARTNER-2025-308730	\N	\N	SALES-CUST-2025-4b238f	asdf	Customer	09123456789
 ADMIN-PARTNER-2025-99ef98	\N	\N	SALES-CUST-2025-28c4e5	asfd	Customer	09123456789
 \.
@@ -9228,6 +9227,27 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 199	2025-03-25 21:21:54.241213+08	SALES-CONTACT-2025-357341	CampaignContacts object (SALES-CONTACT-2025-357341)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
 200	2025-03-25 21:22:04.111338+08	SALES-CONTACT-2025-064025	CampaignContacts object (SALES-CONTACT-2025-064025)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
 201	2025-03-25 21:22:11.31184+08	SALES-CONTACT-2025-017e9e	CampaignContacts object (SALES-CONTACT-2025-017e9e)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+202	2025-03-25 21:58:14.006885+08	ADMIN-PARTNER-2025-fc7fd6	BusinessPartnerMaster object (ADMIN-PARTNER-2025-fc7fd6)	3		21	1
+203	2025-03-27 10:37:53.668724+08	SALES-OPP-2025-e9b6c4	Opportunities object (SALES-OPP-2025-e9b6c4)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+204	2025-03-27 10:38:01.566555+08	SALES-OPP-2025-e1589d	Opportunities object (SALES-OPP-2025-e1589d)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+205	2025-03-27 10:38:15.683146+08	SALES-OPP-2025-cf73e9	Opportunities object (SALES-OPP-2025-cf73e9)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+206	2025-03-27 10:38:25.495506+08	SALES-OPP-2025-bcf781	Opportunities object (SALES-OPP-2025-bcf781)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+207	2025-03-27 10:38:37.596076+08	SALES-OPP-2025-b98cab	Opportunities object (SALES-OPP-2025-b98cab)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+208	2025-03-27 10:38:56.938336+08	SALES-OPP-2025-b26644	Opportunities object (SALES-OPP-2025-b26644)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+209	2025-03-27 10:39:04.131352+08	SALES-OPP-2025-a0bef8	Opportunities object (SALES-OPP-2025-a0bef8)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+210	2025-03-27 10:39:28.743738+08	SALES-OPP-2025-8570cd	Opportunities object (SALES-OPP-2025-8570cd)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+211	2025-03-27 10:39:38.932676+08	SALES-OPP-2025-84846c	Opportunities object (SALES-OPP-2025-84846c)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+212	2025-03-27 10:39:47.218062+08	SALES-OPP-2025-6ea508	Opportunities object (SALES-OPP-2025-6ea508)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+213	2025-03-27 10:40:14.671554+08	SALES-OPP-2025-6e9fef	Opportunities object (SALES-OPP-2025-6e9fef)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+214	2025-03-27 10:40:31.829838+08	SALES-OPP-2025-6e4bbf	Opportunities object (SALES-OPP-2025-6e4bbf)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+215	2025-03-27 10:40:58.157164+08	SALES-OPP-2025-544114	Opportunities object (SALES-OPP-2025-544114)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+216	2025-03-27 10:41:08.312153+08	SALES-OPP-2025-524755	Opportunities object (SALES-OPP-2025-524755)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+217	2025-03-27 10:41:25.286127+08	SALES-OPP-2025-2f8710	Opportunities object (SALES-OPP-2025-2f8710)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+218	2025-03-27 10:41:37.443738+08	SALES-OPP-2025-1f3caf	Opportunities object (SALES-OPP-2025-1f3caf)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+219	2025-03-27 10:41:50.523179+08	SALES-OPP-2025-1c1b9d	Opportunities object (SALES-OPP-2025-1c1b9d)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+220	2025-03-27 10:42:05.733229+08	SALES-OPP-2025-168ce4	Opportunities object (SALES-OPP-2025-168ce4)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+221	2025-03-27 10:42:25.263364+08	SALES-OPP-2025-0456fe	Opportunities object (SALES-OPP-2025-0456fe)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
+222	2025-03-27 10:42:37.084144+08	SALES-OPP-2025-041b10	Opportunities object (SALES-OPP-2025-041b10)	2	[{"changed": {"fields": ["Customer", "Partner", "Salesrep"]}}]	20	1
 \.
 
 
@@ -9256,6 +9276,7 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 18	delivery	shippingdetails
 19	CRM	campaigncontacts
 20	CRM	opportunities
+21	misc	businesspartnermaster
 \.
 
 
@@ -9695,26 +9716,26 @@ SALES-LEAD-2025-4a4dab	\N	Roberto Alvarez	roberto.alvarez@medicore.com	+63-917-5
 --
 
 COPY sales.opportunities (opportunity_id, customer_id, partner_id, salesrep_id, estimated_value, expected_closed_date, stage, status, description, reason_lost) FROM stdin;
-SALES-OPP-2025-6e9fef	\N	\N	\N	250000.00	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	\N
-SALES-OPP-2025-cf73e9	\N	\N	\N	150000.00	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	\N
-SALES-OPP-2025-1c1b9d	\N	\N	\N	10000.00	2025-03-30	Closed	Won	Sold 500 surgical gloves.	\N
-SALES-OPP-2025-041b10	\N	\N	\N	75000.00	2025-06-01	Prospecting	Open	New client interested in defibrillators.	\N
-SALES-OPP-2025-2f8710	\N	\N	\N	500000.00	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.
-SALES-OPP-2025-bcf781	\N	\N	\N	20000.00	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	\N
-SALES-OPP-2025-84846c	\N	\N	\N	8000.00	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.
-SALES-OPP-2025-a0bef8	\N	\N	\N	95000.00	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	\N
-SALES-OPP-2025-e1589d	\N	\N	\N	12000.00	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	\N
-SALES-OPP-2025-8570cd	\N	\N	\N	180000.00	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	\N
-SALES-OPP-2025-168ce4	\N	\N	\N	300000.00	2025-06-15	Prospecting	Open	Potential deal for CT scanners.	\N
-SALES-OPP-2025-0456fe	\N	\N	\N	120000.00	2025-05-20	Negotiation	Open	Negotiating pricing for ultrasound machines.	\N
-SALES-OPP-2025-1f3caf	\N	\N	\N	15000.00	2025-04-30	Closed	Won	Sold 1000 surgical masks.	\N
-SALES-OPP-2025-6ea508	\N	\N	\N	90000.00	2025-07-01	Prospecting	Open	New client interested in MRI machines.	\N
-SALES-OPP-2025-b98cab	\N	\N	\N	600000.00	2025-08-01	Negotiation	Lost	Large order for ventilators.	Customer chose competitor.
-SALES-OPP-2025-524755	\N	\N	\N	25000.00	2025-06-10	Closed	Won	Sold 300 syringes and 100 BP monitors.	\N
-SALES-OPP-2025-b26644	\N	\N	\N	10000.00	2025-05-25	Closed	Lost	Small clinic interested in X-ray machine.	Budget constraints.
-SALES-OPP-2025-544114	\N	\N	\N	110000.00	2025-06-20	Prospecting	Open	Potential deal for 5 new dialysis machines.	\N
-SALES-OPP-2025-6e4bbf	\N	\N	\N	18000.00	2025-07-10	Negotiation	Open	Service maintenance contract for lab equipment.	\N
-SALES-OPP-2025-e9b6c4	\N	\N	\N	200000.00	2025-07-30	Closed	Won	Bulk order for surgical gloves and hospital beds.	\N
+SALES-OPP-2025-e9b6c4	SALES-CUST-2025-a6775c	ADMIN-PARTNER-2025-1c49e2	HR-EMP-2025-f0cffe	200000.00	2025-07-30	Closed	Won	Bulk order for surgical gloves and hospital beds.	
+SALES-OPP-2025-e1589d	SALES-CUST-2025-f7aa99	ADMIN-PARTNER-2025-fb5757	HR-EMP-2025-f0cffe	12000.00	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	
+SALES-OPP-2025-cf73e9	SALES-CUST-2025-6a3167	ADMIN-PARTNER-2025-6180de	HR-EMP-2025-b15e2f	150000.00	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	
+SALES-OPP-2025-bcf781	SALES-CUST-2025-cbf858	ADMIN-PARTNER-2025-63fd8e	HR-EMP-2025-b15e2f	20000.00	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	
+SALES-OPP-2025-b98cab	SALES-CUST-2025-941d72	ADMIN-PARTNER-2025-bc6ec3	HR-EMP-2025-9e7313	600000.00	2025-08-01	Negotiation	Lost	Large order for ventilators.	Customer chose competitor.
+SALES-OPP-2025-b26644	SALES-CUST-2025-3197ba	ADMIN-PARTNER-2025-7105fc	HR-EMP-2025-b15e2f	10000.00	2025-05-25	Closed	Lost	Small clinic interested in X-ray machine.	Budget constraints.
+SALES-OPP-2025-a0bef8	SALES-CUST-2025-8cdccd	ADMIN-PARTNER-2025-3fed97	HR-EMP-2025-f0cffe	95000.00	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	
+SALES-OPP-2025-8570cd	SALES-CUST-2025-dbfe2c	ADMIN-PARTNER-2025-93d94d	HR-EMP-2025-b15e2f	180000.00	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	
+SALES-OPP-2025-84846c	SALES-CUST-2025-a42491	ADMIN-PARTNER-2025-93d94d	HR-EMP-2025-9e7313	8000.00	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.
+SALES-OPP-2025-6ea508	SALES-CUST-2025-614801	ADMIN-PARTNER-2025-a665c4	HR-EMP-2025-9e7313	90000.00	2025-07-01	Prospecting	Open	New client interested in MRI machines.	
+SALES-OPP-2025-6e9fef	SALES-CUST-2025-b1576f	ADMIN-PARTNER-2025-a7e20d	HR-EMP-2025-b15e2f	250000.00	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	
+SALES-OPP-2025-6e4bbf	SALES-CUST-2025-fbdaf0	ADMIN-PARTNER-2025-73d402	HR-EMP-2025-f0cffe	18000.00	2025-07-10	Negotiation	Open	Service maintenance contract for lab equipment.	
+SALES-OPP-2025-544114	SALES-CUST-2025-d105ee	ADMIN-PARTNER-2025-20fcd8	HR-EMP-2025-9e7313	110000.00	2025-06-20	Prospecting	Open	Potential deal for 5 new dialysis machines.	
+SALES-OPP-2025-524755	SALES-CUST-2025-cd1d37	ADMIN-PARTNER-2025-03bc88	HR-EMP-2025-f0cffe	25000.00	2025-06-10	Closed	Won	Sold 300 syringes and 100 BP monitors.	
+SALES-OPP-2025-2f8710	SALES-CUST-2025-59eb62	ADMIN-PARTNER-2025-257ac1	HR-EMP-2025-b15e2f	500000.00	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.
+SALES-OPP-2025-1f3caf	SALES-CUST-2025-0294dc	ADMIN-PARTNER-2025-29b3ed	HR-EMP-2025-b15e2f	15000.00	2025-04-30	Closed	Won	Sold 1000 surgical masks.	
+SALES-OPP-2025-1c1b9d	SALES-CUST-2025-2597c0	ADMIN-PARTNER-2025-87201f	HR-EMP-2025-b15e2f	10000.00	2025-03-30	Closed	Won	Sold 500 surgical gloves.	
+SALES-OPP-2025-168ce4	SALES-CUST-2025-2597c0	ADMIN-PARTNER-2025-4602bc	HR-EMP-2025-9e7313	300000.00	2025-06-15	Prospecting	Open	Potential deal for CT scanners.	
+SALES-OPP-2025-0456fe	SALES-CUST-2025-df9ce6	ADMIN-PARTNER-2025-ccfa60	HR-EMP-2025-f0cffe	120000.00	2025-05-20	Negotiation	Open	Negotiating pricing for ultrasound machines.	
+SALES-OPP-2025-041b10	SALES-CUST-2025-2ba07b	ADMIN-PARTNER-2025-6fc170	HR-EMP-2025-9e7313	75000.00	2025-06-01	Prospecting	Open	New client interested in defibrillators.	
 \.
 
 
@@ -10688,14 +10709,14 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 201, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 222, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 20, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 21, true);
 
 
 --
