@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import *
+from customer.serializers import Customer, CustomerSerializer
+from django.shortcuts import get_object_or_404
+from misc.urls import EmployeesSerializer, Employees
 
 
 class LeadsSerializer(serializers.ModelSerializer):
@@ -23,9 +26,22 @@ class CampaignsSerializer(serializers.ModelSerializer):
 
 
 class OpportunitiesSerializer(serializers.ModelSerializer):
+    customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
+    salesrep = serializers.PrimaryKeyRelatedField(queryset=Employees.objects.all())
+
     class Meta:
         model = Opportunities
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["customer"] = CustomerSerializer(
+            get_object_or_404(Customer, pk=data.pop("customer"))
+        ).data
+        data["salesrep"] = EmployeesSerializer(
+            get_object_or_404(Employees, pk=data.pop("salesrep"))
+        ).data
+        return data
 
 
 class TicketConvoSerializer(serializers.ModelSerializer):

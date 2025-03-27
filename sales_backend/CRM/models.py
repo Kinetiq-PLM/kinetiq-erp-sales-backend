@@ -97,7 +97,7 @@ class Opportunities(models.Model):
     )
     salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     estimated_value = models.DecimalField(max_digits=10, decimal_places=2)
-    expected_closed_date = models.DateTimeField(default=datetime.now())
+    expected_closed_date = models.DateField(default=datetime.now())
     stage = models.TextField(choices=Stage)
     status = models.TextField(choices=Status)
     description = models.TextField(blank=True, null=True)

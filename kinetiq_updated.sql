@@ -9187,6 +9187,47 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 158	2025-03-25 13:22:35.196871+08	SALES-STM-2025-29deb9	Statement object (SALES-STM-2025-29deb9)	2	[{"changed": {"fields": ["Total amount", "Total tax"]}}]	7	1
 159	2025-03-25 13:23:32.651975+08	SALES-STM-2025-656095	Statement object (SALES-STM-2025-656095)	2	[{"changed": {"fields": ["Total amount", "Total tax"]}}]	7	1
 160	2025-03-25 13:24:06.087129+08	SALES-STM-2025-3656cd	Statement object (SALES-STM-2025-3656cd)	2	[{"changed": {"fields": ["Total tax"]}}]	7	1
+161	2025-03-25 19:31:25.861729+08	SALES-SHIP-2025-e41c25	ShippingDetails object (SALES-SHIP-2025-e41c25)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+162	2025-03-25 19:31:33.405325+08	SALES-SHIP-2025-db3852	ShippingDetails object (SALES-SHIP-2025-db3852)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+163	2025-03-25 19:31:40.257763+08	SALES-SHIP-2025-d22837	ShippingDetails object (SALES-SHIP-2025-d22837)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+164	2025-03-25 19:31:47.183487+08	SALES-SHIP-2025-c7d03b	ShippingDetails object (SALES-SHIP-2025-c7d03b)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+165	2025-03-25 19:31:56.7893+08	SALES-SHIP-2025-9f6c43	ShippingDetails object (SALES-SHIP-2025-9f6c43)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+166	2025-03-25 19:32:26.318317+08	SALES-SHIP-2025-9be599	ShippingDetails object (SALES-SHIP-2025-9be599)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+167	2025-03-25 19:32:36.624176+08	SALES-SHIP-2025-8e202c	ShippingDetails object (SALES-SHIP-2025-8e202c)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+168	2025-03-25 19:33:20.380292+08	SALES-SHIP-2025-8d6b73	ShippingDetails object (SALES-SHIP-2025-8d6b73)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+169	2025-03-25 19:33:28.903811+08	SALES-SHIP-2025-861e56	ShippingDetails object (SALES-SHIP-2025-861e56)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+170	2025-03-25 19:33:38.383408+08	SALES-SHIP-2025-857565	ShippingDetails object (SALES-SHIP-2025-857565)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+171	2025-03-25 19:33:46.324763+08	SALES-SHIP-2025-7e8842	ShippingDetails object (SALES-SHIP-2025-7e8842)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+172	2025-03-25 19:34:25.471654+08	SALES-SHIP-2025-76d661	ShippingDetails object (SALES-SHIP-2025-76d661)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+173	2025-03-25 19:34:42.419975+08	SALES-SHIP-2025-55e8ed	ShippingDetails object (SALES-SHIP-2025-55e8ed)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+174	2025-03-25 19:34:56.350978+08	SALES-SHIP-2025-4ce37b	ShippingDetails object (SALES-SHIP-2025-4ce37b)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+175	2025-03-25 19:35:05.122496+08	SALES-SHIP-2025-47b86b	ShippingDetails object (SALES-SHIP-2025-47b86b)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+176	2025-03-25 19:35:16.132446+08	SALES-SHIP-2025-3ccc7b	ShippingDetails object (SALES-SHIP-2025-3ccc7b)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+177	2025-03-25 19:35:24.054402+08	SALES-SHIP-2025-354b3d	ShippingDetails object (SALES-SHIP-2025-354b3d)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+178	2025-03-25 19:35:32.755704+08	SALES-SHIP-2025-2df594	ShippingDetails object (SALES-SHIP-2025-2df594)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+179	2025-03-25 19:35:41.493723+08	SALES-SHIP-2025-29899d	ShippingDetails object (SALES-SHIP-2025-29899d)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+180	2025-03-25 19:35:49.241117+08	SALES-SHIP-2025-14a85b	ShippingDetails object (SALES-SHIP-2025-14a85b)	2	[{"changed": {"fields": ["Order", "Operational cost", "Shipment"]}}]	18	1
+181	2025-03-25 21:17:05.631582+08	SALES-CONTACT-2025-fbd269	CampaignContacts object (SALES-CONTACT-2025-fbd269)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+182	2025-03-25 21:17:10.369578+08	SALES-CONTACT-2025-e98193	CampaignContacts object (SALES-CONTACT-2025-e98193)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+183	2025-03-25 21:17:24.775329+08	SALES-CONTACT-2025-e98193	CampaignContacts object (SALES-CONTACT-2025-e98193)	2	[{"changed": {"fields": ["Campaign"]}}]	19	1
+184	2025-03-25 21:17:33.762431+08	SALES-CONTACT-2025-e0f42e	CampaignContacts object (SALES-CONTACT-2025-e0f42e)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+185	2025-03-25 21:17:41.205506+08	SALES-CONTACT-2025-dfc91d	CampaignContacts object (SALES-CONTACT-2025-dfc91d)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+186	2025-03-25 21:17:49.736808+08	SALES-CONTACT-2025-d920b5	CampaignContacts object (SALES-CONTACT-2025-d920b5)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+187	2025-03-25 21:18:09.002124+08	SALES-CONTACT-2025-ca59cc	CampaignContacts object (SALES-CONTACT-2025-ca59cc)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+188	2025-03-25 21:18:25.085023+08	SALES-CONTACT-2025-c8f8f4	CampaignContacts object (SALES-CONTACT-2025-c8f8f4)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+189	2025-03-25 21:18:34.430048+08	SALES-CONTACT-2025-9f36ed	CampaignContacts object (SALES-CONTACT-2025-9f36ed)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+190	2025-03-25 21:19:02.18272+08	SALES-CONTACT-2025-97d86c	CampaignContacts object (SALES-CONTACT-2025-97d86c)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+191	2025-03-25 21:19:16.337858+08	SALES-CONTACT-2025-8f11c8	CampaignContacts object (SALES-CONTACT-2025-8f11c8)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+192	2025-03-25 21:19:45.874102+08	SALES-CONTACT-2025-7b555f	CampaignContacts object (SALES-CONTACT-2025-7b555f)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+193	2025-03-25 21:20:04.132778+08	SALES-CONTACT-2025-721ecf	CampaignContacts object (SALES-CONTACT-2025-721ecf)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+194	2025-03-25 21:20:31.84457+08	SALES-CONTACT-2025-717495	CampaignContacts object (SALES-CONTACT-2025-717495)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+195	2025-03-25 21:21:00.572434+08	SALES-CONTACT-2025-50ec63	CampaignContacts object (SALES-CONTACT-2025-50ec63)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+196	2025-03-25 21:21:12.252386+08	SALES-CONTACT-2025-45c7a5	CampaignContacts object (SALES-CONTACT-2025-45c7a5)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+197	2025-03-25 21:21:26.577788+08	SALES-CONTACT-2025-3a9c27	CampaignContacts object (SALES-CONTACT-2025-3a9c27)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+198	2025-03-25 21:21:40.149704+08	SALES-CONTACT-2025-363ac0	CampaignContacts object (SALES-CONTACT-2025-363ac0)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+199	2025-03-25 21:21:54.241213+08	SALES-CONTACT-2025-357341	CampaignContacts object (SALES-CONTACT-2025-357341)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+200	2025-03-25 21:22:04.111338+08	SALES-CONTACT-2025-064025	CampaignContacts object (SALES-CONTACT-2025-064025)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
+201	2025-03-25 21:22:11.31184+08	SALES-CONTACT-2025-017e9e	CampaignContacts object (SALES-CONTACT-2025-017e9e)	2	[{"changed": {"fields": ["Lead", "Campaign"]}}]	19	1
 \.
 
 
@@ -9212,6 +9253,9 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 15	invoice	salesinvoices
 16	customer	customer
 17	misc	principalitems
+18	delivery	shippingdetails
+19	CRM	campaigncontacts
+20	CRM	opportunities
 \.
 
 
@@ -9536,26 +9580,26 @@ SALES-AGRMNT-2025-028745	SALES-STM-2025-16fb8a	2025-05-01 00:00:00	2026-05-01 00
 --
 
 COPY sales.campaign_contacts (contact_id, lead_id, campaign_id, response_status) FROM stdin;
-SALES-CONTACT-2025-45c7a5	\N	\N	Interested
-SALES-CONTACT-2025-7b555f	\N	\N	Not Interested
-SALES-CONTACT-2025-50ec63	\N	\N	Pending
-SALES-CONTACT-2025-721ecf	\N	\N	Interested
-SALES-CONTACT-2025-fbd269	\N	\N	Not Interested
-SALES-CONTACT-2025-357341	\N	\N	Interested
-SALES-CONTACT-2025-e0f42e	\N	\N	Pending
-SALES-CONTACT-2025-e98193	\N	\N	Not Interested
-SALES-CONTACT-2025-8f11c8	\N	\N	Interested
-SALES-CONTACT-2025-363ac0	\N	\N	Pending
-SALES-CONTACT-2025-d920b5	\N	\N	Interested
-SALES-CONTACT-2025-dfc91d	\N	\N	Not Interested
-SALES-CONTACT-2025-c8f8f4	\N	\N	Pending
-SALES-CONTACT-2025-717495	\N	\N	Interested
-SALES-CONTACT-2025-97d86c	\N	\N	Not Interested
-SALES-CONTACT-2025-017e9e	\N	\N	Interested
-SALES-CONTACT-2025-3a9c27	\N	\N	Pending
-SALES-CONTACT-2025-064025	\N	\N	Not Interested
-SALES-CONTACT-2025-9f36ed	\N	\N	Interested
-SALES-CONTACT-2025-ca59cc	\N	\N	Pending
+SALES-CONTACT-2025-fbd269	SALES-LEAD-2025-303904	SALES-CMPGN-2025-59cd34	Not Interested
+SALES-CONTACT-2025-e98193	SALES-LEAD-2025-a83d44	SALES-CMPGN-2025-59cd34	Not Interested
+SALES-CONTACT-2025-e0f42e	SALES-LEAD-2025-449b6d	SALES-CMPGN-2025-59cd34	Pending
+SALES-CONTACT-2025-dfc91d	SALES-LEAD-2025-e74eb4	SALES-CMPGN-2025-bb9272	Not Interested
+SALES-CONTACT-2025-d920b5	SALES-LEAD-2025-42c53e	SALES-CMPGN-2025-bb9272	Interested
+SALES-CONTACT-2025-ca59cc	SALES-LEAD-2025-259440	SALES-CMPGN-2025-a2fba8	Pending
+SALES-CONTACT-2025-c8f8f4	SALES-LEAD-2025-30b5e4	SALES-CMPGN-2025-846658	Pending
+SALES-CONTACT-2025-9f36ed	SALES-LEAD-2025-3864ce	SALES-CMPGN-2025-85634d	Interested
+SALES-CONTACT-2025-97d86c	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-ff71e8	Not Interested
+SALES-CONTACT-2025-8f11c8	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-e4d734	Interested
+SALES-CONTACT-2025-7b555f	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-3538c1	Not Interested
+SALES-CONTACT-2025-721ecf	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-871a35	Interested
+SALES-CONTACT-2025-717495	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-76996e	Interested
+SALES-CONTACT-2025-50ec63	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-78ce57	Pending
+SALES-CONTACT-2025-45c7a5	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-78ce57	Interested
+SALES-CONTACT-2025-3a9c27	SALES-LEAD-2025-5324b7	SALES-CMPGN-2025-19cdfa	Pending
+SALES-CONTACT-2025-363ac0	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-c3bcdb	Pending
+SALES-CONTACT-2025-357341	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-cc3288	Interested
+SALES-CONTACT-2025-064025	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-f796df	Not Interested
+SALES-CONTACT-2025-017e9e	SALES-LEAD-2025-a8ee0a	SALES-CMPGN-2025-056a95	Interested
 \.
 
 
@@ -9888,26 +9932,26 @@ SALES-INV-2025-00a822	SALES-ORD-2025-0479e3	2025-03-23 10:19:43	2000.00	Pending	
 --
 
 COPY sales.shipping_details (shipping_id, order_id, operational_cost_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status) FROM stdin;
-SALES-SHIP-2025-14a85b	\N	\N	\N	Standard	TRK1001	2025-03-23 10:19:43.984056	2025-04-01 10:00:00	Pending
-SALES-SHIP-2025-e41c25	\N	\N	\N	Express	TRK1002	2025-03-23 10:19:43.984056	2025-03-22 15:00:00	Shipped
-SALES-SHIP-2025-354b3d	\N	\N	\N	Overnight	TRK1003	2025-03-23 10:19:43.984056	2025-03-20 08:00:00	Delivered
-SALES-SHIP-2025-7e8842	\N	\N	\N	Same-Day	TRK1004	2025-03-23 10:19:43.984056	2025-03-19 12:00:00	Delivered
-SALES-SHIP-2025-4ce37b	\N	\N	\N	International	TRK1005	2025-03-23 10:19:43.984056	2025-04-10 18:00:00	Pending
-SALES-SHIP-2025-8e202c	\N	\N	\N	Local	TRK1006	2025-03-23 10:19:43.984056	2025-03-25 14:00:00	Shipped
-SALES-SHIP-2025-d22837	\N	\N	\N	Standard	TRK1007	2025-03-23 10:19:43.984056	2025-04-02 11:00:00	Pending
-SALES-SHIP-2025-55e8ed	\N	\N	\N	Express	TRK1008	2025-03-23 10:19:43.984056	2025-03-21 17:00:00	Delivered
-SALES-SHIP-2025-76d661	\N	\N	\N	Overnight	TRK1009	2025-03-23 10:19:43.984056	2025-03-23 09:00:00	Pending
-SALES-SHIP-2025-c7d03b	\N	\N	\N	Same-Day	TRK1010	2025-03-23 10:19:43.984056	2025-03-24 13:00:00	Shipped
-SALES-SHIP-2025-2df594	\N	\N	\N	Standard	TRK1011	2025-03-23 10:19:43.984056	2025-04-07 10:00:00	Pending
-SALES-SHIP-2025-47b86b	\N	\N	\N	Express	TRK1012	2025-03-23 10:19:43.984056	2025-04-08 15:00:00	Shipped
-SALES-SHIP-2025-8d6b73	\N	\N	\N	Overnight	TRK1013	2025-03-23 10:19:43.984056	2025-04-09 08:00:00	Delivered
-SALES-SHIP-2025-db3852	\N	\N	\N	Same-Day	TRK1014	2025-03-23 10:19:43.984056	2025-04-10 12:00:00	Delivered
-SALES-SHIP-2025-857565	\N	\N	\N	International	TRK1015	2025-03-23 10:19:43.984056	2025-04-11 18:00:00	Pending
-SALES-SHIP-2025-29899d	\N	\N	\N	Local	TRK1016	2025-03-23 10:19:43.984056	2025-04-12 14:00:00	Shipped
-SALES-SHIP-2025-9be599	\N	\N	\N	Standard	TRK1017	2025-03-23 10:19:43.984056	2025-04-13 11:00:00	Pending
-SALES-SHIP-2025-3ccc7b	\N	\N	\N	Express	TRK1018	2025-03-23 10:19:43.984056	2025-04-14 17:00:00	Delivered
-SALES-SHIP-2025-861e56	\N	\N	\N	Overnight	TRK1019	2025-03-23 10:19:43.984056	2025-04-15 09:00:00	Pending
-SALES-SHIP-2025-9f6c43	\N	\N	\N	Same-Day	TRK1020	2025-03-23 10:19:43.984056	2025-04-16 13:00:00	Shipped
+SALES-SHIP-2025-e41c25	SALES-ORD-2025-e16c9e	DIS-OS-2025-b9e770	DIS-BR-2025-d58aef	Express	TRK1002	2025-03-23 10:19:43	2025-03-22 15:00:00	Shipped
+SALES-SHIP-2025-db3852	SALES-ORD-2025-db9aae	DIS-OS-2025-ad056e	DIS-BR-2025-5f961a	Same-Day	TRK1014	2025-03-23 10:19:43	2025-04-10 12:00:00	Delivered
+SALES-SHIP-2025-d22837	SALES-ORD-2025-d91eeb	DIS-OS-2025-bc9bc8	DIS-BR-2025-76a49e	Standard	TRK1007	2025-03-23 10:19:43	2025-04-02 11:00:00	Pending
+SALES-SHIP-2025-c7d03b	SALES-ORD-2025-be90ee	DIS-OS-2025-e62f32	DIS-BR-2025-e763b9	Same-Day	TRK1010	2025-03-23 10:19:43	2025-03-24 13:00:00	Shipped
+SALES-SHIP-2025-9f6c43	SALES-ORD-2025-b59c3e	DIS-OS-2025-73833a	DIS-BR-2025-1f8c0a	Same-Day	TRK1020	2025-03-23 10:19:43	2025-04-16 13:00:00	Shipped
+SALES-SHIP-2025-9be599	SALES-ORD-2025-b4a34b	DIS-OS-2025-fe1959	DIS-BR-2025-ec42c0	Standard	TRK1017	2025-03-23 10:19:43	2025-04-13 11:00:00	Pending
+SALES-SHIP-2025-8e202c	SALES-ORD-2025-b1447a	DIS-OS-2025-b9e770	DIS-BR-2025-5f961a	Local	TRK1006	2025-03-23 10:19:43	2025-03-25 14:00:00	Shipped
+SALES-SHIP-2025-8d6b73	SALES-ORD-2025-a4ac3c	DIS-OS-2025-b9e770	DIS-BR-2025-d58aef	Overnight	TRK1013	2025-03-23 10:19:43	2025-04-09 08:00:00	Delivered
+SALES-SHIP-2025-861e56	SALES-ORD-2025-a4359c	DIS-OS-2025-ad056e	DIS-BR-2025-1f8c0a	Overnight	TRK1019	2025-03-23 10:19:43	2025-04-15 09:00:00	Pending
+SALES-SHIP-2025-857565	SALES-ORD-2025-9b8c27	DIS-OS-2025-8abb21	DIS-BR-2025-5f961a	International	TRK1015	2025-03-23 10:19:43	2025-04-11 18:00:00	Pending
+SALES-SHIP-2025-7e8842	SALES-ORD-2025-52e0c9	DIS-OS-2025-ad056e	DIS-BR-2025-e763b9	Same-Day	TRK1004	2025-03-23 10:19:43	2025-03-19 12:00:00	Delivered
+SALES-SHIP-2025-76d661	SALES-ORD-2025-4118c6	DIS-OS-2025-adb677	DIS-BR-2025-54f43c	Overnight	TRK1009	2025-03-23 10:19:43	2025-03-23 09:00:00	Pending
+SALES-SHIP-2025-55e8ed	SALES-ORD-2025-4109ce	DIS-OS-2025-da533d	DIS-BR-2025-ec42c0	Express	TRK1008	2025-03-23 10:19:43	2025-03-21 17:00:00	Delivered
+SALES-SHIP-2025-4ce37b	SALES-ORD-2025-2bacb2	DIS-OS-2025-73833a	DIS-BR-2025-e779ad	International	TRK1005	2025-03-23 10:19:43	2025-04-10 18:00:00	Pending
+SALES-SHIP-2025-47b86b	SALES-ORD-2025-1fe99b	DIS-OS-2025-8abb21	DIS-BR-2025-1f8c0a	Express	TRK1012	2025-03-23 10:19:43	2025-04-08 15:00:00	Shipped
+SALES-SHIP-2025-3ccc7b	SALES-ORD-2025-104654	DIS-OS-2025-e62f32	DIS-BR-2025-ec42c0	Express	TRK1018	2025-03-23 10:19:43	2025-04-14 17:00:00	Delivered
+SALES-SHIP-2025-354b3d	SALES-ORD-2025-096d13	DIS-OS-2025-bc9bc8	DIS-BR-2025-1f8c0a	Overnight	TRK1003	2025-03-23 10:19:43	2025-03-20 08:00:00	Delivered
+SALES-SHIP-2025-2df594	SALES-ORD-2025-096d13	DIS-OS-2025-73833a	DIS-BR-2025-1f8c0a	Standard	TRK1011	2025-03-23 10:19:43	2025-04-07 10:00:00	Pending
+SALES-SHIP-2025-29899d	SALES-ORD-2025-062e11	DIS-OS-2025-e62f32	DIS-BR-2025-76a49e	Local	TRK1016	2025-03-23 10:19:43	2025-04-12 14:00:00	Shipped
+SALES-SHIP-2025-14a85b	SALES-ORD-2025-0479e3	DIS-OS-2025-bc9bc8	DIS-BR-2025-1f8c0a	Standard	TRK1001	2025-03-23 10:19:43	2025-04-01 10:00:00	Pending
 \.
 
 
@@ -10644,14 +10688,14 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 160, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 201, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 17, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 20, true);
 
 
 --
