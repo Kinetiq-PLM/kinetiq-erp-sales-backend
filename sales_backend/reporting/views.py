@@ -61,44 +61,43 @@ def get_sales_report(request: Request):
     data = {}
     for quotation in filtered_q:
         str_date = str(quotation.date_issued.date())
-        if str_date in data:
-            data[str_date] += 1
-        else:
-            data[str_date] = 1
+        if str_date not in data:
+            data[str_date] = {
+                "quotations": 0,
+                "orders": 0,
+                "invoices": 0,
+            }
 
-    quotations = [
-        {"date": key, "number_of_quotations": value} for key, value in data.items()
-    ]
+        prev = data[str_date].get("quotations", 0)
+        data[str_date]["quotations"] = prev + 1
 
-    data = {}
     for order in filtered_o:
         str_date = str(order.order_date.date())
-        if str_date in data:
-            data[str_date] += 1
-        else:
-            data[str_date] = 1
+        if str_date not in data:
+            data[str_date] = {
+                "quotations": 0,
+                "orders": 0,
+                "invoices": 0,
+            }
+        prev = data[str_date].get("orders", 0)
+        data[str_date]["orders"] = prev + 1
 
-    orders = [{"date": key, "number_of_orders": value} for key, value in data.items()]
-    data = {}
     for invoice in filtered_i:
         str_date = str(invoice.invoice_date.date())
-        if str_date in data:
-            data[str_date] += 1
-        else:
-            data[str_date] = 1
+        if str_date not in data:
+            data[str_date] = {
+                "quotations": 0,
+                "orders": 0,
+                "invoices": 0,
+            }
+        prev = data[str_date].get("invoices", 0)
+        data[str_date]["invoices"] = prev + 1
 
-    invoices = [
-        {"date": key, "number_of_invoices": value} for key, value in data.items()
-    ]
-    return Response(
-        {
-            "start_date": start_date,
-            "end_date": end_date,
-            "quotations": quotations,
-            "orders": orders,
-            "invoices": invoices,
-        }
-    )
+    res = []
+    for key in data.keys():
+        res.append({"date": key, **data[key]})
+
+    return Response({"start_date": start_date, "end_date": end_date, "data": res})
 
 
 @api_view(["GET"])
