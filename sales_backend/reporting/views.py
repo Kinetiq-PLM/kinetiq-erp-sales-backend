@@ -4,11 +4,16 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from quotation.models import Quotation
 from order.models import Order
-from invoice.models import SalesInvoices
+from invoice.models import SalesInvoices, Payments
 from datetime import date, datetime
 from rest_framework import status
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
+from customer.models import Customer
+from order.models import Order
+from django.db.models import Sum
+from statement.models import *
+from django.shortcuts import get_object_or_404
 
 
 @api_view(["GET"])
@@ -131,7 +136,7 @@ def get_profit_report(request: Request):
 
     profits = SalesInvoices.objects.filter(
         invoice_status=SalesInvoices.InvoiceStatus.PAID,
-        payment_status=SalesInvoices.PaymentStatus.PAID,
+        payment_status=Payments.Status.COMPLETED,
         invoice_date__range=(start_date, end_date),
     )
 
@@ -155,3 +160,60 @@ def get_profit_report(request: Request):
             "total_profit": total_profit,
         }
     )
+
+
+@api_view(["GET"])
+def get_customer_report(request: Request):
+    total_revenue = (
+        Order.objects.aggregate(total=Sum("order_total_amount"))["total"] or 1
+    )  # Avoid division by zero
+
+    # Get the top 3 customers by total spending
+    top_customers = (
+        Order.objects.values("statement__customer")
+        .annotate(total_spent=Sum("order_total_amount"))
+        .order_by("-total_spent")[:3]
+    )
+
+    data = {"top_customers": []}
+
+    # Calculate each top customer's percentage of total revenue
+    for customer in top_customers:
+        model = get_object_or_404(Customer, pk=customer["statement__customer"])
+        data["top_customers"].append(
+            {
+                "customer": model.name,
+                "percentage": round((customer["total_spent"] / total_revenue) * 100, 2),
+            }
+        )
+
+    return Response(data)
+
+
+@api_view(["GET"])
+def get_product_report(request: Request):
+    total_products = (
+        StatementItem.objects.aggregate(total=Sum("quantity"))["total"] or 1
+    )  # Avoid division by zero
+
+    top_products = (
+        StatementItem.objects.values("product")  # Group by product name
+        .annotate(total_sold=Sum("quantity"))  # Sum total quantity sold
+        .order_by("-total_sold")[:5]  # Get top 5 best-selling products
+    )
+    data = {"top_products": []}
+
+    # Calculate each top customer's percentage of total revenue
+    total_percent = 0
+    for product in top_products:
+        model = get_object_or_404(Products, pk=product["product"])
+        percent = round((product["total_sold"] / total_products) * 100, 2)
+        total_percent += percent
+        data["top_products"].append(
+            {
+                "product": model.product_name,
+                "percentage": percent,
+            }
+        )
+    data["top_products"].append({"others": round(100 - total_percent, 2)})
+    return Response(data)
