@@ -12,9 +12,16 @@ class LeadsSerializer(serializers.ModelSerializer):
 
 
 class CampaignContactsSerializer(serializers.ModelSerializer):
+    customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
+
     class Meta:
         model = CampaignContacts
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["customer"] = CustomerSerializer(instance.customer).data
+        return data
 
 
 class CampaignsSerializer(serializers.ModelSerializer):

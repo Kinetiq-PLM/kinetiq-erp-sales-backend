@@ -3,6 +3,7 @@ from datetime import datetime
 from misc.human_resources.models import Employees
 from misc.admin.models import BusinessPartnerMaster
 from django.utils import timezone
+from customer.models import Customer
 
 
 class Leads(models.Model):
@@ -63,8 +64,8 @@ class CampaignContacts(models.Model):
         PENDING = "Pending"
 
     contact_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    lead = models.ForeignKey(
-        to=Leads, on_delete=models.SET_NULL, null=True, related_name="campaigns"
+    customer = models.ForeignKey(
+        to=Customer, on_delete=models.CASCADE, related_name="campaigns"
     )
     campaign = models.ForeignKey(
         to=Campaigns, on_delete=models.CASCADE, related_name="contacts"
