@@ -5694,9 +5694,9 @@ ALTER TABLE sales.blanket_agreement OWNER TO postgres;
 
 CREATE TABLE sales.campaign_contacts (
     contact_id character varying(255) NOT NULL,
-    lead_id character varying(255),
     campaign_id character varying(255),
-    response_status public.response_status_enum
+    response_status public.response_status_enum,
+    customer_id character varying(255)
 );
 
 
@@ -9680,6 +9680,25 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 258	2025-03-28 10:11:27.730968+08	SALES-CUST-2025-2ba07b	Customer object (SALES-CUST-2025-2ba07b)	2	[{"changed": {"fields": ["Contact person"]}}]	16	1
 259	2025-03-28 10:11:47.279687+08	SALES-CUST-2025-2597c0	Customer object (SALES-CUST-2025-2597c0)	2	[{"changed": {"fields": ["Contact person"]}}]	16	1
 260	2025-03-28 10:11:56.409606+08	SALES-CUST-2025-0294dc	Customer object (SALES-CUST-2025-0294dc)	2	[{"changed": {"fields": ["Contact person"]}}]	16	1
+261	2025-03-28 14:27:24.658005+08	SALES-CONTACT-2025-e98193	CampaignContacts object (SALES-CONTACT-2025-e98193)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+262	2025-03-28 14:27:30.548459+08	SALES-CONTACT-2025-e0f42e	CampaignContacts object (SALES-CONTACT-2025-e0f42e)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+263	2025-03-28 14:27:36.752037+08	SALES-CONTACT-2025-dfc91d	CampaignContacts object (SALES-CONTACT-2025-dfc91d)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+264	2025-03-28 14:27:44.608981+08	SALES-CONTACT-2025-d920b5	CampaignContacts object (SALES-CONTACT-2025-d920b5)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+265	2025-03-28 14:27:57.123741+08	SALES-CONTACT-2025-ca59cc	CampaignContacts object (SALES-CONTACT-2025-ca59cc)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+266	2025-03-28 14:28:02.88479+08	SALES-CONTACT-2025-c8f8f4	CampaignContacts object (SALES-CONTACT-2025-c8f8f4)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+267	2025-03-28 14:28:09.337773+08	SALES-CONTACT-2025-9f36ed	CampaignContacts object (SALES-CONTACT-2025-9f36ed)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+268	2025-03-28 14:28:15.415769+08	SALES-CONTACT-2025-97d86c	CampaignContacts object (SALES-CONTACT-2025-97d86c)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+269	2025-03-28 14:28:20.663377+08	SALES-CONTACT-2025-8f11c8	CampaignContacts object (SALES-CONTACT-2025-8f11c8)	2	[]	19	1
+270	2025-03-28 14:28:29.509371+08	SALES-CONTACT-2025-7b555f	CampaignContacts object (SALES-CONTACT-2025-7b555f)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+271	2025-03-28 14:28:38.056259+08	SALES-CONTACT-2025-721ecf	CampaignContacts object (SALES-CONTACT-2025-721ecf)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+272	2025-03-28 14:28:46.363408+08	SALES-CONTACT-2025-717495	CampaignContacts object (SALES-CONTACT-2025-717495)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+273	2025-03-28 14:28:54.585698+08	SALES-CONTACT-2025-50ec63	CampaignContacts object (SALES-CONTACT-2025-50ec63)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+274	2025-03-28 14:29:01.926804+08	SALES-CONTACT-2025-45c7a5	CampaignContacts object (SALES-CONTACT-2025-45c7a5)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+275	2025-03-28 14:29:08.052559+08	SALES-CONTACT-2025-3a9c27	CampaignContacts object (SALES-CONTACT-2025-3a9c27)	2	[]	19	1
+276	2025-03-28 14:29:17.433632+08	SALES-CONTACT-2025-363ac0	CampaignContacts object (SALES-CONTACT-2025-363ac0)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+277	2025-03-28 14:29:25.466772+08	SALES-CONTACT-2025-357341	CampaignContacts object (SALES-CONTACT-2025-357341)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+278	2025-03-28 14:29:31.292243+08	SALES-CONTACT-2025-064025	CampaignContacts object (SALES-CONTACT-2025-064025)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+279	2025-03-28 14:29:36.15939+08	SALES-CONTACT-2025-017e9e	CampaignContacts object (SALES-CONTACT-2025-017e9e)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
 \.
 
 
@@ -10035,27 +10054,27 @@ SALES-AGRMNT-2025-028745	SALES-STM-2025-16fb8a	2025-05-01 00:00:00	2026-05-01 00
 -- Data for Name: campaign_contacts; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.campaign_contacts (contact_id, lead_id, campaign_id, response_status) FROM stdin;
-SALES-CONTACT-2025-fbd269	SALES-LEAD-2025-303904	SALES-CMPGN-2025-59cd34	Not Interested
-SALES-CONTACT-2025-e98193	SALES-LEAD-2025-a83d44	SALES-CMPGN-2025-59cd34	Not Interested
-SALES-CONTACT-2025-e0f42e	SALES-LEAD-2025-449b6d	SALES-CMPGN-2025-59cd34	Pending
-SALES-CONTACT-2025-dfc91d	SALES-LEAD-2025-e74eb4	SALES-CMPGN-2025-bb9272	Not Interested
-SALES-CONTACT-2025-d920b5	SALES-LEAD-2025-42c53e	SALES-CMPGN-2025-bb9272	Interested
-SALES-CONTACT-2025-ca59cc	SALES-LEAD-2025-259440	SALES-CMPGN-2025-a2fba8	Pending
-SALES-CONTACT-2025-c8f8f4	SALES-LEAD-2025-30b5e4	SALES-CMPGN-2025-846658	Pending
-SALES-CONTACT-2025-9f36ed	SALES-LEAD-2025-3864ce	SALES-CMPGN-2025-85634d	Interested
-SALES-CONTACT-2025-97d86c	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-ff71e8	Not Interested
-SALES-CONTACT-2025-8f11c8	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-e4d734	Interested
-SALES-CONTACT-2025-7b555f	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-3538c1	Not Interested
-SALES-CONTACT-2025-721ecf	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-871a35	Interested
-SALES-CONTACT-2025-717495	SALES-LEAD-2025-84165e	SALES-CMPGN-2025-76996e	Interested
-SALES-CONTACT-2025-50ec63	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-78ce57	Pending
-SALES-CONTACT-2025-45c7a5	SALES-LEAD-2025-38100d	SALES-CMPGN-2025-78ce57	Interested
-SALES-CONTACT-2025-3a9c27	SALES-LEAD-2025-5324b7	SALES-CMPGN-2025-19cdfa	Pending
-SALES-CONTACT-2025-363ac0	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-c3bcdb	Pending
-SALES-CONTACT-2025-357341	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-cc3288	Interested
-SALES-CONTACT-2025-064025	SALES-LEAD-2025-54e824	SALES-CMPGN-2025-f796df	Not Interested
-SALES-CONTACT-2025-017e9e	SALES-LEAD-2025-a8ee0a	SALES-CMPGN-2025-056a95	Interested
+COPY sales.campaign_contacts (contact_id, campaign_id, response_status, customer_id) FROM stdin;
+SALES-CONTACT-2025-fbd269	SALES-CMPGN-2025-59cd34	Not Interested	SALES-CUST-2025-fbdaf0
+SALES-CONTACT-2025-e98193	SALES-CMPGN-2025-59cd34	Not Interested	SALES-CUST-2025-0294dc
+SALES-CONTACT-2025-e0f42e	SALES-CMPGN-2025-59cd34	Pending	SALES-CUST-2025-2597c0
+SALES-CONTACT-2025-dfc91d	SALES-CMPGN-2025-bb9272	Not Interested	SALES-CUST-2025-f7aa99
+SALES-CONTACT-2025-d920b5	SALES-CMPGN-2025-bb9272	Interested	SALES-CUST-2025-dbfe2c
+SALES-CONTACT-2025-ca59cc	SALES-CMPGN-2025-a2fba8	Pending	SALES-CUST-2025-eac405
+SALES-CONTACT-2025-c8f8f4	SALES-CMPGN-2025-846658	Pending	SALES-CUST-2025-cd1d37
+SALES-CONTACT-2025-9f36ed	SALES-CMPGN-2025-85634d	Interested	SALES-CUST-2025-dbfe2c
+SALES-CONTACT-2025-97d86c	SALES-CMPGN-2025-ff71e8	Not Interested	SALES-CUST-2025-641c4a
+SALES-CONTACT-2025-8f11c8	SALES-CMPGN-2025-e4d734	Interested	SALES-CUST-2025-fbdaf0
+SALES-CONTACT-2025-7b555f	SALES-CMPGN-2025-3538c1	Not Interested	SALES-CUST-2025-3197ba
+SALES-CONTACT-2025-721ecf	SALES-CMPGN-2025-871a35	Interested	SALES-CUST-2025-a6775c
+SALES-CONTACT-2025-717495	SALES-CMPGN-2025-76996e	Interested	SALES-CUST-2025-641c4a
+SALES-CONTACT-2025-50ec63	SALES-CMPGN-2025-78ce57	Pending	SALES-CUST-2025-a6775c
+SALES-CONTACT-2025-45c7a5	SALES-CMPGN-2025-78ce57	Interested	SALES-CUST-2025-59eb62
+SALES-CONTACT-2025-3a9c27	SALES-CMPGN-2025-19cdfa	Pending	SALES-CUST-2025-fbdaf0
+SALES-CONTACT-2025-363ac0	SALES-CMPGN-2025-c3bcdb	Pending	SALES-CUST-2025-3197ba
+SALES-CONTACT-2025-357341	SALES-CMPGN-2025-cc3288	Interested	SALES-CUST-2025-df9ce6
+SALES-CONTACT-2025-064025	SALES-CMPGN-2025-f796df	Not Interested	SALES-CUST-2025-d105ee
+SALES-CONTACT-2025-017e9e	SALES-CMPGN-2025-056a95	Interested	SALES-CUST-2025-665436
 \.
 
 
@@ -11230,7 +11249,7 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 260, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 279, true);
 
 
 --
@@ -13716,6 +13735,14 @@ ALTER TABLE ONLY public.django_admin_log
 
 ALTER TABLE ONLY purchasing.purchase_requests
     ADD CONSTRAINT fk_material FOREIGN KEY (material_id) REFERENCES admin.raw_materials(material_id) ON DELETE CASCADE;
+
+
+--
+-- Name: campaign_contacts fk_cc_customer_id; Type: FK CONSTRAINT; Schema: sales; Owner: postgres
+--
+
+ALTER TABLE ONLY sales.campaign_contacts
+    ADD CONSTRAINT fk_cc_customer_id FOREIGN KEY (customer_id) REFERENCES sales.customers(customer_id);
 
 
 --
