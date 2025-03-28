@@ -13,7 +13,6 @@ class LeadsViewSet(viewsets.ModelViewSet):
 
 
 class CampaignsViewSet(viewsets.ModelViewSet):
-
     queryset = Campaigns.objects.all().order_by("-end_date")
     serializer_class = CampaignsSerializer
 
@@ -24,6 +23,7 @@ class CampaignsViewSet(viewsets.ModelViewSet):
         }
         """
         contacts = request.data.get("contacts", [])
+        remove = request.data.get("remove", [])
         try:
             with transaction.atomic():
                 campaign = self.get_object()
@@ -42,6 +42,13 @@ class CampaignsViewSet(viewsets.ModelViewSet):
                             contact_serializer.save()
                         else:
                             raise Exception(contact_serializer.errors)
+                for contact in remove:
+                    c = CampaignContacts.objects.filter(
+                        campaign=campaign, customer=contact
+                    )
+                    if c.exists():
+                        c.delete()
+
                 campaign.refresh_from_db()
                 return Response(CampaignsSerializer(campaign).data)
         except Exception as err:
