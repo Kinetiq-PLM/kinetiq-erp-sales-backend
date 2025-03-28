@@ -3,6 +3,7 @@ from misc.admin.models import Products
 from misc.human_resources.models import Employees
 from django.db import connection
 from django.contrib import admin
+from django.utils import timezone
 
 
 class StatementAdmin(admin.ModelAdmin):
@@ -90,6 +91,7 @@ class StatementItem(models.Model):
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
     return_reason = models.TextField(blank=True, null=True)
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now())
 
     class Meta:
         managed = False
