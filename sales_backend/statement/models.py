@@ -86,8 +86,6 @@ class StatementItem(models.Model):
     quantity = models.IntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    markup_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=20)
-    demand_level = models.TextField(choices=DemandLevel, default=DemandLevel.LOW)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
     return_reason = models.TextField(blank=True, null=True)

@@ -43,7 +43,7 @@ urlpatterns = [
         include(
             [
                 path("agreement/", include("agreement.urls")),
-                path("costing/", include("costing.urls")),
+                path("", include("costing.urls")),
                 path("customer/", include("customer.urls")),
                 path("delivery/", include("delivery.urls")),
                 path("dunning/", include("dunning.urls")),

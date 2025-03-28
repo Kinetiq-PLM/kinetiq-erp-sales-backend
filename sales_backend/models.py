@@ -128,6 +128,18 @@ class Payments(models.Model):
         db_table = 'payments'
 
 
+class ProductPricing(models.Model):
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    admin_product_id = models.CharField(max_length=255, blank=True, null=True)
+    markup_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    demand_level = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'product_pricing'
+
+
 class Quotation(models.Model):
     quotation_id = models.CharField(primary_key=True, max_length=255)
     statement_id = models.CharField(max_length=255, blank=True, null=True)
@@ -256,8 +268,6 @@ class StatementItem(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    markup_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    demand_level = models.TextField(blank=True, null=True)  # This field type is a guess.
     discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tax_amount = models.IntegerField(blank=True, null=True)
     return_reason = models.TextField(blank=True, null=True)
