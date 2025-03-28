@@ -16,6 +16,18 @@ class CampaignsViewSet(viewsets.ModelViewSet):
     queryset = Campaigns.objects.all().order_by("-end_date")
     serializer_class = CampaignsSerializer
 
+    def list(self, request, *args, **kwargs):
+        campaigns = CampaignStatusView.objects.all().order_by("-end_date")
+        return Response(CampaignStatusViewSerializer(campaigns, many=True).data)
+
+    def create(self, request, *args, **kwargs):
+        created = Campaigns.objects.create(**request.data)
+        return Response(
+            CampaignStatusViewSerializer(
+                get_object_or_404(CampaignStatusView, pk=created.campaign_id)
+            ).data
+        )
+
     def update(self, request: Request, *args, **kwargs):
         """inputs:
         {

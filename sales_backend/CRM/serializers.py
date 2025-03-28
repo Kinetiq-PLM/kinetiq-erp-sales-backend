@@ -33,6 +33,12 @@ class CampaignsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CampaignStatusViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignStatusView
+        fields = "__all__"
+
+
 class OpportunitiesSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
     salesrep = serializers.PrimaryKeyRelatedField(queryset=Employees.objects.all())

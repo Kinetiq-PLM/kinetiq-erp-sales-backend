@@ -49,17 +49,11 @@ class Campaigns(models.Model):
         REFERRAL = "Referral"
         ADVERTISEMENT = "Advertisement"
 
-    class Status(models.TextChoices):
-        PLANNED = "Planned"
-        ACTIVE = "Active"
-        COMPLETED = "Completed"
-
     campaign_id = models.CharField(primary_key=True, max_length=255, blank=True)
     campaign_name = models.CharField(max_length=255)
     type = models.TextField(choices=Type, default=Type.EMAIL)
-    start_date = models.DateTimeField(default=datetime.now())
-    end_date = models.DateTimeField(default=datetime.now())
-    status = models.TextField(choices=Status, default=Status.ACTIVE)
+    start_date = models.DateTimeField(default=timezone.now())
+    end_date = models.DateTimeField(default=timezone.now())
 
     class Meta:
         managed = False
@@ -80,8 +74,8 @@ class Campaigns(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.campaigns (campaign_name, type, start_date, end_date, status)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO sales.campaigns (campaign_name, type, start_date, end_date)
+                VALUES (%s, %s, %s, %s)
                 RETURNING campaign_id;
             """,
                 [
@@ -89,7 +83,6 @@ class Campaigns(models.Model):
                     self.type,
                     self.start_date,
                     self.end_date,
-                    self.status,
                 ],
             )
             row = cursor.fetchone()
@@ -103,7 +96,7 @@ class Campaigns(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.campaigns 
-                SET campaign_name = %s, type = %s, start_date = %s, end_date = %s, status = %s
+                SET campaign_name = %s, type = %s, start_date = %s, end_date = %s
                 WHERE campaign_id = %s;
             """,
                 [
@@ -111,10 +104,24 @@ class Campaigns(models.Model):
                     self.type,
                     self.start_date,
                     self.end_date,
-                    self.status,
                     self.campaign_id,
                 ],
             )
+
+
+class CampaignStatusView(models.Model):
+    campaign_id = models.CharField(primary_key=True, max_length=255)
+    campaign_name = models.CharField(max_length=255)
+    type = models.TextField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    status = models.CharField(max_length=20)  # Computed field from the view
+
+    class Meta:
+        managed = False
+        db_table = (
+            '"sales"."campaign_status_view"'  # Use the name of the PostgreSQL view
+        )
 
 
 class CampaignContacts(models.Model):

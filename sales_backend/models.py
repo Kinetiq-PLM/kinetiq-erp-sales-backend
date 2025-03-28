@@ -25,9 +25,9 @@ class BlanketAgreement(models.Model):
 
 class CampaignContacts(models.Model):
     contact_id = models.CharField(primary_key=True, max_length=255)
-    lead_id = models.CharField(max_length=255, blank=True, null=True)
     campaign_id = models.CharField(max_length=255, blank=True, null=True)
     response_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    customer = models.ForeignKey('Customers', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -40,7 +40,6 @@ class Campaigns(models.Model):
     type = models.TextField(blank=True, null=True)  # This field type is a guess.
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    status = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
@@ -272,6 +271,7 @@ class StatementItem(models.Model):
     tax_amount = models.IntegerField(blank=True, null=True)
     return_reason = models.TextField(blank=True, null=True)
     return_action = models.TextField(blank=True, null=True)  # This field type is a guess.
+    created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
