@@ -5712,7 +5712,7 @@ CREATE TABLE sales.campaigns (
     type public.campaign_type_enum DEFAULT 'Email'::public.campaign_type_enum,
     start_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     end_date timestamp without time zone,
-    status public.campaign_status_enum
+    status public.campaign_status_enum DEFAULT 'Planned'::public.campaign_status_enum
 );
 
 
@@ -9699,6 +9699,17 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 277	2025-03-28 14:29:25.466772+08	SALES-CONTACT-2025-357341	CampaignContacts object (SALES-CONTACT-2025-357341)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
 278	2025-03-28 14:29:31.292243+08	SALES-CONTACT-2025-064025	CampaignContacts object (SALES-CONTACT-2025-064025)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
 279	2025-03-28 14:29:36.15939+08	SALES-CONTACT-2025-017e9e	CampaignContacts object (SALES-CONTACT-2025-017e9e)	2	[{"changed": {"fields": ["Customer"]}}]	19	1
+280	2025-03-28 15:51:37.678706+08	SALES-CMPGN-2025-f796df	Campaigns object (SALES-CMPGN-2025-f796df)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+281	2025-03-28 15:51:46.200416+08	SALES-CMPGN-2025-59967a	Campaigns object (SALES-CMPGN-2025-59967a)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+282	2025-03-28 15:51:53.325397+08	SALES-CMPGN-2025-19cdfa	Campaigns object (SALES-CMPGN-2025-19cdfa)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+283	2025-03-28 15:52:03.541992+08	SALES-CMPGN-2025-f3640c	Campaigns object (SALES-CMPGN-2025-f3640c)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+284	2025-03-28 15:52:11.870285+08	SALES-CMPGN-2025-bb9272	Campaigns object (SALES-CMPGN-2025-bb9272)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+285	2025-03-28 15:52:27.017492+08	SALES-CMPGN-2025-c3bcdb	Campaigns object (SALES-CMPGN-2025-c3bcdb)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+286	2025-03-28 15:52:33.718745+08	SALES-CMPGN-2025-85634d	Campaigns object (SALES-CMPGN-2025-85634d)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+287	2025-03-28 15:52:44.615427+08	SALES-CMPGN-2025-3538c1	Campaigns object (SALES-CMPGN-2025-3538c1)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+288	2025-03-28 15:52:50.554807+08	SALES-CMPGN-2025-056a95	Campaigns object (SALES-CMPGN-2025-056a95)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+289	2025-03-28 15:53:01.27433+08	SALES-CMPGN-2025-a2fba8	Campaigns object (SALES-CMPGN-2025-a2fba8)	2	[{"changed": {"fields": ["Status"]}}]	25	1
+290	2025-03-28 15:53:10.93572+08	SALES-CMPGN-2025-ff71e8	Campaigns object (SALES-CMPGN-2025-ff71e8)	2	[{"changed": {"fields": ["Status"]}}]	25	1
 \.
 
 
@@ -9731,6 +9742,7 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 22	misc	generalledgeraccounts
 23	invoice	payments
 24	misc	nonprojectorderpricing
+25	CRM	campaigns
 \.
 
 
@@ -10082,6 +10094,7 @@ SALES-CONTACT-2025-a5dc6c	SALES-CMPGN-2025-30dc07	Pending	SALES-CUST-2025-0294dc
 SALES-CONTACT-2025-eb1775	SALES-CMPGN-2025-f796df	Pending	SALES-CUST-2025-cd1d37
 SALES-CONTACT-2025-533794	SALES-CMPGN-2025-59967a	Pending	SALES-CUST-2025-59eb62
 SALES-CONTACT-2025-32c2a5	SALES-CMPGN-2025-59967a	Pending	SALES-CUST-2025-2ba07b
+SALES-CONTACT-2025-58c3b5	SALES-CMPGN-2025-f796df	Pending	SALES-CUST-2025-eac405
 \.
 
 
@@ -10091,25 +10104,25 @@ SALES-CONTACT-2025-32c2a5	SALES-CMPGN-2025-59967a	Pending	SALES-CUST-2025-2ba07b
 
 COPY sales.campaigns (campaign_id, campaign_name, type, start_date, end_date, status) FROM stdin;
 SALES-CMPGN-2025-59cd34	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59	Planned
-SALES-CMPGN-2025-bb9272	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-05 23:59:59	Active
-SALES-CMPGN-2025-a2fba8	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
 SALES-CMPGN-2025-846658	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59	Planned
-SALES-CMPGN-2025-85634d	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
-SALES-CMPGN-2025-ff71e8	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
 SALES-CMPGN-2025-e4d734	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59	Planned
-SALES-CMPGN-2025-3538c1	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
-SALES-CMPGN-2025-871a35	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Completed
+SALES-CMPGN-2025-871a35	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Planned
 SALES-CMPGN-2025-76996e	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59	Planned
 SALES-CMPGN-2025-78ce57	Medical Equipment Expo 2025	Email	2025-05-01 08:00:00	2025-05-15 23:59:59	Planned
-SALES-CMPGN-2025-19cdfa	Pharmacy Discount Campaign	Email	2025-04-10 08:00:00	2025-04-25 23:59:59	Active
-SALES-CMPGN-2025-c3bcdb	Healthcare Innovation Webinar	Email	2025-03-25 08:00:00	2025-04-05 23:59:59	Completed
 SALES-CMPGN-2025-cc3288	Free Sample: Diagnostic Kits	Email	2025-05-05 08:00:00	2025-05-20 23:59:59	Planned
-SALES-CMPGN-2025-f796df	Loyalty Program for Hospitals	Email	2025-04-01 08:00:00	2025-04-30 23:59:59	Active
-SALES-CMPGN-2025-056a95	Medical Compliance Training	Email	2025-03-15 08:00:00	2025-03-25 23:59:59	Completed
-SALES-CMPGN-2025-59967a	Exclusive Offer: Lab Equipment	Email	2025-04-15 08:00:00	2025-04-30 23:59:59	Active
-SALES-CMPGN-2025-f3640c	New Product Launch: Ventilators	Email	2025-03-20 08:00:00	2025-04-10 23:59:59	Completed
 SALES-CMPGN-2025-30dc07	Emergency Supplies Discount	Email	2025-05-12 08:00:00	2025-05-25 23:59:59	Planned
 SALES-CMPGN-2025-a2fed5	Healthcare Summit Invitation	Email	2025-05-10 08:00:00	2025-05-30 23:59:59	Planned
+SALES-CMPGN-2025-f796df	Loyalty Program for Hospitals	Email	2025-04-01 08:00:00	2025-04-30 23:59:59	Active
+SALES-CMPGN-2025-59967a	Exclusive Offer: Lab Equipment	Email	2025-04-15 08:00:00	2025-04-30 23:59:59	Active
+SALES-CMPGN-2025-19cdfa	Pharmacy Discount Campaign	Email	2025-04-10 08:00:00	2025-04-25 23:59:59	Active
+SALES-CMPGN-2025-f3640c	New Product Launch: Ventilators	Email	2025-03-20 08:00:00	2025-04-10 23:59:59	Completed
+SALES-CMPGN-2025-bb9272	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-05 23:59:59	Active
+SALES-CMPGN-2025-c3bcdb	Healthcare Innovation Webinar	Email	2025-03-25 08:00:00	2025-04-05 23:59:59	Completed
+SALES-CMPGN-2025-85634d	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
+SALES-CMPGN-2025-3538c1	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
+SALES-CMPGN-2025-056a95	Medical Compliance Training	Email	2025-03-15 08:00:00	2025-03-25 23:59:59	Completed
+SALES-CMPGN-2025-a2fba8	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
+SALES-CMPGN-2025-ff71e8	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
 \.
 
 
@@ -11256,14 +11269,14 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 279, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 290, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 24, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 25, true);
 
 
 --
