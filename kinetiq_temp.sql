@@ -5711,12 +5711,31 @@ CREATE TABLE sales.campaigns (
     campaign_name character varying(255),
     type public.campaign_type_enum DEFAULT 'Email'::public.campaign_type_enum,
     start_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    end_date timestamp without time zone,
-    status public.campaign_status_enum DEFAULT 'Planned'::public.campaign_status_enum
+    end_date timestamp without time zone
 );
 
 
 ALTER TABLE sales.campaigns OWNER TO postgres;
+
+--
+-- Name: campaign_status_view; Type: VIEW; Schema: sales; Owner: postgres
+--
+
+CREATE VIEW sales.campaign_status_view AS
+ SELECT campaign_id,
+    campaign_name,
+    type,
+    start_date,
+    end_date,
+        CASE
+            WHEN (start_date > now()) THEN 'Planned'::text
+            WHEN ((now() >= start_date) AND (now() <= end_date)) THEN 'Active'::text
+            ELSE 'Completed'::text
+        END AS status
+   FROM sales.campaigns c;
+
+
+ALTER VIEW sales.campaign_status_view OWNER TO postgres;
 
 --
 -- Name: customers; Type: TABLE; Schema: sales; Owner: postgres
@@ -10102,27 +10121,28 @@ SALES-CONTACT-2025-58c3b5	SALES-CMPGN-2025-f796df	Pending	SALES-CUST-2025-eac405
 -- Data for Name: campaigns; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.campaigns (campaign_id, campaign_name, type, start_date, end_date, status) FROM stdin;
-SALES-CMPGN-2025-59cd34	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59	Planned
-SALES-CMPGN-2025-846658	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59	Planned
-SALES-CMPGN-2025-e4d734	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59	Planned
-SALES-CMPGN-2025-871a35	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59	Planned
-SALES-CMPGN-2025-76996e	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59	Planned
-SALES-CMPGN-2025-78ce57	Medical Equipment Expo 2025	Email	2025-05-01 08:00:00	2025-05-15 23:59:59	Planned
-SALES-CMPGN-2025-cc3288	Free Sample: Diagnostic Kits	Email	2025-05-05 08:00:00	2025-05-20 23:59:59	Planned
-SALES-CMPGN-2025-30dc07	Emergency Supplies Discount	Email	2025-05-12 08:00:00	2025-05-25 23:59:59	Planned
-SALES-CMPGN-2025-a2fed5	Healthcare Summit Invitation	Email	2025-05-10 08:00:00	2025-05-30 23:59:59	Planned
-SALES-CMPGN-2025-f796df	Loyalty Program for Hospitals	Email	2025-04-01 08:00:00	2025-04-30 23:59:59	Active
-SALES-CMPGN-2025-59967a	Exclusive Offer: Lab Equipment	Email	2025-04-15 08:00:00	2025-04-30 23:59:59	Active
-SALES-CMPGN-2025-19cdfa	Pharmacy Discount Campaign	Email	2025-04-10 08:00:00	2025-04-25 23:59:59	Active
-SALES-CMPGN-2025-f3640c	New Product Launch: Ventilators	Email	2025-03-20 08:00:00	2025-04-10 23:59:59	Completed
-SALES-CMPGN-2025-bb9272	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-05 23:59:59	Active
-SALES-CMPGN-2025-c3bcdb	Healthcare Innovation Webinar	Email	2025-03-25 08:00:00	2025-04-05 23:59:59	Completed
-SALES-CMPGN-2025-85634d	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59	Active
-SALES-CMPGN-2025-3538c1	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59	Active
-SALES-CMPGN-2025-056a95	Medical Compliance Training	Email	2025-03-15 08:00:00	2025-03-25 23:59:59	Completed
-SALES-CMPGN-2025-a2fba8	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59	Completed
-SALES-CMPGN-2025-ff71e8	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59	Completed
+COPY sales.campaigns (campaign_id, campaign_name, type, start_date, end_date) FROM stdin;
+SALES-CMPGN-2025-59cd34	New Medical Equipment Launch	Email	2025-04-01 08:00:00	2025-04-15 23:59:59
+SALES-CMPGN-2025-846658	Free Sample: Surgical Masks	Email	2025-04-10 08:00:00	2025-04-20 23:59:59
+SALES-CMPGN-2025-e4d734	Healthcare Expo Invitation	Email	2025-04-05 08:00:00	2025-04-25 23:59:59
+SALES-CMPGN-2025-871a35	New FDA-Approved Products	Email	2025-02-10 08:00:00	2025-02-28 23:59:59
+SALES-CMPGN-2025-76996e	Emergency Medical Supplies Sale	Email	2025-04-12 08:00:00	2025-04-22 23:59:59
+SALES-CMPGN-2025-78ce57	Medical Equipment Expo 2025	Email	2025-05-01 08:00:00	2025-05-15 23:59:59
+SALES-CMPGN-2025-cc3288	Free Sample: Diagnostic Kits	Email	2025-05-05 08:00:00	2025-05-20 23:59:59
+SALES-CMPGN-2025-30dc07	Emergency Supplies Discount	Email	2025-05-12 08:00:00	2025-05-25 23:59:59
+SALES-CMPGN-2025-a2fed5	Healthcare Summit Invitation	Email	2025-05-10 08:00:00	2025-05-30 23:59:59
+SALES-CMPGN-2025-f796df	Loyalty Program for Hospitals	Email	2025-04-01 08:00:00	2025-04-30 23:59:59
+SALES-CMPGN-2025-59967a	Exclusive Offer: Lab Equipment	Email	2025-04-15 08:00:00	2025-04-30 23:59:59
+SALES-CMPGN-2025-19cdfa	Pharmacy Discount Campaign	Email	2025-04-10 08:00:00	2025-04-25 23:59:59
+SALES-CMPGN-2025-f3640c	New Product Launch: Ventilators	Email	2025-03-20 08:00:00	2025-04-10 23:59:59
+SALES-CMPGN-2025-bb9272	Exclusive Discount for Clinics	Email	2025-03-20 08:00:00	2025-04-05 23:59:59
+SALES-CMPGN-2025-c3bcdb	Healthcare Innovation Webinar	Email	2025-03-25 08:00:00	2025-04-05 23:59:59
+SALES-CMPGN-2025-85634d	Loyalty Rewards for Pharmacies	Email	2025-03-01 08:00:00	2025-03-31 23:59:59
+SALES-CMPGN-2025-3538c1	Exclusive Bulk Order Offer	Email	2025-03-15 08:00:00	2025-03-30 23:59:59
+SALES-CMPGN-2025-056a95	Medical Compliance Training	Email	2025-03-15 08:00:00	2025-03-25 23:59:59
+SALES-CMPGN-2025-a2fba8	Hospital Procurement Webinar	Email	2025-03-10 08:00:00	2025-03-15 23:59:59
+SALES-CMPGN-2025-ff71e8	Medical Device Compliance Update	Email	2025-02-20 08:00:00	2025-03-05 23:59:59
+SALES-CMPGN-2025-46bdd6	Loyalty Rewards for Clinics	Email	2025-03-28 00:00:00	2025-04-05 00:00:00
 \.
 
 
@@ -14530,6 +14550,13 @@ GRANT SELECT,INSERT,UPDATE ON TABLE sales.campaign_contacts TO erp_user;
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE sales.campaigns TO erp_user;
+
+
+--
+-- Name: TABLE campaign_status_view; Type: ACL; Schema: sales; Owner: postgres
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE sales.campaign_status_view TO erp_user;
 
 
 --
