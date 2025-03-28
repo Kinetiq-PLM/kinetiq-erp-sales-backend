@@ -1,8 +1,10 @@
 from rest_framework import viewsets
 from .serializers import *
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 
 class LeadsViewSet(viewsets.ModelViewSet):
@@ -11,29 +13,44 @@ class LeadsViewSet(viewsets.ModelViewSet):
 
 
 class CampaignsViewSet(viewsets.ModelViewSet):
+
     queryset = Campaigns.objects.all().order_by("-end_date")
     serializer_class = CampaignsSerializer
+
+    def update(self, request: Request, *args, **kwargs):
+        """inputs:
+        {
+            contacts: [customer_id]
+        }
+        """
+        contacts = request.data.get("contacts", [])
+        try:
+            with transaction.atomic():
+                campaign = self.get_object()
+                for contact in contacts:
+                    exists = CampaignContacts.objects.filter(
+                        campaign=campaign, customer=contact
+                    ).exists()
+                    if not exists:
+                        contact_serializer = CampaignContactsSerializer(
+                            data={
+                                "customer": contact,
+                                "campaign": campaign.campaign_id,
+                            }
+                        )
+                        if contact_serializer.is_valid():
+                            contact_serializer.save()
+                        else:
+                            raise Exception(contact_serializer.errors)
+                campaign.refresh_from_db()
+                return Response(CampaignsSerializer(campaign).data)
+        except Exception as err:
+            return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CampaignContactsViewSet(viewsets.ModelViewSet):
     queryset = CampaignContacts.objects.all()
     serializer_class = CampaignContactsSerializer
-
-    def create(self, request, *args, **kwargs):
-        contacts_data = request.data.pop("contacts")
-        campaign_id = request.data.pop("campaign_id")
-        campaign = get_object_or_404(Campaigns, pk=campaign_id)
-        contacts = []
-        for contact in contacts_data:
-            lead_id = contact.pop("lead_id")
-            lead = get_object_or_404(Leads, pk=lead_id)
-            data = {**contact, "campaign_id": campaign, "lead_id": lead}
-            contacts.append(CampaignContacts(**data))
-        created = CampaignContacts.objects.bulk_create(contacts)
-        return Response(
-            CampaignContactsSerializer(created, many=True).data,
-            status=status.HTTP_201_CREATED,
-        )
 
 
 class OpportunitiesViewSet(viewsets.ModelViewSet):

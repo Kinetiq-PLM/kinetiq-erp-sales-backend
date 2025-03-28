@@ -13,6 +13,7 @@ class LeadsSerializer(serializers.ModelSerializer):
 
 class CampaignContactsSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
+    campaign = serializers.PrimaryKeyRelatedField(queryset=Campaigns.objects.all())
 
     class Meta:
         model = CampaignContacts
