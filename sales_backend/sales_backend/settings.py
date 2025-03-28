@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "order",
     "quotation",
     "reporting",
+    "returns",
     "statement",
     "rest_framework",
     "corsheaders",

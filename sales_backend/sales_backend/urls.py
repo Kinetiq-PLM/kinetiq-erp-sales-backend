@@ -51,6 +51,7 @@ urlpatterns = [
                 path("order/", include("order.urls")),
                 path("quotation/", include("quotation.urls")),
                 path("reporting/", include("reporting.urls")),
+                path("returns/", include("returns.urls")),
                 path("", include("statement.urls")),
             ]
         ),
