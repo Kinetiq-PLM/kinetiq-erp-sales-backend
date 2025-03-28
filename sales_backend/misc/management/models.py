@@ -22,4 +22,4 @@ class ManagementApprovals(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'management_approvals'
+        db_table = '"management"."management_approvals"'

@@ -477,6 +477,19 @@ CREATE TYPE public.lead_status_enum AS ENUM (
 ALTER TYPE public.lead_status_enum OWNER TO postgres;
 
 --
+-- Name: manage_type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.manage_type AS ENUM (
+    'None',
+    'Serial Number',
+    'Batches'
+);
+
+
+ALTER TYPE public.manage_type OWNER TO postgres;
+
+--
 -- Name: management_approval_status; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -2858,6 +2871,27 @@ $$;
 ALTER FUNCTION public.generate_internal_project_tracking_id() OWNER TO postgres;
 
 --
+-- Name: generate_management_id(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.generate_management_id() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_code VARCHAR(6);
+BEGIN
+    SELECT substring(md5(random()::text), 1, 6) INTO unique_code;
+    
+    NEW.approval_id := 'MGT-' || to_char(CURRENT_DATE, 'YYYY') || '-' || unique_code;
+    
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.generate_management_id() OWNER TO postgres;
+
+--
 -- Name: generate_product_pricing_id(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -2936,6 +2970,24 @@ $$;
 
 
 ALTER FUNCTION public.insert_order_based_on_type() OWNER TO postgres;
+
+--
+-- Name: management_set_checked_date(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.management_set_checked_date() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.checked_date IS NULL THEN
+        NEW.checked_date := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.management_set_checked_date() OWNER TO postgres;
 
 --
 -- Name: update_demand_level(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -3965,7 +4017,9 @@ CREATE TABLE admin.assets (
     asset_id character varying(255) NOT NULL,
     asset_name character varying(255) NOT NULL,
     purchase_date date DEFAULT now(),
-    serial_no character varying(225)
+    serial_no character varying(225),
+    purchased_price numeric DEFAULT 0 NOT NULL,
+    content_id character varying(255)
 );
 
 
@@ -4014,7 +4068,18 @@ CREATE TABLE admin.item_master_data (
     item_type public.item_type DEFAULT 'Product'::public.item_type,
     asset_id character varying(255),
     product_id character varying(255),
-    material_id character varying(255)
+    material_id character varying(255),
+    item_name character varying(255),
+    unit_of_measure public.unit_of_measure,
+    manage_item_by public.manage_type DEFAULT 'Batches'::public.manage_type,
+    item_status public.status_enum DEFAULT 'Active'::public.status_enum,
+    preferred_vendor character varying(255),
+    purchasing_uom public.unit_of_measure DEFAULT 'pcs'::public.unit_of_measure,
+    items_per_purchase_unit integer,
+    purchase_quantity_per_package integer,
+    sales_uom public.unit_of_measure DEFAULT 'pcs'::public.unit_of_measure,
+    items_per_sale_unit integer DEFAULT 1 NOT NULL,
+    sales_quantity_per_package integer DEFAULT 1 NOT NULL
 );
 
 
@@ -4046,7 +4111,11 @@ CREATE TABLE admin.products (
     selling_price numeric,
     stock_level integer,
     warranty_period integer DEFAULT 12,
-    policy_id character varying(255)
+    policy_id character varying(255),
+    batch_no character varying(255),
+    item_status public.status_enum DEFAULT 'Active'::public.status_enum,
+    content_id character varying(255),
+    unit_of_measure public.unit_of_measure
 );
 
 
@@ -4061,7 +4130,8 @@ CREATE TABLE admin.raw_materials (
     material_name character varying(255) NOT NULL,
     description text,
     unit_of_measure public.unit_of_measure DEFAULT 'kg'::public.unit_of_measure,
-    cost_per_unit numeric
+    cost_per_unit numeric,
+    vendor_code character varying(255)
 );
 
 
@@ -4762,12 +4832,12 @@ ALTER TABLE inventory.warehouse_movement OWNER TO postgres;
 
 CREATE TABLE management.management_approvals (
     approval_id character varying(255) NOT NULL,
-    request_id character varying(255),
-    checked_id character varying(255),
+    request_id character varying(255) NOT NULL,
+    external_id character varying(255) NOT NULL,
     decision_date date NOT NULL,
     issue_date date NOT NULL,
-    checked_by character varying(255),
-    checked_date date NOT NULL,
+    checked_by character varying(255) NOT NULL,
+    checked_date date DEFAULT CURRENT_DATE NOT NULL,
     status public.management_approval_status NOT NULL,
     due_date date NOT NULL,
     remarks text
@@ -4789,7 +4859,8 @@ CREATE TABLE mrp.bill_of_materials (
     specific_notes text,
     quantity_of_unit integer NOT NULL,
     cost_per_raw_material numeric(10,2) NOT NULL,
-    total_cost_of_raw_materials numeric(10,2) NOT NULL
+    total_cost_of_raw_materials numeric(10,2) NOT NULL,
+    production_order_detail_id character varying(255)
 );
 
 
@@ -4965,7 +5036,8 @@ CREATE TABLE production.equipment (
     equipment_name character varying(255) NOT NULL,
     description text,
     availability_status public.availability_status DEFAULT 'Available'::public.availability_status,
-    last_maintenance_date date DEFAULT now()
+    last_maintenance_date date DEFAULT now(),
+    equipment_cost numeric(10,2)
 );
 
 
@@ -4999,7 +5071,7 @@ CREATE TABLE production.production_orders_details (
     equipment_id character varying(255),
     rework_required boolean NOT NULL,
     rework_notes text,
-    content_id character varying(255)
+    productdocu_id character varying(255)
 );
 
 
@@ -5491,6 +5563,90 @@ CREATE TABLE public.django_session (
 
 
 ALTER TABLE public.django_session OWNER TO postgres;
+
+--
+-- Name: management_approved_approvals; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.management_approved_approvals AS
+ SELECT approval_id,
+    request_id,
+    external_id,
+    decision_date,
+    issue_date,
+    checked_by,
+    checked_date,
+    status,
+    due_date,
+    remarks
+   FROM management.management_approvals
+  WHERE (status = 'approved'::public.management_approval_status);
+
+
+ALTER VIEW public.management_approved_approvals OWNER TO postgres;
+
+--
+-- Name: management_overdue_approvals; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.management_overdue_approvals AS
+ SELECT approval_id,
+    request_id,
+    external_id,
+    decision_date,
+    issue_date,
+    checked_by,
+    checked_date,
+    status,
+    due_date,
+    remarks
+   FROM management.management_approvals
+  WHERE ((due_date < CURRENT_DATE) AND (status = 'pending'::public.management_approval_status));
+
+
+ALTER VIEW public.management_overdue_approvals OWNER TO postgres;
+
+--
+-- Name: management_pending_approvals; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.management_pending_approvals AS
+ SELECT approval_id,
+    request_id,
+    external_id,
+    decision_date,
+    issue_date,
+    checked_by,
+    checked_date,
+    status,
+    due_date,
+    remarks
+   FROM management.management_approvals
+  WHERE (status = 'pending'::public.management_approval_status);
+
+
+ALTER VIEW public.management_pending_approvals OWNER TO postgres;
+
+--
+-- Name: management_rejected_approvals; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.management_rejected_approvals AS
+ SELECT approval_id,
+    request_id,
+    external_id,
+    decision_date,
+    issue_date,
+    checked_by,
+    checked_date,
+    status,
+    due_date,
+    remarks
+   FROM management.management_approvals
+  WHERE (status = 'rejected'::public.management_approval_status);
+
+
+ALTER VIEW public.management_rejected_approvals OWNER TO postgres;
 
 --
 -- Name: batch_inspection; Type: TABLE; Schema: purchasing; Owner: postgres
@@ -6509,47 +6665,47 @@ ACC-OFR-2025-540ceb	\N	\N	2025-03-18	600.00	0.00	Credit Card	REF-1010	Admin
 -- Data for Name: assets; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.assets (asset_id, asset_name, purchase_date, serial_no) FROM stdin;
-ADMIN-ASSET-2025-3c5751	Laptop - Dell XPS 15	2024-01-10	SN0001
-ADMIN-ASSET-2025-a68f53	Office Chair - Ergonomic	2023-12-15	SN0002
-ADMIN-ASSET-2025-0b26d3	Printer - HP LaserJet Pro	2024-02-05	SN0003
-ADMIN-ASSET-2025-4627b0	Projector - Epson X500	2023-11-20	SN0004
-ADMIN-ASSET-2025-54d5d5	Desk - Wooden Executive	2024-03-01	SN0005
-ADMIN-ASSET-2025-9a81c7	Monitor - LG UltraWide	2024-02-10	SN0006
-ADMIN-ASSET-2025-7626e1	Keyboard - Mechanical RGB	2023-12-25	SN0007
-ADMIN-ASSET-2025-c25c1b	Mouse - Logitech MX Master 3	2024-01-15	SN0008
-ADMIN-ASSET-2025-96fb32	External Hard Drive - 2TB	2024-02-28	SN0009
-ADMIN-ASSET-2025-f7d5b7	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010
-ADMIN-ASSET-2025-6d5b67	Tablet - iPad Pro	2024-03-05	SN0011
-ADMIN-ASSET-2025-757508	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012
-ADMIN-ASSET-2025-f4055a	Scanner - Canon imageFORMULA	2024-01-22	SN0013
-ADMIN-ASSET-2025-a773ba	Router - Cisco RV340	2024-03-02	SN0014
-ADMIN-ASSET-2025-8c13cf	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015
-ADMIN-ASSET-2025-2c85db	Webcam - Logitech Brio	2024-03-09	SN0016
-ADMIN-ASSET-2025-21c14f	Whiteboard - Magnetic	2024-01-29	SN0017
-ADMIN-ASSET-2025-209f29	Speaker System - Bose Companion	2024-02-08	SN0018
-ADMIN-ASSET-2025-50e9b8	UPS - APC Smart-UPS	2024-03-04	SN0019
-ADMIN-ASSET-2025-3f4710	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020
-ADMIN-ASSET-2025-2c4aa5	Laptop - Dell XPS 15	2024-01-10	SN0001
-ADMIN-ASSET-2025-2573f1	Office Chair - Ergonomic	2023-12-15	SN0002
-ADMIN-ASSET-2025-368da3	Printer - HP LaserJet Pro	2024-02-05	SN0003
-ADMIN-ASSET-2025-fe70e2	Projector - Epson X500	2023-11-20	SN0004
-ADMIN-ASSET-2025-8bd54c	Desk - Wooden Executive	2024-03-01	SN0005
-ADMIN-ASSET-2025-865869	Monitor - LG UltraWide	2024-02-10	SN0006
-ADMIN-ASSET-2025-147853	Keyboard - Mechanical RGB	2023-12-25	SN0007
-ADMIN-ASSET-2025-742109	Mouse - Logitech MX Master 3	2024-01-15	SN0008
-ADMIN-ASSET-2025-ec4113	External Hard Drive - 2TB	2024-02-28	SN0009
-ADMIN-ASSET-2025-317a30	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010
-ADMIN-ASSET-2025-144e5a	Tablet - iPad Pro	2024-03-05	SN0011
-ADMIN-ASSET-2025-24205d	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012
-ADMIN-ASSET-2025-6abeea	Scanner - Canon imageFORMULA	2024-01-22	SN0013
-ADMIN-ASSET-2025-86cbb2	Router - Cisco RV340	2024-03-02	SN0014
-ADMIN-ASSET-2025-7b8649	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015
-ADMIN-ASSET-2025-e549a6	Webcam - Logitech Brio	2024-03-09	SN0016
-ADMIN-ASSET-2025-554e6a	Whiteboard - Magnetic	2024-01-29	SN0017
-ADMIN-ASSET-2025-cff311	Speaker System - Bose Companion	2024-02-08	SN0018
-ADMIN-ASSET-2025-00e28c	UPS - APC Smart-UPS	2024-03-04	SN0019
-ADMIN-ASSET-2025-6fefe2	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020
+COPY admin.assets (asset_id, asset_name, purchase_date, serial_no, purchased_price, content_id) FROM stdin;
+ADMIN-ASSET-2025-3c5751	Laptop - Dell XPS 15	2024-01-10	SN0001	0	\N
+ADMIN-ASSET-2025-a68f53	Office Chair - Ergonomic	2023-12-15	SN0002	0	\N
+ADMIN-ASSET-2025-0b26d3	Printer - HP LaserJet Pro	2024-02-05	SN0003	0	\N
+ADMIN-ASSET-2025-4627b0	Projector - Epson X500	2023-11-20	SN0004	0	\N
+ADMIN-ASSET-2025-54d5d5	Desk - Wooden Executive	2024-03-01	SN0005	0	\N
+ADMIN-ASSET-2025-9a81c7	Monitor - LG UltraWide	2024-02-10	SN0006	0	\N
+ADMIN-ASSET-2025-7626e1	Keyboard - Mechanical RGB	2023-12-25	SN0007	0	\N
+ADMIN-ASSET-2025-c25c1b	Mouse - Logitech MX Master 3	2024-01-15	SN0008	0	\N
+ADMIN-ASSET-2025-96fb32	External Hard Drive - 2TB	2024-02-28	SN0009	0	\N
+ADMIN-ASSET-2025-f7d5b7	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010	0	\N
+ADMIN-ASSET-2025-6d5b67	Tablet - iPad Pro	2024-03-05	SN0011	0	\N
+ADMIN-ASSET-2025-757508	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012	0	\N
+ADMIN-ASSET-2025-f4055a	Scanner - Canon imageFORMULA	2024-01-22	SN0013	0	\N
+ADMIN-ASSET-2025-a773ba	Router - Cisco RV340	2024-03-02	SN0014	0	\N
+ADMIN-ASSET-2025-8c13cf	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015	0	\N
+ADMIN-ASSET-2025-2c85db	Webcam - Logitech Brio	2024-03-09	SN0016	0	\N
+ADMIN-ASSET-2025-21c14f	Whiteboard - Magnetic	2024-01-29	SN0017	0	\N
+ADMIN-ASSET-2025-209f29	Speaker System - Bose Companion	2024-02-08	SN0018	0	\N
+ADMIN-ASSET-2025-50e9b8	UPS - APC Smart-UPS	2024-03-04	SN0019	0	\N
+ADMIN-ASSET-2025-3f4710	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020	0	\N
+ADMIN-ASSET-2025-2c4aa5	Laptop - Dell XPS 15	2024-01-10	SN0001	0	\N
+ADMIN-ASSET-2025-2573f1	Office Chair - Ergonomic	2023-12-15	SN0002	0	\N
+ADMIN-ASSET-2025-368da3	Printer - HP LaserJet Pro	2024-02-05	SN0003	0	\N
+ADMIN-ASSET-2025-fe70e2	Projector - Epson X500	2023-11-20	SN0004	0	\N
+ADMIN-ASSET-2025-8bd54c	Desk - Wooden Executive	2024-03-01	SN0005	0	\N
+ADMIN-ASSET-2025-865869	Monitor - LG UltraWide	2024-02-10	SN0006	0	\N
+ADMIN-ASSET-2025-147853	Keyboard - Mechanical RGB	2023-12-25	SN0007	0	\N
+ADMIN-ASSET-2025-742109	Mouse - Logitech MX Master 3	2024-01-15	SN0008	0	\N
+ADMIN-ASSET-2025-ec4113	External Hard Drive - 2TB	2024-02-28	SN0009	0	\N
+ADMIN-ASSET-2025-317a30	Conference Speaker - Jabra Speak 750	2023-11-30	SN0010	0	\N
+ADMIN-ASSET-2025-144e5a	Tablet - iPad Pro	2024-03-05	SN0011	0	\N
+ADMIN-ASSET-2025-24205d	Smartphone - Samsung Galaxy S24	2024-02-18	SN0012	0	\N
+ADMIN-ASSET-2025-6abeea	Scanner - Canon imageFORMULA	2024-01-22	SN0013	0	\N
+ADMIN-ASSET-2025-86cbb2	Router - Cisco RV340	2024-03-02	SN0014	0	\N
+ADMIN-ASSET-2025-7b8649	Filing Cabinet - Steel 4-Drawer	2024-02-14	SN0015	0	\N
+ADMIN-ASSET-2025-e549a6	Webcam - Logitech Brio	2024-03-09	SN0016	0	\N
+ADMIN-ASSET-2025-554e6a	Whiteboard - Magnetic	2024-01-29	SN0017	0	\N
+ADMIN-ASSET-2025-cff311	Speaker System - Bose Companion	2024-02-08	SN0018	0	\N
+ADMIN-ASSET-2025-00e28c	UPS - APC Smart-UPS	2024-03-04	SN0019	0	\N
+ADMIN-ASSET-2025-6fefe2	Air Purifier - Dyson Pure Cool	2024-02-27	SN0020	0	\N
 \.
 
 
@@ -6674,167 +6830,167 @@ ADMIN-PARTNER-2025-8bb554	\N	\N	SALES-CUST-2025-bbed7f	asdfasdf	Customer	0912345
 -- Data for Name: item_master_data; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.item_master_data (item_id, item_type, asset_id, product_id, material_id) FROM stdin;
-ADMIN-ITEM-2025-f72fa4	Product	\N	\N	\N
-ADMIN-ITEM-2025-cd860d	Product	\N	\N	\N
-ADMIN-ITEM-2025-8cff12	Product	\N	\N	\N
-ADMIN-ITEM-2025-486aa8	Product	\N	\N	\N
-ADMIN-ITEM-2025-f242f2	Product	\N	\N	\N
-ADMIN-ITEM-2025-6eebdf	Product	\N	\N	\N
-ADMIN-ITEM-2025-312171	Product	\N	\N	\N
-ADMIN-ITEM-2025-758722	Product	\N	\N	\N
-ADMIN-ITEM-2025-3d52a6	Product	\N	\N	\N
-ADMIN-ITEM-2025-6c6906	Product	\N	\N	\N
-ADMIN-ITEM-2025-09c590	Product	\N	\N	\N
-ADMIN-ITEM-2025-973288	Product	\N	\N	\N
-ADMIN-ITEM-2025-d40904	Product	\N	\N	\N
-ADMIN-ITEM-2025-b093f8	Product	\N	\N	\N
-ADMIN-ITEM-2025-4787de	Product	\N	\N	\N
-ADMIN-ITEM-2025-8b228e	Product	\N	\N	\N
-ADMIN-ITEM-2025-ef8ead	Product	\N	\N	\N
-ADMIN-ITEM-2025-c1163f	Product	\N	\N	\N
-ADMIN-ITEM-2025-066502	Product	\N	\N	\N
-ADMIN-ITEM-2025-217092	Product	\N	\N	\N
-ADMIN-ITEM-2025-c4bcd1	Product	\N	\N	\N
-ADMIN-ITEM-2025-6feb03	Product	\N	\N	\N
-ADMIN-ITEM-2025-134ddb	Product	\N	\N	\N
-ADMIN-ITEM-2025-865b1c	Product	\N	\N	\N
-ADMIN-ITEM-2025-12e389	Product	\N	\N	\N
-ADMIN-ITEM-2025-bd5985	Product	\N	\N	\N
-ADMIN-ITEM-2025-a165b7	Product	\N	\N	\N
-ADMIN-ITEM-2025-d8555f	Product	\N	\N	\N
-ADMIN-ITEM-2025-adfb62	Product	\N	\N	\N
-ADMIN-ITEM-2025-88c6a2	Product	\N	\N	\N
-ADMIN-ITEM-2025-8b20d7	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-73ccc1	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-8b5365	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-90413e	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-2da90b	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-ea1ffc	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-8fe6d2	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-734622	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-2f1409	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-bc59ea	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-1b5e60	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-e92f36	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-06eff9	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-2849c1	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-c21aa1	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-04470e	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-fde8f1	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-48ef80	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-471ed2	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-a5f197	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-3985e3	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-814c77	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-992682	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-3fb338	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-57e00e	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-af6d80	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-4a3a6a	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-b91e11	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-39ee3c	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-046722	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-05106e	Asset	\N	\N	\N
-ADMIN-ITEM-2025-b4b0a8	Asset	\N	\N	\N
-ADMIN-ITEM-2025-9f85d0	Asset	\N	\N	\N
-ADMIN-ITEM-2025-a7b3d9	Asset	\N	\N	\N
-ADMIN-ITEM-2025-c1bac5	Asset	\N	\N	\N
-ADMIN-ITEM-2025-f31f42	Asset	\N	\N	\N
-ADMIN-ITEM-2025-eebbd1	Asset	\N	\N	\N
-ADMIN-ITEM-2025-b6ebe7	Asset	\N	\N	\N
-ADMIN-ITEM-2025-895a69	Asset	\N	\N	\N
-ADMIN-ITEM-2025-2aaee5	Asset	\N	\N	\N
-ADMIN-ITEM-2025-ba90ac	Asset	\N	\N	\N
-ADMIN-ITEM-2025-cbfbdc	Asset	\N	\N	\N
-ADMIN-ITEM-2025-180ee1	Asset	\N	\N	\N
-ADMIN-ITEM-2025-e32e9d	Asset	\N	\N	\N
-ADMIN-ITEM-2025-aa97b4	Asset	\N	\N	\N
-ADMIN-ITEM-2025-9d322b	Asset	\N	\N	\N
-ADMIN-ITEM-2025-20e0c1	Asset	\N	\N	\N
-ADMIN-ITEM-2025-193f57	Asset	\N	\N	\N
-ADMIN-ITEM-2025-b3093b	Asset	\N	\N	\N
-ADMIN-ITEM-2025-5b1c6b	Asset	\N	\N	\N
-ADMIN-ITEM-2025-174d75	Product	\N	\N	\N
-ADMIN-ITEM-2025-6a60b7	Product	\N	\N	\N
-ADMIN-ITEM-2025-eae1b9	Product	\N	\N	\N
-ADMIN-ITEM-2025-06a675	Product	\N	\N	\N
-ADMIN-ITEM-2025-fe77cd	Product	\N	\N	\N
-ADMIN-ITEM-2025-199261	Product	\N	\N	\N
-ADMIN-ITEM-2025-91af33	Product	\N	\N	\N
-ADMIN-ITEM-2025-2df93b	Product	\N	\N	\N
-ADMIN-ITEM-2025-544545	Product	\N	\N	\N
-ADMIN-ITEM-2025-1db8fc	Product	\N	\N	\N
-ADMIN-ITEM-2025-6bcf45	Product	\N	\N	\N
-ADMIN-ITEM-2025-b62ca1	Product	\N	\N	\N
-ADMIN-ITEM-2025-a7a363	Product	\N	\N	\N
-ADMIN-ITEM-2025-bf5dd7	Product	\N	\N	\N
-ADMIN-ITEM-2025-6dce54	Product	\N	\N	\N
-ADMIN-ITEM-2025-88a6cc	Product	\N	\N	\N
-ADMIN-ITEM-2025-b8a3c2	Product	\N	\N	\N
-ADMIN-ITEM-2025-edc5c1	Product	\N	\N	\N
-ADMIN-ITEM-2025-a91041	Product	\N	\N	\N
-ADMIN-ITEM-2025-734d8b	Product	\N	\N	\N
-ADMIN-ITEM-2025-ec52b7	Product	\N	\N	\N
-ADMIN-ITEM-2025-710e90	Product	\N	\N	\N
-ADMIN-ITEM-2025-421b14	Product	\N	\N	\N
-ADMIN-ITEM-2025-a33037	Product	\N	\N	\N
-ADMIN-ITEM-2025-d652d6	Product	\N	\N	\N
-ADMIN-ITEM-2025-2dff44	Product	\N	\N	\N
-ADMIN-ITEM-2025-e69a1f	Product	\N	\N	\N
-ADMIN-ITEM-2025-73163e	Product	\N	\N	\N
-ADMIN-ITEM-2025-44b680	Product	\N	\N	\N
-ADMIN-ITEM-2025-7d5b52	Product	\N	\N	\N
-ADMIN-ITEM-2025-be448b	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-be14c9	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-7ecfe6	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-c97198	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-85068b	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-7ad244	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-94b5bf	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-70445f	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-cee63e	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-b307f9	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-8dacce	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-1cee4e	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-1ce6f5	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-b7ffae	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-5b3a74	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-6e9c89	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-c0d5d6	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-899dca	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-d8fce4	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-c22cc8	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-906730	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-9c6dad	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-e0cc1a	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-9183b6	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-3278de	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-89371b	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-d73417	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-3feead	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-bd90d5	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-179f62	Raw Material	\N	\N	\N
-ADMIN-ITEM-2025-a16101	Asset	\N	\N	\N
-ADMIN-ITEM-2025-70ae78	Asset	\N	\N	\N
-ADMIN-ITEM-2025-23fc23	Asset	\N	\N	\N
-ADMIN-ITEM-2025-6ccf86	Asset	\N	\N	\N
-ADMIN-ITEM-2025-87b06a	Asset	\N	\N	\N
-ADMIN-ITEM-2025-d2ba5e	Asset	\N	\N	\N
-ADMIN-ITEM-2025-95af8e	Asset	\N	\N	\N
-ADMIN-ITEM-2025-107477	Asset	\N	\N	\N
-ADMIN-ITEM-2025-8fb724	Asset	\N	\N	\N
-ADMIN-ITEM-2025-6a6a41	Asset	\N	\N	\N
-ADMIN-ITEM-2025-a9cca1	Asset	\N	\N	\N
-ADMIN-ITEM-2025-af5d7d	Asset	\N	\N	\N
-ADMIN-ITEM-2025-46645b	Asset	\N	\N	\N
-ADMIN-ITEM-2025-537e9e	Asset	\N	\N	\N
-ADMIN-ITEM-2025-1e2712	Asset	\N	\N	\N
-ADMIN-ITEM-2025-902463	Asset	\N	\N	\N
-ADMIN-ITEM-2025-b7a1f7	Asset	\N	\N	\N
-ADMIN-ITEM-2025-f6d72c	Asset	\N	\N	\N
-ADMIN-ITEM-2025-edc1a9	Asset	\N	\N	\N
-ADMIN-ITEM-2025-45f6e2	Asset	\N	\N	\N
+COPY admin.item_master_data (item_id, item_type, asset_id, product_id, material_id, item_name, unit_of_measure, manage_item_by, item_status, preferred_vendor, purchasing_uom, items_per_purchase_unit, purchase_quantity_per_package, sales_uom, items_per_sale_unit, sales_quantity_per_package) FROM stdin;
+ADMIN-ITEM-2025-f72fa4	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-cd860d	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8cff12	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-486aa8	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-f242f2	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6eebdf	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-312171	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-758722	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-3d52a6	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6c6906	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-09c590	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-973288	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d40904	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b093f8	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-4787de	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8b228e	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-ef8ead	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c1163f	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-066502	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-217092	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c4bcd1	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6feb03	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-134ddb	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-865b1c	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-12e389	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-bd5985	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a165b7	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d8555f	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-adfb62	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-88c6a2	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8b20d7	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-73ccc1	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8b5365	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-90413e	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2da90b	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-ea1ffc	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8fe6d2	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-734622	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2f1409	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-bc59ea	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-1b5e60	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-e92f36	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-06eff9	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2849c1	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c21aa1	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-04470e	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-fde8f1	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-48ef80	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-471ed2	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a5f197	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-3985e3	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-814c77	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-992682	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-3fb338	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-57e00e	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-af6d80	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-4a3a6a	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b91e11	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-39ee3c	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-046722	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-05106e	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b4b0a8	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-9f85d0	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a7b3d9	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c1bac5	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-f31f42	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-eebbd1	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b6ebe7	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-895a69	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2aaee5	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-ba90ac	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-cbfbdc	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-180ee1	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-e32e9d	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-aa97b4	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-9d322b	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-20e0c1	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-193f57	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b3093b	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-5b1c6b	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-174d75	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6a60b7	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-eae1b9	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-06a675	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-fe77cd	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-199261	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-91af33	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2df93b	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-544545	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-1db8fc	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6bcf45	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b62ca1	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a7a363	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-bf5dd7	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6dce54	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-88a6cc	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b8a3c2	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-edc5c1	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a91041	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-734d8b	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-ec52b7	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-710e90	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-421b14	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a33037	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d652d6	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-2dff44	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-e69a1f	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-73163e	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-44b680	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-7d5b52	Product	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-be448b	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-be14c9	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-7ecfe6	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c97198	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-85068b	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-7ad244	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-94b5bf	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-70445f	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-cee63e	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b307f9	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8dacce	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-1cee4e	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-1ce6f5	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b7ffae	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-5b3a74	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6e9c89	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c0d5d6	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-899dca	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d8fce4	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-c22cc8	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-906730	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-9c6dad	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-e0cc1a	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-9183b6	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-3278de	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-89371b	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d73417	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-3feead	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-bd90d5	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-179f62	Raw Material	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a16101	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-70ae78	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-23fc23	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6ccf86	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-87b06a	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-d2ba5e	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-95af8e	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-107477	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-8fb724	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-6a6a41	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-a9cca1	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-af5d7d	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-46645b	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-537e9e	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-1e2712	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-902463	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-b7a1f7	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-f6d72c	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-edc1a9	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
+ADMIN-ITEM-2025-45f6e2	Asset	\N	\N	\N	\N	\N	Batches	Active	\N	pcs	\N	\N	pcs	1	1
 \.
 
 
@@ -6890,64 +7046,64 @@ ADMIN-POLICY-2025-5b686e	Travel and Reimbursement Policy	Defines rules for emplo
 -- Data for Name: products; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.products (product_id, product_name, description, selling_price, stock_level, warranty_period, policy_id) FROM stdin;
-ADMIN-PROD-2025-2e0ab6	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N
-ADMIN-PROD-2025-5598cf	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N
-ADMIN-PROD-2025-8698b7	B2 Infant Incubator	Controlled environment for newborn care for optimal temperature and humidity.	1114666.00	540	12	\N
-ADMIN-PROD-2025-941c5b	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N
-ADMIN-PROD-2025-a17047	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N
-ADMIN-PROD-2025-c5c83a	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N
-ADMIN-PROD-2025-115147	BeneFusion e Series	Advanced infusion systems with smart features for enhanced safety.	128700.00	331	12	\N
-ADMIN-PROD-2025-83adb5	BeneFusion n Series	Portable infusion pumps for ambulatory patient care.	128700.00	554	12	\N
-ADMIN-PROD-2025-a68481	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N
-ADMIN-PROD-2025-b022f3	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N
-ADMIN-PROD-2025-6db12d	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N
-ADMIN-PROD-2025-5833b2	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N
-ADMIN-PROD-2025-0e6337	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N
-ADMIN-PROD-2025-158fce	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N
-ADMIN-PROD-2025-88a5b3	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N
-ADMIN-PROD-2025-9e365c	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N
-ADMIN-PROD-2025-290b77	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N
-ADMIN-PROD-2025-467bbd	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N
-ADMIN-PROD-2025-561cd9	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N
-ADMIN-PROD-2025-93544e	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N
-ADMIN-PROD-2025-f2a2ec	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N
-ADMIN-PROD-2025-d25da2	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N
-ADMIN-PROD-2025-086546	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N
-ADMIN-PROD-2025-d973c5	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N
-ADMIN-PROD-2025-d1edf6	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N
-ADMIN-PROD-2025-66eb2d	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N
-ADMIN-PROD-2025-91b19e	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N
-ADMIN-PROD-2025-f3d852	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N
-ADMIN-PROD-2025-64c17b	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N
-ADMIN-PROD-2025-b39c24	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N
-ADMIN-PROD-2025-4c8e03	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N
-ADMIN-PROD-2025-c54996	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N
-ADMIN-PROD-2025-cb9367	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N
-ADMIN-PROD-2025-546582	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N
-ADMIN-PROD-2025-c44825	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N
-ADMIN-PROD-2025-6d2f1c	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N
-ADMIN-PROD-2025-744457	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N
-ADMIN-PROD-2025-ef5c11	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N
-ADMIN-PROD-2025-65010f	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N
-ADMIN-PROD-2025-f4dfb1	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N
-ADMIN-PROD-2025-99a57e	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N
-ADMIN-PROD-2025-4d4b5e	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N
-ADMIN-PROD-2025-1c041d	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N
-ADMIN-PROD-2025-2db293	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N
-ADMIN-PROD-2025-e52b86	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N
-ADMIN-PROD-2025-51838d	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N
-ADMIN-PROD-2025-f25387	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N
-ADMIN-PROD-2025-c7328b	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N
-ADMIN-PROD-2025-f71dbd	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N
-ADMIN-PROD-2025-7c7fca	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N
-ADMIN-PROD-2025-895493	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N
-ADMIN-PROD-2025-aa61c5	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N
-ADMIN-PROD-2025-2a83ff	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N
-ADMIN-PROD-2025-736c7e	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N
-ADMIN-PROD-2025-3b3229	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N
-ADMIN-PROD-2025-c3b87b	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N
-ADMIN-PROD-2025-09e33a	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N
+COPY admin.products (product_id, product_name, description, selling_price, stock_level, warranty_period, policy_id, batch_no, item_status, content_id, unit_of_measure) FROM stdin;
+ADMIN-PROD-2025-2e0ab6	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-5598cf	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-8698b7	B2 Infant Incubator	Controlled environment for newborn care for optimal temperature and humidity.	1114666.00	540	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-941c5b	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-a17047	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-c5c83a	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-115147	BeneFusion e Series	Advanced infusion systems with smart features for enhanced safety.	128700.00	331	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-83adb5	BeneFusion n Series	Portable infusion pumps for ambulatory patient care.	128700.00	554	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-a68481	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-b022f3	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-6db12d	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-5833b2	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-0e6337	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-158fce	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-88a5b3	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-9e365c	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-290b77	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-467bbd	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-561cd9	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-93544e	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-f2a2ec	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-d25da2	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-086546	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-d973c5	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-d1edf6	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-66eb2d	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-91b19e	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-f3d852	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-64c17b	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-b39c24	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-4c8e03	A9	Used for critical patient or longer surgery, close-loop anesthesia.	47726.64	631	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-c54996	AirStart10	CPAP therapy device for sleep apnea treatment.	10951.20	443	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-cb9367	B3 Neonatal Incubator	Advanced life support system for premature infants, regulating vital parameters.	218400.00	599	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-546582	B8/B6 Neonatal Incubator	Intensive care unit for critically ill newborns, providing advanced monitoring and treatment capabilities.	249756.00	693	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-c44825	BeneFusion 5 Series	Infusion pumps for precise medication and fluid delivery.	135266.04	496	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-6d2f1c	BeneHeart AED C2 and D1 PRO	Automated external defibrillators for emergency cardiac resuscitation.	259543.44	407	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-744457	BeneHeart D3	Professional defibrillator monitor for cardiac resuscitation and patient monitoring.	218673.00	585	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-ef5c11	BeneHeart D6	Portable defibrillator monitor with advanced monitoring capabilities.	3954.60	400	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-65010f	BeneHeart R12	Electrocardiograph (ECG) device for cardiac diagnostic testing.	3954.60	636	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-f4dfb1	BeneHeart R3	Compact electrocardiograph for routine ECG measurements.	3954.60	366	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-99a57e	BeneVision CMS	Central monitoring system for patient data management.	3954.60	492	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-4d4b5e	BeneVision N Series	Patient monitors providing comprehensive physiological measurements.	3954.60	421	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-1c041d	BeneVision N1	Portable patient monitor for continuous vital signs monitoring.	3954.60	613	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-2db293	BL70 Infant Phototherapy Equipment	Light therapy device for treating neonatal jaundice.	6076.20	557	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-e52b86	BQ80 Infant Radiant Warmer	Radiant heat source for maintaining newborn body temperature.	10756.20	508	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-51838d	EMMA Capnograph	Device for measuring carbon dioxide levels in exhaled breath.	3900.00	511	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-f25387	ePM Series	Patient monitors for vital signs measurement and display.	2457.00	597	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-c7328b	HyBase 3000	Operating table for surgical procedures.	32104.80	372	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-f71dbd	HyBase 6100/6100 PLUS	Advanced operating tables with specialized features.	33290.40	424	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-7c7fca	HyBase V8/V8 Classic	Versatile operating tables for various surgical specialties.	33290.40	642	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-895493	HyBase V9	High-end operating table with advanced positioning capabilities.	33290.40	439	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-aa61c5	HyLED 200 M	Surgical light for operating room illumination.	834.60	380	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-2a83ff	HyLED 600	High-performance surgical light with adjustable settings.	834.60	606	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-736c7e	HyLED 600M	Mobile surgical light for flexible use.	780.00	619	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-3b3229	HyLED 7 Series	Advanced surgical lights with optimal illumination and control.	1872.00	453	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-c3b87b	HyLED 760	High-quality surgical light with excellent light output.	1872.00	580	12	\N	\N	Active	\N	\N
+ADMIN-PROD-2025-09e33a	HyLED 760M	Mobile version of HyLED 760 surgical light.	5616.00	384	12	\N	\N	Active	\N	\N
 \.
 
 
@@ -6955,67 +7111,67 @@ ADMIN-PROD-2025-09e33a	HyLED 760M	Mobile version of HyLED 760 surgical light.	56
 -- Data for Name: raw_materials; Type: TABLE DATA; Schema: admin; Owner: postgres
 --
 
-COPY admin.raw_materials (material_id, material_name, description, unit_of_measure, cost_per_unit) FROM stdin;
-ADMIN-MATERIAL-2025-42d3ce	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00
-ADMIN-MATERIAL-2025-4ec17c	Casing	Outer shell, made of plastic or metal.	pcs	1900.00
-ADMIN-MATERIAL-2025-3fbf2d	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00
-ADMIN-MATERIAL-2025-9ea588	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00
-ADMIN-MATERIAL-2025-caf305	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00
-ADMIN-MATERIAL-2025-c65277	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00
-ADMIN-MATERIAL-2025-749a41	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00
-ADMIN-MATERIAL-2025-79fccc	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00
-ADMIN-MATERIAL-2025-140cdf	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00
-ADMIN-MATERIAL-2025-aaf0b2	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00
-ADMIN-MATERIAL-2025-003207	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00
-ADMIN-MATERIAL-2025-3e97e0	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00
-ADMIN-MATERIAL-2025-d061f5	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00
-ADMIN-MATERIAL-2025-fe445e	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00
-ADMIN-MATERIAL-2025-241836	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00
-ADMIN-MATERIAL-2025-92651e	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00
-ADMIN-MATERIAL-2025-64c0a2	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00
-ADMIN-MATERIAL-2025-d4d9a2	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00
-ADMIN-MATERIAL-2025-52689f	Aluminum	A metal used in frames and casings.	kg	250.00
-ADMIN-MATERIAL-2025-d34817	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00
-ADMIN-MATERIAL-2025-419b12	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00
-ADMIN-MATERIAL-2025-2d68fa	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00
-ADMIN-MATERIAL-2025-f620eb	Battery	Power source that stores and releases electrical energy.	pcs	18900.00
-ADMIN-MATERIAL-2025-93783b	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00
-ADMIN-MATERIAL-2025-6db3c2	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00
-ADMIN-MATERIAL-2025-66cde5	Buttons	Switches that initiate controls in devices.	pcs	400.00
-ADMIN-MATERIAL-2025-af9d5b	Cables	Transmit electrical signals or power between components.	mm	1000.00
-ADMIN-MATERIAL-2025-7cb3ba	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00
-ADMIN-MATERIAL-2025-e7923d	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00
-ADMIN-MATERIAL-2025-b31b9d	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00
-ADMIN-MATERIAL-2025-995792	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00
-ADMIN-MATERIAL-2025-b8df48	Casing	Outer shell, made of plastic or metal.	pcs	1900.00
-ADMIN-MATERIAL-2025-9ece0e	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00
-ADMIN-MATERIAL-2025-be1425	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00
-ADMIN-MATERIAL-2025-ea8630	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00
-ADMIN-MATERIAL-2025-d010a2	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00
-ADMIN-MATERIAL-2025-b0ace2	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00
-ADMIN-MATERIAL-2025-e44116	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00
-ADMIN-MATERIAL-2025-17ea49	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00
-ADMIN-MATERIAL-2025-912b18	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00
-ADMIN-MATERIAL-2025-cd44b9	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00
-ADMIN-MATERIAL-2025-17328b	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00
-ADMIN-MATERIAL-2025-e1f592	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00
-ADMIN-MATERIAL-2025-3a5e08	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00
-ADMIN-MATERIAL-2025-82ad34	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00
-ADMIN-MATERIAL-2025-ab23df	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00
-ADMIN-MATERIAL-2025-f2b2ee	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00
-ADMIN-MATERIAL-2025-06c22b	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00
-ADMIN-MATERIAL-2025-7935b9	Aluminum	A metal used in frames and casings.	kg	250.00
-ADMIN-MATERIAL-2025-d8f145	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00
-ADMIN-MATERIAL-2025-c148a1	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00
-ADMIN-MATERIAL-2025-755305	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00
-ADMIN-MATERIAL-2025-955f9d	Battery	Power source that stores and releases electrical energy.	pcs	18900.00
-ADMIN-MATERIAL-2025-bcfc25	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00
-ADMIN-MATERIAL-2025-9efcf0	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00
-ADMIN-MATERIAL-2025-88775a	Buttons	Switches that initiate controls in devices.	pcs	400.00
-ADMIN-MATERIAL-2025-db168d	Cables	Transmit electrical signals or power between components.	mm	1000.00
-ADMIN-MATERIAL-2025-0f9ed7	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00
-ADMIN-MATERIAL-2025-290c96	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00
-ADMIN-MATERIAL-2025-b53060	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00
+COPY admin.raw_materials (material_id, material_name, description, unit_of_measure, cost_per_unit, vendor_code) FROM stdin;
+ADMIN-MATERIAL-2025-42d3ce	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00	\N
+ADMIN-MATERIAL-2025-4ec17c	Casing	Outer shell, made of plastic or metal.	pcs	1900.00	\N
+ADMIN-MATERIAL-2025-3fbf2d	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00	\N
+ADMIN-MATERIAL-2025-9ea588	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00	\N
+ADMIN-MATERIAL-2025-caf305	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00	\N
+ADMIN-MATERIAL-2025-c65277	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00	\N
+ADMIN-MATERIAL-2025-749a41	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00	\N
+ADMIN-MATERIAL-2025-79fccc	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00	\N
+ADMIN-MATERIAL-2025-140cdf	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00	\N
+ADMIN-MATERIAL-2025-aaf0b2	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00	\N
+ADMIN-MATERIAL-2025-003207	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00	\N
+ADMIN-MATERIAL-2025-3e97e0	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00	\N
+ADMIN-MATERIAL-2025-d061f5	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00	\N
+ADMIN-MATERIAL-2025-fe445e	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00	\N
+ADMIN-MATERIAL-2025-241836	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00	\N
+ADMIN-MATERIAL-2025-92651e	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00	\N
+ADMIN-MATERIAL-2025-64c0a2	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00	\N
+ADMIN-MATERIAL-2025-d4d9a2	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00	\N
+ADMIN-MATERIAL-2025-52689f	Aluminum	A metal used in frames and casings.	kg	250.00	\N
+ADMIN-MATERIAL-2025-d34817	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00	\N
+ADMIN-MATERIAL-2025-419b12	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00	\N
+ADMIN-MATERIAL-2025-2d68fa	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00	\N
+ADMIN-MATERIAL-2025-f620eb	Battery	Power source that stores and releases electrical energy.	pcs	18900.00	\N
+ADMIN-MATERIAL-2025-93783b	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00	\N
+ADMIN-MATERIAL-2025-6db3c2	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00	\N
+ADMIN-MATERIAL-2025-66cde5	Buttons	Switches that initiate controls in devices.	pcs	400.00	\N
+ADMIN-MATERIAL-2025-af9d5b	Cables	Transmit electrical signals or power between components.	mm	1000.00	\N
+ADMIN-MATERIAL-2025-7cb3ba	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00	\N
+ADMIN-MATERIAL-2025-e7923d	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00	\N
+ADMIN-MATERIAL-2025-b31b9d	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00	\N
+ADMIN-MATERIAL-2025-995792	AI Driven Electronics Component	A durable, shatter-resistant plastic for medical enclosures.	set	3600.00	\N
+ADMIN-MATERIAL-2025-b8df48	Casing	Outer shell, made of plastic or metal.	pcs	1900.00	\N
+ADMIN-MATERIAL-2025-9ece0e	Chambers	A scintillation material used in X-ray detectors for imaging.	unit	5198.00	\N
+ADMIN-MATERIAL-2025-be1425	Clamps	Enclosed spaces within medical devices that regulate gas or fluid flow.	pcs	70.00	\N
+ADMIN-MATERIAL-2025-ea8630	Coatings	Fasteners that secure tubing, wires, or components in place.	pcs	1055.00	\N
+ADMIN-MATERIAL-2025-d010a2	Heating and Drying System	A highly conductive metal used in electronic circuits and medical sensors.	unit	8500.00	\N
+ADMIN-MATERIAL-2025-b0ace2	Polycarbonate	Durable plastic used in eyewear and medical devices.	kg	549.00	\N
+ADMIN-MATERIAL-2025-e44116	Polyethylene	A flexible plastic used in medical tubing and packaging.	kg	55.00	\N
+ADMIN-MATERIAL-2025-17ea49	Power System	Components for generating, storing, and distributing electrical power.	unit	1480.00	\N
+ADMIN-MATERIAL-2025-912b18	Pump	A device that moves fluids or gases in medical applications.	pcs	16600.00	\N
+ADMIN-MATERIAL-2025-cd44b9	Purification Media	Materials that filter and remove impurities in medical applications.	kg	140.00	\N
+ADMIN-MATERIAL-2025-17328b	Sensors	Detect physical properties and convert them into signals.	pcs	4500.00	\N
+ADMIN-MATERIAL-2025-e1f592	Structural Frame & Casing	The main framework and enclosure of medical equipment.	set	2500.00	\N
+ADMIN-MATERIAL-2025-3a5e08	Suction	A process that removes fluids or gases using negative pressure.	pcs	399.00	\N
+ADMIN-MATERIAL-2025-82ad34	Ultrasound Transducer	A sensor that converts electricity into ultrasound for diagnostics.	unit	27800.00	\N
+ADMIN-MATERIAL-2025-ab23df	Acrylic	A clear, durable plastic used in optics, and displays.	kg	200.00	\N
+ADMIN-MATERIAL-2025-f2b2ee	Acrylonitrile Butadiene Styrene (ABS)	Tough plastic used in consumer products, electronics, and medical devices.	pcs	90.00	\N
+ADMIN-MATERIAL-2025-06c22b	Airflow Components	Measure air movement, used in HVAC and respiratory devices.	set	1250.00	\N
+ADMIN-MATERIAL-2025-7935b9	Aluminum	A metal used in frames and casings.	kg	250.00	\N
+ADMIN-MATERIAL-2025-d8f145	Aluminum Alloys	Aluminum mixed with other metals for improved strength and resistance.	set	2500.00	\N
+ADMIN-MATERIAL-2025-c148a1	Anesthetic Delivery System	System for safely delivering anesthetics to patients.	set	450000.00	\N
+ADMIN-MATERIAL-2025-755305	Bacterial Filters	Traps and removes bacteria from air.	pcs	500.00	\N
+ADMIN-MATERIAL-2025-955f9d	Battery	Power source that stores and releases electrical energy.	pcs	18900.00	\N
+ADMIN-MATERIAL-2025-bcfc25	Borosilicate Glass	A power source of medical device, rechargeable or disposable.	kg	60.00	\N
+ADMIN-MATERIAL-2025-9efcf0	Buffering Agent	Substance that stabilizes pH, used in biological and chemical applications.	kg	1000.00	\N
+ADMIN-MATERIAL-2025-88775a	Buttons	Switches that initiate controls in devices.	pcs	400.00	\N
+ADMIN-MATERIAL-2025-db168d	Cables	Transmit electrical signals or power between components.	mm	1000.00	\N
+ADMIN-MATERIAL-2025-0f9ed7	Canister Body	Electrical wiring used to connect and transmit signals between components.	pcs	703.00	\N
+ADMIN-MATERIAL-2025-290c96	Capacitors	Store and release electrical energy to filter signals.	pcs	95.00	\N
+ADMIN-MATERIAL-2025-b53060	Capnography Sensor	A sensor used to monitor CO₂ levels in respiratory systems.	kg	100.00	\N
 \.
 
 
@@ -8085,27 +8241,7 @@ INV-WM-2025-dc4241	\N	Adjustment	10	2023-10-16 09:00:00	\N	\N	\N	\N
 -- Data for Name: management_approvals; Type: TABLE DATA; Schema: management; Owner: postgres
 --
 
-COPY management.management_approvals (approval_id, request_id, checked_id, decision_date, issue_date, checked_by, checked_date, status, due_date, remarks) FROM stdin;
-MNG-APP-2025-8206fc	REQ-2025-123456	CHK-2025-111111	2025-03-15	2025-03-10	Juan Dela Cruz	2025-03-12	approved	2025-03-20	Approved after review.
-MNG-APP-2025-170da1	REQ-2025-223456	CHK-2025-222222	2025-03-16	2025-03-11	Maria Santos	2025-03-13	pending	2025-03-25	Pending further verification.
-MNG-APP-2025-0053ab	REQ-2025-323456	CHK-2025-333333	2025-03-17	2025-03-12	John Stephen	2025-03-14	rejected	2025-03-18	Rejected due to incomplete documents.
-MNG-APP-2025-e55747	REQ-2025-423456	CHK-2025-444444	2025-03-18	2025-03-14	Jolina Estiamba	2025-03-15	approved	2025-03-22	Approved after additional checks.
-MNG-APP-2025-19edca	REQ-2025-523456	CHK-2025-555555	2025-03-19	2025-03-15	Athena Moises	2025-03-16	approved	2025-03-21	Approved without issues.
-MNG-APP-2025-6fddbf	REQ-2025-623456	CHK-2025-666666	2025-03-20	2025-03-16	Gabriela Silang	2025-03-17	pending	2025-03-23	Pending further information.
-MNG-APP-2025-5edfb4	REQ-2025-723456	CHK-2025-777777	2025-03-21	2025-03-17	Diego Silang	2025-03-18	rejected	2025-03-24	Rejected due to non-compliance.
-MNG-APP-2025-460054	REQ-2025-823456	CHK-2025-888888	2025-03-22	2025-03-18	Jeffrey Bugarin	2025-03-19	approved	2025-03-26	Approved after successful review.
-MNG-APP-2025-d42cfe	REQ-2025-923456	CHK-2025-999999	2025-03-23	2025-03-19	Shawn Moises	2025-03-20	pending	2025-03-27	Pending confirmation from department.
-MNG-APP-2025-16cabb	REQ-2025-023456	CHK-2025-000000	2025-03-24	2025-03-20	Omega Bugarin	2025-03-21	approved	2025-03-28	Approved after final inspection.
-MNG-APP-2025-0488d9	REQ-2025-123456	CHK-2025-111111	2025-03-15	2025-03-10	Juan Dela Cruz	2025-03-12	approved	2025-03-20	Approved after review.
-MNG-APP-2025-0cf996	REQ-2025-223456	CHK-2025-222222	2025-03-16	2025-03-11	Maria Santos	2025-03-13	pending	2025-03-25	Pending further verification.
-MNG-APP-2025-3316c9	REQ-2025-323456	CHK-2025-333333	2025-03-17	2025-03-12	John Stephen	2025-03-14	rejected	2025-03-18	Rejected due to incomplete documents.
-MNG-APP-2025-f67dcc	REQ-2025-423456	CHK-2025-444444	2025-03-18	2025-03-14	Jolina Estiamba	2025-03-15	approved	2025-03-22	Approved after additional checks.
-MNG-APP-2025-fa2f24	REQ-2025-523456	CHK-2025-555555	2025-03-19	2025-03-15	Athena Moises	2025-03-16	approved	2025-03-21	Approved without issues.
-MNG-APP-2025-28abb7	REQ-2025-623456	CHK-2025-666666	2025-03-20	2025-03-16	Gabriela Silang	2025-03-17	pending	2025-03-23	Pending further information.
-MNG-APP-2025-ab430e	REQ-2025-723456	CHK-2025-777777	2025-03-21	2025-03-17	Diego Silang	2025-03-18	rejected	2025-03-24	Rejected due to non-compliance.
-MNG-APP-2025-e99886	REQ-2025-823456	CHK-2025-888888	2025-03-22	2025-03-18	Jeffrey Bugarin	2025-03-19	approved	2025-03-26	Approved after successful review.
-MNG-APP-2025-c80cc8	REQ-2025-923456	CHK-2025-999999	2025-03-23	2025-03-19	Shawn Moises	2025-03-20	pending	2025-03-27	Pending confirmation from department.
-MNG-APP-2025-bf6da0	REQ-2025-023456	CHK-2025-000000	2025-03-24	2025-03-20	Omega Bugarin	2025-03-21	approved	2025-03-28	Approved after final inspection.
+COPY management.management_approvals (approval_id, request_id, external_id, decision_date, issue_date, checked_by, checked_date, status, due_date, remarks) FROM stdin;
 \.
 
 
@@ -8113,57 +8249,57 @@ MNG-APP-2025-bf6da0	REQ-2025-023456	CHK-2025-000000	2025-03-24	2025-03-20	Omega 
 -- Data for Name: bill_of_materials; Type: TABLE DATA; Schema: mrp; Owner: postgres
 --
 
-COPY mrp.bill_of_materials (bom_id, product_id, material_id, product_description, unit_of_measure, specific_notes, quantity_of_unit, cost_per_raw_material, total_cost_of_raw_materials) FROM stdin;
-MRP-BOM-2025-995ec6	\N	\N	steel frame	kg	high strength	10	50.00	500.00
-MRP-BOM-2025-9ed27e	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00
-MRP-BOM-2025-d7842b	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00
-MRP-BOM-2025-b64b19	\N	\N	copper wire	m	high conductivity	12	30.00	360.00
-MRP-BOM-2025-0e9514	\N	\N	rubber gasket	unit	durable	20	5.00	100.00
-MRP-BOM-2025-27120b	\N	\N	glass panel	sqm	tempered	3	200.00	600.00
-MRP-BOM-2025-9251dd	\N	\N	wooden plank	m	hardwood	15	40.00	600.00
-MRP-BOM-2025-79784e	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00
-MRP-BOM-2025-f8cc59	\N	\N	pvc pipe	m	flexible	30	10.00	300.00
-MRP-BOM-2025-66231b	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00
-MRP-BOM-2025-65697d	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00
-MRP-BOM-2025-55db9a	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00
-MRP-BOM-2025-f046ef	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00
-MRP-BOM-2025-7fc4db	\N	\N	carbon rods	m	durable	22	60.00	1320.00
-MRP-BOM-2025-1078d3	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00
-MRP-BOM-2025-d08790	\N	\N	wood laminate	sqm	polished	6	150.00	900.00
-MRP-BOM-2025-a07eb1	\N	\N	brass fittings	unit	precision made	50	10.00	500.00
-MRP-BOM-2025-51a6f8	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00
-MRP-BOM-2025-278038	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00
-MRP-BOM-2025-d94c7c	\N	\N	synthetic leather	m	durable	10	25.00	250.00
-MRP-BOM-2025-df26aa	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00
-MRP-BOM-2025-2e5ed8	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00
-MRP-BOM-2025-82e841	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00
-MRP-BOM-2025-1fd40a	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00
-MRP-BOM-2025-1defa9	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00
-MRP-BOM-2025-59393f	\N	\N	steel frame	kg	high strength	10	50.00	500.00
-MRP-BOM-2025-0ad2f3	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00
-MRP-BOM-2025-401e4d	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00
-MRP-BOM-2025-50dbda	\N	\N	copper wire	m	high conductivity	12	30.00	360.00
-MRP-BOM-2025-eab8b2	\N	\N	rubber gasket	unit	durable	20	5.00	100.00
-MRP-BOM-2025-0d20eb	\N	\N	glass panel	sqm	tempered	3	200.00	600.00
-MRP-BOM-2025-d978cb	\N	\N	wooden plank	m	hardwood	15	40.00	600.00
-MRP-BOM-2025-a5bddd	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00
-MRP-BOM-2025-672aad	\N	\N	pvc pipe	m	flexible	30	10.00	300.00
-MRP-BOM-2025-0e23e7	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00
-MRP-BOM-2025-130ea3	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00
-MRP-BOM-2025-5e8baa	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00
-MRP-BOM-2025-9403ae	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00
-MRP-BOM-2025-6d90aa	\N	\N	carbon rods	m	durable	22	60.00	1320.00
-MRP-BOM-2025-fa1cce	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00
-MRP-BOM-2025-813d2f	\N	\N	wood laminate	sqm	polished	6	150.00	900.00
-MRP-BOM-2025-b18a19	\N	\N	brass fittings	unit	precision made	50	10.00	500.00
-MRP-BOM-2025-aa69df	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00
-MRP-BOM-2025-90e7c7	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00
-MRP-BOM-2025-edb068	\N	\N	synthetic leather	m	durable	10	25.00	250.00
-MRP-BOM-2025-0ef296	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00
-MRP-BOM-2025-7b0c81	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00
-MRP-BOM-2025-e96736	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00
-MRP-BOM-2025-cff1fa	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00
-MRP-BOM-2025-43a641	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00
+COPY mrp.bill_of_materials (bom_id, product_id, material_id, product_description, unit_of_measure, specific_notes, quantity_of_unit, cost_per_raw_material, total_cost_of_raw_materials, production_order_detail_id) FROM stdin;
+MRP-BOM-2025-995ec6	\N	\N	steel frame	kg	high strength	10	50.00	500.00	\N
+MRP-BOM-2025-9ed27e	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00	\N
+MRP-BOM-2025-d7842b	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00	\N
+MRP-BOM-2025-b64b19	\N	\N	copper wire	m	high conductivity	12	30.00	360.00	\N
+MRP-BOM-2025-0e9514	\N	\N	rubber gasket	unit	durable	20	5.00	100.00	\N
+MRP-BOM-2025-27120b	\N	\N	glass panel	sqm	tempered	3	200.00	600.00	\N
+MRP-BOM-2025-9251dd	\N	\N	wooden plank	m	hardwood	15	40.00	600.00	\N
+MRP-BOM-2025-79784e	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00	\N
+MRP-BOM-2025-f8cc59	\N	\N	pvc pipe	m	flexible	30	10.00	300.00	\N
+MRP-BOM-2025-66231b	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00	\N
+MRP-BOM-2025-65697d	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00	\N
+MRP-BOM-2025-55db9a	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00	\N
+MRP-BOM-2025-f046ef	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00	\N
+MRP-BOM-2025-7fc4db	\N	\N	carbon rods	m	durable	22	60.00	1320.00	\N
+MRP-BOM-2025-1078d3	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00	\N
+MRP-BOM-2025-d08790	\N	\N	wood laminate	sqm	polished	6	150.00	900.00	\N
+MRP-BOM-2025-a07eb1	\N	\N	brass fittings	unit	precision made	50	10.00	500.00	\N
+MRP-BOM-2025-51a6f8	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00	\N
+MRP-BOM-2025-278038	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00	\N
+MRP-BOM-2025-d94c7c	\N	\N	synthetic leather	m	durable	10	25.00	250.00	\N
+MRP-BOM-2025-df26aa	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00	\N
+MRP-BOM-2025-2e5ed8	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00	\N
+MRP-BOM-2025-82e841	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00	\N
+MRP-BOM-2025-1fd40a	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00	\N
+MRP-BOM-2025-1defa9	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00	\N
+MRP-BOM-2025-59393f	\N	\N	steel frame	kg	high strength	10	50.00	500.00	\N
+MRP-BOM-2025-0ad2f3	\N	\N	plastic cover	kg	lightweight	5	90.00	450.00	\N
+MRP-BOM-2025-401e4d	\N	\N	aluminum rod	kg	corrosion resistant	8	87.50	700.00	\N
+MRP-BOM-2025-50dbda	\N	\N	copper wire	m	high conductivity	12	30.00	360.00	\N
+MRP-BOM-2025-eab8b2	\N	\N	rubber gasket	unit	durable	20	5.00	100.00	\N
+MRP-BOM-2025-0d20eb	\N	\N	glass panel	sqm	tempered	3	200.00	600.00	\N
+MRP-BOM-2025-d978cb	\N	\N	wooden plank	m	hardwood	15	40.00	600.00	\N
+MRP-BOM-2025-a5bddd	\N	\N	ceramic tile	sqm	glazed	10	25.00	250.00	\N
+MRP-BOM-2025-672aad	\N	\N	pvc pipe	m	flexible	30	10.00	300.00	\N
+MRP-BOM-2025-0e23e7	\N	\N	carbon fiber sheet	sqm	lightweight	2	500.00	1000.00	\N
+MRP-BOM-2025-130ea3	\N	\N	steel bolts	kg	stainless steel	15	35.00	525.00	\N
+MRP-BOM-2025-5e8baa	\N	\N	plastic resin	kg	high quality	25	45.00	1125.00	\N
+MRP-BOM-2025-9403ae	\N	\N	copper tubing	m	heat resistant	18	70.00	1260.00	\N
+MRP-BOM-2025-6d90aa	\N	\N	carbon rods	m	durable	22	60.00	1320.00	\N
+MRP-BOM-2025-fa1cce	\N	\N	glass fiber	sqm	lightweight	4	400.00	1600.00	\N
+MRP-BOM-2025-813d2f	\N	\N	wood laminate	sqm	polished	6	150.00	900.00	\N
+MRP-BOM-2025-b18a19	\N	\N	brass fittings	unit	precision made	50	10.00	500.00	\N
+MRP-BOM-2025-aa69df	\N	\N	foam insulation	kg	fire retardant	12	75.00	900.00	\N
+MRP-BOM-2025-90e7c7	\N	\N	aluminum sheet	sqm	corrosion proof	5	300.00	1500.00	\N
+MRP-BOM-2025-edb068	\N	\N	synthetic leather	m	durable	10	25.00	250.00	\N
+MRP-BOM-2025-0ef296	\N	\N	adhesive glue	liters	waterproof	5	80.00	400.00	\N
+MRP-BOM-2025-7b0c81	\N	\N	epoxy resin	kg	fast curing	8	120.00	960.00	\N
+MRP-BOM-2025-e96736	\N	\N	copper coil	m	high conductivity	20	55.00	1100.00	\N
+MRP-BOM-2025-cff1fa	\N	\N	rubber sheet	sqm	high density	7	60.00	420.00	\N
+MRP-BOM-2025-43a641	\N	\N	carbon fiber rods	m	lightweight	3	700.00	2100.00	\N
 \.
 
 
@@ -8527,47 +8663,47 @@ OPS-SET-2025-b1107d	OPS-DOH-2025-aa0f27	SN020
 -- Data for Name: equipment; Type: TABLE DATA; Schema: production; Owner: postgres
 --
 
-COPY production.equipment (equipment_id, equipment_name, description, availability_status, last_maintenance_date) FROM stdin;
-PROD-EQP-2025-c6aeaa	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23
-PROD-EQP-2025-19b866	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23
-PROD-EQP-2025-1131b1	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23
-PROD-EQP-2025-9b6dcb	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23
-PROD-EQP-2025-60339b	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23
-PROD-EQP-2025-8e9e71	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23
-PROD-EQP-2025-d01889	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23
-PROD-EQP-2025-eacd35	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05
-PROD-EQP-2025-92c613	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23
-PROD-EQP-2025-707c45	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23
-PROD-EQP-2025-66c9b8	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23
-PROD-EQP-2025-eae719	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23
-PROD-EQP-2025-22f08e	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23
-PROD-EQP-2025-652950	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23
-PROD-EQP-2025-34def6	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23
-PROD-EQP-2025-80bd5f	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23
-PROD-EQP-2025-5b08ab	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23
-PROD-EQP-2025-ec2c63	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23
-PROD-EQP-2025-987ea3	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23
-PROD-EQP-2025-d529cb	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23
-PROD-EQP-2025-854961	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23
-PROD-EQP-2025-235d6a	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23
-PROD-EQP-2025-470b47	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23
-PROD-EQP-2025-ac9d90	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23
-PROD-EQP-2025-b88b15	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23
-PROD-EQP-2025-8e8bf8	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23
-PROD-EQP-2025-484d01	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23
-PROD-EQP-2025-150f34	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05
-PROD-EQP-2025-56762b	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23
-PROD-EQP-2025-d4dd00	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23
-PROD-EQP-2025-74a017	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23
-PROD-EQP-2025-248637	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23
-PROD-EQP-2025-bf3c37	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23
-PROD-EQP-2025-cb1332	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23
-PROD-EQP-2025-e60ea2	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23
-PROD-EQP-2025-f0aecb	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23
-PROD-EQP-2025-2ab79d	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23
-PROD-EQP-2025-554a3e	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23
-PROD-EQP-2025-130f53	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23
-PROD-EQP-2025-5dbf97	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23
+COPY production.equipment (equipment_id, equipment_name, description, availability_status, last_maintenance_date, equipment_cost) FROM stdin;
+PROD-EQP-2025-c6aeaa	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23	\N
+PROD-EQP-2025-19b866	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23	\N
+PROD-EQP-2025-1131b1	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23	\N
+PROD-EQP-2025-9b6dcb	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23	\N
+PROD-EQP-2025-60339b	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23	\N
+PROD-EQP-2025-8e9e71	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23	\N
+PROD-EQP-2025-d01889	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23	\N
+PROD-EQP-2025-eacd35	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05	\N
+PROD-EQP-2025-92c613	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23	\N
+PROD-EQP-2025-707c45	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23	\N
+PROD-EQP-2025-66c9b8	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23	\N
+PROD-EQP-2025-eae719	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23	\N
+PROD-EQP-2025-22f08e	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23	\N
+PROD-EQP-2025-652950	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23	\N
+PROD-EQP-2025-34def6	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23	\N
+PROD-EQP-2025-80bd5f	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23	\N
+PROD-EQP-2025-5b08ab	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23	\N
+PROD-EQP-2025-ec2c63	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23	\N
+PROD-EQP-2025-987ea3	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23	\N
+PROD-EQP-2025-d529cb	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23	\N
+PROD-EQP-2025-854961	CNC Milling Machine (5-axis)	High-precision 5 axis CNC milling machine for complex metal parts with intricate geometries	Available	2025-03-23	\N
+PROD-EQP-2025-235d6a	Laser Cutting & Engraving Machine	CO2 laser cutter and engraver for precise cutting and marking of various materials, including metals, plastics, and wood	Under Maintenance	2025-03-23	\N
+PROD-EQP-2025-470b47	Industrial 3D Printer (SLA)	Stereolithography (SLA) 3D printer for high-resolution prototypes and custom parts with fine details and smooth surfaces	Available	2025-03-23	\N
+PROD-EQP-2025-ac9d90	Welding Station	Multi-process welding station with MIG, TIG, and stick welding capabilities	Available	2025-03-23	\N
+PROD-EQP-2025-b88b15	Paint Booth	Enclosed paint booth with ventilation system for applying custom finishes	Available	2025-03-23	\N
+PROD-EQP-2025-8e8bf8	Industrial Sewing Machine	Heavy-duty sewing machine for various fabrics and materials	Available	2025-03-23	\N
+PROD-EQP-2025-484d01	Pick and Place Machine	Automated pick and place machine for precise placement of electronic components on printed circuit boards (PCBs)	Available	2025-03-23	\N
+PROD-EQP-2025-150f34	Reflow Oven	Reflow oven for soldering electronic components to PCBs	Available	2024-03-05	\N
+PROD-EQP-2025-56762b	Optical Inspection (AOI) Machine	AOI machine for visual inspection of PCBs for defects and quality control	Available	2025-03-23	\N
+PROD-EQP-2025-d4dd00	Wave Soldering Machine	Wave soldering machine for soldering through-hole components to PCBs	Out of Order	2025-03-23	\N
+PROD-EQP-2025-74a017	Molding Machine	A machine for molding plastic components for medical devices	Available	2025-03-23	\N
+PROD-EQP-2025-248637	Precision Grinding Machine	Grinding machine for shaping metal parts to precise dimensions	Available	2025-03-23	\N
+PROD-EQP-2025-bf3c37	Robotic Assembly Arm	Robotic arm for precise and repetitive assembly of medical device components	Available	2025-03-23	\N
+PROD-EQP-2025-cb1332	Cleanroom Injection Molder	Injection molding machine designed for cleanroom environments	Under Maintenance	2025-03-23	\N
+PROD-EQP-2025-e60ea2	Dispensing System	System for precise dispensing of adhesives and other fluids in medical device manufacturing	Available	2025-03-23	\N
+PROD-EQP-2025-f0aecb	Wire EDM Machine	Electrical discharge machine for cutting intricate shapes in conductive materials	Available	2025-03-23	\N
+PROD-EQP-2025-2ab79d	Precision Stamping Press	Stamping press for forming sheet metal components with high accuracy	Available	2025-03-23	\N
+PROD-EQP-2025-554a3e	Automated Labeling Machine	Machine for automated labeling of medical devices and components	Available	2025-03-23	\N
+PROD-EQP-2025-130f53	Ultrasonic Cleaner	Industrial ultrasonic cleaner for cleaning medical device components	Available	2025-03-23	\N
+PROD-EQP-2025-5dbf97	Automated Cutting Machine	Automated machine for cutting materials like tubing and fabrics to precise lengths	Available	2025-03-23	\N
 \.
 
 
@@ -8623,7 +8759,7 @@ PROD-LAB-2025-e99a6b	\N	\N	2024-06-10 12:00:00	6
 -- Data for Name: production_orders_details; Type: TABLE DATA; Schema: production; Owner: postgres
 --
 
-COPY production.production_orders_details (production_order_detail_id, production_order_id, actual_quantity, cost_of_production, miscellaneous_costs, equipment_id, rework_required, rework_notes, content_id) FROM stdin;
+COPY production.production_orders_details (production_order_detail_id, production_order_id, actual_quantity, cost_of_production, miscellaneous_costs, equipment_id, rework_required, rework_notes, productdocu_id) FROM stdin;
 PROD-POD-2025-c015f2	\N	10	1500.00	50.00	\N	f	\N	\N
 PROD-POD-2025-01f7d7	\N	5	800.00	20.00	\N	t	Minor adjustments needed due to tube leaks	\N
 PROD-POD-2025-3b6595	\N	20	800.00	60.00	\N	f	\N	\N
@@ -12909,10 +13045,17 @@ CREATE TRIGGER before_insert_warehouse_movement BEFORE INSERT ON inventory.wareh
 
 
 --
+-- Name: management_approvals auto_set_checked_date; Type: TRIGGER; Schema: management; Owner: postgres
+--
+
+CREATE TRIGGER auto_set_checked_date BEFORE INSERT OR UPDATE ON management.management_approvals FOR EACH ROW EXECUTE FUNCTION public.management_set_checked_date();
+
+
+--
 -- Name: management_approvals before_insert_management_approvals; Type: TRIGGER; Schema: management; Owner: postgres
 --
 
-CREATE TRIGGER before_insert_management_approvals BEFORE INSERT ON management.management_approvals FOR EACH ROW EXECUTE FUNCTION management.generate_approval_id();
+CREATE TRIGGER before_insert_management_approvals BEFORE INSERT ON management.management_approvals FOR EACH ROW EXECUTE FUNCTION public.generate_management_id();
 
 
 --
@@ -13442,6 +13585,30 @@ ALTER TABLE ONLY admin.item_master_data
 
 
 --
+-- Name: assets fk_document_assets; Type: FK CONSTRAINT; Schema: admin; Owner: postgres
+--
+
+ALTER TABLE ONLY admin.assets
+    ADD CONSTRAINT fk_document_assets FOREIGN KEY (content_id) REFERENCES operations.document_items(content_id) ON DELETE CASCADE;
+
+
+--
+-- Name: products fk_document_products; Type: FK CONSTRAINT; Schema: admin; Owner: postgres
+--
+
+ALTER TABLE ONLY admin.products
+    ADD CONSTRAINT fk_document_products FOREIGN KEY (content_id) REFERENCES operations.document_items(content_id) ON DELETE CASCADE;
+
+
+--
+-- Name: raw_materials fk_material_vendor; Type: FK CONSTRAINT; Schema: admin; Owner: postgres
+--
+
+ALTER TABLE ONLY admin.raw_materials
+    ADD CONSTRAINT fk_material_vendor FOREIGN KEY (vendor_code) REFERENCES admin.vendor(vendor_code);
+
+
+--
 -- Name: item_master_data fk_products_item; Type: FK CONSTRAINT; Schema: admin; Owner: postgres
 --
 
@@ -13479,6 +13646,46 @@ ALTER TABLE ONLY distribution.billing_receipt
 
 ALTER TABLE ONLY distribution.billing_receipt
     ADD CONSTRAINT fk_billing_receipt_service_billing FOREIGN KEY (service_billing_id) REFERENCES services.service_billing(service_billing_id);
+
+
+--
+-- Name: delivery_order fk_delivery_order_approval_request; Type: FK CONSTRAINT; Schema: distribution; Owner: postgres
+--
+
+ALTER TABLE ONLY distribution.delivery_order
+    ADD CONSTRAINT fk_delivery_order_approval_request FOREIGN KEY (approval_request_id) REFERENCES distribution.logistics_approval_request(approval_request_id);
+
+
+--
+-- Name: delivery_order fk_delivery_order_content; Type: FK CONSTRAINT; Schema: distribution; Owner: postgres
+--
+
+ALTER TABLE ONLY distribution.delivery_order
+    ADD CONSTRAINT fk_delivery_order_content FOREIGN KEY (content_id) REFERENCES operations.document_items(content_id);
+
+
+--
+-- Name: delivery_order fk_delivery_order_delivery_order; Type: FK CONSTRAINT; Schema: distribution; Owner: postgres
+--
+
+ALTER TABLE ONLY distribution.delivery_order
+    ADD CONSTRAINT fk_delivery_order_delivery_order FOREIGN KEY (service_order_id) REFERENCES services.delivery_order(delivery_order_id);
+
+
+--
+-- Name: delivery_order fk_delivery_order_sales_order; Type: FK CONSTRAINT; Schema: distribution; Owner: postgres
+--
+
+ALTER TABLE ONLY distribution.delivery_order
+    ADD CONSTRAINT fk_delivery_order_sales_order FOREIGN KEY (sales_order_id) REFERENCES sales.orders(order_id);
+
+
+--
+-- Name: delivery_order fk_delivery_order_stock_transfer; Type: FK CONSTRAINT; Schema: distribution; Owner: postgres
+--
+
+ALTER TABLE ONLY distribution.delivery_order
+    ADD CONSTRAINT fk_delivery_order_stock_transfer FOREIGN KEY (stock_transfer_id) REFERENCES inventory.warehouse_movement(movement_id);
 
 
 --
@@ -13674,6 +13881,94 @@ ALTER TABLE ONLY distribution.shipping_cost
 
 
 --
+-- Name: management_approvals fk_external_id; Type: FK CONSTRAINT; Schema: management; Owner: postgres
+--
+
+ALTER TABLE ONLY management.management_approvals
+    ADD CONSTRAINT fk_external_id FOREIGN KEY (external_id) REFERENCES operations.external_module(external_id) ON DELETE SET NULL;
+
+
+--
+-- Name: management_approvals fk_request_id; Type: FK CONSTRAINT; Schema: management; Owner: postgres
+--
+
+ALTER TABLE ONLY management.management_approvals
+    ADD CONSTRAINT fk_request_id FOREIGN KEY (request_id) REFERENCES services.service_request(service_request_id) ON DELETE SET NULL;
+
+
+--
+-- Name: management_approvals fk_user_id; Type: FK CONSTRAINT; Schema: management; Owner: postgres
+--
+
+ALTER TABLE ONLY management.management_approvals
+    ADD CONSTRAINT fk_user_id FOREIGN KEY (checked_by) REFERENCES admin.users(user_id);
+
+
+--
+-- Name: bill_of_materials fk_bill_of_materials_material_id; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.bill_of_materials
+    ADD CONSTRAINT fk_bill_of_materials_material_id FOREIGN KEY (material_id) REFERENCES admin.raw_materials(material_id);
+
+
+--
+-- Name: bill_of_materials fk_bill_of_materials_product_id; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.bill_of_materials
+    ADD CONSTRAINT fk_bill_of_materials_product_id FOREIGN KEY (product_id) REFERENCES admin.products(product_id);
+
+
+--
+-- Name: bill_of_materials fk_bill_of_materials_production_order; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.bill_of_materials
+    ADD CONSTRAINT fk_bill_of_materials_production_order FOREIGN KEY (production_order_detail_id) REFERENCES production.production_orders_details(production_order_detail_id);
+
+
+--
+-- Name: non_project_order_pricing fk_non_project_order_pricing_order_id; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.non_project_order_pricing
+    ADD CONSTRAINT fk_non_project_order_pricing_order_id FOREIGN KEY (order_id) REFERENCES sales.orders(order_id);
+
+
+--
+-- Name: non_project_order_pricing fk_non_project_order_pricing_product_id; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.non_project_order_pricing
+    ADD CONSTRAINT fk_non_project_order_pricing_product_id FOREIGN KEY (product_id) REFERENCES admin.products(product_id);
+
+
+--
+-- Name: principal_items fk_principal_items_service_item_id; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.principal_items
+    ADD CONSTRAINT fk_principal_items_service_item_id FOREIGN KEY (item_id) REFERENCES admin.item_master_data(item_id);
+
+
+--
+-- Name: principal_items fk_principal_items_service_order; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.principal_items
+    ADD CONSTRAINT fk_principal_items_service_order FOREIGN KEY (service_order_id) REFERENCES services.service_order(service_order_id);
+
+
+--
+-- Name: principal_items fk_principal_items_service_request; Type: FK CONSTRAINT; Schema: mrp; Owner: postgres
+--
+
+ALTER TABLE ONLY mrp.principal_items
+    ADD CONSTRAINT fk_principal_items_service_request FOREIGN KEY (service_request_id) REFERENCES services.service_request(service_request_id);
+
+
+--
 -- Name: external_module fk_external_module_deprecation_report; Type: FK CONSTRAINT; Schema: operations; Owner: postgres
 --
 
@@ -13687,6 +13982,14 @@ ALTER TABLE ONLY operations.external_module
 
 ALTER TABLE ONLY operations.product_document_items
     ADD CONSTRAINT fk_product_document_items_serial FOREIGN KEY (serial_id) REFERENCES operations.serial_tracking(serial_id);
+
+
+--
+-- Name: production_orders_details fk_production_orders_details_productdocu; Type: FK CONSTRAINT; Schema: production; Owner: postgres
+--
+
+ALTER TABLE ONLY production.production_orders_details
+    ADD CONSTRAINT fk_production_orders_details_productdocu FOREIGN KEY (productdocu_id) REFERENCES operations.product_document_items(productdocu_id);
 
 
 --

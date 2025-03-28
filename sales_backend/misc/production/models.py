@@ -16,6 +16,9 @@ class Equipment(models.Model):
         blank=True, null=True
     )  # This field type is a guess.
     last_maintenance_date = models.DateField(blank=True, null=True)
+    equipment_cost = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -43,7 +46,7 @@ class ProductionOrdersDetails(models.Model):
     equipment_id = models.CharField(max_length=255, blank=True, null=True)
     rework_required = models.BooleanField()
     rework_notes = models.TextField(blank=True, null=True)
-    content_id = models.CharField(max_length=255, blank=True, null=True)
+    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False

@@ -13,6 +13,8 @@ class Assets(models.Model):
     asset_name = models.CharField(max_length=255)
     purchase_date = models.DateField(blank=True, null=True)
     serial_no = models.CharField(max_length=225, blank=True, null=True)
+    purchased_price = models.DecimalField(max_digits=10, decimal_places=2)
+    content_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -55,6 +57,23 @@ class ItemMasterData(models.Model):
     material = models.ForeignKey(
         "RawMaterials", models.DO_NOTHING, blank=True, null=True
     )
+    item_name = models.CharField(max_length=255, blank=True, null=True)
+    unit_of_measure = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
+    manage_item_by = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
+    item_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    preferred_vendor = models.CharField(max_length=255, blank=True, null=True)
+    purchasing_uom = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
+    items_per_purchase_unit = models.IntegerField(blank=True, null=True)
+    purchase_quantity_per_package = models.IntegerField(blank=True, null=True)
+    sales_uom = models.TextField(blank=True, null=True)  # This field type is a guess.
+    items_per_sale_unit = models.IntegerField()
+    sales_quantity_per_package = models.IntegerField()
 
     class Meta:
         managed = False
@@ -83,6 +102,12 @@ class Products(models.Model):
     stock_level = models.IntegerField(blank=True, null=True)
     warranty_period = models.IntegerField(blank=True, null=True)
     policy_id = models.CharField(max_length=255, blank=True, null=True)
+    batch_no = models.CharField(max_length=255, blank=True, null=True)
+    item_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    content_id = models.CharField(max_length=255, blank=True, null=True)
+    unit_of_measure = models.TextField(
+        blank=True, null=True
+    )  # This field type is a guess.
 
     class Meta:
         managed = False
@@ -98,6 +123,9 @@ class RawMaterials(models.Model):
     )  # This field type is a guess.
     cost_per_unit = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
+    )
+    vendor_code = models.ForeignKey(
+        "Vendor", models.DO_NOTHING, db_column="vendor_code", blank=True, null=True
     )
 
     class Meta:
