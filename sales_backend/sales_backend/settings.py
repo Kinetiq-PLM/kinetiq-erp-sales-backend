@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "CRM",
     "customer",
     "delivery",
-    "dunning",
     "invoice",
     "misc",
     "order",

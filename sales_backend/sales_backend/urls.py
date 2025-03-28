@@ -46,7 +46,6 @@ urlpatterns = [
                 path("", include("costing.urls")),
                 path("customer/", include("customer.urls")),
                 path("delivery/", include("delivery.urls")),
-                path("dunning/", include("dunning.urls")),
                 path("", include("invoice.urls")),
                 path("order/", include("order.urls")),
                 path("quotation/", include("quotation.urls")),
