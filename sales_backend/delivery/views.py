@@ -235,7 +235,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                 item["quantity"],
                 "{0:,.2f}".format(float(item["discount"])),
                 "{0:,.2f}".format(float(item["unit_price"])),
-                "{0:,.2f}".format(float(item["total_price"])),
+                "{0:,.2f}".format(float(item["total_price"]) - float(item["discount"])),
             ]
             for item in StatementSerializer(delivery.order.statement).get_items(
                 delivery.order.statement
