@@ -94,13 +94,11 @@ class OrderViewSet(viewsets.ModelViewSet):
                             item_serializer.save()
                         else:
                             raise Exception(item_serializer.errors)
-
-                    quotation = Quotation.objects.get(pk=quotation_id)
-                    order = Order.objects.create(
-                        statement=statement,
-                        quotation=quotation,
-                        **order_data,
-                    )
+                    data = {"statement": statement, **order_data}
+                    quotation = Quotation.objects.filter(pk=quotation_id)
+                    if quotation.exists():
+                        data["quotation"] = quotation
+                    order = Order.objects.create(**data)
 
                     # set quotation as approved
                     if quotation:
