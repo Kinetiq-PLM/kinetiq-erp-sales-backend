@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 
 class ShippingDetailsSerializer(serializers.ModelSerializer):
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
 
     class Meta:
         model = ShippingDetails
@@ -13,7 +14,12 @@ class ShippingDetailsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["order"] = OrderSerializer(
-            get_object_or_404(Order, pk=data.pop("order"))
-        ).data
+        if data.get("order"):
+            data["order"] = OrderSerializer(
+                get_object_or_404(Order, pk=data.pop("order"))
+            ).data
+        if data.get("statement"):
+            data["statement"] = StatementSerializer(
+                get_object_or_404(Statement, pk=data.pop("statement"))
+            ).data
         return data

@@ -64,6 +64,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                             raise Exception(item_serializer.errors)
 
                     data = {"statement": statement, **shipping_data}
+                    print(data)
                     shipping = ShippingDetails.objects.create(**data)
 
                     return Response(

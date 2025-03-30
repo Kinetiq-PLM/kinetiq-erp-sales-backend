@@ -62,12 +62,13 @@ class ShippingDetails(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.shipping_details (order_id, operational_cost_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO sales.shipping_details (order_id, statement_id, operational_cost_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING shipping_id;
             """,
                 [
                     self.order.order_id if self.order else None,
+                    self.statement.statement_id if self.statement else None,
                     (
                         self.operational_cost.operational_cost_id
                         if self.operational_cost
@@ -76,7 +77,7 @@ class ShippingDetails(models.Model):
                     self.shipment.shipment_id if self.shipment else None,
                     self.shipping_method,
                     self.tracking_num,
-                    self.shipping_date,
+                    self.shipping_date if self.shipping_date else None,
                     self.estimated_delivery,
                     self.delivery_status,
                 ],
@@ -92,11 +93,12 @@ class ShippingDetails(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.shipping_details 
-                SET order_id = %s, operational_cost_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, delivery_status = %s
+                SET order_id = %s, statement_id = %s, operational_cost_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, delivery_status = %s
                 WHERE shipping_id = %s;
             """,
                 [
                     self.shipment.shipment_id if self.shipment else None,
+                    self.statement.statement_id if self.statement else None,
                     self.shipping_method,
                     self.tracking_num,
                     self.shipping_date,
