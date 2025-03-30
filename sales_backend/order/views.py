@@ -96,21 +96,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                             raise Exception(item_serializer.errors)
                     data = {"statement": statement, **order_data}
                     quotation = Quotation.objects.filter(pk=quotation_id)
-                    if quotation.exists():
-                        data["quotation"] = quotation
-                    order = Order.objects.create(**data)
-
                     # set quotation as approved
-                    if quotation:
+                    if quotation.exists():
+                        quotation = quotation.get()
+                        data["quotation"] = quotation
                         quotation.status = Quotation.Status.APPROVED
                         quotation.save()
 
-                    # if project based, create an external project request
-                    # if statement.type == Statement.Type.PROJECT_BASED:
-                    #     ExternalProjectRequest.objects.create(
-                    #         ext_project_name=
-                    #     )
-                    # if non-project based, get bill of materials
+                    order = Order.objects.create(**data)
 
                     return Response(
                         OrderSerializer(order).data,
