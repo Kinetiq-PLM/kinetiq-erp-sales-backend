@@ -334,7 +334,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             height - order_table._height - 75
             if num_pages > 1
             else (
-                order_table._height - ((len(items) - 1) * 40)
+                order_table._height - ((len(items) - 1) * 32)
                 if len(items) == 4
                 else (
                     order_table._height
@@ -744,7 +744,7 @@ class ReceiptViewSet(viewsets.ModelViewSet):
             height - receipt_table._height - 75
             if num_pages > 1
             else (
-                receipt_table._height - ((len(items) - 1) * 40)
+                receipt_table._height - ((len(items) - 1) * 32)
                 if len(items) == 4
                 else (
                     receipt_table._height

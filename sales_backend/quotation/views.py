@@ -402,7 +402,7 @@ class QuotationViewSet(viewsets.ModelViewSet):
             height - quotation_table._height - 75
             if num_pages > 1
             else (
-                quotation_table._height - ((len(items) - 1) * 40)
+                quotation_table._height - ((len(items) - 1) * 32)
                 if len(items) == 4
                 else (
                     quotation_table._height
