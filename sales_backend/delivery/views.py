@@ -427,7 +427,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         pdf.drawString(
             left,
             next_section_y - 115,
-            "Full payment is due upon receipt of this delivery. Late payments may incur additional charges or interest as per the applicable laws.",
+            "Full payment is due upon receipt of this invoice. Late payments may incur additional charges or interest as per the applicable laws.",
         )
         # Save the PDF
 
