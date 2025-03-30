@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from .serializers import *
 from rest_framework.response import Response
@@ -6,7 +5,6 @@ from rest_framework.request import Request
 from django.db import transaction
 from rest_framework import status
 from quotation.models import Quotation
-from misc.project_management.models import ExternalProjectRequest
 from datetime import date
 from dateutil.relativedelta import relativedelta
 

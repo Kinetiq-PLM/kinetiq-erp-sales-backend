@@ -23,18 +23,18 @@ from django.apps import apps
 from statement.views import *
 
 app_config = apps.get_app_config("misc")
-for module_info in pkgutil.iter_modules(app_config.module.__path__):
-    module_name = f"{app_config.name}.{module_info.name}"
-    # Import the submodule dynamically
-    module = importlib.import_module(module_name)
-    # If the submodule has a 'models' attribute (models.py exists)
-    if hasattr(module, "models"):
-        # Get all model classes in the submodule
-        for model_name in dir(module.models):
-            model = getattr(module.models, model_name)
-            # Ensure it's a Django model before registering
-            if isinstance(model, type) and hasattr(model, "_meta"):
-                admin.site.register(model)
+# for module_info in pkgutil.iter_modules(app_config.module.__path__):
+#     module_name = f"{app_config.name}.{module_info.name}"
+#     # Import the submodule dynamically
+#     module = importlib.import_module(module_name)
+#     # If the submodule has a 'models' attribute (models.py exists)
+#     if hasattr(module, "models"):
+#         # Get all model classes in the submodule
+#         for model_name in dir(module.models):
+#             model = getattr(module.models, model_name)
+#             # Ensure it's a Django model before registering
+#             if isinstance(model, type) and hasattr(model, "_meta"):
+#                 admin.site.register(model)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

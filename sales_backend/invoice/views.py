@@ -6,27 +6,14 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from order.serializers import Order
 from rest_framework import status
-from django.db import transaction
 from rest_framework.decorators import action
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from django.conf import settings
 from textwrap import wrap
-from datetime import datetime
-import os
-
-public_path = os.path.join(settings.BASE_DIR, "public")
-fonts = os.listdir(os.path.join(public_path, "fonts"))
-font_paths = [os.path.join(public_path, "fonts", font) for font in fonts]
-for font, path in zip(fonts, font_paths):
-    pdfmetrics.registerFont(TTFont(font.split(".")[0], path))
-logo_path = os.path.join(public_path, "images", "logo.png")
+from utils import *
 
 
 class SalesInvoicesViewSet(viewsets.ModelViewSet):
@@ -69,7 +56,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         )
         pdf = canvas.Canvas(response, pagesize=A4)
         width, height = A4
-        accent_color = _hex_to_rgb("#469fc2")
+        accent_color = hex_to_rgb("#469fc2")
         right = width - 30
         left = 30
         height -= 20
@@ -99,7 +86,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             pdf.drawRightString(right, height - 100, "Philippines")
 
             # Invoice Header
-            pdf.setStrokeColor(_hex_to_rgb("#d2d2d2"))  # Set line color (black)
+            pdf.setStrokeColor(hex_to_rgb("#d2d2d2"))  # Set line color (black)
             pdf.setLineWidth(1)  # Set line thickness
 
             # Draw horizontal line from (x1, y1) to (x2, y2)
@@ -110,7 +97,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
 
             # Invoice Number
             pdf.setFont("Inter-Regular", 10)
-            pdf.setFillColor(_hex_to_rgb("#469fc2"))
+            pdf.setFillColor(hex_to_rgb("#469fc2"))
             pdf.drawRightString(right, height - 175, "Invoice#")
             pdf.setFont("Inter-Bold", 12)
             pdf.setFillColor(colors.black)
@@ -122,7 +109,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             bill_to = 30
             ship_to = 210
             pdf.setFont("Inter-Bold", 12)
-            pdf.setFillColor(_hex_to_rgb("#469fc2"))
+            pdf.setFillColor(hex_to_rgb("#469fc2"))
             pdf.drawString(bill_to, height - 185, "Bill To")
             pdf.drawString(ship_to, height - 185, "Ship To")
 
@@ -214,11 +201,11 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                         ("BACKGROUND", (0, 0), (-1, 0), accent_color),
                         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                         ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                        ("FONTNAME", (0, 0), (-1, 0), "Inter-Regular"),
+                        ("FONTNAME", (0, 0), (-1, -1), "Inter-Regular"),
                         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                         ("TOPPADDING", (0, 0), (-1, -1), 10),
                         ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
                     ]
                 )
             )
@@ -240,7 +227,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                     style=style,
                 ),
                 item["quantity"],
-                item["discount"],
+                "{0:,.2f}".format(float(item["discount"])),
                 "{0:,.2f}".format(float(item["unit_price"])),
                 "{0:,.2f}".format(float(item["total_price"])),
             ]
@@ -282,7 +269,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                     ("FONTSIZE", (0, 0), (-1, -1), 9),
                     ("TOPPADDING", (0, 0), (-1, -1), 10),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
                     ("ALIGN", (0, 0), (-1, -1), "LEFT"),
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]
@@ -407,7 +394,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             "{0:,.2f}".format(float(invoice.order.statement.total_amount)),
         )
 
-        pdf.setFillColor(_hex_to_rgb("#eff8f9"))  # Set background color
+        pdf.setFillColor(hex_to_rgb("#eff8f9"))  # Set background color
         pdf.rect(
             395,
             next_section_y - 80,
@@ -447,12 +434,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
 
         pdf.save()
         return response
-
-
-def _hex_to_rgb(hex_color):
-    hex_color = hex_color.lstrip("#")  # Remove '#' if present
-    r, g, b = [int(hex_color[i : i + 2], 16) / 255.0 for i in (0, 2, 4)]
-    return colors.Color(r, g, b)
 
 
 class PaymentsViewSet(viewsets.ModelViewSet):
