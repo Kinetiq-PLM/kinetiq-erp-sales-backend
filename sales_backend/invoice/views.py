@@ -226,7 +226,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             table.wrapOn(pdf, 400, 600)
             table.drawOn(pdf, left, height - 370)
             next_y = table._height + y_pos
-            print("next_y = ", next_y)
             return next_y
 
         next_y = draw_invoice_header(pdf)
@@ -258,7 +257,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 + (1 if (len(items) - max_items_first_page) % max_items_rest else 0)
             )
 
-        print(num_pages)
         page = 0
         next_section_y = 0
         start_index = page * max_items_first_page
@@ -303,7 +301,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         else:
             draw_page(pdf, page, num_pages)
 
-        print(start_index, end_index)
         while page < num_pages:
             pdf.showPage()
             # next_y = draw_invoice_header(pdf)
@@ -320,7 +317,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 ],
                 *items[start_index:end_index],
             ]
-            print(start_index, end_index)
 
             order_table = Table(order_data, colWidths=[80, 215, 30, 50, 80, 80])
             order_table.setStyle(
@@ -347,8 +343,6 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             else:
                 draw_page(pdf, page, num_pages)
 
-        print("height")
-        print(height, order_table._height)
         next_section_y = (
             height - order_table._height - 75
             if num_pages > 1
