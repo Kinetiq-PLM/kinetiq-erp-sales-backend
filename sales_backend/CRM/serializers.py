@@ -66,6 +66,8 @@ class TicketConvoSerializer(serializers.ModelSerializer):
 
 class TicketSerializer(serializers.ModelSerializer):
     conversations = TicketConvoSerializer(many=True, read_only=True)
+    customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
+    salesrep = serializers.PrimaryKeyRelatedField(queryset=Employees.objects.all())
 
     class Meta:
         model = Ticket
