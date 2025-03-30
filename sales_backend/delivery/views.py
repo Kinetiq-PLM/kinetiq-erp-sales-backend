@@ -9,6 +9,9 @@ from reportlab.lib.styles import getSampleStyleSheet
 from textwrap import wrap
 from utils import *
 from django.http import HttpResponse
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
 
 
 class ShippingDetailsViewSet(viewsets.ModelViewSet):
@@ -17,14 +20,61 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """
-        To Distribution:
-            provides the order and the customer account to Distribution,
-            to calculate the manpower or for example,
-            number of trucks needed for delivery.
-            Distribution returns the total cost of logistics to Sales
-            to include in the invoice.
+        inputs:
+        {
+            required:
+                shipping_data: {
+                    order_id,
+                    operational_cost_id,
+                    shipment_id,
+                    shipping_method,
+                    tracking_num,
+                    shipping_date,
+                    estimated_delivery,
+                    delivery_status,
+                    items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
+                }
+                statement_data: {
+                    customer,
+                    salesrep,
+                    total_amount,
+                    discount,
+                    type,
+                },
+        }
         """
-        return super().create(request, *args, **kwargs)
+        shipping_data = request.data.pop("shipping_data", {})
+        items_data = shipping_data.pop("items", [])
+        statement_data = request.data.pop("statement_data", {})
+        print(shipping_data)
+
+        try:
+            with transaction.atomic():
+                statement_serializer = StatementSerializer(
+                    data=statement_data, context={"items": items_data}
+                )
+                if statement_serializer.is_valid():
+                    statement: Statement = statement_serializer.save()
+                    for item_data in items_data:
+                        item_data["statement"] = statement.statement_id
+                        item_serializer = StatementItemSerializer(data=item_data)
+                        if item_serializer.is_valid():
+                            item_serializer.save()
+                        else:
+                            raise Exception(item_serializer.errors)
+
+                    data = {"statement": statement, **shipping_data}
+                    shipping = ShippingDetails.objects.create(**data)
+
+                    return Response(
+                        ShippingDetailsSerializer(shipping).data,
+                        status=status.HTTP_201_CREATED,
+                    )
+                else:
+                    raise Exception(statement_serializer.errors)
+
+        except Exception as err:
+            return Response({"error": str(err)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"])
     def document(self, request, pk=None):

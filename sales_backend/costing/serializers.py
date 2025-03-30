@@ -20,6 +20,7 @@ class ProductPricingSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         product = instance.admin_product
         data.pop("admin_product")
+        data["product_pricing_id"] = instance.product_id
         data["product_id"] = product.product_id
         data["product_name"] = product.product_name
         data["description"] = product.description

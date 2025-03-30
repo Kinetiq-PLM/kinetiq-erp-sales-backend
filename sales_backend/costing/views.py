@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from .serializers import *
+from rest_framework.response import Response
 
 
 class SalesCostingViewSet(viewsets.ModelViewSet):
@@ -10,3 +11,14 @@ class SalesCostingViewSet(viewsets.ModelViewSet):
 class ProductPricingViewSet(viewsets.ModelViewSet):
     queryset = ProductPricing.objects.all()
     serializer_class = ProductPricingSerializer
+
+    def list(self, request, *args, **kwargs):
+        params = request.query_params
+        product = params.get("admin_product")
+        filters = {}
+        if product:
+            filters["admin_product_id"] = product
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filters), many=True).data
+        )
