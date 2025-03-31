@@ -27,7 +27,7 @@ class Statement(models.Model):
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     type = models.TextField(choices=Type)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
-    ext_project_request_id = models.ForeignKey(
+    ext_project_request = models.ForeignKey(
         to=ExternalProjectRequest, on_delete=models.SET_NULL, blank=True, null=True
     )
 
