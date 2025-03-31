@@ -217,12 +217,21 @@ def get_customer_report(request: Request):
 
 @api_view(["GET"])
 def get_product_report(request: Request):
+    # only consider orders as product sold
+    order_statements = Order.objects.values_list("statement_id", flat=True)
+    filtered_statement_items = StatementItem.objects.filter(
+        statement_id__in=order_statements
+    )
     total_products = (
-        StatementItem.objects.aggregate(total=Sum("quantity"))["total"] or 1
-    )  # Avoid division by zero
+        filtered_statement_items.aggregate(total=Sum("quantity"))["total"] or 1
+    )
+
+    # total_products = (
+    #     StatementItem.objects.aggregate(total=Sum("quantity"))["total"] or 1
+    # )  # Avoid division by zero
 
     top_products = (
-        StatementItem.objects.values("product")  # Group by product name
+        filtered_statement_items.values("product")  # Group by product name
         .annotate(total_sold=Sum("quantity"))  # Sum total quantity sold
         .order_by("-total_sold")
     )
@@ -243,5 +252,5 @@ def get_product_report(request: Request):
     data["top_products"].append(
         {"product": "Others", "percentage": round(100 - total_percent, 2)}
     )
-    data["total_sold"] = len(top_products)
+    data["total_sold"] = total_products
     return Response(data)
