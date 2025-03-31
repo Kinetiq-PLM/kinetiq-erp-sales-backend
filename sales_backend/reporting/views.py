@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from quotation.models import Quotation
 from order.models import Order
 from invoice.models import SalesInvoices, Payments
-from datetime import date, datetime
+from datetime import date, datetime, time
+from django.utils.timezone import make_aware
 from rest_framework import status
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
@@ -37,6 +38,7 @@ def get_sales_report(request: Request):
     params = request.query_params
     start_date = date.today()
     end_date = date.today()
+    end_date_inclusive = make_aware(datetime.combine(end_date, time.max))
 
     match params.get("period"):
         case "month":
@@ -53,13 +55,17 @@ def get_sales_report(request: Request):
                     {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-    filtered_q = Quotation.objects.filter(date_issued__range=(start_date, end_date))
-    filtered_o = Order.objects.filter(order_date__range=(start_date, end_date))
+    filtered_q = Quotation.objects.filter(
+        date_issued__range=(start_date, end_date_inclusive)
+    )
+    filtered_o = Order.objects.filter(
+        order_date__range=(start_date, end_date_inclusive)
+    )
     filtered_i = SalesInvoices.objects.filter(
-        invoice_date__range=(start_date, end_date)
+        invoice_date__range=(start_date, end_date_inclusive)
     )
     filtered_d = ShippingDetails.objects.filter(
-        shipping_date__range=(start_date, end_date)
+        shipping_date__range=(start_date, end_date_inclusive)
     )
 
     data = {}
@@ -122,7 +128,12 @@ def get_sales_report(request: Request):
         res.append({"date": key, **data[key]})
 
     return Response(
-        {"start_date": start_date, "end_date": end_date, "data": res, "total": total}
+        {
+            "start_date": start_date,
+            "end_date": end_date_inclusive,
+            "data": res,
+            "total": total,
+        }
     )
 
 
@@ -143,6 +154,7 @@ def get_profit_report(request: Request):
     params = request.query_params
     start_date = date.today()
     end_date = date.today()
+    end_date_inclusive = make_aware(datetime.combine(end_date, time.max))
 
     match params.get("period"):
         case "month":
@@ -161,10 +173,8 @@ def get_profit_report(request: Request):
 
     profits = SalesInvoices.objects.filter(
         invoice_status=SalesInvoices.InvoiceStatus.PAID,
-        payment_status=Payments.Status.COMPLETED,
-        invoice_date__range=(start_date, end_date),
+        invoice_date__range=(start_date, end_date_inclusive),
     )
-
     data = {}
     total_profit = Decimal(0)
     for profit in profits:
@@ -180,7 +190,7 @@ def get_profit_report(request: Request):
     return Response(
         {
             "start_date": start_date,
-            "end_date": end_date,
+            "end_date": end_date_inclusive,
             "profit_data": sales_profits,
             "total_profit": total_profit,
         }
