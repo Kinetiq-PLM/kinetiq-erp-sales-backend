@@ -45,9 +45,8 @@ class CampaignsAdmin(admin.ModelAdmin):
 class Campaigns(models.Model):
     class Type(models.TextChoices):
         EMAIL = "Email"
-        SOCIAL_MEDIA = "Social Media"
+        SMS = "SMS"
         REFERRAL = "Referral"
-        ADVERTISEMENT = "Advertisement"
 
     campaign_id = models.CharField(primary_key=True, max_length=255, blank=True)
     campaign_name = models.CharField(max_length=255)
