@@ -4,6 +4,7 @@ from misc.human_resources.models import Employees
 from django.db import connection
 from django.contrib import admin
 from django.utils import timezone
+from misc.project_management.models import ExternalProjectRequest
 
 
 class StatementAdmin(admin.ModelAdmin):
@@ -26,6 +27,9 @@ class Statement(models.Model):
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     type = models.TextField(choices=Type)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
+    ext_project_request_id = models.ForeignKey(
+        to=ExternalProjectRequest, on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -92,6 +96,11 @@ class StatementItem(models.Model):
     return_reason = models.TextField(blank=True, null=True)
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now())
+    additional_service_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         managed = False

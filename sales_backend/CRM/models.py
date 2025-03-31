@@ -156,6 +156,12 @@ class Opportunities(models.Model):
         WON = "Won"
         LOST = "Lost"
 
+    class InterestLevel(models.TextChoices):
+        LOW = "Low"
+        MEDIUM = "Medium"
+        HIGH = "High"
+        VERY_HIGH = "Very High"
+
     opportunity_id = models.CharField(primary_key=True, max_length=255, blank=True)
     customer = models.ForeignKey(
         to="customer.Customer", on_delete=models.SET_NULL, null=True
@@ -170,6 +176,9 @@ class Opportunities(models.Model):
     status = models.TextField(choices=Status)
     description = models.TextField(blank=True, null=True)
     reason_lost = models.TextField(blank=True, null=True)
+    interest_level = models.TextField(choices=InterestLevel)
+    weighted_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    starting_date = models.DateTimeField()
 
     class Meta:
         managed = False

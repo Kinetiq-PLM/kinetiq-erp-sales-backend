@@ -79,3 +79,16 @@ class Return(models.Model):
                     self.return_id,
                 ],
             )
+
+
+class CreditMemo(models.Model):
+    credit_memo_id = models.CharField(primary_key=True, max_length=255)
+    created_at = models.DateTimeField(blank=True, null=True)
+    due_date = models.DateField(blank=True, null=True)
+    total_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."credit_memo"'
