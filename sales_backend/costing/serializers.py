@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from misc.admin.models import Products
+from django.forms import model_to_dict
 
 
 class SalesCostingSerializer(serializers.ModelSerializer):
@@ -21,10 +22,9 @@ class ProductPricingSerializer(serializers.ModelSerializer):
         product = instance.admin_product
         data.pop("admin_product")
         data["product_pricing_id"] = instance.product_id
-        data["product_id"] = product.product_id
-        data["product_name"] = product.product_name
-        data["description"] = product.description
-        data["stock_level"] = product.stock_level
-        data["warranty_period"] = product.warranty_period
-        data["policy_id"] = product.policy_id
+        product_info = model_to_dict(
+            product,
+            fields=[field.name for field in Products._meta.fields],
+        )
+        data = {**data, **product_info}
         return data

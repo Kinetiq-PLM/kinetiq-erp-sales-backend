@@ -207,3 +207,67 @@ class Technician(models.Model):
     class Meta:
         managed = False
         db_table = '"services"."technician"'
+
+
+class AdditionalService(models.Model):
+    class Meta:
+        managed = False
+        db_table = '"services"."additional_service"'
+
+    additional_service_id = models.CharField(
+        primary_key=True, max_length=255, editable=False
+    )
+    total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+
+class AdditionalServiceType(models.Model):
+    class Meta:
+        managed = False
+        db_table = '"services"."additional_service_type"'
+
+    additional_service_type_id = models.CharField(
+        primary_key=True, max_length=255, editable=False
+    )
+    additional_service = models.ForeignKey(AdditionalService, on_delete=models.CASCADE)
+    service_type = models.TextField()
+    service_fee = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    duration = models.IntegerField(default=1)
+    date_start = models.DateField(auto_now=True)
+    status = models.TextField()
+    total_service_fee = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+
+
+class ServiceContract(models.Model):
+    class ContractStatusEnum(models.TextChoices):
+        PENDING = "Pending"
+        ACTIVE = "Active"
+        EXPIRED = "Expired"
+        TERMINATED = "Terminated"
+
+    class Meta:
+        managed = False
+        db_table = '"services"."service_contract"'
+
+    contract_id = models.CharField(primary_key=True, max_length=255, editable=False)
+    statement_item = models.ForeignKey(
+        "statement.StatementItem", on_delete=models.CASCADE
+    )
+    customer = models.ForeignKey("customer.Customer", on_delete=models.CASCADE)
+    product = models.CharField(max_length=255)
+    contract_description = models.TextField(blank=True, null=True)
+    date_issued = models.DateField(blank=True, null=True)  # alr has a trigger
+    end_date = models.DateField(blank=True, null=True)  # alr has a trigger
+    contract_status = models.CharField(
+        max_length=20,
+        choices=ContractStatusEnum.choices,
+        default=ContractStatusEnum.PENDING,
+    )
+    renewal = models.ForeignKey(
+        "warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
+    )
+    additional_service = models.ForeignKey(
+        AdditionalService, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    product_quantity = models.IntegerField(default=1)
+    renewal_date = models.DateField(blank=True, null=True)
+    renewal_end_date = models.DateField(blank=True, null=True)

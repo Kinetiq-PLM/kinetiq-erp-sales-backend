@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "reporting",
     "returns",
     "statement",
+    "warranty",
     "rest_framework",
     "corsheaders",
     "django_cognito_jwt",
