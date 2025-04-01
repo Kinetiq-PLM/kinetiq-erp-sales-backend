@@ -4,12 +4,12 @@ from order.serializers import *
 from django.shortcuts import get_object_or_404
 
 
-class ShippingDetailsSerializer(serializers.ModelSerializer):
+class DeliveryNoteSerializer(serializers.ModelSerializer):
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
     statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
 
     class Meta:
-        model = ShippingDetails
+        model = DeliveryNote
         fields = "__all__"
 
     def to_representation(self, instance):

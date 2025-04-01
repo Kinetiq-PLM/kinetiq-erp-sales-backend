@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from order.serializers import *
 from django.shortcuts import get_object_or_404
+from delivery.serializers import *
 
 
 class PaymentsSerializer(serializers.ModelSerializer):
@@ -13,7 +13,9 @@ class PaymentsSerializer(serializers.ModelSerializer):
 
 
 class SalesInvoicesSerializer(serializers.ModelSerializer):
-    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    delivery_note = serializers.PrimaryKeyRelatedField(
+        queryset=DeliveryNote.objects.all()
+    )
 
     class Meta:
         model = SalesInvoices
@@ -21,13 +23,24 @@ class SalesInvoicesSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["order"] = OrderSerializer(
-            get_object_or_404(Order, pk=instance.order.order_id)
+        data["order"] = DeliveryNoteSerializer(
+            get_object_or_404(DeliveryNote, pk=instance.delivery_note.delivery_note_id)
         ).data
         return data
 
 
-class ReceiptSerializer(serializers.ModelSerializer):
+class SalesInvoicesViewSerializer(serializers.ModelSerializer):
+    delivery_note = serializers.PrimaryKeyRelatedField(
+        queryset=DeliveryNote.objects.all()
+    )
+
     class Meta:
-        model = Receipt
+        model = SalesInvoicesView
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["delivery_note"] = DeliveryNoteSerializer(
+            get_object_or_404(DeliveryNote, pk=instance.delivery_note.delivery_note_id)
+        ).data
+        return data

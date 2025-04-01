@@ -26,7 +26,6 @@ class Quotation(models.Model):
         null=True,
     )
     date_issued = models.DateTimeField(auto_now_add=True)
-    status = models.TextField(choices=Status, default=Status.PENDING)
 
     class Meta:
         managed = False
@@ -45,38 +44,53 @@ class Quotation(models.Model):
 
     def insert(self):
         with connection.cursor() as cursor:
+            if not self.date_issued:
+                self.date_issued = timezone.now()
             cursor.execute(
                 """
-                INSERT INTO sales.quotation (statement_id, agreement_id, date_issued, status)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO sales.quotation (statement_id, agreement_id, date_issued)
+                VALUES (%s, %s, %s)
                 RETURNING quotation_id;
             """,
                 [
                     self.statement.statement_id,
                     self.agreement.agreement_id if self.agreement else None,
-                    self.date_issued or datetime.now(),
-                    self.status,
+                    self.date_issued or timezone.now(),
                 ],
             )
             row = cursor.fetchone()
             if row:
-                self.quotation_id = row[
-                    0
-                ]  # Update the instance with the new statement_id
+                self.quotation_id = row[0]
 
     def update(self):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
                 UPDATE sales.quotation 
-                SET statement_id = %s, agreement_id = %s, date_issued = %s, status = %s
+                SET statement_id = %s, agreement_id = %s, date_issued = %s
                 WHERE quotation_id = %s;
             """,
                 [
                     self.statement.statement_id,
                     self.agreement.agreement_id if self.agreement else None,
-                    self.date_issued or datetime.now(),
-                    self.status,
+                    self.date_issued or timezone.now(),
                     self.quotation_id,
                 ],
             )
+
+
+class QuotationView(models.Model):
+    quotation_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
+    agreement = models.ForeignKey(
+        to="agreement.BlanketAgreement",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    date_issued = models.DateTimeField(auto_now_add=True)
+    status = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."quotation_view"'

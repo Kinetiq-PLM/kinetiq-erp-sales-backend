@@ -1,7 +1,6 @@
 from django.db import models
 from datetime import datetime
 from order.models import Order
-from delivery.models import ShippingDetails
 from customer.models import Customer
 from django.contrib import admin
 from django.db import connection
@@ -37,24 +36,18 @@ class SalesInvoicesAdmin(admin.ModelAdmin):
 
 
 class SalesInvoices(models.Model):
-    class InvoiceStatus(models.TextChoices):
-        PENDING = "Pending"
-        PAID = "Paid"
-        OVERDUE = "Overdue"
-
     invoice_id = models.CharField(primary_key=True, max_length=255)
-    order = models.ForeignKey(
-        to="order.Order", on_delete=models.CASCADE, related_name="invoice"
+    delivery_note = models.ForeignKey(
+        to="delivery.DeliveryNote", on_delete=models.CASCADE, related_name="invoice"
     )
     invoice_date = models.DateTimeField(default=datetime.now())
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    invoice_status = models.TextField(
-        choices=InvoiceStatus, default=InvoiceStatus.PENDING
+    total_amount_paid = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
     )
-    payment_status = models.TextField(
-        choices=Payments.Status, default=Payments.Status.PENDING
+    remaining_balance = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
     )
-    due_date = models.DateField()
 
     class Meta:
         managed = False
@@ -75,16 +68,14 @@ class SalesInvoices(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.sales_invoices (order_id, total_amount, invoice_status, payment_status, due_date)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO sales.sales_invoices (delivery_note_id, total_amount,  total_amount_paid)
+                    VALUES (%s, %s, %s)
                     RETURNING invoice_id;
                 """,
                 [
-                    self.order.order_id,
+                    self.delivery_note.delivery_id,
                     self.total_amount,
-                    self.invoice_status,
-                    self.payment_status,
-                    self.due_date,
+                    self.total_amount_paid,
                 ],
             )
             row = cursor.fetchone()
@@ -98,30 +89,34 @@ class SalesInvoices(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.sales_invoices 
-                SET order_id = %s, total_amount = %s, invoice_status = %s, payment_status = %s, due_date = %s
+                SET delivery_note_id = %s, invoice_date = %s, total_amount = %s, total_amount_paid = %s
                 WHERE invoice_id = %s
             """,
                 [
-                    self.order.order_id,
+                    self.delivery_note.delivery_note_id,
+                    self.invoice_date,
                     self.total_amount,
-                    self.invoice_status,
-                    self.payment_status,
-                    self.due_date,
+                    self.total_amount_paid,
                     self.invoice_id,
                 ],
             )
 
 
-class Receipt(models.Model):
-    receipt_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    shipping = models.ForeignKey(ShippingDetails, models.DO_NOTHING)
-    customer = models.ForeignKey(Customer, models.CASCADE)
-    payments = models.ForeignKey(Payments, models.DO_NOTHING)
-    policy_id = models.CharField(max_length=255)
-    date_signed = models.DateField(blank=True, null=True)
-    signed_docu = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
+class SalesInvoicesView(models.Model):
+    invoice_id = models.CharField(primary_key=True, max_length=255)
+    delivery_note = models.ForeignKey(
+        to="delivery.DeliveryNote", on_delete=models.CASCADE
+    )
+    invoice_date = models.DateTimeField(default=datetime.now())
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount_paid = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
+    remaining_balance = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
+    payment_status = models.TextField()
 
     class Meta:
         managed = False
-        db_table = '"sales"."receipt"'
+        db_table = '"sales"."sales_invoices_view"'

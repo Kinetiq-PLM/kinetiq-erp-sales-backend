@@ -16,10 +16,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 from textwrap import wrap
 from utils import *
 from django.http import HttpResponse
+from django.forms import model_to_dict
 
 
 class QuotationViewSet(viewsets.ModelViewSet):
-    queryset = Quotation.objects.all().order_by("-date_issued")
+    queryset = QuotationView.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
 
     def list(self, request: Request, *args, **kwargs):
@@ -50,7 +51,7 @@ class QuotationViewSet(viewsets.ModelViewSet):
             filtered["date_issued__range"] = (start_date, end_date)
 
         return Response(
-            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+            QuotationViewSerializer(self.queryset.filter(**filtered), many=True).data
         )
 
     def create(self, request: Request, *args, **kwargs):
@@ -75,15 +76,13 @@ class QuotationViewSet(viewsets.ModelViewSet):
                     tax_amount
                 ]
             },
-            quotation_data: {
-                status
-            },
         }
         """
 
-        quotation_data = request.data.pop("quotation_data", {})
         statement_data = request.data.pop("statement_data", {})
         items_data = statement_data.pop("items", [])
+        for item in items_data:
+            item["quantity_to_deliver"] = item["quantity"]
 
         try:
             with transaction.atomic():
@@ -98,11 +97,10 @@ class QuotationViewSet(viewsets.ModelViewSet):
                         if item_serializer.is_valid():
                             item_serializer.save()
                         else:
+                            print(item_data)
                             raise Exception(item_serializer.errors)
 
-                    quotation = Quotation.objects.create(
-                        statement=statement, **quotation_data
-                    )
+                    quotation = Quotation.objects.create(statement=statement)
 
                     return Response(
                         QuotationSerializer(quotation).data,

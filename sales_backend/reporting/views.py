@@ -15,7 +15,7 @@ from order.models import Order
 from django.db.models import Sum
 from statement.models import *
 from django.shortcuts import get_object_or_404
-from delivery.models import ShippingDetails
+from delivery.models import DeliveryNote
 
 
 @api_view(["GET"])
@@ -64,7 +64,7 @@ def get_sales_report(request: Request):
     filtered_i = SalesInvoices.objects.filter(
         invoice_date__range=(start_date, end_date_inclusive)
     )
-    filtered_d = ShippingDetails.objects.filter(
+    filtered_d = DeliveryNote.objects.filter(
         shipping_date__range=(start_date, end_date_inclusive)
     )
 

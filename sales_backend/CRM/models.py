@@ -8,33 +8,6 @@ from django.contrib import admin
 from django.db import connection
 
 
-class Leads(models.Model):
-    class Source(models.TextChoices):
-        WEBSITE = "Website"
-        REFERRAL = "Referral"
-        COLD_CALL = "Cold Call"
-        EMAIL = "Email"
-
-    class Status(models.TextChoices):
-        NEW = "New"
-        CONTACTED = "Contacted"
-        QUALIFIED = "Qualified"
-        CONVERTED = "Converted"
-        LOST = "Lost"
-
-    lead_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
-    lead_name = models.CharField(max_length=255)
-    lead_email = models.CharField(max_length=255)
-    lead_phonenum = models.CharField(max_length=20)
-    source = models.TextField(choices=Source, default=Source.WEBSITE)
-    status = models.TextField(choices=Status, default=Status.NEW)
-
-    class Meta:
-        managed = False
-        db_table = '"sales"."leads"'
-
-
 class CampaignsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         """Set a flag before saving so that the model knows it's from the admin panel."""
@@ -171,14 +144,16 @@ class Opportunities(models.Model):
     )
     salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     estimated_value = models.DecimalField(max_digits=10, decimal_places=2)
+    weighted_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_profit_percentage = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_profit_total = models.DecimalField(max_digits=10, decimal_places=2)
+    starting_date = models.DateTimeField()
     expected_closed_date = models.DateField(default=timezone.now())
     stage = models.TextField(choices=Stage)
     status = models.TextField(choices=Status)
     description = models.TextField(blank=True, null=True)
     reason_lost = models.TextField(blank=True, null=True)
     interest_level = models.TextField(choices=InterestLevel)
-    weighted_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    starting_date = models.DateTimeField()
 
     class Meta:
         managed = False

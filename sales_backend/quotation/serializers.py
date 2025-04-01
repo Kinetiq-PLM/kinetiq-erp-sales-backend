@@ -16,3 +16,17 @@ class QuotationSerializer(serializers.ModelSerializer):
             get_object_or_404(Statement, pk=instance.statement.statement_id)
         ).data
         return data
+
+
+class QuotationViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = QuotationView
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["statement"] = StatementSerializer(
+            get_object_or_404(Statement, pk=instance.statement.statement_id)
+        ).data
+        return data

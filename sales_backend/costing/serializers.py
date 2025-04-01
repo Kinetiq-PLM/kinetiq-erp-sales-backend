@@ -27,4 +27,5 @@ class ProductPricingSerializer(serializers.ModelSerializer):
             fields=[field.name for field in Products._meta.fields],
         )
         data = {**data, **product_info}
+        data["selling_price"] = instance.selling_price
         return data

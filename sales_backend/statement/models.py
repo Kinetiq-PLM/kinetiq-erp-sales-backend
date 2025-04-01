@@ -15,21 +15,13 @@ class StatementAdmin(admin.ModelAdmin):
 
 
 class Statement(models.Model):
-    class Type(models.TextChoices):
-        PROJECT_BASED = "Project-Based"
-        NON_PROJECT_BASED = "Non-Project-Based"
-        SERVICE = "Service"
-
     statement_id = models.CharField(primary_key=True, max_length=255, blank=True)
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    type = models.TextField(choices=Type)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
-    ext_project_request = models.ForeignKey(
-        to=ExternalProjectRequest, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -45,8 +37,8 @@ class Statement(models.Model):
             with connection.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, type, total_tax)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, total_tax)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING statement_id;
                 """,
                     [
@@ -54,7 +46,6 @@ class Statement(models.Model):
                         self.salesrep.employee_id,
                         self.total_amount,
                         self.discount,
-                        self.type,
                         self.total_tax,
                     ],
                 )
@@ -82,20 +73,9 @@ class StatementItem(models.Model):
 
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
-    sales_costing = models.ForeignKey(
-        to="costing.SalesCosting", on_delete=models.SET_NULL, null=True, blank=True
-    )
     product = models.ForeignKey(
         to=Products, on_delete=models.SET_NULL, null=True, blank=True
     )
-    quantity = models.IntegerField()
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    return_reason = models.TextField(blank=True, null=True)
-    return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
-    created_at = models.DateTimeField(default=timezone.now())
     additional_service_id = models.CharField(
         max_length=255,
         blank=True,
@@ -104,6 +84,16 @@ class StatementItem(models.Model):
     renewal = models.ForeignKey(
         to="warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
     )
+    quantity = models.IntegerField()
+    quantity_to_deliver = models.IntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    return_reason = models.TextField(blank=True, null=True)
+    return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
+    quantity_delivered = models.IntegerField(default=0, blank=True)
+    created_at = models.DateTimeField(default=timezone.now())
 
     class Meta:
         managed = False

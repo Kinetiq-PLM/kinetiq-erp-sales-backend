@@ -1,6 +1,5 @@
 from django.db import models
 from statement.models import Statement
-from delivery.models import ShippingDetails
 from django.contrib import admin
 from django.db import connection
 
@@ -20,7 +19,9 @@ class Return(models.Model):
 
     return_id = models.CharField(primary_key=True, max_length=255)
     statement = models.ForeignKey(Statement, models.CASCADE, blank=True, null=True)
-    shipping = models.ForeignKey(ShippingDetails, models.CASCADE, blank=True, null=True)
+    delivery_note = models.ForeignKey(
+        "delivery.DeliveryNote", models.DO_NOTHING, blank=True, null=True
+    )
     return_date = models.DateTimeField(blank=True, null=True)
     status = models.TextField(
         choices=Status, default=Status.PENDING
@@ -46,13 +47,13 @@ class Return(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.return (statement_id, shipping_id, return_date, status, remarks)
+                INSERT INTO sales.return (statement_id, delivery_note_id, return_date, status, remarks)
                 VALUES (%s, %s, %s, %s)
                 RETURNING quotation_id;
             """,
                 [
                     self.statement.statement_id,
-                    self.shipping.shipping_id,
+                    self.delivery_note.delivery_note_id,
                     self.return_date,
                     self.status,
                     self.remarks,
@@ -67,12 +68,12 @@ class Return(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.return 
-                SET statement_id = %s, shipping_id = %s, return_date = %s, status = %s, remarks = %s
+                SET statement_id = %s, delivery_note_id = %s, return_date = %s, status = %s, remarks = %s
                 WHERE return_id = %s;
             """,
                 [
                     self.statement.statement_id,
-                    self.shipping.shipping_id,
+                    self.delivery_note.delivery_note_id,
                     self.return_date,
                     self.status,
                     self.remarks,

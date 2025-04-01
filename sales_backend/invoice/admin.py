@@ -3,4 +3,3 @@ from .models import *
 
 admin.site.register(SalesInvoices, SalesInvoicesAdmin)
 admin.site.register(Payments)
-admin.site.register(Receipt)

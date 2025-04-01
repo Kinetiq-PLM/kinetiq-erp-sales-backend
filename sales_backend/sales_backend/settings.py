@@ -100,7 +100,7 @@ WSGI_APPLICATION = "sales_backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kinetiq_staging",
+        "NAME": "kinetiq_newest",
         "USER": "postgres",
         "PASSWORD": "123",
         "HOST": "localhost",

@@ -5,12 +5,6 @@ from django.shortcuts import get_object_or_404
 from misc.urls import EmployeesSerializer, Employees
 
 
-class LeadsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Leads
-        fields = "__all__"
-
-
 class CampaignContactsSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
     campaign = serializers.PrimaryKeyRelatedField(queryset=Campaigns.objects.all())

@@ -7,11 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 
-class LeadsViewSet(viewsets.ModelViewSet):
-    queryset = Leads.objects.all()
-    serializer_class = LeadsSerializer
-
-
 class CampaignsViewSet(viewsets.ModelViewSet):
     queryset = Campaigns.objects.all().order_by("-end_date")
     serializer_class = CampaignsSerializer

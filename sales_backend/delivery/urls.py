@@ -3,6 +3,6 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r"", views.ShippingDetailsViewSet)
+router.register(r"", views.DeliveryNoteViewSet)
 
 urlpatterns = [path("", include(router.urls))]

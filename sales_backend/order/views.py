@@ -10,12 +10,12 @@ from dateutil.relativedelta import relativedelta
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().order_by("-order_date")
+    queryset = OrderView.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
 
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
-        order_status = params.get("order_status")
+        order_status = params.get("status")
         order_type = params.get("order_type")
         period = params.get("period")
         start_date = date.today()
@@ -36,14 +36,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                     )
         filters = {}
         if order_status:
-            filters["order_status"] = order_status
+            filters["completion_status"] = order_status
         if order_type:
             filters["order_type"] = order_type
         if period:
             filters["order_date__range"] = (start_date, end_date)
 
         return Response(
-            self.serializer_class(self.queryset.filter(**filters), many=True).data
+            OrderViewSerializer(self.queryset.filter(**filters), many=True).data
         )
 
     def create(self, request, *args, **kwargs):
@@ -74,6 +74,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         """
         order_data = request.data.pop("order_data", {})
         items_data = order_data.pop("items", [])
+        for item in items_data:
+            item["quantity_to_deliver"] = item["quantity"]
+
         statement_data = request.data.pop("statement_data", {})
 
         try:

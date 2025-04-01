@@ -14,9 +14,9 @@ from rest_framework import status
 from django.db import transaction
 
 
-class ShippingDetailsViewSet(viewsets.ModelViewSet):
-    queryset = ShippingDetails.objects.all().order_by("-shipping_date")
-    serializer_class = ShippingDetailsSerializer
+class DeliveryNoteViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryNote.objects.all().order_by("-shipping_date")
+    serializer_class = DeliveryNoteSerializer
 
     def create(self, request, *args, **kwargs):
         """
@@ -25,7 +25,6 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
             required:
                 shipping_data: {
                     order_id,
-                    operational_cost_id,
                     shipment_id,
                     shipping_method,
                     tracking_num,
@@ -46,6 +45,8 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         shipping_data = request.data.pop("shipping_data", {})
         items_data = shipping_data.pop("items", [])
         statement_data = request.data.pop("statement_data", {})
+        for item in items_data:
+            item["quantity_to_deliver"] = item["quantity"]
 
         try:
             with transaction.atomic():
@@ -77,10 +78,10 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                         else:
                             raise Exception(order_serializer.errors)
                     data = {"statement": statement, **shipping_data}
-                    shipping = ShippingDetails.objects.create(**data)
+                    shipping = DeliveryNote.objects.create(**data)
 
                     return Response(
-                        ShippingDetailsSerializer(shipping).data,
+                        DeliveryNoteSerializer(shipping).data,
                         status=status.HTTP_201_CREATED,
                     )
                 else:
@@ -94,7 +95,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         delivery = self.get_object()
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = (
-            f'attachment; filename="delivery_{delivery.shipping_id}.pdf"'
+            f'attachment; filename="delivery_{delivery.delivery_note_id}.pdf"'
         )
         pdf = canvas.Canvas(response, pagesize=A4)
         width, height = A4
@@ -135,7 +136,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
             pdf.line(30, height - 135, 250, height - 135)
             pdf.line(360, height - 135, right, height - 135)
             pdf.setFont("Inter-Regular", 14)
-            pdf.drawString((width - 80) / 2, height - 140, "SALES ORDER")
+            pdf.drawString((width - 80) / 2, height - 140, "DELIVERY NOTE")
 
             # delivery Number
             pdf.setFont("Inter-Regular", 10)
@@ -159,9 +160,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
             pdf.setFillColor(colors.black)
             max_width = 20
             line_height = 15
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.name, width=max_width
-            )
+            wrapped_lines = wrap(delivery.statement.customer.name, width=max_width)
             temp = y_pos = height - 205
 
             for line in wrapped_lines:
@@ -170,61 +169,49 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
 
             pdf.setFont("Inter-Regular", 10)
 
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.address_line1, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.address_line1, width=30)
             for line in wrapped_lines:
                 pdf.drawString(bill_to, y_pos, line)
                 y_pos -= line_height
 
             wrapped_lines = wrap(
-                f"{delivery.order.statement.customer.address_line2} {delivery.order.statement.customer.postal_code}, {delivery.order.statement.customer.country}",
+                f"{delivery.statement.customer.address_line2} {delivery.statement.customer.postal_code}, {delivery.statement.customer.country}",
                 width=30,
             )
             for line in wrapped_lines:
                 pdf.drawString(bill_to, y_pos, line)
                 y_pos -= line_height
 
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.email_address, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.email_address, width=30)
             for line in wrapped_lines:
                 pdf.drawString(bill_to, y_pos, line)
                 y_pos -= line_height
 
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.phone_number, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.phone_number, width=30)
             for line in wrapped_lines:
                 pdf.drawString(bill_to, y_pos, line)
                 y_pos -= line_height
 
             y_pos = temp
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.address_line1, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.address_line1, width=30)
             for line in wrapped_lines:
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
 
             wrapped_lines = wrap(
-                f"{delivery.order.statement.customer.address_line2} {delivery.order.statement.customer.postal_code}, {delivery.order.statement.customer.country}",
+                f"{delivery.statement.customer.address_line2} {delivery.statement.customer.postal_code}, {delivery.statement.customer.country}",
                 width=30,
             )
             for line in wrapped_lines:
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
 
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.email_address, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.email_address, width=30)
             for line in wrapped_lines:
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
 
-            wrapped_lines = wrap(
-                delivery.order.statement.customer.phone_number, width=30
-            )
+            wrapped_lines = wrap(delivery.statement.customer.phone_number, width=30)
             for line in wrapped_lines:
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
@@ -250,10 +237,10 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                 ],
                 [
                     Paragraph(
-                        f"{delivery.order.statement.salesrep.first_name} {delivery.order.statement.salesrep.last_name}",
+                        f"{delivery.statement.salesrep.first_name} {delivery.statement.salesrep.last_name}",
                         style=style,
                     ),
-                    delivery.tracking_num,
+                    delivery.tracking_num if delivery.tracking_num else "-",
                     delivery.shipping_method,
                     "Due on Receipt",
                     Paragraph(formatted_delivery_date, style=style),
@@ -300,8 +287,8 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                 "{0:,.2f}".format(float(item["unit_price"])),
                 "{0:,.2f}".format(float(item["total_price"]) - float(item["discount"])),
             ]
-            for item in StatementSerializer(delivery.order.statement).get_items(
-                delivery.order.statement
+            for item in StatementSerializer(delivery.statement).get_items(
+                delivery.statement
             )
         ]
         max_items_first_page = 6
@@ -442,10 +429,9 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
             right,
             next_section_y,
             "{0:,.2f}".format(
-                float(delivery.order.statement.total_amount)
-                - float(delivery.order.statement.total_tax)
-                - float(delivery.order.statement.discount)
-                - shipping_fee
+                float(delivery.statement.total_amount)
+                - float(delivery.statement.total_tax)
+                - float(delivery.statement.discount)
             ),
         )
 
@@ -457,7 +443,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 15,
-            "{0:,.2f}".format(float(delivery.order.statement.total_tax)),
+            "{0:,.2f}".format(float(delivery.statement.total_tax)),
         )
         pdf.drawString(
             400,
@@ -477,7 +463,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 45,
-            "{0:,.2f}".format(float(delivery.order.statement.discount)),
+            "{0:,.2f}".format(float(delivery.statement.discount)),
         )
 
         pdf.setFillColor(hex_to_rgb("#eff8f9"))  # Set background color
@@ -495,7 +481,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 65,
-            "{0:,.2f}".format(float(delivery.order.statement.total_amount)),
+            "{0:,.2f}".format(float(delivery.statement.total_amount) + shipping_fee),
         )
 
         # Footer

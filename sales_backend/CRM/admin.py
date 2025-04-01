@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import *
 
-admin.site.register(Leads)
 admin.site.register(CampaignContacts)
 admin.site.register(Campaigns, CampaignsAdmin)
 admin.site.register(Opportunities)

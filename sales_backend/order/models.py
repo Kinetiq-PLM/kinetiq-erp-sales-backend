@@ -1,5 +1,5 @@
 from django.db import models
-from misc.distribution.models import ReworkOrder, GoodsIssue
+from misc.project_management.models import ExternalProjectRequest
 from django.contrib import admin
 from django.db import connection
 
@@ -20,25 +20,19 @@ class Order(models.Model):
         CANCELLED = "Cancelled"
 
     class Type(models.TextChoices):
-        DIRECT = "Direct"
-        SCHEDULED = "Scheduled"
-        OPEN = "Open"
-        D3_SAMPLE = "D3 Sample"
+        NON_PROJECT_BASED = "Non-Project-Based"
+        PROJECT_BASED = "Project-Based"
+        SERVICE = "Service"
 
     order_id = models.CharField(primary_key=True, max_length=255, blank=True)
     quotation = models.ForeignKey(
         to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
     )
+    ext_project_request = models.ForeignKey(
+        to=ExternalProjectRequest, on_delete=models.SET_NULL, null=True, blank=True
+    )
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
-    rework = models.ForeignKey(
-        to=ReworkOrder, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    goods_issue = models.ForeignKey(
-        to=GoodsIssue, on_delete=models.SET_NULL, null=True, blank=True
-    )
     order_date = models.DateTimeField(auto_now_add=True)
-    order_status = models.TextField(choices=Status, default=Status.PENDING)
-    order_total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     order_type = models.TextField(choices=Type)
 
     class Meta:
@@ -60,19 +54,20 @@ class Order(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.orders (order_date, order_status, order_total_amount, order_type, goods_issue_id, quotation_id, rework_id, statement_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING order_id;
                 """,
                 [
                     self.order_date,
-                    self.order_status,
-                    self.order_total_amount,
                     self.order_type,
-                    self.goods_issue.goods_issue_id if self.goods_issue else None,
                     self.quotation.quotation_id if self.quotation else None,
-                    self.rework.rework_id if self.rework else None,
                     self.statement.statement_id,
+                    (
+                        self.ext_project_request.ext_project_request_id
+                        if self.ext_project_request
+                        else None
+                    ),
                 ],
             )
             row = cursor.fetchone()
@@ -84,18 +79,37 @@ class Order(models.Model):
             cursor.execute(
                 """
                     UPDATE sales.orders 
-                    SET order_date = %s, order_status = %s, order_total_amount = %s, order_type = %s, goods_issue_id = %s, quotation_id = %s, rework_id = %s, statement_id = %s
+                    SET order_date = %s, order_type = %s, quotation_id = %s, statement_id = %s, ext_project_request_id = %s
                     WHERE order_id = %s;
                 """,
                 [
                     self.order_date,
-                    self.order_status,
-                    self.order_total_amount,
                     self.order_type,
-                    self.goods_issue.goods_issue_id if self.goods_issue else None,
                     self.quotation.quotation_id if self.quotation else None,
-                    self.rework.rework_id if self.rework else None,
                     self.statement.statement_id,
+                    (
+                        self.ext_project_request.ext_project_request_id
+                        if self.ext_project_request
+                        else None
+                    ),
                     self.order_id,
                 ],
             )
+
+
+class OrderView(models.Model):
+    order_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    quotation = models.ForeignKey(
+        to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    ext_project_request = models.ForeignKey(
+        to=ExternalProjectRequest, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
+    order_date = models.DateTimeField(auto_now_add=True)
+    order_type = models.TextField()
+    completion_status = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."order_view"'
