@@ -282,7 +282,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     f"{item['product']['product_name']}<br /><font color='#787878'>{item['product']['description']}</font>",
                     style=style,
                 ),
-                Paragraph(str(item["quantity"]), style=style),
+                Paragraph(str(item["quantity_to_deliver"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
                 Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
                 Paragraph(

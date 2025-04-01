@@ -45,7 +45,7 @@ class DeliveryNote(models.Model):
     shipping_method = models.TextField(choices=Method)
     preferred_delivery_date = models.DateField()
     actual_delivery_date = models.DateTimeField(blank=True, null=True)
-    tracking_num = models.CharField(unique=True, max_length=50, blank=True, null=True)
+    tracking_num = models.CharField(max_length=50, blank=True, null=True)
     shipping_date = models.DateTimeField(blank=True, null=True)
     estimated_delivery = models.DateTimeField(blank=True, null=True)
     delivery_status = models.TextField(choices=Status)

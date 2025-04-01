@@ -36,7 +36,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     )
         filters = {}
         if order_status:
-            filters["completion_status"] = order_status
+            filters["completion_status__in"] = order_status.split(",")
         if order_type:
             filters["order_type"] = order_type
         if period:
