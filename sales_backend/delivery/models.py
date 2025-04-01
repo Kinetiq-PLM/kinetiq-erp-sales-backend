@@ -29,7 +29,9 @@ class ShippingDetails(models.Model):
         RETURNED = "Returned"
 
     shipping_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
+    statement = models.ForeignKey(
+        to=Statement, on_delete=models.CASCADE, blank=True, null=True
+    )
     order = models.ForeignKey(to=Order, on_delete=models.CASCADE, null=True, blank=True)
     operational_cost = models.ForeignKey(
         to=OperationalCost, on_delete=models.CASCADE, null=True, blank=True

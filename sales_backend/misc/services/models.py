@@ -25,7 +25,7 @@ class AfterAnalysisSched(models.Model):
         db_table = '"services"."after_analysis_sched"'
 
 
-class DeliveryOrder(models.Model):
+class ServiceDeliveryOrder(models.Model):
     delivery_order_id = models.CharField(primary_key=True, blank=True, max_length=255)
     service_order_item = models.ForeignKey(
         "ServiceOrderItem", models.DO_NOTHING, blank=True, null=True

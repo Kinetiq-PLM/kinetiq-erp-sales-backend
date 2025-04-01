@@ -46,7 +46,6 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         shipping_data = request.data.pop("shipping_data", {})
         items_data = shipping_data.pop("items", [])
         statement_data = request.data.pop("statement_data", {})
-        print(shipping_data)
 
         try:
             with transaction.atomic():
@@ -63,8 +62,21 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                         else:
                             raise Exception(item_serializer.errors)
 
+                    if not shipping_data.get("order_id"):
+                        order_serializer = OrderSerializer(
+                            data={
+                                "statement": statement.statement_id,
+                                "order_date": timezone.now(),
+                                "order_total_amount": statement.total_amount,
+                                "order_type": Order.Type.DIRECT,
+                            }
+                        )
+                        if order_serializer.is_valid():
+                            order = order_serializer.save()
+                            shipping_data["order_id"] = order.order_id
+                        else:
+                            raise Exception(order_serializer.errors)
                     data = {"statement": statement, **shipping_data}
-                    print(data)
                     shipping = ShippingDetails.objects.create(**data)
 
                     return Response(
@@ -415,6 +427,16 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
             draw_page(pdf, page + 1, num_pages)
         # Totals Section
         pdf.setFont("Inter-Regular", 10)
+        shipping_fee = 0.0
+        if delivery.shipment:
+            if delivery.shipment.shipping_cost_id:
+                from misc.distribution.models import ShippingCost
+
+                shipping_fee = float(
+                    ShippingCost.objects.get(
+                        pk=delivery.shipment.shipping_cost_id
+                    ).total_shipping_cost
+                )
         pdf.drawString(400, next_section_y, "Subtotal")
         pdf.drawRightString(
             right,
@@ -423,6 +445,7 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
                 float(delivery.order.statement.total_amount)
                 - float(delivery.order.statement.total_tax)
                 - float(delivery.order.statement.discount)
+                - shipping_fee
             ),
         )
 
@@ -439,18 +462,28 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         pdf.drawString(
             400,
             next_section_y - 30,
-            f"Total Discount",
+            f"Shipping Fee",
         )
         pdf.drawRightString(
             right,
             next_section_y - 30,
+            "{0:,.2f}".format(float(shipping_fee)),
+        )
+        pdf.drawString(
+            400,
+            next_section_y - 45,
+            f"Total Discount",
+        )
+        pdf.drawRightString(
+            right,
+            next_section_y - 45,
             "{0:,.2f}".format(float(delivery.order.statement.discount)),
         )
 
         pdf.setFillColor(hex_to_rgb("#eff8f9"))  # Set background color
         pdf.rect(
             395,
-            next_section_y - 58,
+            next_section_y - 72,
             175,
             23,
             fill=True,
@@ -458,10 +491,10 @@ class ShippingDetailsViewSet(viewsets.ModelViewSet):
         )  # Draw background box
         pdf.setFont("Inter-Bold", 12)
         pdf.setFillColor(accent_color)
-        pdf.drawString(400, next_section_y - 50, "Total (PHP)")
+        pdf.drawString(400, next_section_y - 65, "Total (PHP)")
         pdf.drawRightString(
             right,
-            next_section_y - 50,
+            next_section_y - 65,
             "{0:,.2f}".format(float(delivery.order.statement.total_amount)),
         )
 

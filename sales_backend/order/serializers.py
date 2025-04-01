@@ -6,7 +6,9 @@ from quotation.serializers import *
 
 class OrderSerializer(serializers.ModelSerializer):
     statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
-    quotation = serializers.PrimaryKeyRelatedField(queryset=Quotation.objects.all())
+    quotation = serializers.PrimaryKeyRelatedField(
+        queryset=Quotation.objects.all(), allow_null=True, required=False
+    )
 
     class Meta:
         model = Order

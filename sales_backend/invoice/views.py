@@ -355,6 +355,9 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         # Totals Section
         pdf.setFont("Inter-Regular", 10)
         pdf.drawString(400, next_section_y, "Subtotal")
+        shipping_fee = float(invoice.total_amount) - float(
+            invoice.order.statement.total_amount
+        )
         pdf.drawRightString(
             right,
             next_section_y,
@@ -362,6 +365,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 float(invoice.order.statement.total_amount)
                 - float(invoice.order.statement.total_tax)
                 - float(invoice.order.statement.discount)
+                - shipping_fee
             ),
         )
 
@@ -378,36 +382,46 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.drawString(
             400,
             next_section_y - 30,
-            f"Total Discount",
+            f"Shipping Fee",
         )
         pdf.drawRightString(
             right,
             next_section_y - 30,
+            "{0:,.2f}".format(shipping_fee),
+        )
+        pdf.drawString(
+            400,
+            next_section_y - 45,
+            f"Total Discount",
+        )
+        pdf.drawRightString(
+            right,
+            next_section_y - 45,
             "{0:,.2f}".format(float(invoice.order.statement.discount)),
         )
 
         pdf.setFont("Inter-Bold", 10)
-        pdf.drawString(400, next_section_y - 45, "Total (PHP)")
+        pdf.drawString(400, next_section_y - 60, "Total (PHP)")
         pdf.drawRightString(
             right,
-            next_section_y - 45,
+            next_section_y - 60,
             "{0:,.2f}".format(float(invoice.order.statement.total_amount)),
         )
 
         pdf.setFillColor(hex_to_rgb("#eff8f9"))  # Set background color
         pdf.rect(
             395,
-            next_section_y - 80,
+            next_section_y - 95,
             175,
             25,
             fill=True,
             stroke=0,
         )  # Draw background box
         pdf.setFillColor(accent_color)
-        pdf.drawString(400, next_section_y - 70, "Balance Due (PHP)")
+        pdf.drawString(400, next_section_y - 85, "Balance Due (PHP)")
         pdf.drawRightString(
             right,
-            next_section_y - 70,
+            next_section_y - 85,
             (
                 "{0:,.2f}".format(float(invoice.order.statement.total_amount))
                 if invoice.invoice_status != SalesInvoices.InvoiceStatus.PAID
@@ -422,12 +436,12 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
 
         pdf.setFont("Inter-Regular", 9)
 
-        pdf.drawString(left, next_section_y - 100, "Terms & Conditions")
+        pdf.drawString(left, next_section_y - 115, "Terms & Conditions")
 
         pdf.setFont("Inter-Regular", 7)
         pdf.drawString(
             left,
-            next_section_y - 115,
+            next_section_y - 130,
             "Full payment is due upon receipt of this invoice. Late payments may incur additional charges or interest as per the applicable laws.",
         )
         # Save the PDF
