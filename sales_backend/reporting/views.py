@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from quotation.models import Quotation
 from order.models import Order
-from invoice.models import SalesInvoices, Payments
+from invoice.models import SalesInvoicesView, Payments
 from datetime import date, datetime, time
 from django.utils.timezone import make_aware
 from rest_framework import status
@@ -61,11 +61,11 @@ def get_sales_report(request: Request):
     filtered_o = Order.objects.filter(
         order_date__range=(start_date, end_date_inclusive)
     )
-    filtered_i = SalesInvoices.objects.filter(
+    filtered_i = SalesInvoicesView.objects.filter(
         invoice_date__range=(start_date, end_date_inclusive)
     )
     filtered_d = DeliveryNote.objects.filter(
-        shipping_date__range=(start_date, end_date_inclusive)
+        created_at__range=(start_date, end_date_inclusive)
     )
 
     data = {}
@@ -111,7 +111,7 @@ def get_sales_report(request: Request):
         total += 1
 
     for delivery in filtered_d:
-        str_date = str(delivery.shipping_date.date())
+        str_date = str(delivery.created_at.date())
         if str_date not in data:
             data[str_date] = {
                 "quotations": 0,
@@ -171,8 +171,8 @@ def get_profit_report(request: Request):
                     {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-    profits = SalesInvoices.objects.filter(
-        invoice_status=SalesInvoices.InvoiceStatus.PAID,
+    profits = SalesInvoicesView.objects.filter(
+        payment_status__in=["Fully Paid", "Partially Paid"],
         invoice_date__range=(start_date, end_date_inclusive),
     )
     data = {}
@@ -180,10 +180,10 @@ def get_profit_report(request: Request):
     for profit in profits:
         str_date = str(profit.invoice_date.date())
         if str_date in data:
-            data[str_date] += profit.total_amount
+            data[str_date] += profit.total_amount_paid
         else:
-            data[str_date] = profit.total_amount
-        total_profit += profit.total_amount
+            data[str_date] = profit.total_amount_paid
+        total_profit += profit.total_amount_paid
 
     sales_profits = [{"date": key, "profit": value} for key, value in data.items()]
 
@@ -200,13 +200,13 @@ def get_profit_report(request: Request):
 @api_view(["GET"])
 def get_customer_report(request: Request):
     total_revenue = (
-        Order.objects.aggregate(total=Sum("order_total_amount"))["total"] or 1
+        Order.objects.aggregate(total=Sum("statement__total_amount"))["total"] or 1
     )  # Avoid division by zero
 
     # Get the top 3 customers by total spending
     top_customers = (
         Order.objects.values("statement__customer")
-        .annotate(total_spent=Sum("order_total_amount"))
+        .annotate(total_spent=Sum("statement__total_amount"))
         .order_by("-total_spent")[:3]
     )
 

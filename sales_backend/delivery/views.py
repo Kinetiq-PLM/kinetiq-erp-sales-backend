@@ -15,7 +15,7 @@ from django.db import transaction
 
 
 class DeliveryNoteViewSet(viewsets.ModelViewSet):
-    queryset = DeliveryNote.objects.all().order_by("-shipping_date")
+    queryset = DeliveryNote.objects.all().order_by("-created_at")
     serializer_class = DeliveryNoteSerializer
 
     def create(self, request, *args, **kwargs):
@@ -282,10 +282,15 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     f"{item['product']['product_name']}<br /><font color='#787878'>{item['product']['description']}</font>",
                     style=style,
                 ),
-                item["quantity"],
-                "{0:,.2f}".format(float(item["discount"])),
-                "{0:,.2f}".format(float(item["unit_price"])),
-                "{0:,.2f}".format(float(item["total_price"]) - float(item["discount"])),
+                Paragraph(str(item["quantity"]), style=style),
+                Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
+                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    "{0:,.2f}".format(
+                        float(item["total_price"]) - float(item["discount"])
+                    ),
+                    style=style,
+                ),
             ]
             for item in StatementSerializer(delivery.statement).get_items(
                 delivery.statement
@@ -402,7 +407,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     else (
                         (height * 0.27) + delivery_table._height
                         if len(items) == 1
-                        else (height * 0.15) + delivery_table._height
+                        else (height * 0.10) + delivery_table._height
                     )
                 )
             )
@@ -430,8 +435,8 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             next_section_y,
             "{0:,.2f}".format(
                 float(delivery.statement.total_amount)
+                + float(delivery.statement.discount)
                 - float(delivery.statement.total_tax)
-                - float(delivery.statement.discount)
             ),
         )
 

@@ -68,7 +68,7 @@ class SalesInvoices(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.sales_invoices (delivery_note_id, total_amount,  total_amount_paid)
+                    INSERT INTO sales.sales_invoices (delivery_note_id, total_amount, total_amount_paid)
                     VALUES (%s, %s, %s)
                     RETURNING invoice_id;
                 """,

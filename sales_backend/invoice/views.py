@@ -224,10 +224,15 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                     f"{item['product']['product_name']}<br /><font color='#787878'>{item['product']['description']}</font>",
                     style=style,
                 ),
-                item["quantity"],
-                "{0:,.2f}".format(float(item["discount"])),
-                "{0:,.2f}".format(float(item["unit_price"])),
-                "{0:,.2f}".format(float(item["total_price"]) - float(item["discount"])),
+                Paragraph(str(item["quantity"]), style=style),
+                Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
+                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    "{0:,.2f}".format(
+                        float(item["total_price"]) - float(item["discount"])
+                    ),
+                    style=style,
+                ),
             ]
             for item in StatementSerializer(invoice.delivery_note.statement).get_items(
                 invoice.delivery_note.statement
@@ -363,7 +368,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             "{0:,.2f}".format(
                 float(invoice.delivery_note.statement.total_amount)
                 - float(invoice.delivery_note.statement.total_tax)
-                - float(invoice.delivery_note.statement.discount)
+                + float(invoice.delivery_note.statement.discount)
             ),
         )
 
