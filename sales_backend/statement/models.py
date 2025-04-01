@@ -101,7 +101,7 @@ class StatementItem(models.Model):
         blank=True,
         null=True,
     )
-    renewal_id = models.ForeignKey(
+    renewal = models.ForeignKey(
         to="warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
     )
 
