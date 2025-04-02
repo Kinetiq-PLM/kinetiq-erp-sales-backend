@@ -22,7 +22,7 @@ class Return(models.Model):
     delivery_note = models.ForeignKey(
         "delivery.DeliveryNote", models.DO_NOTHING, blank=True, null=True
     )
-    return_date = models.DateTimeField(blank=True, null=True)
+    return_date = models.DateTimeField(auto_now_add=True)
     status = models.TextField(
         choices=Status, default=Status.PENDING
     )  # This field type is a guess.
@@ -47,14 +47,13 @@ class Return(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.return (statement_id, delivery_note_id, return_date, status, remarks)
+                INSERT INTO sales.return (statement_id, delivery_note_id, status, remarks)
                 VALUES (%s, %s, %s, %s)
-                RETURNING quotation_id;
+                RETURNING return_id;
             """,
                 [
                     self.statement.statement_id,
                     self.delivery_note.delivery_note_id,
-                    self.return_date,
                     self.status,
                     self.remarks,
                 ],
@@ -68,13 +67,12 @@ class Return(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.return 
-                SET statement_id = %s, delivery_note_id = %s, return_date = %s, status = %s, remarks = %s
+                SET statement_id = %s, delivery_note_id = %s,  status = %s, remarks = %s
                 WHERE return_id = %s;
             """,
                 [
                     self.statement.statement_id,
                     self.delivery_note.delivery_note_id,
-                    self.return_date,
                     self.status,
                     self.remarks,
                     self.return_id,
