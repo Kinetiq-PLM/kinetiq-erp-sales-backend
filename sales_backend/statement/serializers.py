@@ -20,6 +20,7 @@ class StatementItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["total_price"] = (
             validated_data["quantity"] * validated_data["unit_price"]
+            + validated_data["tax_amount"]
         )
         return super().create(validated_data)
 

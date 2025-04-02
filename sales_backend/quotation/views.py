@@ -293,7 +293,9 @@ class QuotationViewSet(viewsets.ModelViewSet):
                 Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"]) - float(item["discount"])
+                        float(item["total_price"])
+                        - float(item["discount"])
+                        - float(item["tax_amount"])
                     ),
                     style=style,
                 ),

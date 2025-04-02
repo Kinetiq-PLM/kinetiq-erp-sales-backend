@@ -6,6 +6,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+from rest_framework.request import Request
 from textwrap import wrap
 from utils import *
 from django.http import HttpResponse
@@ -17,6 +18,22 @@ from django.db import transaction
 class DeliveryNoteViewSet(viewsets.ModelViewSet):
     queryset = DeliveryNote.objects.all().order_by("-created_at")
     serializer_class = DeliveryNoteSerializer
+
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        status = params.get("delivery_status")
+        customer = params.get("customer_id")
+        delivery = params.get("delivery_note_id")
+        filtered = {}
+        if status:
+            filtered["delivery_status__in"] = status.split(",")
+        if customer:
+            filtered["statement__customer__customer_id"] = customer
+        if delivery:
+            filtered["delivery_note_id"] = delivery
+        return Response(
+            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+        )
 
     def create(self, request, *args, **kwargs):
         """
@@ -287,7 +304,9 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                 Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"]) - float(item["discount"])
+                        float(item["total_price"])
+                        - float(item["discount"])
+                        - float(item["tax_amount"])
                     ),
                     style=style,
                 ),
