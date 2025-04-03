@@ -21,16 +21,19 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
 
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
-        status = params.get("delivery_status")
+        status = params.get("shipment_status")
         customer = params.get("customer_id")
         delivery = params.get("delivery_note_id")
+        order = params.get("order_id")
         filtered = {}
         if status:
-            filtered["delivery_status__in"] = status.split(",")
+            filtered["shipment_status__in"] = status.split(",")
         if customer:
             filtered["statement__customer__customer_id"] = customer
         if delivery:
             filtered["delivery_note_id"] = delivery
+        if order:
+            filtered["order_id"] = order
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
         )
@@ -47,7 +50,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     tracking_num,
                     shipping_date,
                     estimated_delivery,
-                    delivery_status,
+                    shipment_status,
                     items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
                 }
                 statement_data: {
@@ -63,7 +66,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         items_data = shipping_data.pop("items", [])
         statement_data = request.data.pop("statement_data", {})
         for item in items_data:
-            item["quantity_to_deliver"] = item["quantity"]
+            item["quantity_to_deliver"] = 0
 
         try:
             with transaction.atomic():
@@ -299,7 +302,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     f"{item['product']['product_name']}<br /><font color='#787878'>{item['product']['description']}</font>",
                     style=style,
                 ),
-                Paragraph(str(item["quantity_to_deliver"]), style=style),
+                Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
                 Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
                 Paragraph(

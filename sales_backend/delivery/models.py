@@ -26,7 +26,7 @@ class DeliveryNote(models.Model):
         PENDING = "Pending"
         SHIPPED = "Shipped"
         DELIVERED = "Delivered"
-        RETURNED = "Returned"
+        FAILED = "Failed"
 
     delivery_note_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(
@@ -36,19 +36,13 @@ class DeliveryNote(models.Model):
     shipment = models.ForeignKey(
         to=ShipmentDetails, on_delete=models.CASCADE, null=True, blank=True
     )
-    goods_issue = models.ForeignKey(
-        to=GoodsIssue, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    rework = models.ForeignKey(
-        to=ReworkOrder, on_delete=models.SET_NULL, blank=True, null=True
-    )
     shipping_method = models.TextField(choices=Method)
     preferred_delivery_date = models.DateField()
     actual_delivery_date = models.DateTimeField(blank=True, null=True)
     tracking_num = models.CharField(max_length=50, blank=True, null=True)
     shipping_date = models.DateTimeField(blank=True, null=True)
     estimated_delivery = models.DateTimeField(blank=True, null=True)
-    delivery_status = models.TextField(choices=Status)
+    shipment_status = models.TextField(choices=Status)
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -70,8 +64,8 @@ class DeliveryNote(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.delivery_note (order_id, statement_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, delivery_status, goods_issue_id, rework_id, preferred_delivery_date)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO sales.delivery_note (order_id, statement_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, shipment_status, preferred_delivery_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING delivery_note_id;
             """,
                 [
@@ -82,9 +76,7 @@ class DeliveryNote(models.Model):
                     self.tracking_num,
                     self.shipping_date if self.shipping_date else None,
                     self.estimated_delivery,
-                    self.delivery_status,
-                    self.goods_issue.goods_issue_id if self.goods_issue else None,
-                    self.rework.rework_id if self.rework else None,
+                    self.shipment_status,
                     self.preferred_delivery_date,
                 ],
             )
@@ -99,7 +91,7 @@ class DeliveryNote(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.delivery_note 
-                SET order_id = %s, statement_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, delivery_status = %s, goods_issue_id = %s, rework_id = %s, preferred_delivery_date = %s
+                SET order_id = %s, statement_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, shipment_status = %s, preferred_delivery_date = %s
                 WHERE delivery_note_id = %s;
             """,
                 [
@@ -109,9 +101,7 @@ class DeliveryNote(models.Model):
                     self.tracking_num,
                     self.shipping_date,
                     self.estimated_delivery,
-                    self.delivery_status,
-                    self.goods_issue.goods_issue_id if self.goods_issue else None,
-                    self.rework.rework_id if self.rework else None,
+                    self.shipment_status,
                     self.delivery_note_id,
                     self.preferred_delivery_date,
                 ],

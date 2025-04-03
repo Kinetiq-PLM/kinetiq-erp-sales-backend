@@ -85,7 +85,7 @@ class StatementItem(models.Model):
         to="warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
     )
     quantity = models.IntegerField()
-    quantity_to_deliver = models.IntegerField()
+    quantity_to_deliver = models.IntegerField(default=0)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)

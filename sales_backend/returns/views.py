@@ -33,7 +33,7 @@ class ReturnViewSet(viewsets.ModelViewSet):
         items_data = return_data.pop("items", [])
         statement_data = request.data.pop("statement_data", {})
         for item in items_data:
-            item["quantity_to_deliver"] = item["quantity"]
+            item["quantity_to_deliver"] = 0
 
         try:
             with transaction.atomic():

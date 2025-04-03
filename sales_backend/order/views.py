@@ -75,7 +75,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order_data = request.data.pop("order_data", {})
         items_data = order_data.pop("items", [])
         for item in items_data:
-            item["quantity_to_deliver"] = item["quantity"]
+            item["quantity_to_deliver"] = 0
 
         statement_data = request.data.pop("statement_data", {})
 
