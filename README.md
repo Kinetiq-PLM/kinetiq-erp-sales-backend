@@ -28,7 +28,7 @@ $ pip install -r requirements.txt
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kinetiq_temp",
+        "NAME": "kinetiq_revised",
         "USER": <your_username>,
         "PASSWORD": <your_password>,
         "HOST": "localhost",
@@ -40,17 +40,8 @@ DATABASES = {
 ### Create database
 
 ```
-$ psql -U <username> -c "CREATE DATABASE kinetiq_temp;"
-$ psql -U <username> kinetiq_temp < kinetiq_temp.sql
-```
-
-### Run Django migrations
-
-```
-$ cd sales_backend
-$ python manage.py migrate admin
-$ python manage.py migrate auth
-$ python manage.py migrate sessions
+$ psql -U <username> -c "CREATE DATABASE kinetiq_revised;"
+$ psql -U <username> kinetiq_revised < kinetiq_revised.sql
 ```
 
 ### Create superuser (for admin)
