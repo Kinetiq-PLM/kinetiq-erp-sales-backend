@@ -186,7 +186,11 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             formatted_invoice_date = invoice.invoice_date.strftime("%d %B %Y")
             table_data = [
                 ["Invoice Date", "Payment Terms", "Payment Status"],
-                [formatted_invoice_date, "Due on Receipt", invoice.payment_status],
+                [
+                    formatted_invoice_date,
+                    Paragraph("30% Downpayment, 70% After Delivery", style=style),
+                    invoice.payment_status,
+                ],
             ]
 
             col_width = (width - 60) / 3

@@ -262,7 +262,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     ),
                     delivery.tracking_num if delivery.tracking_num else "-",
                     delivery.shipping_method,
-                    "Due on Receipt",
+                    Paragraph("30% Downpayment, 70% After Delivery "),
                     Paragraph(formatted_delivery_date, style=style),
                     Paragraph(formatted_due_date, style=style),
                 ],
