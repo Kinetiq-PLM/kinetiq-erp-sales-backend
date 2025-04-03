@@ -67,7 +67,7 @@ class Customer(models.Model):
                     SET gl_account_id = %s, partner_id = %s, name = %s, email_address = %s,
                         phone_number = %s, address_line1 = %s, address_line2 = %s, 
                         city = %s, postal_code = %s, country = %s, 
-                        customer_type = %s, status = %s, debt = %s
+                        customer_type = %s, status = %s, debt = %s, contact_person = %s
                     WHERE customer_id = %s;
                     """,
                 [
@@ -84,6 +84,7 @@ class Customer(models.Model):
                     self.customer_type,
                     self.status,
                     self.debt,
+                    self.contact_person,
                     self.customer_id,  # WHERE condition
                 ],
             )
@@ -92,8 +93,8 @@ class Customer(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                   INSERT INTO sales.customers (gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                   INSERT INTO sales.customers (gl_account_id, partner_id, name, email_address, phone_number, address_line1, address_line2, city, postal_code, country, customer_type, status, debt, contact_person)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING customer_id;
                 """,
                 [
@@ -110,6 +111,7 @@ class Customer(models.Model):
                     self.customer_type,
                     self.status,
                     self.debt,
+                    self.contact_person,
                 ],
             )
             row = cursor.fetchone()
