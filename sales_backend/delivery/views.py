@@ -421,7 +421,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             height - delivery_table._height - 75
             if num_pages > 1
             else (
-                delivery_table._height - ((len(items) - 1) * 32)
+                delivery_table._height - ((len(items) - 1) * 38)
                 if len(items) == 4
                 else (
                     delivery_table._height - 10

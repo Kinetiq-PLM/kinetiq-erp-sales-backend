@@ -77,6 +77,17 @@ class OpportunitiesViewSet(viewsets.ModelViewSet):
     queryset = Opportunities.objects.all()
     serializer_class = OpportunitiesSerializer
 
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        customer = params.get("customer")
+        filtered = {}
+        if customer:
+            filtered["customer__customer_id"] = customer
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+        )
+
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
