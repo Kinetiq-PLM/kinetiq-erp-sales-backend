@@ -71,7 +71,11 @@ def get_sales_report(request: Request):
     data = {}
     total = 0
     for quotation in filtered_q:
-        str_date = str(quotation.date_issued.date())
+        if params.get("period") == "day":
+            hour = quotation.date_issued.hour
+            str_date = f"{quotation.date_issued.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+        else:
+            str_date = str(quotation.date_issued.date())
         if str_date not in data:
             data[str_date] = {
                 "quotations": 0,
@@ -85,7 +89,13 @@ def get_sales_report(request: Request):
         total += 1
 
     for order in filtered_o:
-        str_date = str(order.order_date.date())
+        if params.get("period") == "day":
+            hour = order.order_date.hour
+            str_date = (
+                f"{order.order_date.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+            )
+        else:
+            str_date = str(order.order_date.date())
         if str_date not in data:
             data[str_date] = {
                 "quotations": 0,
@@ -98,7 +108,11 @@ def get_sales_report(request: Request):
         total += 1
 
     for invoice in filtered_i:
-        str_date = str(invoice.invoice_date.date())
+        if params.get("period") == "day":
+            hour = invoice.invoice_date.hour
+            str_date = f"{invoice.invoice_date.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+        else:
+            str_date = str(invoice.invoice_date.date())
         if str_date not in data:
             data[str_date] = {
                 "quotations": 0,
@@ -111,7 +125,11 @@ def get_sales_report(request: Request):
         total += 1
 
     for delivery in filtered_d:
-        str_date = str(delivery.created_at.date())
+        if params.get("period") == "day":
+            hour = delivery.created_at.hour
+            str_date = f"{delivery.created_at.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+        else:
+            str_date = str(delivery.created_at.date())
         if str_date not in data:
             data[str_date] = {
                 "quotations": 0,
@@ -122,9 +140,18 @@ def get_sales_report(request: Request):
         prev = data[str_date].get("deliveries", 0)
         data[str_date]["deliveries"] = prev + 1
         total += 1
-
+    print(data)
     res = []
-    for key in sorted(data.keys(), key=lambda x: datetime.strptime(x, "%Y-%m-%d")):
+    for key in sorted(
+        data.keys(),
+        key=lambda x: (
+            datetime.strptime(
+                x,
+                ("%Y-%m-%d" if params.get("period") != "day" else "%Y-%m-%dT%H:%M:%SZ"),
+            )
+        ),
+    ):
+        print(key, data[key])
         res.append({"date": key, **data[key]})
 
     return Response(
@@ -178,14 +205,33 @@ def get_profit_report(request: Request):
     data = {}
     total_profit = Decimal(0)
     for profit in profits:
-        str_date = str(profit.invoice_date.date())
+        if params.get("period") == "day":
+            hour = profit.invoice_date.hour
+            str_date = f"{profit.invoice_date.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+        else:
+            str_date = str(profit.invoice_date.date())
         if str_date in data:
             data[str_date] += profit.total_amount_paid
         else:
             data[str_date] = profit.total_amount_paid
         total_profit += profit.total_amount_paid
 
-    sales_profits = [{"date": key, "profit": value} for key, value in data.items()]
+    sales_profits = [
+        {"date": key, "profit": data[key]}
+        for key in sorted(
+            data.keys(),
+            key=lambda x: (
+                datetime.strptime(
+                    x,
+                    (
+                        "%Y-%m-%d"
+                        if params.get("period") != "day"
+                        else "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                )
+            ),
+        )
+    ]
 
     return Response(
         {
@@ -235,10 +281,6 @@ def get_product_report(request: Request):
     total_products = (
         filtered_statement_items.aggregate(total=Sum("quantity"))["total"] or 1
     )
-
-    # total_products = (
-    #     StatementItem.objects.aggregate(total=Sum("quantity"))["total"] or 1
-    # )  # Avoid division by zero
 
     top_products = (
         filtered_statement_items.values("product")  # Group by product name

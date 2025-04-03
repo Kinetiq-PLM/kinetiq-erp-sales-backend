@@ -4,6 +4,7 @@ from order.models import Order
 from customer.models import Customer
 from django.contrib import admin
 from django.db import connection
+from django.utils import timezone
 
 
 class Payments(models.Model):
@@ -40,7 +41,7 @@ class SalesInvoices(models.Model):
     delivery_note = models.ForeignKey(
         to="delivery.DeliveryNote", on_delete=models.CASCADE, related_name="invoice"
     )
-    invoice_date = models.DateTimeField(default=datetime.now())
+    invoice_date = models.DateTimeField(default=timezone.now())
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_paid = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
@@ -107,7 +108,7 @@ class SalesInvoicesView(models.Model):
     delivery_note = models.ForeignKey(
         to="delivery.DeliveryNote", on_delete=models.CASCADE
     )
-    invoice_date = models.DateTimeField(default=datetime.now())
+    invoice_date = models.DateTimeField(default=timezone.now())
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_paid = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
