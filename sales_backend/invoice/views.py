@@ -433,11 +433,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 85,
-            (
-                "{0:,.2f}".format(float(invoice.remaining_balance))
-                if invoice.payment_status != "Fully Paid"
-                else str(0)
-            ),
+            ("{0:,.2f}".format(float(invoice.remaining_balance))),
         )
 
         # Footer
