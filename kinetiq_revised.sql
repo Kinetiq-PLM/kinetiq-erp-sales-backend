@@ -265,7 +265,8 @@ CREATE TYPE public.completion_status_enum AS ENUM (
     'Partially Delivered',
     'Completed',
     'Cancelled',
-    'Pending Approval'
+    'Pending Approval',
+    'Project Ongoing'
 );
 
 
@@ -6123,6 +6124,21 @@ CREATE VIEW sales.order_approval AS
 ALTER VIEW sales.order_approval OWNER TO postgres;
 
 --
+-- Name: order_request_status; Type: VIEW; Schema: sales; Owner: postgres
+--
+
+CREATE VIEW sales.order_request_status AS
+ SELECT oa.order_id,
+    oa.ext_project_request_id,
+    ex.project_status
+   FROM (sales.order_approval oa
+     JOIN project_management.external_project_details ex ON (((oa.ext_project_request_id)::text = (ex.ext_project_request_id)::text)))
+  WHERE (oa.status = 'approved'::public.management_approval_status);
+
+
+ALTER VIEW sales.order_request_status OWNER TO postgres;
+
+--
 -- Name: statement_item; Type: TABLE; Schema: sales; Owner: postgres
 --
 
@@ -6174,14 +6190,17 @@ CREATE VIEW sales.order_view AS
     o.order_type,
         CASE
             WHEN ((o.order_type = 'Project-Based'::public.order_type_enum) AND ((oa.status = 'pending'::public.management_approval_status) OR (oa.approval_id IS NULL))) THEN 'Pending Approval'::public.completion_status_enum
+            WHEN ((o.order_type = 'Project-Based'::public.order_type_enum) AND (oa.status = 'rejected'::public.management_approval_status)) THEN 'Cancelled'::public.completion_status_enum
+            WHEN ((o.order_type = 'Project-Based'::public.order_type_enum) AND ((oa.status = 'approved'::public.management_approval_status) AND ((rs.* IS NULL) OR (rs.project_status <> 'completed'::public.project_status)))) THEN 'Project Ongoing'::public.completion_status_enum
             WHEN (dq.total_delivered >= rq.required_quantity) THEN 'Completed'::public.completion_status_enum
             WHEN (((o.order_type = 'Non-Project-Based'::public.order_type_enum) AND ((dq.total_delivered = 0) OR (dq.* IS NULL))) OR ((o.order_type = 'Project-Based'::public.order_type_enum) AND (oa.status = 'approved'::public.management_approval_status) AND ((dq.total_delivered = 0) OR (dq.* IS NULL)))) THEN 'Open'::public.completion_status_enum
             ELSE 'Partially Delivered'::public.completion_status_enum
         END AS completion_status
-   FROM (((sales.orders o
+   FROM ((((sales.orders o
      LEFT JOIN requiredquantities rq ON (((rq.order_id)::text = (o.order_id)::text)))
      LEFT JOIN deliveredquantities dq ON (((dq.order_id)::text = (o.order_id)::text)))
-     LEFT JOIN sales.order_approval oa ON (((oa.order_id)::text = (o.order_id)::text)));
+     LEFT JOIN sales.order_approval oa ON (((oa.order_id)::text = (o.order_id)::text)))
+     LEFT JOIN sales.order_request_status rs ON (((rs.order_id)::text = (o.order_id)::text)));
 
 
 ALTER VIEW sales.order_view OWNER TO postgres;
@@ -7871,6 +7890,7 @@ MNG-APP-2025-451715	\N	\N	2025-03-23	2025-03-19	\N	2025-04-03	pending	2025-03-27
 MNG-APP-2025-2bcfba	\N	\N	2025-03-24	2025-03-20	\N	2025-04-03	approved	2025-03-28	Approved after final inspection.
 MNG-APP-2025-bf0662	\N	\N	2025-04-07	2025-04-02	\N	2025-04-05	pending	2025-04-10	Pending further verification
 MNG-APP-2025-4cdf9f	\N	\N	2025-04-09	2025-04-01	\N	2025-04-05	approved	2025-04-13	Approved after review
+MNG-APP-2025-7326e6	\N	\N	2025-04-06	2025-04-03	\N	2025-04-05	approved	2025-04-07	Approved without issues
 \.
 
 
@@ -8294,6 +8314,8 @@ PROJ-EPD-2025-1ebb34	\N	in progress
 PROJ-EPD-2025-c45a81	\N	not started
 PROJ-EPD-2025-7a938f	\N	completed
 PROJ-EPD-2025-c627ef	\N	in progress
+PROJ-EPD-2025-13b017	PROJ-EPR-2025-6c02c5	in progress
+PROJ-EPD-2025-f26525	PROJ-EPR-2025-29222a	completed
 \.
 
 
@@ -8352,6 +8374,7 @@ PROJ-EPR-2025-ff2708	Wato EX-20 x9	Client requested 9 Wato EX-20 anesthesia mach
 PROJ-EPR-2025-d440b7	Rad-97 Pulse CO-Oximeter x22	Producing 22 Rad-97 Pulse CO-Oximeters for the hospital.	\N	\N
 PROJ-EPR-2025-75ae9f	Project for Order SALES-ORD-2025-e9e491	Automatically generated project request	MNG-APP-2025-bf0662	SALES-ORD-2025-e9e491
 PROJ-EPR-2025-6c02c5	Project for Order SALES-ORD-2025-3da857	Automatically generated project request	MNG-APP-2025-4cdf9f	SALES-ORD-2025-3da857
+PROJ-EPR-2025-29222a	Project for Order SALES-ORD-2025-f6026d	Automatically generated project request	MNG-APP-2025-7326e6	SALES-ORD-2025-f6026d
 \.
 
 
@@ -9212,6 +9235,7 @@ SALES-ORD-2025-13e08f	\N	SALES-STM-2025-552eda	\N	2025-04-03 13:47:12.914	Non-Pr
 SALES-ORD-2025-550506	SALES-QT-2025-3ed258	SALES-STM-2025-d967a6	\N	2025-04-04 05:04:34.111	Non-Project-Based
 SALES-ORD-2025-e9e491	\N	SALES-STM-2025-465d51	PROJ-EPR-2025-75ae9f	2025-04-05 02:17:03.491	Project-Based
 SALES-ORD-2025-3da857	\N	SALES-STM-2025-7df87f	PROJ-EPR-2025-6c02c5	2025-04-05 02:28:59.865	Project-Based
+SALES-ORD-2025-f6026d	\N	SALES-STM-2025-b218fa	PROJ-EPR-2025-29222a	2025-04-06 06:36:25.15	Project-Based
 \.
 
 
@@ -9228,6 +9252,7 @@ COPY sales.payments (payment_id, order_id, payment_method, payment_status, payme
 --
 
 COPY sales.product_pricing (product_id, admin_product_id, markup_percentage, selling_price, demand_level) FROM stdin;
+SALE-PRDP-2025-88c2f5	ADMIN-PROD-2025-a91bb4	20.00	6739.20	Low
 SALE-PRDP-2025-f8ce70	ADMIN-PROD-2025-3d2161	80.00	1502.28	High
 SALE-PRDP-2025-33da52	ADMIN-PROD-2025-02ff2d	60.00	205920.00	Medium
 SALE-PRDP-2025-c529ee	ADMIN-PROD-2025-00b71e	60.00	53264.64	Medium
@@ -9237,7 +9262,6 @@ SALE-PRDP-2025-832448	ADMIN-PROD-2025-be1f5a	80.00	7118.28	High
 SALE-PRDP-2025-c6452a	ADMIN-PROD-2025-e41609	80.00	7118.28	High
 SALE-PRDP-2025-0326d6	ADMIN-PROD-2025-8e1165	60.00	53264.64	Medium
 SALE-PRDP-2025-d4c02b	ADMIN-PROD-2025-5cdf91	100.00	4914.00	Very High
-SALE-PRDP-2025-88c2f5	ADMIN-PROD-2025-a91bb4	20.00	6739.20	Low
 SALE-PRDP-2025-89e5ac	ADMIN-PROD-2025-be7173	100.00	1560.00	Very High
 SALE-PRDP-2025-0c1192	ADMIN-PROD-2025-c1488e	100.00	7909.20	Very High
 SALE-PRDP-2025-4ed753	ADMIN-PROD-2025-e87f45	20.00	262407.60	Low
@@ -9278,6 +9302,7 @@ SALES-QT-2025-b3e5ca	SALES-STM-2025-6f245d	\N	2025-04-03 06:19:21.58709
 SALES-QT-2025-d6431e	SALES-STM-2025-183515	\N	2025-04-03 06:20:28.807656
 SALES-QT-2025-bcada4	SALES-STM-2025-26eca8	\N	2025-04-03 15:08:53.179869
 SALES-QT-2025-3ed258	SALES-STM-2025-10383f	\N	2025-04-04 05:04:24.313826
+SALES-QT-2025-64f446	SALES-STM-2025-d5d2b4	\N	2025-04-06 07:38:12.61757
 \.
 
 
@@ -9418,6 +9443,8 @@ SALES-STM-2025-aebb62	SALES-CUST-2025-d5f158	HR-EMP-2025-e6e5d7	288650.71	0.00	3
 SALES-STM-2025-d0622c	SALES-CUST-2025-a7c04f	HR-EMP-2025-b2d0da	632143.24	0.00	67729.63	2025-04-05 02:09:09.131135
 SALES-STM-2025-465d51	SALES-CUST-2025-a7c04f	HR-EMP-2025-b2d0da	632143.24	0.00	67729.63	2025-04-05 02:17:03.53867
 SALES-STM-2025-7df87f	SALES-CUST-2025-78bcea	HR-EMP-2025-b2d0da	299928.54	0.00	32135.20	2025-04-05 02:28:59.913475
+SALES-STM-2025-b218fa	SALES-CUST-2025-74b2fb	HR-EMP-2025-2210a1	1997481.47	0.00	214015.87	2025-04-06 06:36:25.206995
+SALES-STM-2025-d5d2b4	SALES-CUST-2025-ea5cdf	HR-EMP-2025-7a53e0	1997481.47	0.00	214015.87	2025-04-06 07:38:12.593056
 \.
 
 
@@ -9574,6 +9601,8 @@ SALES-STI-2025-14a841	SALES-STM-2025-465d51	ADMIN-PROD-2025-895942	\N	\N	1	0	262
 SALES-STI-2025-7ea4a3	SALES-STM-2025-465d51	ADMIN-PROD-2025-0873dd	\N	\N	1	0	216425.66	0.00	216425.66	0.00	\N	\N	0	2025-04-05 02:07:13.499304	\N
 SALES-STI-2025-4b6099	SALES-STM-2025-7df87f	ADMIN-PROD-2025-0873dd	\N	\N	1	0	216425.66	0.00	216425.66	0.00	\N	\N	0	2025-04-05 02:07:13.499304	\N
 SALES-STI-2025-6166ca	SALES-STM-2025-7df87f	ADMIN-PROD-2025-f9a4fb	\N	\N	1	0	51367.68	0.00	51367.68	0.00	\N	\N	0	2025-04-05 02:07:13.499304	\N
+SALES-STI-2025-6e930d	SALES-STM-2025-b218fa	ADMIN-PROD-2025-0b8083	\N	\N	1	0	1783465.60	0.00	1997481.47	214015.87	\N	\N	0	2025-04-06 06:29:54.168346	request for built-in battery backup
+SALES-STI-2025-b7649c	SALES-STM-2025-d5d2b4	ADMIN-PROD-2025-0b8083	\N	\N	1	0	1783465.60	0.00	1997481.47	214015.87	\N	\N	0	2025-04-06 06:29:54.168346	request for extended temperature and humidity control ranges
 \.
 
 
@@ -15053,6 +15082,13 @@ GRANT SELECT,INSERT,UPDATE ON TABLE sales.orders TO erp_user;
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE sales.order_approval TO erp_user;
+
+
+--
+-- Name: TABLE order_request_status; Type: ACL; Schema: sales; Owner: postgres
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE sales.order_request_status TO erp_user;
 
 
 --
