@@ -13,6 +13,7 @@ from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from textwrap import wrap
 from utils import *
+from itertools import zip_longest
 
 
 class SalesInvoicesViewSet(viewsets.ModelViewSet):
@@ -184,16 +185,36 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
             formatted_invoice_date = invoice.invoice_date.strftime("%d %B %Y")
+            order_items = StatementSerializer(
+                invoice.delivery_note.order.statement
+            ).data["items"]
+            delivery_items = StatementSerializer(invoice.delivery_note.statement).data[
+                "items"
+            ]
+
+            is_partial = False
+            for order, delivery in zip_longest(order_items, delivery_items):
+                if delivery is None:
+                    is_partial = True
+                elif order["quantity"] != delivery["quantity"]:
+                    is_partial = True
+
             table_data = [
-                ["Invoice Date", "Payment Terms", "Payment Status"],
+                [
+                    "Invoice Date",
+                    "Payment Terms",
+                    "Order Fulfillment",
+                    "Payment Status",
+                ],
                 [
                     formatted_invoice_date,
                     Paragraph("30% Downpayment, 70% After Delivery", style=style),
+                    "Partial" if is_partial else "Full",
                     invoice.payment_status,
                 ],
             ]
 
-            col_width = (width - 60) / 3
+            col_width = (width - 60) / len(table_data[0])
             max_width = 350
             table = Table(table_data, colWidths=[col_width, col_width, col_width])
             # table_width, table_height = table.wrap(max_width, ma)

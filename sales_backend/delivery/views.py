@@ -241,8 +241,8 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                 else "-"
             )
             formatted_due_date = (
-                delivery.estimated_delivery.strftime("%d %B %Y")
-                if delivery.estimated_delivery
+                delivery.actual_delivery_date.strftime("%d %B %Y")
+                if delivery.actual_delivery_date
                 else "-"
             )
 
