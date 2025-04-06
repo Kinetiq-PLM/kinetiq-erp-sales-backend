@@ -6100,7 +6100,8 @@ CREATE TABLE sales.orders (
     statement_id character varying(255),
     ext_project_request_id character varying(255),
     order_date timestamp without time zone DEFAULT now(),
-    order_type public.order_type_enum
+    order_type public.order_type_enum,
+    agreement_id character varying(255)
 );
 
 
@@ -9219,23 +9220,23 @@ SALES-OPP-2025-ccfbe7	SALES-CUST-2025-b7a04d	ADMIN-PARTNER-2025-8f0106	HR-EMP-20
 -- Data for Name: orders; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.orders (order_id, quotation_id, statement_id, ext_project_request_id, order_date, order_type) FROM stdin;
-SALES-ORD-2025-5e921a	SALES-QT-2025-66004b	SALES-STM-2025-efe3cf	\N	2025-04-03 06:00:53.442	Non-Project-Based
-SALES-ORD-2025-ef11ca	SALES-QT-2025-1affce	SALES-STM-2025-68dbc4	\N	2025-04-03 06:02:33.466	Non-Project-Based
-SALES-ORD-2025-9407a5	SALES-QT-2025-cb9b86	SALES-STM-2025-04718f	\N	2025-04-03 06:07:49.43	Non-Project-Based
-SALES-ORD-2025-c01978	SALES-QT-2025-0cda37	SALES-STM-2025-88e49b	\N	2025-04-03 06:12:45.893	Non-Project-Based
-SALES-ORD-2025-f44978	SALES-QT-2025-1ce827	SALES-STM-2025-0fd2d5	\N	2025-04-03 06:14:32.607	Non-Project-Based
-SALES-ORD-2025-c0e0d2	SALES-QT-2025-aa1e6f	SALES-STM-2025-ac87c8	\N	2025-04-03 06:17:14.648	Non-Project-Based
-SALES-ORD-2025-f78712	SALES-QT-2025-44e6f0	SALES-STM-2025-8426f0	\N	2025-04-03 06:17:47.418	Non-Project-Based
-SALES-ORD-2025-dcb4c4	SALES-QT-2025-1838db	SALES-STM-2025-99d0db	\N	2025-04-03 06:18:56.224	Non-Project-Based
-SALES-ORD-2025-1ec884	SALES-QT-2025-b3e5ca	SALES-STM-2025-014ed1	\N	2025-04-03 06:19:24.978	Non-Project-Based
-SALES-ORD-2025-1c65f7	SALES-QT-2025-d6431e	SALES-STM-2025-43b069	\N	2025-04-03 06:20:31.807	Non-Project-Based
-SALES-ORD-2025-def3b5	\N	SALES-STM-2025-5ce031	\N	2025-04-03 10:32:58.304	Non-Project-Based
-SALES-ORD-2025-13e08f	\N	SALES-STM-2025-552eda	\N	2025-04-03 13:47:12.914	Non-Project-Based
-SALES-ORD-2025-550506	SALES-QT-2025-3ed258	SALES-STM-2025-d967a6	\N	2025-04-04 05:04:34.111	Non-Project-Based
-SALES-ORD-2025-e9e491	\N	SALES-STM-2025-465d51	PROJ-EPR-2025-75ae9f	2025-04-05 02:17:03.491	Project-Based
-SALES-ORD-2025-3da857	\N	SALES-STM-2025-7df87f	PROJ-EPR-2025-6c02c5	2025-04-05 02:28:59.865	Project-Based
-SALES-ORD-2025-f6026d	\N	SALES-STM-2025-b218fa	PROJ-EPR-2025-29222a	2025-04-06 06:36:25.15	Project-Based
+COPY sales.orders (order_id, quotation_id, statement_id, ext_project_request_id, order_date, order_type, agreement_id) FROM stdin;
+SALES-ORD-2025-5e921a	SALES-QT-2025-66004b	SALES-STM-2025-efe3cf	\N	2025-04-03 06:00:53.442	Non-Project-Based	\N
+SALES-ORD-2025-ef11ca	SALES-QT-2025-1affce	SALES-STM-2025-68dbc4	\N	2025-04-03 06:02:33.466	Non-Project-Based	\N
+SALES-ORD-2025-9407a5	SALES-QT-2025-cb9b86	SALES-STM-2025-04718f	\N	2025-04-03 06:07:49.43	Non-Project-Based	\N
+SALES-ORD-2025-c01978	SALES-QT-2025-0cda37	SALES-STM-2025-88e49b	\N	2025-04-03 06:12:45.893	Non-Project-Based	\N
+SALES-ORD-2025-f44978	SALES-QT-2025-1ce827	SALES-STM-2025-0fd2d5	\N	2025-04-03 06:14:32.607	Non-Project-Based	\N
+SALES-ORD-2025-c0e0d2	SALES-QT-2025-aa1e6f	SALES-STM-2025-ac87c8	\N	2025-04-03 06:17:14.648	Non-Project-Based	\N
+SALES-ORD-2025-f78712	SALES-QT-2025-44e6f0	SALES-STM-2025-8426f0	\N	2025-04-03 06:17:47.418	Non-Project-Based	\N
+SALES-ORD-2025-dcb4c4	SALES-QT-2025-1838db	SALES-STM-2025-99d0db	\N	2025-04-03 06:18:56.224	Non-Project-Based	\N
+SALES-ORD-2025-1ec884	SALES-QT-2025-b3e5ca	SALES-STM-2025-014ed1	\N	2025-04-03 06:19:24.978	Non-Project-Based	\N
+SALES-ORD-2025-1c65f7	SALES-QT-2025-d6431e	SALES-STM-2025-43b069	\N	2025-04-03 06:20:31.807	Non-Project-Based	\N
+SALES-ORD-2025-def3b5	\N	SALES-STM-2025-5ce031	\N	2025-04-03 10:32:58.304	Non-Project-Based	\N
+SALES-ORD-2025-13e08f	\N	SALES-STM-2025-552eda	\N	2025-04-03 13:47:12.914	Non-Project-Based	\N
+SALES-ORD-2025-550506	SALES-QT-2025-3ed258	SALES-STM-2025-d967a6	\N	2025-04-04 05:04:34.111	Non-Project-Based	\N
+SALES-ORD-2025-e9e491	\N	SALES-STM-2025-465d51	PROJ-EPR-2025-75ae9f	2025-04-05 02:17:03.491	Project-Based	\N
+SALES-ORD-2025-3da857	\N	SALES-STM-2025-7df87f	PROJ-EPR-2025-6c02c5	2025-04-05 02:28:59.865	Project-Based	\N
+SALES-ORD-2025-f6026d	\N	SALES-STM-2025-b218fa	PROJ-EPR-2025-29222a	2025-04-06 06:36:25.15	Project-Based	\N
 \.
 
 
@@ -13789,6 +13790,14 @@ ALTER TABLE ONLY sales.opportunities
 
 ALTER TABLE ONLY sales.opportunities
     ADD CONSTRAINT fk_opportunities_salesrep FOREIGN KEY (salesrep_id) REFERENCES human_resources.employees(employee_id) ON DELETE CASCADE;
+
+
+--
+-- Name: orders fk_orders_agreement; Type: FK CONSTRAINT; Schema: sales; Owner: postgres
+--
+
+ALTER TABLE ONLY sales.orders
+    ADD CONSTRAINT fk_orders_agreement FOREIGN KEY (agreement_id) REFERENCES sales.blanket_agreement(agreement_id) ON DELETE SET NULL;
 
 
 --
