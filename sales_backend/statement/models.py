@@ -90,6 +90,7 @@ class StatementItem(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    special_requests = models.TextField(null=True, blank=True)
     return_reason = models.TextField(blank=True, null=True)
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
     quantity_delivered = models.IntegerField(default=0, blank=True)
