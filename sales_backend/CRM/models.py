@@ -179,11 +179,16 @@ class Ticket(models.Model):
         HIGH = "High"
         URGENT = "Urgent"
 
+    class Type(models.TextChoices):
+        SALES = "Sales"
+        SERVICE = "Service"
+
     ticket_id = models.CharField(primary_key=True, max_length=255, blank=True)
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE, null=True)
     subject = models.CharField(max_length=255)
     description = models.TextField()
+    type = models.TextField(choices=Type)
     status = models.TextField(choices=Status)
     priority = models.TextField(choices=Priority)
     created_at = models.DateTimeField(default=timezone.now())
