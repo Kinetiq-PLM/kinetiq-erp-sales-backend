@@ -28,6 +28,12 @@ class Order(models.Model):
     quotation = models.ForeignKey(
         to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
     )
+    agreement = models.ForeignKey(
+        to="agreement.BlanketAgreement",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     ext_project_request = models.ForeignKey(
         to=ExternalProjectRequest, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -54,7 +60,7 @@ class Order(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id)
+                    INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id, agreement_id)
                     VALUES (%s, %s, %s, %s, %s)
                     RETURNING order_id;
                 """,
@@ -68,6 +74,7 @@ class Order(models.Model):
                         if self.ext_project_request
                         else None
                     ),
+                    self.agreement.agreement_id if self.agreement else None,
                 ],
             )
             row = cursor.fetchone()
@@ -79,7 +86,7 @@ class Order(models.Model):
             cursor.execute(
                 """
                     UPDATE sales.orders 
-                    SET order_date = %s, order_type = %s, quotation_id = %s, statement_id = %s, ext_project_request_id = %s
+                    SET order_date = %s, order_type = %s, quotation_id = %s, statement_id = %s, ext_project_request_id = %s, agreement_id = %s
                     WHERE order_id = %s;
                 """,
                 [
@@ -92,6 +99,7 @@ class Order(models.Model):
                         if self.ext_project_request
                         else None
                     ),
+                    self.agreement.agreement_id if self.agreement else None,
                     self.order_id,
                 ],
             )
@@ -101,6 +109,12 @@ class OrderView(models.Model):
     order_id = models.CharField(primary_key=True, max_length=255, blank=True)
     quotation = models.ForeignKey(
         to="quotation.Quotation", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    agreement = models.ForeignKey(
+        to="agreement.BlanketAgreement",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     ext_project_request = models.ForeignKey(
         to=ExternalProjectRequest, on_delete=models.SET_NULL, null=True, blank=True
