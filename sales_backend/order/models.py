@@ -61,7 +61,7 @@ class Order(models.Model):
             cursor.execute(
                 """
                     INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id, agreement_id)
-                    VALUES (%s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING order_id;
                 """,
                 [

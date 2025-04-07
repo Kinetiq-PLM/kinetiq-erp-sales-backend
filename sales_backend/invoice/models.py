@@ -1,10 +1,9 @@
 from django.db import models
-from datetime import datetime
 from order.models import Order
-from customer.models import Customer
 from django.contrib import admin
 from django.db import connection
 from django.utils import timezone
+from django.apps import apps
 
 
 class Payments(models.Model):
@@ -121,3 +120,10 @@ class SalesInvoicesView(models.Model):
     class Meta:
         managed = False
         db_table = '"sales"."sales_invoices_view"'
+
+    @classmethod
+    def refresh(cls):
+        apps.clear_cache()
+        from django.db import connections
+
+        connections["default"].close()

@@ -21,6 +21,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
     serializer_class = SalesInvoicesSerializer
 
     def list(self, request, *args, **kwargs):
+        SalesInvoicesView.refresh()
         return Response(SalesInvoicesViewSerializer(self.queryset, many=True).data)
 
     def create(self, request: Request, *args, **kwargs):
