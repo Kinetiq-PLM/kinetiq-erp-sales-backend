@@ -140,7 +140,6 @@ def get_sales_report(request: Request):
         prev = data[str_date].get("deliveries", 0)
         data[str_date]["deliveries"] = prev + 1
         total += 1
-    print(data)
     res = []
     for key in sorted(
         data.keys(),
@@ -151,7 +150,6 @@ def get_sales_report(request: Request):
             )
         ),
     ):
-        print(key, data[key])
         res.append({"date": key, **data[key]})
 
     return Response(
@@ -305,4 +303,32 @@ def get_product_report(request: Request):
         {"product": "Others", "percentage": round(100 - total_percent, 2)}
     )
     data["total_sold"] = total_products
+    return Response(data)
+
+
+@api_view(["GET"])
+def get_employee_report(request: Request):
+    total_revenue = (
+        Order.objects.aggregate(total=Sum("statement__total_amount"))["total"] or 1
+    )  # Avoid division by zero
+
+    # Get the top 3 employees by total spending
+    top_employees = (
+        Order.objects.values("statement__salesrep")
+        .annotate(total_sales=Sum("statement__total_amount"))
+        .order_by("-total_sales")[:3]
+    )
+
+    data = {"top_employees": []}
+
+    # Calculate each top customer's percentage of total revenue
+    for employee in top_employees:
+        model = get_object_or_404(Employees, pk=employee["statement__salesrep"])
+        data["top_employees"].append(
+            {
+                "employee": f"{model.first_name} {model.last_name}",
+                "percentage": round((employee["total_sales"] / total_revenue) * 100, 2),
+            }
+        )
+
     return Response(data)
