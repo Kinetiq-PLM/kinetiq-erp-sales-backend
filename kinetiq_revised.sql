@@ -1128,6 +1128,18 @@ CREATE TYPE public.ticket_status_enum AS ENUM (
 ALTER TYPE public.ticket_status_enum OWNER TO postgres;
 
 --
+-- Name: ticket_type_enum; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.ticket_type_enum AS ENUM (
+    'Sales',
+    'Service'
+);
+
+
+ALTER TYPE public.ticket_type_enum OWNER TO postgres;
+
+--
 -- Name: unit_of_measure; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -6377,7 +6389,8 @@ CREATE TABLE sales.ticket (
     description text,
     status public.ticket_status_enum,
     priority public.ticket_priority_enum,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    type public.ticket_type_enum DEFAULT 'Service'::public.ticket_type_enum
 );
 
 
@@ -9027,7 +9040,6 @@ SALES-CONTACT-2025-aa75a0	\N	\N	Interested
 SALES-CONTACT-2025-c0cb7d	\N	\N	Pending
 SALES-CONTACT-2025-eec79c	SALES-CUST-2025-a09148	SALES-CMPGN-2025-b6dafb	Pending
 SALES-CONTACT-2025-3fbcc5	SALES-CUST-2025-74b2fb	SALES-CMPGN-2025-b6dafb	Pending
-SALES-CONTACT-2025-05a76c	SALES-CUST-2025-596d6f	SALES-CMPGN-2025-b6dafb	Pending
 SALES-CONTACT-2025-5584dc	SALES-CUST-2025-78bcea	SALES-CMPGN-2025-c38238	Pending
 SALES-CONTACT-2025-83b4a9	SALES-CUST-2025-74b2fb	SALES-CMPGN-2025-c38238	Pending
 SALES-CONTACT-2025-0000f3	SALES-CUST-2025-b7a04d	SALES-CMPGN-2025-c38238	Pending
@@ -9069,6 +9081,7 @@ SALES-CONTACT-2025-1dd301	SALES-CUST-2025-ae23ed	SALES-CMPGN-2025-d03615	Pending
 SALES-CONTACT-2025-296f52	SALES-CUST-2025-d5f158	SALES-CMPGN-2025-d03615	Pending
 SALES-CONTACT-2025-aaaa17	SALES-CUST-2025-ea5cdf	SALES-CMPGN-2025-df7200	Pending
 SALES-CONTACT-2025-95a91c	SALES-CUST-2025-70f1a2	SALES-CMPGN-2025-8c9435	Pending
+SALES-CONTACT-2025-36a869	SALES-CUST-2025-596d6f	SALES-CMPGN-2025-b6dafb	Pending
 \.
 
 
@@ -9611,28 +9624,28 @@ SALES-STI-2025-b7649c	SALES-STM-2025-d5d2b4	ADMIN-PROD-2025-0b8083	\N	\N	1	0	178
 -- Data for Name: ticket; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, created_at) FROM stdin;
-SALES-TICKET-2025-e2d956	\N	\N	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-da9216	\N	\N	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-6ab926	\N	\N	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-15ccfe	\N	\N	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-a742da	\N	\N	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-e232ba	\N	\N	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-e5dbb1	\N	\N	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-d65f45	\N	\N	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-052c13	\N	\N	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-9eef40	\N	\N	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-ef74d3	\N	\N	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-36bf52	\N	\N	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-1c6e24	\N	\N	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-8d114b	\N	\N	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-fc1f3b	\N	\N	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-2ff8d4	\N	\N	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-3f0016	\N	\N	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-6057a0	\N	\N	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-4801ed	\N	\N	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-2a6b86	\N	\N	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	2025-04-03 13:59:20.136009
-SALES-TICKET-2025-247159	SALES-CUST-2025-a09148	HR-EMP-2025-2210a1	Damaged equipment	Customer received damaged HyLED 7 Series	Open	High	2025-04-03 06:36:17.379
+COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, created_at, type) FROM stdin;
+SALES-TICKET-2025-e2d956	\N	\N	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-da9216	\N	\N	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-6ab926	\N	\N	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-15ccfe	\N	\N	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-a742da	\N	\N	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-e232ba	\N	\N	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-e5dbb1	\N	\N	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-d65f45	\N	\N	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-052c13	\N	\N	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-9eef40	\N	\N	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-ef74d3	\N	\N	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-36bf52	\N	\N	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-1c6e24	\N	\N	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-8d114b	\N	\N	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-fc1f3b	\N	\N	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-2ff8d4	\N	\N	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-3f0016	\N	\N	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-6057a0	\N	\N	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-4801ed	\N	\N	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-2a6b86	\N	\N	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	2025-04-03 13:59:20.136009	Service
+SALES-TICKET-2025-247159	SALES-CUST-2025-a09148	HR-EMP-2025-2210a1	Damaged equipment	Customer received damaged HyLED 7 Series	Open	High	2025-04-03 06:36:17.379	Service
 \.
 
 
