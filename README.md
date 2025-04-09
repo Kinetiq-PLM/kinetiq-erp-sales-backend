@@ -98,3 +98,8 @@ $ python manage.py runserver
 
 - Automatically generated once delivery is submitted
 - Contains total cost of the delivery and balance due
+
+### To simulate an invalid invoice (returned)
+
+- Set invoice field `is_returned` to `TRUE`
+- sales_invoices_view should automatically reflect the status to be `Returned`
