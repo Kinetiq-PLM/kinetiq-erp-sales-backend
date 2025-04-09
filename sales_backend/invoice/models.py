@@ -40,6 +40,7 @@ class SalesInvoices(models.Model):
     delivery_note = models.ForeignKey(
         to="delivery.DeliveryNote", on_delete=models.CASCADE, related_name="invoice"
     )
+    is_returned = models.BooleanField()
     invoice_date = models.DateTimeField(default=timezone.now())
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_paid = models.DecimalField(
@@ -68,14 +69,15 @@ class SalesInvoices(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.sales_invoices (delivery_note_id, total_amount, total_amount_paid)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO sales.sales_invoices (delivery_note_id, total_amount, total_amount_paid, is_returned)
+                    VALUES (%s, %s, %s, %s)
                     RETURNING invoice_id;
                 """,
                 [
                     self.delivery_note.delivery_id,
                     self.total_amount,
                     self.total_amount_paid,
+                    self.is_returned,
                 ],
             )
             row = cursor.fetchone()
@@ -89,7 +91,7 @@ class SalesInvoices(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.sales_invoices 
-                SET delivery_note_id = %s, invoice_date = %s, total_amount = %s, total_amount_paid = %s
+                SET delivery_note_id = %s, invoice_date = %s, total_amount = %s, total_amount_paid = %s, is_returned = %s
                 WHERE invoice_id = %s
             """,
                 [
@@ -97,6 +99,7 @@ class SalesInvoices(models.Model):
                     self.invoice_date,
                     self.total_amount,
                     self.total_amount_paid,
+                    self.is_returned,
                     self.invoice_id,
                 ],
             )
@@ -107,6 +110,7 @@ class SalesInvoicesView(models.Model):
     delivery_note = models.ForeignKey(
         to="delivery.DeliveryNote", on_delete=models.CASCADE
     )
+    is_returned = models.BooleanField()
     invoice_date = models.DateTimeField(default=timezone.now())
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_paid = models.DecimalField(
