@@ -53,6 +53,8 @@ class OpportunitiesSerializer(serializers.ModelSerializer):
 
 
 class TicketConvoSerializer(serializers.ModelSerializer):
+    ticket = serializers.PrimaryKeyRelatedField(queryset=Ticket.objects.all())
+
     class Meta:
         model = TicketConvo
         fields = "__all__"
@@ -66,3 +68,13 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["customer"] = CustomerSerializer(
+            get_object_or_404(Customer, pk=data.pop("customer"))
+        ).data
+        data["salesrep"] = EmployeesSerializer(
+            get_object_or_404(Employees, pk=data.pop("salesrep"))
+        ).data
+        return data

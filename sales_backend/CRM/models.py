@@ -256,8 +256,9 @@ class TicketConvo(models.Model):
     ticket = models.ForeignKey(
         to=Ticket, on_delete=models.CASCADE, related_name="conversations"
     )
+    subject = models.CharField(max_length=255)
     content = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now())
+    created_at = models.DateTimeField(default=timezone.now())
 
     class Meta:
         managed = False
