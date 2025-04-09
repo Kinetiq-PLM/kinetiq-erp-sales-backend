@@ -706,7 +706,8 @@ ALTER TYPE public.payment_method_enum OWNER TO postgres;
 CREATE TYPE public.payment_status_enum AS ENUM (
     'Unpaid',
     'Partially Paid',
-    'Fully Paid'
+    'Fully Paid',
+    'Returned'
 );
 
 
@@ -6334,7 +6335,8 @@ CREATE TABLE sales.sales_invoices (
     invoice_date timestamp without time zone DEFAULT now(),
     total_amount numeric(10,2),
     total_amount_paid numeric(10,2) DEFAULT 0,
-    remaining_balance numeric(10,2) GENERATED ALWAYS AS ((total_amount - total_amount_paid)) STORED
+    remaining_balance numeric(10,2) GENERATED ALWAYS AS ((total_amount - total_amount_paid)) STORED,
+    is_returned boolean DEFAULT false
 );
 
 
@@ -6351,7 +6353,9 @@ CREATE VIEW sales.sales_invoices_view AS
     total_amount,
     total_amount_paid,
     remaining_balance,
+    is_returned,
         CASE
+            WHEN (is_returned = true) THEN 'Returned'::public.payment_status_enum
             WHEN (total_amount = total_amount_paid) THEN 'Fully Paid'::public.payment_status_enum
             WHEN (total_amount_paid = (0)::numeric) THEN 'Unpaid'::public.payment_status_enum
             ELSE 'Partially Paid'::public.payment_status_enum
@@ -6405,7 +6409,8 @@ CREATE TABLE sales.ticket_convo (
     convo_id character varying(255) NOT NULL,
     ticket_id character varying(255),
     content character varying(255),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    subject character varying(255)
 );
 
 
@@ -8812,6 +8817,26 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 57	2025-04-07 19:20:22.852563+08	SALES-SHIP-2025-0a5346	DeliveryNote object (SALES-SHIP-2025-0a5346)	2	[{"changed": {"fields": ["Shipment"]}}]	9	1
 58	2025-04-07 19:21:19.441788+08	a	ShipmentDetails object (a)	1	[{"added": {}}]	10	1
 59	2025-04-07 19:21:34.231552+08	SALES-SHIP-2025-9806c3	DeliveryNote object (SALES-SHIP-2025-9806c3)	2	[{"changed": {"fields": ["Shipment", "Actual delivery date"]}}]	9	1
+60	2025-04-09 08:30:29.781793+08	SALES-TICKET-2025-fc1f3b	Ticket object (SALES-TICKET-2025-fc1f3b)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+61	2025-04-09 08:30:36.870305+08	SALES-TICKET-2025-ef74d3	Ticket object (SALES-TICKET-2025-ef74d3)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+62	2025-04-09 08:30:47.717478+08	SALES-TICKET-2025-e5dbb1	Ticket object (SALES-TICKET-2025-e5dbb1)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+63	2025-04-09 08:30:54.038213+08	SALES-TICKET-2025-e2d956	Ticket object (SALES-TICKET-2025-e2d956)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+64	2025-04-09 08:31:00.995803+08	SALES-TICKET-2025-e232ba	Ticket object (SALES-TICKET-2025-e232ba)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+65	2025-04-09 08:31:10.809823+08	SALES-TICKET-2025-da9216	Ticket object (SALES-TICKET-2025-da9216)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+66	2025-04-09 08:31:18.14465+08	SALES-TICKET-2025-d65f45	Ticket object (SALES-TICKET-2025-d65f45)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+67	2025-04-09 08:31:23.815836+08	SALES-TICKET-2025-a742da	Ticket object (SALES-TICKET-2025-a742da)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+68	2025-04-09 08:31:31.641999+08	SALES-TICKET-2025-9eef40	Ticket object (SALES-TICKET-2025-9eef40)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+69	2025-04-09 08:31:40.251417+08	SALES-TICKET-2025-8d114b	Ticket object (SALES-TICKET-2025-8d114b)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+70	2025-04-09 08:31:46.595+08	SALES-TICKET-2025-6ab926	Ticket object (SALES-TICKET-2025-6ab926)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+71	2025-04-09 08:31:53.789229+08	SALES-TICKET-2025-6057a0	Ticket object (SALES-TICKET-2025-6057a0)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+72	2025-04-09 08:32:03.059042+08	SALES-TICKET-2025-4801ed	Ticket object (SALES-TICKET-2025-4801ed)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+73	2025-04-09 08:32:12.477361+08	SALES-TICKET-2025-3f0016	Ticket object (SALES-TICKET-2025-3f0016)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+74	2025-04-09 08:32:19.729396+08	SALES-TICKET-2025-36bf52	Ticket object (SALES-TICKET-2025-36bf52)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+75	2025-04-09 08:32:28.750327+08	SALES-TICKET-2025-2ff8d4	Ticket object (SALES-TICKET-2025-2ff8d4)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+76	2025-04-09 08:32:35.909277+08	SALES-TICKET-2025-2a6b86	Ticket object (SALES-TICKET-2025-2a6b86)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+77	2025-04-09 08:32:49.618522+08	SALES-TICKET-2025-1c6e24	Ticket object (SALES-TICKET-2025-1c6e24)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+78	2025-04-09 08:32:56.278077+08	SALES-TICKET-2025-15ccfe	Ticket object (SALES-TICKET-2025-15ccfe)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
+79	2025-04-09 08:33:03.425983+08	SALES-TICKET-2025-052c13	Ticket object (SALES-TICKET-2025-052c13)	2	[{"changed": {"fields": ["Customer", "Salesrep"]}}]	13	1
 \.
 
 
@@ -8832,6 +8857,7 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 10	misc	shipmentdetails
 11	misc	shippingcost
 12	CRM	opportunities
+13	CRM	ticket
 \.
 
 
@@ -9415,30 +9441,30 @@ SALES-RTN-2025-3c6a52	\N	\N	2024-03-20 15:25:00	Pending	Opened package
 -- Data for Name: sales_invoices; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.sales_invoices (invoice_id, delivery_note_id, invoice_date, total_amount, total_amount_paid) FROM stdin;
-SALES-INV-2025-e15e51	SALES-SHIP-2025-dbe0cc	2025-04-03 06:08:23.868019	15724.80	0.00
-SALES-INV-2025-87f5e0	SALES-SHIP-2025-66ee72	2025-04-03 06:14:48.496205	240147.04	0.00
-SALES-INV-2025-df84b8	SALES-SHIP-2025-49780c	2025-04-03 06:18:06.435906	1419594.06	0.00
-SALES-INV-2025-754ece	SALES-SHIP-2025-33bd72	2025-04-03 06:18:58.656321	1500915.39	0.00
-SALES-INV-2025-91a857	SALES-SHIP-2025-5ca8ee	2025-04-03 06:19:32.562663	149815.41	0.00
-SALES-INV-2025-440eb8	SALES-SHIP-2025-496b3a	2025-04-03 06:01:05.357908	400006.67	400006.67
-SALES-INV-2025-05c1c2	SALES-SHIP-2025-15516d	2025-04-03 06:01:32.852221	2000354.72	2000354.72
-SALES-INV-2025-345275	SALES-SHIP-2025-eb2185	2025-04-03 06:02:46.151286	2517075.24	2517075.24
-SALES-INV-2025-d2ecfc	SALES-SHIP-2025-7ec16d	2025-04-03 06:03:04.266539	63272.81	63272.81
-SALES-INV-2025-3c12a4	SALES-SHIP-2025-dfd609	2025-04-03 06:08:00.538145	453971.17	35000.00
-SALES-INV-2025-19bb9c	SALES-SHIP-2025-ff52b4	2025-04-03 06:17:18.747124	1037344.09	500000.00
-SALES-INV-2025-445466	SALES-SHIP-2025-22c26b	2025-04-03 10:34:05.457442	292285.59	0.00
-SALES-INV-2025-4a2911	SALES-SHIP-2025-6a0989	2025-04-03 06:12:52.083797	242231.52	200000.00
-SALES-INV-2025-e174bf	SALES-SHIP-2025-0c95b7	2025-04-03 06:15:02.094272	224334.59	100000.00
-SALES-INV-2025-12f03f	SALES-SHIP-2025-f333c3	2025-04-03 13:47:37.349545	2324057.43	0.00
-SALES-INV-2025-10bbd9	SALES-SHIP-2025-5e9e4d	2025-04-07 11:10:55.238455	7276.64	0.00
-SALES-INV-2025-4e7433	SALES-SHIP-2025-a832c0	2025-04-07 10:54:15.195572	30428.79	0.00
-SALES-INV-2025-c6ee5d	SALES-SHIP-2025-4f1e33	2025-04-07 10:49:30.379747	302634.51	0.00
-SALES-INV-2025-cf94c5	SALES-SHIP-2025-aa1d0f	2025-04-04 05:15:57.509324	288840.71	0.00
-SALES-INV-2025-8ef7b9	SALES-SHIP-2025-b36054	2025-04-03 13:49:19.32116	632333.24	189642.97
-SALES-INV-2025-e983d2	SALES-SHIP-2025-37506b	2025-04-04 05:04:59.053366	577491.42	0.00
-SALES-INV-2025-52dcd3	SALES-SHIP-2025-0a5346	2025-04-03 10:33:21.892619	569847.09	569657.09
-SALES-INV-2025-038e9e	SALES-SHIP-2025-9806c3	2025-04-03 06:21:05.185162	407738.31	0.00
+COPY sales.sales_invoices (invoice_id, delivery_note_id, invoice_date, total_amount, total_amount_paid, is_returned) FROM stdin;
+SALES-INV-2025-e15e51	SALES-SHIP-2025-dbe0cc	2025-04-03 06:08:23.868019	15724.80	0.00	f
+SALES-INV-2025-87f5e0	SALES-SHIP-2025-66ee72	2025-04-03 06:14:48.496205	240147.04	0.00	f
+SALES-INV-2025-df84b8	SALES-SHIP-2025-49780c	2025-04-03 06:18:06.435906	1419594.06	0.00	f
+SALES-INV-2025-754ece	SALES-SHIP-2025-33bd72	2025-04-03 06:18:58.656321	1500915.39	0.00	f
+SALES-INV-2025-91a857	SALES-SHIP-2025-5ca8ee	2025-04-03 06:19:32.562663	149815.41	0.00	f
+SALES-INV-2025-440eb8	SALES-SHIP-2025-496b3a	2025-04-03 06:01:05.357908	400006.67	400006.67	f
+SALES-INV-2025-05c1c2	SALES-SHIP-2025-15516d	2025-04-03 06:01:32.852221	2000354.72	2000354.72	f
+SALES-INV-2025-345275	SALES-SHIP-2025-eb2185	2025-04-03 06:02:46.151286	2517075.24	2517075.24	f
+SALES-INV-2025-d2ecfc	SALES-SHIP-2025-7ec16d	2025-04-03 06:03:04.266539	63272.81	63272.81	f
+SALES-INV-2025-3c12a4	SALES-SHIP-2025-dfd609	2025-04-03 06:08:00.538145	453971.17	35000.00	f
+SALES-INV-2025-19bb9c	SALES-SHIP-2025-ff52b4	2025-04-03 06:17:18.747124	1037344.09	500000.00	f
+SALES-INV-2025-445466	SALES-SHIP-2025-22c26b	2025-04-03 10:34:05.457442	292285.59	0.00	f
+SALES-INV-2025-4a2911	SALES-SHIP-2025-6a0989	2025-04-03 06:12:52.083797	242231.52	200000.00	f
+SALES-INV-2025-e174bf	SALES-SHIP-2025-0c95b7	2025-04-03 06:15:02.094272	224334.59	100000.00	f
+SALES-INV-2025-12f03f	SALES-SHIP-2025-f333c3	2025-04-03 13:47:37.349545	2324057.43	0.00	f
+SALES-INV-2025-10bbd9	SALES-SHIP-2025-5e9e4d	2025-04-07 11:10:55.238455	7276.64	0.00	f
+SALES-INV-2025-4e7433	SALES-SHIP-2025-a832c0	2025-04-07 10:54:15.195572	30428.79	0.00	f
+SALES-INV-2025-c6ee5d	SALES-SHIP-2025-4f1e33	2025-04-07 10:49:30.379747	302634.51	0.00	f
+SALES-INV-2025-cf94c5	SALES-SHIP-2025-aa1d0f	2025-04-04 05:15:57.509324	288840.71	0.00	f
+SALES-INV-2025-8ef7b9	SALES-SHIP-2025-b36054	2025-04-03 13:49:19.32116	632333.24	189642.97	f
+SALES-INV-2025-e983d2	SALES-SHIP-2025-37506b	2025-04-04 05:04:59.053366	577491.42	0.00	f
+SALES-INV-2025-52dcd3	SALES-SHIP-2025-0a5346	2025-04-03 10:33:21.892619	569847.09	569657.09	f
+SALES-INV-2025-038e9e	SALES-SHIP-2025-9806c3	2025-04-03 06:21:05.185162	407738.31	0.00	f
 \.
 
 
@@ -9691,27 +9717,27 @@ SALES-STI-2025-021111	SALES-STM-2025-43b069	ADMIN-PROD-2025-3559f6	\N	\N	1	1	299
 --
 
 COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, created_at, type) FROM stdin;
-SALES-TICKET-2025-e2d956	\N	\N	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-da9216	\N	\N	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-6ab926	\N	\N	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-15ccfe	\N	\N	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-a742da	\N	\N	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-e232ba	\N	\N	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-e5dbb1	\N	\N	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-d65f45	\N	\N	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-052c13	\N	\N	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-9eef40	\N	\N	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-ef74d3	\N	\N	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-36bf52	\N	\N	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-1c6e24	\N	\N	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-8d114b	\N	\N	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-fc1f3b	\N	\N	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-2ff8d4	\N	\N	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-3f0016	\N	\N	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-6057a0	\N	\N	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-4801ed	\N	\N	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-2a6b86	\N	\N	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	2025-04-03 13:59:20.136009	Service
-SALES-TICKET-2025-247159	SALES-CUST-2025-a09148	HR-EMP-2025-2210a1	Damaged equipment	Customer received damaged HyLED 7 Series	Open	High	2025-04-03 06:36:17.379	Service
+SALES-TICKET-2025-fc1f3b	SALES-CUST-2025-a09148	HR-EMP-2025-de5d21	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-ef74d3	SALES-CUST-2025-b7a04d	HR-EMP-2025-de5d21	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-e5dbb1	SALES-CUST-2025-74b2fb	HR-EMP-2025-54b29d	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-e2d956	SALES-CUST-2025-e713d3	HR-EMP-2025-c1b880	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-e232ba	SALES-CUST-2025-596d6f	HR-EMP-2025-b2d0da	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-da9216	SALES-CUST-2025-21b5fa	HR-EMP-2025-2210a1	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-d65f45	SALES-CUST-2025-7af885	HR-EMP-2025-54b29d	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-a742da	SALES-CUST-2025-70f1a2	HR-EMP-2025-57b39e	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-9eef40	SALES-CUST-2025-390608	HR-EMP-2025-54b29d	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-8d114b	SALES-CUST-2025-9d3fdf	HR-EMP-2025-7a53e0	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-6ab926	SALES-CUST-2025-d5f158	HR-EMP-2025-de5d21	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-6057a0	SALES-CUST-2025-ae23ed	HR-EMP-2025-de5d21	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-4801ed	SALES-CUST-2025-f9d523	HR-EMP-2025-b2d0da	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-3f0016	SALES-CUST-2025-93c5c2	HR-EMP-2025-7a53e0	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-36bf52	SALES-CUST-2025-47e117	HR-EMP-2025-2210a1	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-2ff8d4	SALES-CUST-2025-9ede69	HR-EMP-2025-b2d0da	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-2a6b86	SALES-CUST-2025-ea5cdf	HR-EMP-2025-54b29d	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-1c6e24	SALES-CUST-2025-78bcea	HR-EMP-2025-de5d21	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-15ccfe	SALES-CUST-2025-7cc934	HR-EMP-2025-54b29d	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-052c13	SALES-CUST-2025-7b0160	HR-EMP-2025-54b29d	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	2025-04-03 13:59:20	Service
+SALES-TICKET-2025-247159	SALES-CUST-2025-a09148	HR-EMP-2025-2210a1	Damaged equipment	Customer received damaged HyLED 7 Series	Closed	High	2025-04-03 06:36:17.379	Service
 \.
 
 
@@ -9719,27 +9745,28 @@ SALES-TICKET-2025-247159	SALES-CUST-2025-a09148	HR-EMP-2025-2210a1	Damaged equip
 -- Data for Name: ticket_convo; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.ticket_convo (convo_id, ticket_id, content, created_at) FROM stdin;
-SALES-CONVO-2025-870657	\N	Technician scheduled for MRI maintenance on April 5.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-00134d	\N	Calibration tools dispatched, technician visit confirmed.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-add854	\N	ECG training session scheduled for March 15.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-cd7439	\N	Software update package sent, remote installation guide provided.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-fe801f	\N	Warranty repair approved, dispatching service team.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-d48c44	\N	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-cc0464	\N	MRI relocation assistance team confirmed for March 20.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-0e7b97	\N	Investigating motorized hospital bed issues, awaiting technician report.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-dfdb6a	\N	Battery order placed, estimated arrival March 10.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-757411	\N	On-site inspection scheduled for April 1, report to follow.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-91d5ce	\N	CT scanner calibration scheduled for April 10.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-0694de	\N	Ultrasound training session confirmed for March 25.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-dba440	\N	Warranty repair approved, technician dispatched.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-227a9f	\N	MRI software update completed remotely.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-a2f349	\N	Ventilator relocation team confirmed for April 5.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-7e6869	\N	Defibrillator troubleshooting guide sent.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-abf0eb	\N	Hospital bed repair completed successfully.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-459624	\N	Battery replacement order placed, ETA March 15.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-dd51a3	\N	Lab equipment inspection scheduled for April 8.	2025-04-03 13:59:20.136009
-SALES-CONVO-2025-b485f1	\N	Surgical tools training session confirmed for March 30.	2025-04-03 13:59:20.136009
+COPY sales.ticket_convo (convo_id, ticket_id, content, created_at, subject) FROM stdin;
+SALES-CONVO-2025-870657	\N	Technician scheduled for MRI maintenance on April 5.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-00134d	\N	Calibration tools dispatched, technician visit confirmed.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-add854	\N	ECG training session scheduled for March 15.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-cd7439	\N	Software update package sent, remote installation guide provided.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-fe801f	\N	Warranty repair approved, dispatching service team.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-d48c44	\N	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-cc0464	\N	MRI relocation assistance team confirmed for March 20.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-0e7b97	\N	Investigating motorized hospital bed issues, awaiting technician report.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-dfdb6a	\N	Battery order placed, estimated arrival March 10.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-757411	\N	On-site inspection scheduled for April 1, report to follow.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-91d5ce	\N	CT scanner calibration scheduled for April 10.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-0694de	\N	Ultrasound training session confirmed for March 25.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-dba440	\N	Warranty repair approved, technician dispatched.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-227a9f	\N	MRI software update completed remotely.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-a2f349	\N	Ventilator relocation team confirmed for April 5.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-7e6869	\N	Defibrillator troubleshooting guide sent.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-abf0eb	\N	Hospital bed repair completed successfully.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-459624	\N	Battery replacement order placed, ETA March 15.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-dd51a3	\N	Lab equipment inspection scheduled for April 8.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-b485f1	\N	Surgical tools training session confirmed for March 30.	2025-04-03 13:59:20.136009	\N
+SALES-CONVO-2025-a64d03	SALES-TICKET-2025-247159	A technician has been sent to take a look at the equipment	2025-04-09 00:50:34.276528	Technician requested
 \.
 
 
@@ -10167,14 +10194,14 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 59, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 79, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 12, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 13, true);
 
 
 --
