@@ -10,9 +10,11 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from textwrap import wrap
 from utils import *
+from dateutil.relativedelta import relativedelta
 from itertools import zip_longest
 
 
@@ -68,7 +70,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         def draw_page(pdf, page_num, total_pages):
             pdf.setFont("Inter-Regular", 10)
             pdf.drawString(
-                (width - 60) / 2, height - 805, f"Page {page_num} of {total_pages}"
+                (width - 60) / 2, height - 805, f"Page {page_num} of {total_pages + 1}"
             )
 
         def draw_invoice_header(pdf):
@@ -474,8 +476,171 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             next_section_y - 130,
             "Full payment is due upon receipt of this invoice. Late payments may incur additional charges or interest as per the applicable laws.",
         )
-        # Save the PDF
+        # warranty
+        pdf.showPage()
+        pdf.setFont("Inter-Regular", 12)
+        # Company Logo (Replace with actual logo path if needed)
+        pdf.drawImage(
+            logo_path, left, height - 110, preserveAspectRatio=True, height=110
+        )
+        pdf.setFont("Inter-Bold", 18)
+        pdf.drawRightString(right, height - 50, "Kinetiq")
+        pdf.setFont("Inter-Regular", 12)
+        pdf.drawRightString(right, height - 70, "1975 Street Address Of")
+        pdf.drawRightString(right, height - 85, "Company, Metro Manila")
+        pdf.drawRightString(right, height - 100, "Philippines")
 
+        centered_style = ParagraphStyle(
+            name="CenteredStyle",
+            parent=style,  # inherit from your existing style if desired
+            alignment=TA_CENTER,
+        )
+        year_after = (invoice.invoice_date + relativedelta(years=1)).strftime(
+            "%B %d, %Y"
+        )
+        warranty_date = invoice.invoice_date.strftime("%B %d, %Y")
+
+        warranty_data = [
+            ["Warranty"],
+            [
+                Paragraph(
+                    f"<font size=12><b>{warranty_date} - {year_after}</b></font><br />Please retain this invoice as proof of warranty coverage",
+                    style=centered_style,
+                )
+            ],
+        ]
+
+        warranty_table = Table(warranty_data, colWidths=[width - 60])
+        warranty_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), accent_color),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, -1), "Inter-Regular"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("TOPPADDING", (0, 0), (-1, -1), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]
+            )
+        )
+        _, warranty_table_height = warranty_table.wrap(500, 500)
+
+        warranty_table.drawOn(pdf, left, (height * 0.85) - warranty_table._height)
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.drawString(left, 600, "Warranty Policy")
+        pdf.setFont("Inter-Regular", 9)
+        pol = str(
+            "Kinetiq offers a one-year warranty to the original purchaser against defects in materials and workmanship. If found defective within this period, Kinetiq will repair or replace the part with a new or remanufactured one at no cost, subject to the terms and conditions herein:",
+        )
+
+        wrapped_lines = wrap(pol, width=125)
+        y_pos = 585
+        line_height = 12
+        for line in wrapped_lines:
+            pdf.drawString(left, y_pos, line)
+            y_pos -= line_height
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.drawString(left, 535, "Terms and Conditions")
+        pdf.setFont("Inter-Regular", 9)
+        pol = str(
+            "To receive warranty service, you must provide a proof of purchase and warranty certificate (or copies) as proof the product is within the warranty period. Without either document, labor and replacement part fees will apply."
+        )
+
+        wrapped_lines = wrap(pol, width=125)
+        y_pos = 520
+        line_height = 12
+        for line in wrapped_lines:
+            pdf.drawString(left, y_pos, line)
+            y_pos -= line_height
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.drawString(left + 10, 480, "Parts and Labor")
+        pdf.setFont("Inter-Regular", 9)
+        pol = str(
+            "During the warranty period, parts and labor are free of charge. Replacements, at Kinetiq’s sole discretion, may be new or recertified and are covered for the remainder of the original warranty. Kinetiq’s decisions on defect-related complaints are final and binding. Replaced parts or units become Kinetiq’s property. After the warranty expires, labor and part replacement will incur charges."
+        )
+
+        wrapped_lines = wrap(pol, width=125 - 5)
+        y_pos = 465
+        line_height = 13
+        for line in wrapped_lines:
+            pdf.drawString(left + 10, y_pos, line)
+            y_pos -= line_height
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.drawString(left + 10, 400, "Types of Service")
+        pdf.setFont("Inter-Regular", 9)
+        pol = str(
+            "To obtain warranty service, defective products must be sent to a Kinetiq service center. Customers are responsible for both shipping to and from the center. Returns must use the original packaging or equivalent protective materials."
+        )
+        wrapped_lines = wrap(pol, width=125 - 5)
+        y_pos = 385
+        line_height = 13
+        for line in wrapped_lines:
+            pdf.drawString(left + 10, y_pos, line)
+            y_pos -= line_height
+
+        pol = str(
+            "For home service, a transportation fee will apply based on location. Kinetiq personnel may refuse service if equipment is in inaccessible or hazardous locations."
+        )
+        wrapped_lines = wrap(pol, width=125 - 5)
+        y_pos -= line_height
+        for line in wrapped_lines:
+            pdf.drawString(left + 10, y_pos, line)
+            y_pos -= 10
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.drawString(left + 10, 310, "Limitations and Exclusions")
+        pdf.setFont("Inter-Regular", 9)
+        pol = str(
+            "Kinetiq’s one-year limited warranty only covers defects in materials and workmanship; however, this warranty does not cover the following:"
+        )
+        wrapped_lines = wrap(pol, width=125 - 5)
+        y_pos = 295
+        line_height = 13
+        for line in wrapped_lines:
+            pdf.drawString(left + 10, y_pos, line)
+            y_pos -= line_height
+
+        exclusions = [
+            "1. Damage from accidents, misuse, abuse, transportation, tampering, negligence, or poor maintenance.",
+            "2. Issues caused by spills, improper electrical use, voltage fluctuations, or exposure to moisture.",
+            "3. Damage from fire, flood, or other Acts of God.",
+            "4. Normal wear-and-tear, rust, stains, or corrosion.",
+            "5. Problems due to improper testing, use of wrong components, or unauthorized modifications.",
+            "6. Scratches or surface damage from regular use.",
+            "7. Routine maintenance or servicing.",
+            "8. Claims for missing/damaged parts made after 7 days from purchase.",
+            "9. If any part/s of the unit are replaced with a part or parts not supplied or approved by us or the unit has been dismantled or repaired by any person other than a Kinetiq authorized technician.",
+            "10. Products with missing, tampered, or illegible serial numbers.",
+        ]
+        y_pos = 265
+
+        for e in exclusions:
+            wrapped_lines = wrap(e, width=125 - 5)
+            for line in wrapped_lines:
+                pdf.drawString(left + 18, y_pos, line)
+                y_pos -= line_height
+            y_pos -= 2
+
+        pdf.setFont("Inter-Regular", 9)
+        pdf.drawString(left, 75, "Legal Disclaimers")
+        pdf.setFont("Inter-Regular", 7)
+        pol = str(
+            "This warranty is governed by the laws of the Republic of the Philippines and complies with all regulations under Consumer Act of the Philippines (RA 7394). The remedies outlined in this policy are the sole recourse available under this warranty.",
+        )
+        wrapped_lines = wrap(pol, width=165)
+        y_pos = 60
+        for line in wrapped_lines:
+            pdf.drawString(left, y_pos, line)
+            y_pos -= 10
+        # Save the PDF
+        draw_page(pdf, num_pages + 1, num_pages)
         pdf.save()
         return response
 
