@@ -103,6 +103,7 @@ class SalesInvoices(models.Model):
                     self.invoice_id,
                 ],
             )
+        self.refresh_from_db()
 
 
 class SalesInvoicesView(models.Model):
@@ -124,10 +125,3 @@ class SalesInvoicesView(models.Model):
     class Meta:
         managed = False
         db_table = '"sales"."sales_invoices_view"'
-
-    @classmethod
-    def refresh(cls):
-        apps.clear_cache()
-        from django.db import connections
-
-        connections["default"].close()

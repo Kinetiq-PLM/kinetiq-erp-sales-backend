@@ -21,8 +21,9 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
     serializer_class = SalesInvoicesSerializer
 
     def list(self, request, *args, **kwargs):
-        SalesInvoicesView.refresh()
-        return Response(SalesInvoicesViewSerializer(self.queryset, many=True).data)
+        # for some reason, it is necessary to retrieve all objects to reflect changes made to remaining_balance
+        updated = SalesInvoicesView.objects.all().order_by("-invoice_date")
+        return Response(SalesInvoicesViewSerializer(updated, many=True).data)
 
     def create(self, request: Request, *args, **kwargs):
         """
