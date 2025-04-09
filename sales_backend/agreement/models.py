@@ -14,6 +14,7 @@ class BlanketAgreement(models.Model):
         ACTIVE = "Active"
         EXPIRED = "Expired"
         CANCELLED = "Cancelled"
+        PLANNED = "Planned"
 
     class Method(models.TextChoices):
         WRITTEN = "Written"
@@ -24,7 +25,6 @@ class BlanketAgreement(models.Model):
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    status = models.TextField(choices=Status)
     description = models.TextField(null=True, blank=True)
     signed_date = models.DateTimeField(null=True, blank=True)
     agreement_method = models.TextField(choices=Method)
@@ -48,15 +48,14 @@ class BlanketAgreement(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.blanket_agreement (statement_id, quotation_id, start_date, end_date, status, description, signed_date, agreement_method)                    
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO sales.blanket_agreement (statement_id, start_date, end_date, description, signed_date, agreement_method)                    
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING agreement_id;
                 """,
                 [
                     self.statement.statement_id if self.statement else None,
                     self.start_date,
                     self.end_date,
-                    self.status,
                     self.description,
                     self.signed_date,
                     self.agreement_method,
@@ -73,17 +72,31 @@ class BlanketAgreement(models.Model):
             cursor.execute(
                 """
                     UPDATE sales.blanket_agreement 
-                    SET statement_id = %s , quotation_id= %s, start_date = %s, end_date = %s, status = %s, description = %s, signed_date = %s, agreement_method = %s                    
+                    SET statement_id = %s, start_date = %s, end_date = %s, description = %s, signed_date = %s, agreement_method = %s                    
                     WHERE agreement_id %s;
                 """,
                 [
                     self.statement.statement_id if self.statement else None,
                     self.start_date,
                     self.end_date,
-                    self.status,
                     self.description,
                     self.signed_date,
                     self.agreement_method,
                     self.agreement_id,
                 ],
             )
+
+
+class AgreementView(models.Model):
+    agreement_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    description = models.TextField(null=True, blank=True)
+    signed_date = models.DateTimeField(null=True, blank=True)
+    agreement_method = models.TextField()
+    status = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."agreement_view"'

@@ -10,7 +10,7 @@ from rest_framework import status
 
 
 class BlanketAgreementViewSet(viewsets.ModelViewSet):
-    queryset = BlanketAgreement.objects.all().order_by("-start_date")
+    queryset = AgreementView.objects.all().order_by("-start_date")
     serializer_class = BlanketAgreementSerializer
 
     def list(self, request: Request, *args, **kwargs):
@@ -44,7 +44,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
             filtered["agreement_method"] = method
 
         return Response(
-            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+            AgreementViewSerializer(self.queryset.filter(**filtered), many=True).data
         )
 
     def create(self, request: Request, *args, **kwargs):

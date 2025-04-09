@@ -15,3 +15,17 @@ class BlanketAgreementSerializer(serializers.ModelSerializer):
             stmt = Statement.objects.get(pk=obj.statement.statement_id)
             return StatementSerializer(stmt).data
         return None
+
+
+class AgreementViewSerializer(serializers.ModelSerializer):
+    statement = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AgreementView
+        fields = "__all__"
+
+    def get_statement(self, obj):
+        if obj.statement:
+            stmt = Statement.objects.get(pk=obj.statement.statement_id)
+            return StatementSerializer(stmt).data
+        return None
