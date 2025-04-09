@@ -198,7 +198,9 @@ ALTER TYPE public.agreement_method_enum OWNER TO postgres;
 CREATE TYPE public.agreement_status_enum AS ENUM (
     'Active',
     'Expired',
-    'Cancelled'
+    'Cancelled',
+    'Pending',
+    'Planned'
 );
 
 
@@ -5958,7 +5960,6 @@ CREATE TABLE sales.blanket_agreement (
     statement_id character varying(255),
     start_date timestamp without time zone,
     end_date timestamp without time zone,
-    status public.agreement_status_enum,
     description text,
     signed_date timestamp without time zone,
     agreement_method public.agreement_method_enum
@@ -5966,6 +5967,28 @@ CREATE TABLE sales.blanket_agreement (
 
 
 ALTER TABLE sales.blanket_agreement OWNER TO postgres;
+
+--
+-- Name: agreement_view; Type: VIEW; Schema: sales; Owner: postgres
+--
+
+CREATE VIEW sales.agreement_view AS
+ SELECT agreement_id,
+    statement_id,
+    start_date,
+    end_date,
+    description,
+    signed_date,
+    agreement_method,
+        CASE
+            WHEN (CURRENT_TIMESTAMP > end_date) THEN 'Expired'::public.agreement_status_enum
+            WHEN ((CURRENT_TIMESTAMP < start_date) OR (signed_date IS NULL)) THEN 'Planned'::public.agreement_status_enum
+            ELSE 'Active'::public.agreement_status_enum
+        END AS status
+   FROM sales.blanket_agreement a;
+
+
+ALTER VIEW sales.agreement_view OWNER TO postgres;
 
 --
 -- Name: campaign_contacts; Type: TABLE; Schema: sales; Owner: postgres
@@ -9063,7 +9086,7 @@ PURCHASING-VEP-2025-9a8c5a	Approved	Tech Innovations	123789456	Andrew Miller	Dir
 -- Data for Name: blanket_agreement; Type: TABLE DATA; Schema: sales; Owner: postgres
 --
 
-COPY sales.blanket_agreement (agreement_id, statement_id, start_date, end_date, status, description, signed_date, agreement_method) FROM stdin;
+COPY sales.blanket_agreement (agreement_id, statement_id, start_date, end_date, description, signed_date, agreement_method) FROM stdin;
 \.
 
 
@@ -15138,6 +15161,13 @@ GRANT SELECT,INSERT,UPDATE ON TABLE purchasing.vendor_application TO erp_user;
 --
 
 GRANT SELECT,INSERT,UPDATE ON TABLE sales.blanket_agreement TO erp_user;
+
+
+--
+-- Name: TABLE agreement_view; Type: ACL; Schema: sales; Owner: postgres
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE sales.agreement_view TO erp_user;
 
 
 --
