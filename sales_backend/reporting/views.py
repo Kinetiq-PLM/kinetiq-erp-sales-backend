@@ -4,7 +4,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from quotation.models import Quotation
 from order.models import Order
-from invoice.models import SalesInvoicesView, Payments
+from invoice.models import SalesInvoicesView
+from CRM.models import Opportunities
 from datetime import date, datetime, time
 from django.utils.timezone import make_aware
 from rest_framework import status
@@ -12,7 +13,7 @@ from decimal import Decimal
 from dateutil.relativedelta import relativedelta
 from customer.models import Customer
 from order.models import Order
-from django.db.models import Sum
+from django.db.models import Sum, Count, Q
 from statement.models import *
 from django.shortcuts import get_object_or_404
 from delivery.models import DeliveryNote
@@ -308,13 +309,26 @@ def get_product_report(request: Request):
 
 @api_view(["GET"])
 def get_employee_report(request: Request):
+    params = request.query_params
+    period = params.get("period")
+    queryset = Order.objects.all()
+    now = timezone.now()
+    if period == "Day":
+        queryset = queryset.filter(order_date=now.date())
+    elif period == "Month":
+        queryset = queryset.filter(
+            order_date__year=now.year, order_date__month=now.month
+        )
+    elif period == "Year":
+        queryset = queryset.filter(order_date__year=now.year)
+
     total_revenue = (
         Order.objects.aggregate(total=Sum("statement__total_amount"))["total"] or 1
     )  # Avoid division by zero
 
     # Get the top 3 employees by total spending
     top_employees = (
-        Order.objects.values("statement__salesrep")
+        queryset.values("statement__salesrep")
         .annotate(total_sales=Sum("statement__total_amount"))
         .order_by("-total_sales")[:3]
     )
@@ -328,6 +342,45 @@ def get_employee_report(request: Request):
             {
                 "employee": f"{model.first_name} {model.last_name}",
                 "percentage": round((employee["total_sales"] / total_revenue) * 100, 2),
+            }
+        )
+
+    return Response(data)
+
+
+@api_view(["GET"])
+def get_employee_conversions(request: Request):
+    params = request.query_params
+    period = params.get("period")
+    queryset = Opportunities.objects.filter(status=Opportunities.Status.WON)
+    now = timezone.now()
+    if period == "Day":
+        print("here")
+        queryset = queryset.filter(expected_closed_date=now.date())
+    elif period == "Month":
+        queryset = queryset.filter(
+            expected_closed_date__year=now.year, expected_closed_date__month=now.month
+        )
+    elif period == "Year":
+        queryset = queryset.filter(expected_closed_date__year=now.year)
+
+    total_won = queryset.count() or 1
+
+    # Get top 3 employees based on 'Won' opportunity count
+    top_employees = (
+        queryset.values("salesrep__employee_id")
+        .annotate(won_count=Count("opportunity_id"))
+        .order_by("-won_count")[:3]
+    )
+
+    data = {"top_employees": []}
+
+    for entry in top_employees:
+        employee = get_object_or_404(Employees, pk=entry["salesrep__employee_id"])
+        data["top_employees"].append(
+            {
+                "employee": f"{employee.first_name} {employee.last_name}",
+                "percentage": round((entry["won_count"] / total_won) * 100, 2),
             }
         )
 
