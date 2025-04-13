@@ -141,167 +141,113 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
 
         def draw_page(pdf, page_num, total_pages):
             pdf.setFont("Inter-Regular", 10)
+            pdf.setFillColor(colors.black)
             pdf.drawString(
                 (width - 60) / 2, height - 805, f"Page {page_num} of {total_pages}"
             )
 
-        def draw_agreement_header(pdf):
-            pdf.setFont("Inter-Regular", 12)
+        formatted_signed_date = agreement.signed_date.strftime("%B %d, %Y")
 
-            # Company Logo (Replace with actual logo path if needed)
-            pdf.drawImage(
-                logo_path, left, height - 110, preserveAspectRatio=True, height=110
-            )
-            pdf.setFont("Inter-Bold", 18)
-            pdf.drawRightString(right, height - 50, "Kinetiq")
-            pdf.setFont("Inter-Regular", 12)
-            pdf.drawRightString(right, height - 70, "1975 Street Address Of")
-            pdf.drawRightString(right, height - 85, "Company, Metro Manila")
-            pdf.drawRightString(right, height - 100, "Philippines")
+        pdf.setFont("Inter-Regular", 16)
+        gap = height - 30
+        pdf.drawString(((width - 80) / 2) - 45, gap, "BLANKET AGREEMENT")
+        gap -= 35
+        pdf.setFont("Inter-Regular", 10)
+        pdf.drawString(
+            left,
+            gap,
+            f"This Agreement is made on {formatted_signed_date} between:",
+        )
+        gap -= 15
 
-            # agreement Header
-            pdf.setStrokeColor(hex_to_rgb("#d2d2d2"))  # Set line color (black)
-            pdf.setLineWidth(1)  # Set line thickness
+        table_data = [
+            ["Customer:", "Seller:"],
+            [
+                Paragraph(
+                    f"{agreement.statement.customer.name}<br/>{agreement.statement.customer.address_line1} {agreement.statement.customer.address_line2}",
+                    style=style,
+                ),
+                Paragraph(
+                    "Kinetiq Company<br/>1975 Street Address of Company, NCR, Philippines",
+                    style=style,
+                ),
+            ],
+        ]
 
-            # Draw horizontal line from (x1, y1) to (x2, y2)
-            pdf.line(30, height - 135, 225, height - 135)
-            pdf.line(393, height - 135, right, height - 135)
-            pdf.setFont("Inter-Regular", 14)
-            pdf.drawString(((width - 80) / 2) - 25, height - 140, "BLANKET AGREEMENT")
-
-            # agreement Number
-            pdf.setFont("Inter-Regular", 10)
-            pdf.setFillColor(hex_to_rgb("#469fc2"))
-            pdf.drawRightString(right, height - 175, "Agreement#")
-            pdf.setFont("Inter-Bold", 12)
-            pdf.setFillColor(colors.black)
-            pdf.drawRightString(
-                right, height - 190, "-".join(agreement.agreement_id.split("-")[2:])
-            )
-
-            # Bill To & Ship To
-            bill_to = 30
-            ship_to = 210
-            pdf.setFont("Inter-Bold", 12)
-            pdf.setFillColor(hex_to_rgb("#469fc2"))
-            pdf.drawString(bill_to, height - 185, "Bill To")
-            pdf.drawString(ship_to, height - 185, "Ship To")
-
-            pdf.setFont("Inter-Regular", 12)
-            pdf.setFillColor(colors.black)
-            max_width = 20
-            line_height = 15
-            wrapped_lines = wrap(agreement.statement.customer.name, width=max_width)
-            temp = y_pos = height - 205
-
-            for line in wrapped_lines:
-                pdf.drawString(bill_to, y_pos, line)
-                y_pos -= line_height
-
-            pdf.setFont("Inter-Regular", 10)
-
-            wrapped_lines = wrap(agreement.statement.customer.address_line1, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(bill_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(
-                f"{agreement.statement.customer.address_line2} {agreement.statement.customer.postal_code}, {agreement.statement.customer.country}",
-                width=30,
-            )
-            for line in wrapped_lines:
-                pdf.drawString(bill_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(agreement.statement.customer.email_address, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(bill_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(agreement.statement.customer.phone_number, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(bill_to, y_pos, line)
-                y_pos -= line_height
-
-            y_pos = temp
-            wrapped_lines = wrap(agreement.statement.customer.address_line1, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(ship_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(
-                f"{agreement.statement.customer.address_line2} {agreement.statement.customer.postal_code}, {agreement.statement.customer.country}",
-                width=30,
-            )
-            for line in wrapped_lines:
-                pdf.drawString(ship_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(agreement.statement.customer.email_address, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(ship_to, y_pos, line)
-                y_pos -= line_height
-
-            wrapped_lines = wrap(agreement.statement.customer.phone_number, width=30)
-            for line in wrapped_lines:
-                pdf.drawString(ship_to, y_pos, line)
-                y_pos -= line_height
-            formatted_agreement_start_date = agreement.start_date.strftime("%d %B %Y")
-            formatted_agreement_end_date = agreement.end_date.strftime("%d %B %Y")
-            formatted_agreement_signed_date = agreement.signed_date.strftime("%d %B %Y")
-
-            table_data = [
+        col_width = (width - 60) / len(table_data[0])
+        max_width = 350
+        table = Table(table_data, colWidths=[col_width] * len(table_data[0]))
+        table.setStyle(
+            TableStyle(
                 [
-                    "Salesperson",
-                    "Signed Date",
-                    "Start Date",
-                    "End Date",
-                    "Status",
-                    "Method",
-                ],
-                [
-                    Paragraph(
-                        f"{agreement.statement.salesrep.first_name} {agreement.statement.salesrep.last_name}",
-                        style=style,
-                    ),
-                    Paragraph(formatted_agreement_signed_date, style=style),
-                    Paragraph(formatted_agreement_start_date, style=style),
-                    Paragraph(formatted_agreement_end_date, style=style),
-                    Paragraph(agreement.status, style=style),
-                    Paragraph(agreement.agreement_method, style=style),
-                ],
-            ]
-
-            col_width = (width - 60) / len(table_data[0])
-            max_width = 350
-            table = Table(table_data, colWidths=[col_width] * len(table_data[0]))
-            table.setStyle(
-                TableStyle(
-                    [
-                        ("BACKGROUND", (0, 0), (-1, 0), accent_color),
-                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                        ("FONTNAME", (0, 0), (-1, -1), "Inter-Regular"),
-                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                        ("TOPPADDING", (0, 0), (-1, -1), 10),
-                        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-                        ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                    ]
-                )
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (-1, -1), "Inter-Regular"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Inter-Bold"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]
             )
+        )
+        table.wrapOn(pdf, 400, 600)
+        gap -= table._height
+        table.drawOn(pdf, left - 5, gap)
 
-            table.wrapOn(pdf, 400, 600)
-            table.drawOn(pdf, left, height - 370)
-            next_y = table._height + y_pos
-            return next_y
+        gap -= 30
 
-        next_y = draw_agreement_header(pdf)
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"1. PURPOSE",
+        )
+        gap -= 20
+        p = Paragraph(
+            '<font size="10">This Agreement sets forth the terms under which the Buyer may procure goods/services from the Supplier as needed.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 20
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"2. TERM",
+        )
+        gap -= 20
+        formatted_start_date = agreement.start_date.strftime("%B %d, %Y")
+        formatted_end_date = agreement.end_date.strftime("%B %d, %Y")
+        p = Paragraph(
+            f'<font size="10">This Agreement shall be effective from {formatted_start_date} to {formatted_end_date}, unless terminated earlier.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+
+        gap -= 20
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"3. PRICING",
+        )
+        gap -= 20
+
+        p = Paragraph(
+            f'<font size="10">The goods/services shall be provided at the following rates:</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 15
 
         items = [
             [
-                Paragraph(
-                    "-".join(item["product"]["product_id"].split("-")[2:]), style=style
-                ),
                 Paragraph(
                     f"{item['product']['product_name']}<br /><font color='#787878'>{item['product']['description']}</font>",
                     style=style,
@@ -337,7 +283,6 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         end_index = start_index + max_items_first_page
         agreement_data = [
             [
-                "Product ID",
                 "Item & Description",
                 "QTY",
                 "Discount",
@@ -346,7 +291,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
             ],
             *items[start_index:end_index],
         ]
-        agreement_table = Table(agreement_data, colWidths=[80, 215, 30, 50, 80, 80])
+        agreement_table = Table(agreement_data, colWidths=[285, 40, 50, 80, 80])
         agreement_table.setStyle(
             TableStyle(
                 [
@@ -362,15 +307,25 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                 ]
             )
         )
-        agreement_table_width, agreement_table_height = agreement_table.wrap(500, 500)
+        agreement_table_width, agreement_table_height = agreement_table.wrap(
+            width, height
+        )
+        gap -= agreement_table._height
         agreement_table.drawOn(
             pdf,
             left,
-            ((height * 0.53) - agreement_table._height),
+            gap,
         )
         page += 1
 
         if num_pages == 1 and len(items) >= 5:
+            pdf.setFont("Inter-Regular", 11)
+            p = Paragraph(
+                f'<font size="11"><i>(Continued)</i></font>',
+                style=style,
+            )
+            p.wrapOn(pdf, width, height)
+            p.drawOn(pdf, ((width - 60) / 2 - 5), gap - 50)
             draw_page(pdf, page, num_pages + 1)
         else:
             draw_page(pdf, page, num_pages)
@@ -410,7 +365,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
             )
             if len(agreement_data) > 1:
                 agreement_table_width, agreement_table_height = agreement_table.wrap(
-                    500, 500
+                    width, height
                 )
                 agreement_table.drawOn(
                     pdf, left, (height * 0.95) - agreement_table._height
@@ -422,95 +377,129 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                 draw_page(pdf, page, num_pages)
 
         next_section_y = (
-            height - agreement_table._height - 75
-            if num_pages > 1
-            else (
-                agreement_table._height - ((len(items) - 1) * 32)
-                if len(items) == 4
-                else (
-                    agreement_table._height
-                    if len(items) == 3
-                    else (
-                        (height * 0.27) + agreement_table._height
-                        if len(items) == 1
-                        else (height * 0.10) + agreement_table._height
-                    )
-                )
-            )
+            height - agreement_table._height - 75 if num_pages > 1 else (gap - 30)
         )
         if agreement_table._height >= 700 or (num_pages == 1 and len(items) >= 5):
             next_section_y = height * 0.95
             num_pages += 1
             pdf.showPage()
             draw_page(pdf, page + 1, num_pages)
-        # Totals Section
-        pdf.setFont("Inter-Regular", 10)
-        pdf.drawString(400, next_section_y, "Subtotal")
-        pdf.drawRightString(
-            right,
-            next_section_y,
-            "{0:,.2f}".format(
-                float(agreement.statement.total_amount)
-                - float(agreement.statement.total_tax)
-                + float(agreement.statement.discount)
-            ),
-        )
 
-        pdf.drawString(
-            400,
-            next_section_y - 15,
-            f"Sales Tax",
-        )
-        pdf.drawRightString(
-            right,
-            next_section_y - 15,
-            "{0:,.2f}".format(float(agreement.statement.total_tax)),
-        )
-        pdf.drawString(
-            400,
-            next_section_y - 30,
-            f"Total Discount",
-        )
-        pdf.drawRightString(
-            right,
-            next_section_y - 30,
-            "{0:,.2f}".format(float(agreement.statement.discount)),
-        )
-
-        pdf.setFillColor(hex_to_rgb("#eff8f9"))  # Set background color
-        pdf.rect(
-            395,
-            next_section_y - 58,
-            175,
-            23,
-            fill=True,
-            stroke=0,
-        )  # Draw background box
-        pdf.setFont("Inter-Bold", 12)
+        gap = next_section_y
+        pdf.setFont("Inter-Bold", 11)
         pdf.setFillColor(accent_color)
-        pdf.drawString(400, next_section_y - 50, "Total (PHP)")
-        pdf.drawRightString(
-            right,
-            next_section_y - 50,
-            "{0:,.2f}".format(float(agreement.statement.total_amount)),
-        )
-
-        # Footer
-        pdf.setFont("Inter-Regular", 8)
-        pdf.setFillColor(colors.black)
-        pdf.drawString(left, next_section_y, "Thank you for your business.")
-
-        pdf.setFont("Inter-Regular", 9)
-
-        pdf.drawString(left, next_section_y - 100, "Terms & Conditions")
-
-        pdf.setFont("Inter-Regular", 7)
         pdf.drawString(
             left,
-            next_section_y - 115,
-            "Full payment is due upon receipt of this invoice. Late payments may incur additional charges or interest as per the applicable laws.",
+            gap,
+            f"4. ORDERING",
         )
-        # Save the PDF
+        gap -= 20
 
+        p = Paragraph(
+            f'<font size="10">Orders shall be placed by the Buyer via <b>{agreement.agreement_method}</b> method, referencing this Agreement Number <b>{"".join(agreement.agreement_id.split("-")[2:])}</b>.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 20
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"5. DELIVERY",
+        )
+        gap -= 20
+
+        p = Paragraph(
+            f'<font size="10">All deliveries must be made to <b>{agreement.statement.customer.address_line1} {agreement.statement.customer.address_line2}</b>.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 20
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"6. TERMINATION",
+        )
+        gap -= 20
+
+        p = Paragraph(
+            f'<font size="10">Either party may terminate this Agreement with [30] days written notice.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 20
+
+        pdf.setFont("Inter-Bold", 11)
+        pdf.setFillColor(accent_color)
+        pdf.drawString(
+            left,
+            gap,
+            f"6. CONFIDENTIALITY",
+        )
+        gap -= 20
+
+        p = Paragraph(
+            f'<font size="10">Both parties agree to maintain confidentiality of shared information.</font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+        gap -= 40
+
+        p = Paragraph(
+            f'<font size="11"><i>IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first above written.</i></font>',
+            style=style,
+        )
+        p.wrapOn(pdf, width, height)
+        p.drawOn(pdf, left, gap)
+
+        table_data = [
+            ["Customer Representative", "Seller Representative"],
+            [
+                Paragraph(
+                    f"""
+                    <b>Signature:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>______________<br/>
+                    <b>Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><u>{agreement.statement.customer.contact_person}</u><br/>
+                    <b>Date Signed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><u>{formatted_signed_date}</u>""",
+                    style=style,
+                ),
+                Paragraph(
+                    f"""
+                    <b>Signature:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>______________<br/>
+                    <b>Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><u>{agreement.statement.salesrep.first_name} {agreement.statement.salesrep.last_name}</u><br/>
+                    <b>Date Signed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><u>{formatted_signed_date}</u>""",
+                    style=style,
+                ),
+            ],
+        ]
+
+        col_width = (width - 60) / len(table_data[0])
+        table = Table(table_data, colWidths=[col_width + 90, col_width - 90])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("TEXTCOLOR", (0, 0), (-1, 0), accent_color),
+                    ("FONTSIZE", (0, 0), (-1, -1), 11),
+                    ("FONTSIZE", (0, 0), (-1, 0), 12),
+                    ("ALIGN", (1, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (-1, -1), "Inter-Regular"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Inter-Bold"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]
+            )
+        )
+        table.wrapOn(pdf, 400, 600)
+        gap -= table._height + 15
+        table.drawOn(pdf, left - 5, gap)
+
+        # Save the PDF
         pdf.save()
         return response
