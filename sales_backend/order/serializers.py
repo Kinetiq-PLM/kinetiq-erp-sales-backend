@@ -20,9 +20,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["statement"] = StatementSerializer(
-            get_object_or_404(Statement, pk=instance.statement.statement_id)
-        ).data
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(get_object_or_404(Statement, pk=s)).data if s else None
+        )
         data["quotation_id"] = data.pop("quotation")
         data["agreement_id"] = data.pop("agreement")
         return data
@@ -43,8 +44,9 @@ class OrderViewSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["statement"] = StatementSerializer(
-            get_object_or_404(Statement, pk=instance.statement.statement_id)
-        ).data
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(get_object_or_404(Statement, pk=s)).data if s else None
+        )
         data["quotation_id"] = data.pop("quotation")
         return data

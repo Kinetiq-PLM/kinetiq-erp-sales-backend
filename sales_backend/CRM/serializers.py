@@ -15,7 +15,10 @@ class CampaignContactsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["customer"] = CustomerSerializer(instance.customer).data
+        c = data.pop("customer")
+        data["customer"] = (
+            CustomerSerializer(Customer.objects.get(pk=c)).data if c else None
+        )
         return data
 
 
@@ -43,12 +46,14 @@ class OpportunitiesSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["customer"] = CustomerSerializer(
-            get_object_or_404(Customer, pk=data.pop("customer"))
-        ).data
-        data["salesrep"] = EmployeesSerializer(
-            get_object_or_404(Employees, pk=data.pop("salesrep"))
-        ).data
+        c = data.pop("customer")
+        data["customer"] = (
+            CustomerSerializer(Customer.objects.get(pk=c)).data if c else None
+        )
+        s = data.pop("salesrep")
+        data["salesrep"] = (
+            EmployeesSerializer(Employees.objects.get(pk=s)).data if s else None
+        )
         return data
 
 
@@ -71,10 +76,12 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["customer"] = CustomerSerializer(
-            get_object_or_404(Customer, pk=data.pop("customer"))
-        ).data
-        data["salesrep"] = EmployeesSerializer(
-            get_object_or_404(Employees, pk=data.pop("salesrep"))
-        ).data
+        c = data.pop("customer")
+        data["customer"] = (
+            CustomerSerializer(Customer.objects.get(pk=c)).data if c else None
+        )
+        s = data.pop("salesrep")
+        data["salesrep"] = (
+            EmployeesSerializer(Employees.objects.get(pk=s)).data if s else None
+        )
         return data

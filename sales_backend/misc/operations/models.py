@@ -8,106 +8,64 @@
 from django.db import models
 
 
-class DocumentHeader(models.Model):
-    document_id = models.CharField(primary_key=True, max_length=255)
-    document_type = models.TextField()  # This field type is a guess.
-    vendor_code = models.CharField(max_length=255, blank=True, null=True)
-    document_no = models.IntegerField()
-    transaction_id = models.CharField(max_length=255)
-    status = models.TextField()  # This field type is a guess.
-    posting_date = models.DateField()
-    delivery_date = models.DateField(blank=True, null=True)
-    document_date = models.DateField()
-    buyer = models.CharField(max_length=255)
-    owner = models.CharField(max_length=255)
-    initial_amount = models.DecimalField(max_digits=18, decimal_places=2)
-    discount_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, blank=True, null=True
+class BillOfMaterials(models.Model):
+    bom_id = models.CharField(primary_key=True, max_length=255)
+    project_id = models.CharField(max_length=255, blank=True, null=True)
+    product_mats = models.ForeignKey(
+        "ProductMats", models.DO_NOTHING, blank=True, null=True
     )
-    discount_amount = models.DecimalField(
-        max_digits=18, decimal_places=2, blank=True, null=True
-    )
-    freight = models.DecimalField(max_digits=18, decimal_places=2)
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    tax_amount = models.DecimalField(max_digits=18, decimal_places=2)
-    transaction_cost = models.DecimalField(max_digits=18, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = '"operations"."document_header"'
-
-
-class DocumentItems(models.Model):
-    content_id = models.CharField(primary_key=True, max_length=255)
-    asset_id = models.CharField(max_length=255, blank=True, null=True)
-    document_id = models.CharField(max_length=255, blank=True, null=True)
-    material_id = models.CharField(max_length=255, blank=True, null=True)
-    serial_id = models.CharField(max_length=255, blank=True, null=True)
-    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
-    external_id = models.CharField(max_length=255, blank=True, null=True)
-    quantity = models.IntegerField()
-    total = models.DecimalField(max_digits=18, decimal_places=2)
-    batch_no = models.CharField(max_length=100)
-    warehouse_loc = models.CharField(max_length=255)
-    delivery_request_id = models.CharField(max_length=255, blank=True, null=True)
-    request_date = models.DateField(blank=True, null=True)
-    delivery_type = models.TextField(
-        blank=True, null=True
-    )  # This field type is a guess.
-    receiving_module = models.TextField(
-        blank=True, null=True
-    )  # This field type is a guess.
-    cost = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
-    status = models.TextField(blank=True, null=True)  # This field type is a guess.
-
-    class Meta:
-        managed = False
-        db_table = '"operations"."document_items"'
-
-
-class ExternalModule(models.Model):
-    external_id = models.CharField(primary_key=True, max_length=255)
-    purchase_id = models.CharField(max_length=255, blank=True, null=True)
-    request_id = models.CharField(max_length=255, blank=True, null=True)
-    approval_id = models.CharField(max_length=255, blank=True, null=True)
-    goods_issue_id = models.CharField(max_length=255, blank=True, null=True)
-    approval_request_id = models.CharField(max_length=255, blank=True, null=True)
-    billing_receipt_id = models.CharField(max_length=255, blank=True, null=True)
-    delivery_receipt_id = models.CharField(max_length=255, blank=True, null=True)
-    project_resources_id = models.CharField(max_length=255, blank=True, null=True)
-    project_tracking_id = models.CharField(max_length=255, blank=True, null=True)
-    project_request_id = models.CharField(max_length=255, blank=True, null=True)
+    overall_quantity_of_material = models.IntegerField(blank=True, null=True)
+    cost_per_raw_material = models.DecimalField(max_digits=10, decimal_places=2)
+    total_cost_of_raw_materials = models.DecimalField(max_digits=10, decimal_places=2)
     production_order_detail_id = models.CharField(max_length=255, blank=True, null=True)
-    rework_id = models.CharField(max_length=255, blank=True, null=True)
-    deprecation_report_id = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '"operations"."external_module"'
-
-
-class ProductDocumentItems(models.Model):
-    productdocu_id = models.CharField(primary_key=True, max_length=255)
-    product_id = models.CharField(max_length=255, blank=True, null=True)
-    quantity_rejected = models.IntegerField()
-    defect_type = models.CharField(max_length=155)
-    manuf_date = models.DateField()
-    expiry_date = models.DateField()
-    uom = models.TextField(blank=True, null=True)  # This field type is a guess.
-    serial = models.ForeignKey(
-        "SerialTracking", models.DO_NOTHING, blank=True, null=True
+    labor_cost = models.ForeignKey(
+        "LaborCost", models.DO_NOTHING, blank=True, null=True
     )
+    total_cost = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = '"operations"."product_document_items"'
+        db_table = '"operations"."bill_of_materials"'
 
 
-class SerialTracking(models.Model):
-    serial_id = models.CharField(primary_key=True, max_length=255)
-    document_id = models.CharField(max_length=255, blank=True, null=True)
-    serial_no = models.CharField(unique=True, max_length=50)
+class LaborCost(models.Model):
+    labor_cost_id = models.CharField(primary_key=True, max_length=255)
+    labor_id = models.CharField(max_length=255, blank=True, null=True)
+    salary_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = '"operations"."serial_tracking"'
+        db_table = '"operations"."labor_cost"'
+
+
+class NonProjectOrderPricing(models.Model):
+    non_project_costing_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = '"operations"."non_project_order_pricing"'
+
+
+class PrincipalItems(models.Model):
+    principal_item_id = models.CharField(primary_key=True, max_length=255)
+    service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
+    mark_up_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = '"operations"."principal_items"'
+
+
+class ProductMats(models.Model):
+    product_mats_id = models.CharField(primary_key=True, max_length=255)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
+    quantity_required = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_of_used_materials = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = '"operations"."product_mats"'

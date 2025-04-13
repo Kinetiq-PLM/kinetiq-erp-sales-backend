@@ -8,61 +8,64 @@
 from django.db import models
 
 
-class Equipment(models.Model):
-    equipment_id = models.CharField(primary_key=True, max_length=255)
-    equipment_name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    availability_status = models.TextField(
-        blank=True, null=True
-    )  # This field type is a guess.
-    last_maintenance_date = models.DateField(blank=True, null=True)
-    equipment_cost = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
+class BillOfMaterials(models.Model):
+    bom_id = models.CharField(primary_key=True, max_length=255)
+    project_id = models.CharField(max_length=255, blank=True, null=True)
+    product_mats = models.ForeignKey(
+        "ProductMats", models.DO_NOTHING, blank=True, null=True
     )
+    overall_quantity_of_material = models.IntegerField(blank=True, null=True)
+    cost_per_raw_material = models.DecimalField(max_digits=10, decimal_places=2)
+    total_cost_of_raw_materials = models.DecimalField(max_digits=10, decimal_places=2)
+    production_order_detail_id = models.CharField(max_length=255, blank=True, null=True)
+    labor_cost = models.ForeignKey(
+        "LaborCost", models.DO_NOTHING, blank=True, null=True
+    )
+    total_cost = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = '"production"."equipment"'
+        db_table = '"production"."bill_of_materials"'
 
 
-class Labor(models.Model):
-    labor_id = models.CharField(primary_key=True, max_length=255)
-    production_order_id = models.CharField(max_length=255, blank=True, null=True)
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
-    date_worked = models.DateTimeField(blank=True, null=True)
-    hours_worked = models.IntegerField()
+class LaborCost(models.Model):
+    labor_cost_id = models.CharField(primary_key=True, max_length=255)
+    labor_id = models.CharField(max_length=255, blank=True, null=True)
+    salary_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = '"production"."labor"'
+        db_table = '"production"."labor_cost"'
 
 
-class ProductionOrdersDetails(models.Model):
-    production_order_detail_id = models.CharField(primary_key=True, max_length=255)
-    production_order_id = models.CharField(max_length=255, blank=True, null=True)
-    actual_quantity = models.IntegerField()
-    cost_of_production = models.DecimalField(max_digits=10, decimal_places=2)
-    miscellaneous_costs = models.DecimalField(max_digits=10, decimal_places=2)
-    equipment_id = models.CharField(max_length=255, blank=True, null=True)
-    rework_required = models.BooleanField()
-    rework_notes = models.TextField(blank=True, null=True)
-    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
+class NonProjectOrderPricing(models.Model):
+    non_project_costing_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
-        db_table = '"production"."production_orders_details"'
+        db_table = '"production"."non_project_order_pricing"'
 
 
-class ProductionOrdersHeader(models.Model):
-    production_order_id = models.CharField(primary_key=True, max_length=255)
-    task_id = models.CharField(max_length=255, blank=True, null=True)
-    bom_id = models.CharField(max_length=255, blank=True, null=True)
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(blank=True, null=True)
-    status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    target_quantity = models.IntegerField()
-    notes = models.TextField(blank=True, null=True)
+class PrincipalItems(models.Model):
+    principal_item_id = models.CharField(primary_key=True, max_length=255)
+    service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
+    mark_up_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
-        db_table = '"production"."production_orders_header"'
+        db_table = '"production"."principal_items"'
+
+
+class ProductMats(models.Model):
+    product_mats_id = models.CharField(primary_key=True, max_length=255)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
+    quantity_required = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_of_used_materials = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = '"production"."product_mats"'

@@ -13,7 +13,6 @@ class BlanketAgreement(models.Model):
     statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    status = models.TextField(blank=True, null=True)  # This field type is a guess.
     description = models.TextField(blank=True, null=True)
     signed_date = models.DateTimeField(blank=True, null=True)
     agreement_method = models.TextField(blank=True, null=True)  # This field type is a guess.
@@ -46,17 +45,6 @@ class Campaigns(models.Model):
         db_table = 'campaigns'
 
 
-class CreditMemo(models.Model):
-    credit_memo_id = models.CharField(primary_key=True, max_length=255)
-    created_at = models.DateTimeField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'credit_memo'
-
-
 class Customers(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=255)
     gl_account_id = models.CharField(max_length=255, blank=True, null=True)
@@ -83,14 +71,15 @@ class DeliveryNote(models.Model):
     delivery_note_id = models.CharField(primary_key=True, max_length=255)
     order = models.ForeignKey('Orders', models.DO_NOTHING, blank=True, null=True)
     statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
-    rework_id = models.CharField(max_length=255, blank=True, null=True)
-    goods_issue_id = models.CharField(max_length=255, blank=True, null=True)
     shipment_id = models.CharField(max_length=255, blank=True, null=True)
+    rework_id = models.CharField(max_length=255, blank=True, null=True)
     shipping_method = models.TextField(blank=True, null=True)  # This field type is a guess.
     tracking_num = models.CharField(max_length=255, blank=True, null=True)
+    preferred_delivery_date = models.DateField(blank=True, null=True)
     shipping_date = models.DateTimeField(blank=True, null=True)
     estimated_delivery = models.DateTimeField(blank=True, null=True)
-    delivery_status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    actual_delivery_date = models.DateTimeField(blank=True, null=True)
+    shipment_status = models.TextField(blank=True, null=True)  # This field type is a guess.
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -123,6 +112,7 @@ class Opportunities(models.Model):
 class Orders(models.Model):
     order_id = models.CharField(primary_key=True, max_length=255)
     quotation = models.ForeignKey('Quotation', models.DO_NOTHING, blank=True, null=True)
+    agreement = models.ForeignKey(BlanketAgreement, models.DO_NOTHING, blank=True, null=True)
     statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
     ext_project_request_id = models.CharField(max_length=255, blank=True, null=True)
     order_date = models.DateTimeField(blank=True, null=True)
@@ -168,27 +158,6 @@ class Quotation(models.Model):
         db_table = 'quotation'
 
 
-class RenewalWarranty(models.Model):
-    renewal_id = models.CharField(primary_key=True, max_length=255)
-    order = models.ForeignKey(Orders, models.DO_NOTHING, blank=True, null=True)
-    customer = models.ForeignKey(Customers, models.DO_NOTHING, blank=True, null=True)
-    product_id = models.CharField(max_length=255, blank=True, null=True)
-    payments = models.ForeignKey(Payments, models.DO_NOTHING, blank=True, null=True)
-    service_request_id = models.CharField(max_length=255, blank=True, null=True)
-    original_warranty_start = models.DateField(blank=True, null=True)
-    original_warranty_end = models.DateField(blank=True, null=True)
-    renewal_warranty_start = models.DateField(blank=True, null=True)
-    renewal_warranty_end = models.DateField(blank=True, null=True)
-    renewal_status = models.TextField(blank=True, null=True)  # This field type is a guess.
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    renewal_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'renewal_warranty'
-
-
 class Return(models.Model):
     return_id = models.CharField(primary_key=True, max_length=255)
     statement = models.ForeignKey('Statement', models.DO_NOTHING, blank=True, null=True)
@@ -205,9 +174,9 @@ class Return(models.Model):
 class SalesInvoices(models.Model):
     invoice_id = models.CharField(primary_key=True, max_length=255)
     delivery_note = models.ForeignKey(DeliveryNote, models.DO_NOTHING, blank=True, null=True)
+    is_returned = models.BooleanField(blank=True, null=True)
     invoice_date = models.DateTimeField(blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    invoice_status = models.TextField(blank=True, null=True)  # This field type is a guess.
     total_amount_paid = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     remaining_balance = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
@@ -235,13 +204,13 @@ class StatementItem(models.Model):
     statement = models.ForeignKey(Statement, models.DO_NOTHING, blank=True, null=True)
     product_id = models.CharField(max_length=255, blank=True, null=True)
     additional_service_id = models.CharField(max_length=255, blank=True, null=True)
-    renewal = models.ForeignKey(RenewalWarranty, models.DO_NOTHING, blank=True, null=True)
     quantity = models.IntegerField(blank=True, null=True)
     quantity_to_deliver = models.IntegerField(blank=True, null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    special_requests = models.TextField(blank=True, null=True)
     return_reason = models.TextField(blank=True, null=True)
     return_action = models.TextField(blank=True, null=True)  # This field type is a guess.
     quantity_delivered = models.IntegerField(blank=True, null=True)
@@ -260,6 +229,7 @@ class Ticket(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.TextField(blank=True, null=True)  # This field type is a guess.
     priority = models.TextField(blank=True, null=True)  # This field type is a guess.
+    type = models.TextField(blank=True, null=True)  # This field type is a guess.
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -270,6 +240,7 @@ class Ticket(models.Model):
 class TicketConvo(models.Model):
     convo_id = models.CharField(primary_key=True, max_length=255)
     ticket = models.ForeignKey(Ticket, models.DO_NOTHING, blank=True, null=True)
+    subject = models.CharField(max_length=255, blank=True, null=True)
     content = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
 

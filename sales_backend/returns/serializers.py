@@ -16,6 +16,12 @@ class ReturnSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["statement"] = StatementSerializer(instance.statement).data
-        data["delivery_note"] = DeliveryNoteSerializer(instance.delivery_note).data
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(Statement.objects.get(pk=s)).data if s else None
+        )
+        d = data.pop("delivery_note")
+        data["delivery_note"] = (
+            DeliveryNoteSerializer(DeliveryNote.objects.get(pk=d)).data if d else None
+        )
         return data
