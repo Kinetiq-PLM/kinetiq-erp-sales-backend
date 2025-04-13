@@ -430,7 +430,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         gap -= 20
 
         p = Paragraph(
-            f'<font size="10">Either party may terminate this Agreement with [30] days written notice.</font>',
+            f'<font size="10">This agreement is not subject to termination by either party for convenience.</font>',
             style=style,
         )
         p.wrapOn(pdf, width, height)
