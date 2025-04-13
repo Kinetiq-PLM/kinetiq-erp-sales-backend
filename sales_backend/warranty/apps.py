@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DunningConfig(AppConfig):
+class WarrantyConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'dunning'
+    name = 'warranty'

@@ -25,8 +25,15 @@ SECRET_KEY = "django-insecure-$s!xjez846m_#wr#1lmcz)4busv#r1d97u)zy9x3^0m*=pz3zz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "ls9h09elei.execute-api.ap-southeast-1.amazonaws.com",
+]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 # Application definition
 
@@ -37,20 +44,26 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "agreement",
+    "costing",
     "CRM",
+    "customer",
     "delivery",
-    "dunning",
     "invoice",
+    "misc",
     "order",
     "quotation",
     "reporting",
     "returns",
+    "statement",
+    "warranty",
     "rest_framework",
     "corsheaders",
     "django_cognito_jwt",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -58,13 +71,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permission.AllowAny"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_AUTHENTICATION_CLASSES": ["django_cognito_jwt.JSONWebTokenAuthentication"],
 }
 
@@ -94,8 +104,13 @@ WSGI_APPLICATION = "sales_backend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "kinetiq_revised",
+        "USER": "postgres",
+        "PASSWORD": "123",
+        "HOST": "localhost",
+        "PORT": "5432",
+        # "OPTIONS": {"options": "--search-path=sales"},
     }
 }
 
