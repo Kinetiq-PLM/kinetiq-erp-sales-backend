@@ -24582,26 +24582,26 @@ SALES-SHIP-2025-1ef402	SALES-ORD-2025-f516a9	SALES-STM-2025-0f51f7	\N	\N	Standar
 --
 
 COPY sales.opportunities (opportunity_id, customer_id, partner_id, salesrep_id, estimated_value, weighted_amount, gross_profit_percentage, gross_profit_total, starting_date, expected_closed_date, stage, status, description, reason_lost, interest_level) FROM stdin;
-SALES-OPP-2025-dd0c6e	\N	\N	\N	250000.00	200000.00	20.00	50000.00	2025-04-12 12:46:49.444383	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	\N	High
-SALES-OPP-2025-3d30b1	\N	\N	\N	150000.00	120000.00	15.00	22500.00	2025-04-12 12:46:49.444383	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	\N	Medium
-SALES-OPP-2025-224438	\N	\N	\N	10000.00	9000.00	10.00	1000.00	2025-04-12 12:46:49.444383	2025-03-30	Closed	Won	Sold 500 surgical gloves.	\N	Low
-SALES-OPP-2025-d3db0e	\N	\N	\N	75000.00	60000.00	18.00	13500.00	2025-04-12 12:46:49.444383	2025-06-01	Prospecting	Open	New client interested in defibrillators.	\N	Medium
-SALES-OPP-2025-c6caa5	\N	\N	\N	500000.00	450000.00	12.00	60000.00	2025-04-12 12:46:49.444383	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.	High
-SALES-OPP-2025-5ac832	\N	\N	\N	20000.00	18000.00	10.00	2000.00	2025-04-12 12:46:49.444383	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	\N	Low
-SALES-OPP-2025-1deb28	\N	\N	\N	8000.00	7000.00	12.50	1000.00	2025-04-12 12:46:49.444383	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.	Low
-SALES-OPP-2025-f0fc76	\N	\N	\N	95000.00	85000.00	15.00	14250.00	2025-04-12 12:46:49.444383	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	\N	Medium
-SALES-OPP-2025-119fe7	\N	\N	\N	12000.00	10000.00	20.00	2400.00	2025-04-12 12:46:49.444383	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	\N	High
-SALES-OPP-2025-2b9302	\N	\N	\N	180000.00	160000.00	11.00	19800.00	2025-04-12 12:46:49.444383	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	\N	Medium
-SALES-OPP-2025-b88466	\N	\N	\N	300000.00	270000.00	10.00	30000.00	2025-04-12 12:46:49.444383	2025-06-15	Prospecting	Open	Potential deal for CT scanners.	\N	High
-SALES-OPP-2025-76cfde	\N	\N	\N	120000.00	110000.00	8.00	9600.00	2025-04-12 12:46:49.444383	2025-05-20	Negotiation	Open	Negotiating pricing for ultrasound machines.	\N	Medium
-SALES-OPP-2025-b4f6c5	\N	\N	\N	15000.00	14000.00	6.00	900.00	2025-04-12 12:46:49.444383	2025-04-30	Closed	Won	Sold 1000 surgical masks.	\N	Low
-SALES-OPP-2025-4ee5b5	\N	\N	\N	90000.00	85000.00	5.00	4500.00	2025-04-12 12:46:49.444383	2025-07-01	Prospecting	Open	New client interested in MRI machines.	\N	Medium
-SALES-OPP-2025-4df801	\N	\N	\N	600000.00	550000.00	9.00	54000.00	2025-04-12 12:46:49.444383	2025-08-01	Negotiation	Lost	Large order for ventilators.	Customer chose competitor.	High
-SALES-OPP-2025-0fd3e2	\N	\N	\N	25000.00	23000.00	7.00	1750.00	2025-04-12 12:46:49.444383	2025-06-10	Closed	Won	Sold 300 syringes and 100 BP monitors.	\N	Low
-SALES-OPP-2025-dd8ef5	\N	\N	\N	10000.00	8000.00	12.50	1250.00	2025-04-12 12:46:49.444383	2025-05-25	Closed	Lost	Small clinic interested in X-ray machine.	Budget constraints.	Low
-SALES-OPP-2025-cd64ae	\N	\N	\N	110000.00	95000.00	14.00	15400.00	2025-04-12 12:46:49.444383	2025-06-20	Prospecting	Open	Potential deal for 5 new dialysis machines.	\N	Medium
-SALES-OPP-2025-caaab8	\N	\N	\N	18000.00	16000.00	10.00	1800.00	2025-04-12 12:46:49.444383	2025-07-10	Negotiation	Open	Service maintenance contract for lab equipment.	\N	Medium
-SALES-OPP-2025-608629	\N	\N	\N	200000.00	175000.00	12.00	24000.00	2025-04-12 12:46:49.444383	2025-07-30	Closed	Won	Bulk order for surgical gloves and hospital beds.	\N	High
+SALES-OPP-2025-dd0c6e	SALES-CUST-2025-c75ad7	ADMIN-PARTNER-2025-7d976d	E188	250000.00	200000.00	20.00	50000.00	2025-04-12 12:46:49.444383	2025-05-15	Prospecting	Open	Potential MRI scanner bulk order for hospital.	\N	High
+SALES-OPP-2025-3d30b1	SALES-CUST-2025-c75ad7	ADMIN-PARTNER-2025-7d976d	E188	150000.00	120000.00	15.00	22500.00	2025-04-12 12:46:49.444383	2025-04-20	Negotiation	Open	Negotiating pricing for ventilators.	\N	Medium
+SALES-OPP-2025-224438	SALES-CUST-2025-b840bb	ADMIN-PARTNER-2025-7554b3	E184	10000.00	9000.00	10.00	1000.00	2025-04-12 12:46:49.444383	2025-03-30	Closed	Won	Sold 500 surgical gloves.	\N	Low
+SALES-OPP-2025-d3db0e	SALES-CUST-2025-5cefca	ADMIN-PARTNER-2025-f14f4b	E184	75000.00	60000.00	18.00	13500.00	2025-04-12 12:46:49.444383	2025-06-01	Prospecting	Open	New client interested in defibrillators.	\N	Medium
+SALES-OPP-2025-c6caa5	SALES-CUST-2025-30d465	ADMIN-PARTNER-2025-4d6f47	E184	500000.00	450000.00	12.00	60000.00	2025-04-12 12:46:49.444383	2025-07-01	Negotiation	Lost	Large order for hospital beds.	Customer chose competitor.	High
+SALES-OPP-2025-5ac832	SALES-CUST-2025-65ca5f	ADMIN-PARTNER-2025-f7b31c	E184	20000.00	18000.00	10.00	2000.00	2025-04-12 12:46:49.444383	2025-05-10	Closed	Won	Sold 200 syringes and 50 BP monitors.	\N	Low
+SALES-OPP-2025-1deb28	SALES-CUST-2025-b3e61b	ADMIN-PARTNER-2025-b59ce2	E188	8000.00	7000.00	12.50	1000.00	2025-04-12 12:46:49.444383	2025-04-25	Closed	Lost	Small clinic interested in ECG machine.	Budget constraints.	Low
+SALES-OPP-2025-f0fc76	SALES-CUST-2025-aa1b4f	ADMIN-PARTNER-2025-34bd59	E188	95000.00	85000.00	15.00	14250.00	2025-04-12 12:46:49.444383	2025-05-20	Prospecting	Open	Potential deal for 3 new dialysis machines.	\N	Medium
+SALES-OPP-2025-119fe7	SALES-CUST-2025-65aa54	ADMIN-PARTNER-2025-5db1f9	E188	12000.00	10000.00	20.00	2400.00	2025-04-12 12:46:49.444383	2025-06-10	Negotiation	Open	Service maintenance contract for medical equipment.	\N	High
+SALES-OPP-2025-2b9302	SALES-CUST-2025-ec15a1	ADMIN-PARTNER-2025-8af29d	E188	180000.00	160000.00	11.00	19800.00	2025-04-12 12:46:49.444383	2025-06-30	Closed	Won	Bulk order for surgical gloves and hospital furniture.	\N	Medium
+SALES-OPP-2025-b88466	SALES-CUST-2025-1a3489	ADMIN-PARTNER-2025-fef3af	E120	300000.00	270000.00	10.00	30000.00	2025-04-12 12:46:49.444383	2025-06-15	Prospecting	Open	Potential deal for CT scanners.	\N	High
+SALES-OPP-2025-76cfde	SALES-CUST-2025-429c03	ADMIN-PARTNER-2025-f3844c	E120	120000.00	110000.00	8.00	9600.00	2025-04-12 12:46:49.444383	2025-05-20	Negotiation	Open	Negotiating pricing for ultrasound machines.	\N	Medium
+SALES-OPP-2025-b4f6c5	SALES-CUST-2025-0ced8b	ADMIN-PARTNER-2025-27458a	E120	15000.00	14000.00	6.00	900.00	2025-04-12 12:46:49.444383	2025-04-30	Closed	Won	Sold 1000 surgical masks.	\N	Low
+SALES-OPP-2025-4ee5b5	SALES-CUST-2025-daa211	ADMIN-PARTNER-2025-98154b	E188	90000.00	85000.00	5.00	4500.00	2025-04-12 12:46:49.444383	2025-07-01	Prospecting	Open	New client interested in MRI machines.	\N	Medium
+SALES-OPP-2025-4df801	SALES-CUST-2025-644411	ADMIN-PARTNER-2025-acb2f7	E120	600000.00	550000.00	9.00	54000.00	2025-04-12 12:46:49.444383	2025-08-01	Negotiation	Lost	Large order for ventilators.	Customer chose competitor.	High
+SALES-OPP-2025-0fd3e2	SALES-CUST-2025-c21031	ADMIN-PARTNER-2025-8bf71c	E120	25000.00	23000.00	7.00	1750.00	2025-04-12 12:46:49.444383	2025-06-10	Closed	Won	Sold 300 syringes and 100 BP monitors.	\N	Low
+SALES-OPP-2025-dd8ef5	SALES-CUST-2025-ba1d24	ADMIN-PARTNER-2025-cb748d	E120	10000.00	8000.00	12.50	1250.00	2025-04-12 12:46:49.444383	2025-05-25	Closed	Lost	Small clinic interested in X-ray machine.	Budget constraints.	Low
+SALES-OPP-2025-cd64ae	SALES-CUST-2025-05aa85	ADMIN-PARTNER-2025-f325ce	E184	110000.00	95000.00	14.00	15400.00	2025-04-12 12:46:49.444383	2025-06-20	Prospecting	Open	Potential deal for 5 new dialysis machines.	\N	Medium
+SALES-OPP-2025-caaab8	SALES-CUST-2025-368f13	ADMIN-PARTNER-2025-f3651a	E184	18000.00	16000.00	10.00	1800.00	2025-04-12 12:46:49.444383	2025-07-10	Negotiation	Open	Service maintenance contract for lab equipment.	\N	Medium
+SALES-OPP-2025-608629	SALES-CUST-2025-68c733	ADMIN-PARTNER-2025-5b3be6	E188	200000.00	175000.00	12.00	24000.00	2025-04-12 12:46:49.444383	2025-07-30	Closed	Won	Bulk order for surgical gloves and hospital beds.	\N	High
 \.
 
 
@@ -25152,26 +25152,26 @@ SALES-STI-2025-86957e	SALES-STM-2025-6ad0d9	ADMIN-PROD-2025-a6b81f	\N	1	2	2246.4
 --
 
 COPY sales.ticket (ticket_id, customer_id, salesrep_id, subject, description, status, priority, type, created_at) FROM stdin;
-SALES-TICKET-2025-6f9948	\N	\N	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-6eac2e	\N	\N	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-222c26	\N	\N	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-25e082	\N	\N	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-dd2c2e	\N	\N	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-ea8235	\N	\N	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-a25f7d	\N	\N	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-b97ba9	\N	\N	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-bd5a1a	\N	\N	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-efbf4c	\N	\N	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-c79c6d	\N	\N	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-06783d	\N	\N	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-7ff1ef	\N	\N	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-91c301	\N	\N	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-60bd74	\N	\N	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-10dbcc	\N	\N	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-e07439	\N	\N	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-dbeb2b	\N	\N	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-a78a42	\N	\N	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	\N	2025-04-12 12:46:49.444383
-SALES-TICKET-2025-9175e6	\N	\N	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-6f9948	SALES-CUST-2025-c75ad7	E120	MRI Machine Maintenance	Scheduled preventive maintenance for MRI scanner.	Open	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-6eac2e	SALES-CUST-2025-b840bb	E120	X-ray Calibration	X-ray machines require recalibration due to accuracy issues.	In Progress	Urgent	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-222c26	SALES-CUST-2025-5cefca	E120	Training Request - ECG Machine	Hospital staff need hands-on training for ECG machines.	Open	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-25e082	SALES-CUST-2025-30d465	E120	Software Update - Ventilators	Need to update ventilator software for new compliance regulations.	Closed	Low	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-dd2c2e	SALES-CUST-2025-65ca5f	E184	Warranty Repair - Defibrillator	Defibrillator malfunction under warranty claim.	Open	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-ea8235	SALES-CUST-2025-b3e61b	E184	Technical Support - Ultrasound	Ultrasound machine displaying error code during operation.	In Progress	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-a25f7d	SALES-CUST-2025-aa1b4f	E184	Equipment Relocation Assistance	Need assistance in relocating an MRI scanner to another facility.	Closed	Low	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-b97ba9	SALES-CUST-2025-65aa54	E184	Hospital Bed Malfunction	Motorized hospital beds not adjusting properly.	Open	Urgent	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-bd5a1a	SALES-CUST-2025-ec15a1	E188	Battery Replacement - Portable Monitors	Request to replace batteries for 20 portable patient monitors.	In Progress	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-efbf4c	SALES-CUST-2025-1a3489	E188	On-Site Inspection - Operating Room Equipment	Request for technician visit to inspect all OR equipment.	Open	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-c79c6d	SALES-CUST-2025-429c03	E188	CT Scanner Calibration	CT scanner requires recalibration for accurate imaging.	Open	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-06783d	SALES-CUST-2025-0ced8b	E188	Training Request - Ultrasound	Staff training needed for new ultrasound machines.	In Progress	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-7ff1ef	SALES-CUST-2025-daa211	E120	Warranty Repair - X-ray Machine	X-ray machine malfunction under warranty.	Open	Urgent	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-91c301	SALES-CUST-2025-644411	E120	Software Update - MRI Scanner	MRI software update required for compliance.	Closed	Low	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-60bd74	SALES-CUST-2025-c21031	E120	Equipment Relocation - Ventilators	Assistance needed to relocate ventilators.	Open	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-10dbcc	SALES-CUST-2025-ba1d24	E184	Technical Support - Defibrillator	Defibrillator displaying error codes.	In Progress	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-e07439	SALES-CUST-2025-05aa85	E184	Hospital Bed Repair	Motorized hospital beds not functioning.	Closed	Low	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-dbeb2b	SALES-CUST-2025-368f13	E184	Battery Replacement - Monitors	Request to replace batteries for patient monitors.	Open	Medium	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-a78a42	SALES-CUST-2025-68c733	E184	On-Site Inspection - Lab Equipment	Inspection needed for lab equipment.	In Progress	High	\N	2025-04-12 12:46:49.444383
+SALES-TICKET-2025-9175e6	SALES-CUST-2025-665435	E188	Training Request - Surgical Tools	Training required for new surgical tools.	Open	Medium	\N	2025-04-12 12:46:49.444383
 \.
 
 
@@ -25180,26 +25180,26 @@ SALES-TICKET-2025-9175e6	\N	\N	Training Request - Surgical Tools	Training requir
 --
 
 COPY sales.ticket_convo (convo_id, ticket_id, subject, content, created_at) FROM stdin;
-SALES-CONVO-2025-5f9232	\N	\N	Technician scheduled for MRI maintenance on April 5.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-a602cc	\N	\N	Calibration tools dispatched, technician visit confirmed.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-737ca7	\N	\N	ECG training session scheduled for March 15.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-e07b23	\N	\N	Software update package sent, remote installation guide provided.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-e9d244	\N	\N	Warranty repair approved, dispatching service team.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-8c2c00	\N	\N	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-32dcb4	\N	\N	MRI relocation assistance team confirmed for March 20.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-07420d	\N	\N	Investigating motorized hospital bed issues, awaiting technician report.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-7b38b1	\N	\N	Battery order placed, estimated arrival March 10.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-4ad6eb	\N	\N	On-site inspection scheduled for April 1, report to follow.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-76baee	\N	\N	CT scanner calibration scheduled for April 10.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-0170eb	\N	\N	Ultrasound training session confirmed for March 25.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-40c6df	\N	\N	Warranty repair approved, technician dispatched.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-8fdc68	\N	\N	MRI software update completed remotely.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-54530c	\N	\N	Ventilator relocation team confirmed for April 5.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-f85012	\N	\N	Defibrillator troubleshooting guide sent.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-133f42	\N	\N	Hospital bed repair completed successfully.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-7f1da1	\N	\N	Battery replacement order placed, ETA March 15.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-9a1cc9	\N	\N	Lab equipment inspection scheduled for April 8.	2025-04-12 12:46:49.444383
-SALES-CONVO-2025-4b7841	\N	\N	Surgical tools training session confirmed for March 30.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-5f9232	SALES-TICKET-2025-6f9948	\N	Technician scheduled for MRI maintenance on April 5.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-a602cc	SALES-TICKET-2025-6eac2e	\N	Calibration tools dispatched, technician visit confirmed.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-737ca7	SALES-TICKET-2025-222c26	\N	ECG training session scheduled for March 15.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-e07b23	SALES-TICKET-2025-25e082	\N	Software update package sent, remote installation guide provided.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-e9d244	SALES-TICKET-2025-dd2c2e	\N	Warranty repair approved, dispatching service team.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-8c2c00	SALES-TICKET-2025-ea8235	\N	Ultrasound troubleshooting guide sent, remote support scheduled.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-32dcb4	SALES-TICKET-2025-a25f7d	\N	MRI relocation assistance team confirmed for March 20.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-07420d	SALES-TICKET-2025-b97ba9	\N	Investigating motorized hospital bed issues, awaiting technician report.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-7b38b1	SALES-TICKET-2025-bd5a1a	\N	Battery order placed, estimated arrival March 10.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-4ad6eb	SALES-TICKET-2025-efbf4c	\N	On-site inspection scheduled for April 1, report to follow.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-76baee	SALES-TICKET-2025-c79c6d	\N	CT scanner calibration scheduled for April 10.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-0170eb	SALES-TICKET-2025-06783d	\N	Ultrasound training session confirmed for March 25.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-40c6df	SALES-TICKET-2025-7ff1ef	\N	Warranty repair approved, technician dispatched.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-8fdc68	SALES-TICKET-2025-91c301	\N	MRI software update completed remotely.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-54530c	SALES-TICKET-2025-60bd74	\N	Ventilator relocation team confirmed for April 5.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-f85012	SALES-TICKET-2025-10dbcc	\N	Defibrillator troubleshooting guide sent.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-133f42	SALES-TICKET-2025-e07439	\N	Hospital bed repair completed successfully.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-7f1da1	SALES-TICKET-2025-dbeb2b	\N	Battery replacement order placed, ETA March 15.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-9a1cc9	SALES-TICKET-2025-a78a42	\N	Lab equipment inspection scheduled for April 8.	2025-04-12 12:46:49.444383
+SALES-CONVO-2025-4b7841	SALES-TICKET-2025-9175e6	\N	Surgical tools training session confirmed for March 30.	2025-04-12 12:46:49.444383
 \.
 
 
