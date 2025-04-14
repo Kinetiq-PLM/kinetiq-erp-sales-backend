@@ -102,6 +102,7 @@ WSGI_APPLICATION = "sales_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+## comment out when ready to use RDS
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -114,6 +115,8 @@ DATABASES = {
     }
 }
 
+
+## uncomment when ready to use RDS
 # import os
 
 # DATABASES = {
