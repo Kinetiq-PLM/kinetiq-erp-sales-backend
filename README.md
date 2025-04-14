@@ -28,7 +28,7 @@ $ pip install -r requirements.txt
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kinetiq_revised",
+        "NAME": "localdb",
         "USER": <your_username>,
         "PASSWORD": <your_password>,
         "HOST": "localhost",
@@ -40,8 +40,8 @@ DATABASES = {
 ### Create database
 
 ```
-$ psql -U <username> -c "CREATE DATABASE kinetiq_revised;"
-$ psql -U <username> kinetiq_revised < kinetiq_revised.sql
+$ psql -U <username> -c "CREATE DATABASE localdb;"
+$ psql -U <username> localdb < localdb.sql
 ```
 
 ### Create superuser (for admin)
