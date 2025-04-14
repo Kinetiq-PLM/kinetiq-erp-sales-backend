@@ -9,24 +9,33 @@ from django.db import models
 
 
 class DeprecationReport(models.Model):
-    deprecation_report_id = models.CharField(
-        primary_key=True, blank=True, max_length=255
+    deprecation_report_id = models.CharField(primary_key=True, max_length=255)
+    inventory_item = models.ForeignKey(
+        "InventoryItem", models.DO_NOTHING, blank=True, null=True
     )
-    item_id = models.CharField(max_length=255, blank=True, null=True)
-    content_id = models.CharField(max_length=255, blank=True, null=True)
-    quantity = models.IntegerField()
     reported_date = models.DateTimeField()
-    status = models.TextField()  # This field type is a guess.
-    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
+    deprecation_status = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = '"inventory"."deprecation_report"'
 
 
+class ExpiryReport(models.Model):
+    expiry_report_id = models.CharField(primary_key=True, max_length=255)
+    inventory_item = models.ForeignKey(
+        "InventoryItem", models.DO_NOTHING, blank=True, null=True
+    )
+    reported_date = models.DateTimeField()
+    expiry_report_status = models.TextField()  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = '"inventory"."expiry_report"'
+
+
 class InventoryAdjustments(models.Model):
-    adjustment_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    adjustment_id = models.CharField(primary_key=True, max_length=255)
     item_id = models.CharField(max_length=255, blank=True, null=True)
     adjustment_type = models.TextField()  # This field type is a guess.
     quantity = models.IntegerField()
@@ -39,15 +48,18 @@ class InventoryAdjustments(models.Model):
 
 
 class InventoryCyclicCounts(models.Model):
-    inventory_count_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    item_md_id = models.CharField(max_length=255, blank=True, null=True)
+    inventory_count_id = models.CharField(primary_key=True, max_length=255)
+    inventory_item = models.ForeignKey(
+        "InventoryItem", models.DO_NOTHING, blank=True, null=True
+    )
     item_onhand = models.IntegerField()
     item_actually_counted = models.IntegerField()
     difference_in_qty = models.IntegerField()
     employee_id = models.CharField(max_length=255, blank=True, null=True)
     status = models.TextField()  # This field type is a guess.
-    remarks = models.TextField()
+    remarks = models.TextField(blank=True, null=True)
     time_period = models.TextField()  # This field type is a guess.
+    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -55,50 +67,61 @@ class InventoryCyclicCounts(models.Model):
 
 
 class InventoryItem(models.Model):
-    inventory_item_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    item_id = models.CharField(max_length=255, blank=True, null=True)
-    content_id = models.CharField(max_length=255, blank=True, null=True)
-    expiry_date = models.DateField()
-    unit_cost = models.DecimalField(max_digits=10, decimal_places=3)
-    unit_of_measure = models.CharField(max_length=25)
-    item_status = models.TextField()  # This field type is a guess.
+    inventory_item_id = models.CharField(primary_key=True, max_length=255)
+    serial_id = models.CharField(max_length=255, blank=True, null=True)
+    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
+    asset_id = models.CharField(max_length=255, blank=True, null=True)
+    item_type = models.TextField()  # This field type is a guess.
+    current_quantity = models.IntegerField()
     warehouse_id = models.CharField(max_length=255, blank=True, null=True)
+    expiry = models.DateTimeField(blank=True, null=True)
+    shelf_life = models.TextField(blank=True, null=True)  # This field type is a guess.
+    last_update = models.DateTimeField()
+    date_created = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = '"inventory"."inventory_item"'
 
 
-class InventoryItemMasterData(models.Model):
-    item_md_id = models.CharField(primary_key=True, blank=True, max_length=255)
+class InventoryItemThreshold(models.Model):
+    inventory_item_threshold_id = models.CharField(primary_key=True, max_length=255)
     item_id = models.CharField(max_length=255, blank=True, null=True)
-    content_id = models.CharField(max_length=255, blank=True, null=True)
     minimum_threshold = models.IntegerField()
     maximum_threshold = models.IntegerField()
-    total_stock = models.IntegerField()
-    stock_on_order = models.IntegerField()
-    stock_committed = models.IntegerField()
-    available_stock = models.IntegerField()
-    last_update = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = '"inventory"."inventory_item_master_data"'
+        db_table = '"inventory"."inventory_item_threshold"'
 
 
 class WarehouseMovement(models.Model):
-    movement_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    item_id = models.CharField(max_length=255, blank=True, null=True)
-    movement_type = models.TextField()
-    quantity = models.IntegerField()
+    movement_id = models.CharField(primary_key=True, max_length=255)
+    docu_creation_date = models.DateTimeField()
     movement_date = models.DateTimeField()
+    movement_status = models.TextField()  # This field type is a guess.
     destination = models.CharField(max_length=255, blank=True, null=True)
     source = models.CharField(max_length=255, blank=True, null=True)
     reference_id_purchase_order = models.CharField(
         max_length=255, blank=True, null=True
     )
     reference_id_order = models.CharField(max_length=255, blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = '"inventory"."warehouse_movement"'
+
+
+class WarehouseMovementItems(models.Model):
+    movement = models.OneToOneField(
+        WarehouseMovement, models.DO_NOTHING, primary_key=True
+    )  # The composite primary key (movement_id, inventory_item_id) found, that is not supported. The first column is selected.
+    inventory_item = models.ForeignKey(InventoryItem, models.DO_NOTHING)
+    quantity = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = '"inventory"."warehouse_movement_items"'
+        unique_together = (("movement", "inventory_item"),)

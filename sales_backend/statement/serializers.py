@@ -26,9 +26,10 @@ class StatementItemSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.product:
-            product = get_object_or_404(Products, pk=instance.product.product_id)
-            data["product"] = {
+        p = data.pop("product")
+        product = get_object_or_404(Products, pk=p) if p else None
+        data["product"] = (
+            {
                 "product_id": product.product_id,
                 "product_name": product.product_name,
                 "description": product.description,
@@ -37,6 +38,9 @@ class StatementItemSerializer(serializers.ModelSerializer):
                 "stock_level": product.stock_level,
                 "warranty_period": product.warranty_period,
             }
+            if p
+            else None
+        )
         return data
 
 
@@ -51,12 +55,18 @@ class StatementSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["customer"] = CustomerSerializer(
-            Customer.objects.get(pk=data.pop("customer"))
-        ).data
-        data["salesrep"] = model_to_dict(
-            instance.salesrep,
-            fields=[field.name for field in Employees._meta.fields],
+        c = data.pop("customer")
+        data["customer"] = (
+            CustomerSerializer(Customer.objects.get(pk=c)).data if c else None
+        )
+        s = data.pop("salesrep")
+        data["salesrep"] = (
+            model_to_dict(
+                Employees.objects.get(pk=s),
+                fields=[field.name for field in Employees._meta.fields],
+            )
+            if s
+            else None
         )
         return data
 

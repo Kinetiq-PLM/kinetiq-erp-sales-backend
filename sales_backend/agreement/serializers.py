@@ -4,28 +4,34 @@ from statement.serializers import Statement, StatementSerializer
 
 
 class BlanketAgreementSerializer(serializers.ModelSerializer):
-    statement = serializers.SerializerMethodField()
+    statement = serializers.PrimaryKeyRelatedField(
+        queryset=BlanketAgreement.objects.all()
+    )
 
     class Meta:
         model = BlanketAgreement
         fields = "__all__"
 
-    def get_statement(self, obj):
-        if obj.statement:
-            stmt = Statement.objects.get(pk=obj.statement.statement_id)
-            return StatementSerializer(stmt).data
-        return None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(Statement.objects.get(pk=s)).data if s else None
+        )
+        return data
 
 
 class AgreementViewSerializer(serializers.ModelSerializer):
-    statement = serializers.SerializerMethodField()
+    statement = serializers.PrimaryKeyRelatedField(queryset=AgreementView.objects.all())
 
     class Meta:
         model = AgreementView
         fields = "__all__"
 
-    def get_statement(self, obj):
-        if obj.statement:
-            stmt = Statement.objects.get(pk=obj.statement.statement_id)
-            return StatementSerializer(stmt).data
-        return None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(Statement.objects.get(pk=s)).data if s else None
+        )
+        return data

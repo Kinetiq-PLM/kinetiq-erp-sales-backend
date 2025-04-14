@@ -23,9 +23,12 @@ class SalesInvoicesSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["delivery_note"] = DeliveryNoteSerializer(
-            get_object_or_404(DeliveryNote, pk=instance.delivery_note.delivery_note_id)
-        ).data
+        d = data.pop("delivery_note")
+        data["delivery_note"] = (
+            DeliveryNoteSerializer(get_object_or_404(DeliveryNote, pk=d)).data
+            if d
+            else None
+        )
         return data
 
 
@@ -40,7 +43,10 @@ class SalesInvoicesViewSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["delivery_note"] = DeliveryNoteSerializer(
-            get_object_or_404(DeliveryNote, pk=instance.delivery_note.delivery_note_id)
-        ).data
+        d = data.pop("delivery_note")
+        data["delivery_note"] = (
+            DeliveryNoteSerializer(get_object_or_404(DeliveryNote, pk=d)).data
+            if d
+            else None
+        )
         return data

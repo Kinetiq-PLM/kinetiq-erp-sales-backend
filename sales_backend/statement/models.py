@@ -81,9 +81,6 @@ class StatementItem(models.Model):
         blank=True,
         null=True,
     )
-    renewal = models.ForeignKey(
-        to="warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
-    )
     quantity = models.IntegerField()
     quantity_to_deliver = models.IntegerField(default=0)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)

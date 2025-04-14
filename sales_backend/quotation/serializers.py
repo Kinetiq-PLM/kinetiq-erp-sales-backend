@@ -12,9 +12,10 @@ class QuotationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["statement"] = StatementSerializer(
-            get_object_or_404(Statement, pk=instance.statement.statement_id)
-        ).data
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(get_object_or_404(Statement, pk=s)).data if s else None
+        )
         return data
 
 
@@ -26,7 +27,8 @@ class QuotationViewSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["statement"] = StatementSerializer(
-            get_object_or_404(Statement, pk=instance.statement.statement_id)
-        ).data
+        s = data.pop("statement")
+        data["statement"] = (
+            StatementSerializer(get_object_or_404(Statement, pk=s)).data if s else None
+        )
         return data

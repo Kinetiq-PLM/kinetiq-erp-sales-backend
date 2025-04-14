@@ -15,9 +15,13 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.partner:
-            data["partner"] = model_to_dict(
-                instance.partner,
+        p = data.pop("partner")
+        data["partner"] = (
+            model_to_dict(
+                BusinessPartnerMaster.objects.get(pk=p),
                 fields=[field.name for field in BusinessPartnerMaster._meta.fields],
             )
+            if p
+            else None
+        )
         return data
