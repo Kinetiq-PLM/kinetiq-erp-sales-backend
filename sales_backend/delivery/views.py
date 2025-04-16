@@ -12,6 +12,8 @@ from utils import *
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
+from misc.distribution.models import ShippingCost
+
 from django.db import transaction
 
 
@@ -449,18 +451,19 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         shipping_fee = 0.0
         if delivery.shipment:
             if delivery.shipment.shipping_cost_id:
-                from misc.distribution.models import ShippingCost
 
                 shipping_fee = float(
                     ShippingCost.objects.get(
                         pk=delivery.shipment.shipping_cost_id
                     ).total_shipping_cost
                 )
+        if shipping_fee < 0:
+            shipping_fee = 0.0
         pdf.drawString(400, next_section_y, "Subtotal")
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(float(delivery.statement.total_amount)),
+            "{0:,.2f}".format(float(delivery.statement.subtotal)),
         )
 
         pdf.drawString(
@@ -509,12 +512,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 65,
-            "{0:,.2f}".format(
-                float(delivery.statement.total_amount)
-                + shipping_fee
-                + float(delivery.statement.total_tax)
-                - float(delivery.statement.discount)
-            ),
+            "{0:,.2f}".format(float(delivery.statement.total_amount) + shipping_fee),
         )
 
         # Footer

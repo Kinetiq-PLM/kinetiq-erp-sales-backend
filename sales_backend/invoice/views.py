@@ -401,7 +401,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(float(invoice.delivery_note.statement.total_amount)),
+            "{0:,.2f}".format(float(invoice.delivery_note.statement.subtotal)),
         )
 
         pdf.drawString(
@@ -441,10 +441,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             right,
             next_section_y - 60,
             "{0:,.2f}".format(
-                float(invoice.delivery_note.statement.total_amount)
-                + shipping_fee
-                + float(invoice.delivery_note.statement.total_tax)
-                - float(invoice.delivery_note.statement.discount)
+                float(invoice.delivery_note.statement.total_amount) + shipping_fee
             ),
         )
 

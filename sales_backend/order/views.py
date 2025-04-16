@@ -465,7 +465,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(float(order.statement.total_amount)),
+            "{0:,.2f}".format(float(order.statement.subtotal)),
         )
 
         pdf.drawString(
@@ -504,11 +504,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 52,
-            "{0:,.2f}".format(
-                float(order.statement.total_amount)
-                + float(order.statement.total_tax)
-                - float(order.statement.discount)
-            ),
+            "{0:,.2f}".format(float(order.statement.total_amount)),
         )
 
         # Footer

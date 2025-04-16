@@ -19,6 +19,7 @@ class Statement(models.Model):
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -37,8 +38,8 @@ class Statement(models.Model):
             with connection.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, total_tax)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, total_tax, subtotal)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING statement_id;
                 """,
                     [
@@ -47,6 +48,7 @@ class Statement(models.Model):
                         self.total_amount,
                         self.discount,
                         self.total_tax,
+                        self.subtotal,
                     ],
                 )
                 row = cursor.fetchone()
