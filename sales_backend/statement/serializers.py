@@ -20,7 +20,6 @@ class StatementItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["total_price"] = (
             validated_data["quantity"] * validated_data["unit_price"]
-            + validated_data["tax_amount"]
         )
         return super().create(validated_data)
 
@@ -71,5 +70,36 @@ class StatementSerializer(serializers.ModelSerializer):
         return data
 
     def get_items(self, obj):
-        items = StatementItem.objects.filter(statement=obj)
-        return StatementItemSerializer(items, many=True).data
+        items = StatementItemView.objects.filter(statement=obj)
+        return StatementItemViewSerializer(items, many=True).data
+
+
+class StatementItemViewSerializer(serializers.ModelSerializer):
+    statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
+    total_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, read_only=True
+    )
+    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+
+    class Meta:
+        model = StatementItemView
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        p = data.pop("product")
+        product = get_object_or_404(Products, pk=p) if p else None
+        data["product"] = (
+            {
+                "product_id": product.product_id,
+                "product_name": product.product_name,
+                "description": product.description,
+                "policy_id": product.policy_id,
+                "selling_price": product.selling_price,
+                "stock_level": product.stock_level,
+                "warranty_period": product.warranty_period,
+            }
+            if p
+            else None
+        )
+        return data

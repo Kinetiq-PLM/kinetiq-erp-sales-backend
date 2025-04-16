@@ -96,3 +96,45 @@ class StatementItem(models.Model):
     class Meta:
         managed = False
         db_table = '"sales"."statement_item"'
+
+
+class StatementItemView(models.Model):
+    class DemandLevel(models.TextChoices):
+        LOW = "Low"
+        MEDIUM = "Medium"
+        HIGH = "High"
+        VERY_HIGH = "Very High"
+        SEASONAL = "Seasonal"
+
+    class ReturnAction(models.TextChoices):
+        CREDIT = "Credit"
+        REPAIR = "Repair"
+        REPLACE = "Replace"
+        RETURN = "Return"
+        DEFINE_NEW = "Define New"
+
+    statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        to=Products, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    additional_service_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    quantity = models.IntegerField()
+    quantity_to_deliver = models.IntegerField(default=0)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    special_requests = models.TextField(null=True, blank=True)
+    return_reason = models.TextField(blank=True, null=True)
+    return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
+    quantity_delivered = models.IntegerField(default=0, blank=True)
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."statement_items_view"'

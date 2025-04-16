@@ -23,6 +23,27 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = OrderView.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
 
+    @action(detail=True, methods=["get"])
+    def ordered_products(self, request, pk=None):
+        try:
+            order = self.get_object()
+        except Order.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        sql = """
+        SELECT si.* FROM sales.statement_items_view si  
+        INNER JOIN sales.orders o ON si.statement_id = o.statement_id 
+        LEFT JOIN project_management.external_project_request pr ON pr.item_id = si.statement_item_id 
+        LEFT JOIN management.management_approvals m ON pr.approval_id = m.approval_id 
+        WHERE si.special_requests IS NOT NULL 
+        OR (si.total_price IS NOT NULL AND m.status = 'approved');
+
+        """
+
+        StatementItem.objects.filter()
+
+        # return super().retrieve(request, *args, **kwargs)
+
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
         order_status = params.get("status")
@@ -304,12 +325,17 @@ class OrderViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "{0:,.2f}".format(float(item["unit_price"]))
+                        if not item["special_requests"]
+                        else "-"
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -439,11 +465,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(order.statement.total_amount)
-                + float(order.statement.discount)
-                - float(order.statement.total_tax)
-            ),
+            "{0:,.2f}".format(float(order.statement.total_amount)),
         )
 
         pdf.drawString(
@@ -482,7 +504,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 52,
-            "{0:,.2f}".format(float(order.statement.total_amount)),
+            "{0:,.2f}".format(
+                float(order.statement.total_amount)
+                + float(order.statement.total_tax)
+                - float(order.statement.discount)
+            ),
         )
 
         # Footer

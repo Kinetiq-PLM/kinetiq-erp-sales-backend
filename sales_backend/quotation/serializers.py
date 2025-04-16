@@ -28,6 +28,7 @@ class QuotationViewSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         s = data.pop("statement")
+
         data["statement"] = (
             StatementSerializer(get_object_or_404(Statement, pk=s)).data if s else None
         )
