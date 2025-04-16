@@ -325,12 +325,17 @@ class OrderViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "{0:,.2f}".format(float(item["unit_price"]))
+                        if not item["special_requests"]
+                        else "-"
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -460,11 +465,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(order.statement.total_amount)
-                + float(order.statement.discount)
-                - float(order.statement.total_tax)
-            ),
+            "{0:,.2f}".format(float(order.statement.total_amount)),
         )
 
         pdf.drawString(
@@ -503,7 +504,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 52,
-            "{0:,.2f}".format(float(order.statement.total_amount)),
+            "{0:,.2f}".format(
+                float(order.statement.total_amount)
+                + float(order.statement.total_tax)
+                - float(order.statement.discount)
+            ),
         )
 
         # Footer

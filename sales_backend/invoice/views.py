@@ -255,12 +255,17 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "{0:,.2f}".format(float(item["unit_price"]))
+                        if not item["special_requests"]
+                        else "-"
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -396,11 +401,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(invoice.delivery_note.statement.total_amount)
-                - float(invoice.delivery_note.statement.total_tax)
-                + float(invoice.delivery_note.statement.discount)
-            ),
+            "{0:,.2f}".format(float(invoice.delivery_note.statement.total_amount)),
         )
 
         pdf.drawString(
@@ -440,7 +441,10 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
             right,
             next_section_y - 60,
             "{0:,.2f}".format(
-                float(invoice.delivery_note.statement.total_amount) + shipping_fee
+                float(invoice.delivery_note.statement.total_amount)
+                + shipping_fee
+                + float(invoice.delivery_note.statement.total_tax)
+                - float(invoice.delivery_note.statement.discount)
             ),
         )
 

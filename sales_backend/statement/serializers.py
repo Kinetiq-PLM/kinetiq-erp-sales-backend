@@ -20,7 +20,6 @@ class StatementItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["total_price"] = (
             validated_data["quantity"] * validated_data["unit_price"]
-            + validated_data["tax_amount"]
         )
         return super().create(validated_data)
 
@@ -71,8 +70,8 @@ class StatementSerializer(serializers.ModelSerializer):
         return data
 
     def get_items(self, obj):
-        items = StatementItem.objects.filter(statement=obj)
-        return StatementItemSerializer(items, many=True).data
+        items = StatementItemView.objects.filter(statement=obj)
+        return StatementItemViewSerializer(items, many=True).data
 
 
 class StatementItemViewSerializer(serializers.ModelSerializer):
