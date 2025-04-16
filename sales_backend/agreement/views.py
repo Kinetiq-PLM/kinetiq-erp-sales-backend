@@ -255,10 +255,10 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
                 Paragraph(
-                    "{0:,.2f}".format(
-                        float(item["unit_price"])
+                    (
+                        "-"
                         if not item["special_requests"]
-                        else "-"
+                        else "{0:,.2f}".format(float(item["unit_price"]))
                     ),
                     style=style,
                 ),
