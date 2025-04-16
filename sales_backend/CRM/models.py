@@ -154,7 +154,7 @@ class Opportunities(models.Model):
     description = models.TextField(blank=True, null=True)
     reason_lost = models.TextField(blank=True, null=True)
     interest_level = models.TextField(choices=InterestLevel)
-    probability_percentage = models.DecimalField(max_digits=5, max_length=2)
+    probability_percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         managed = False
