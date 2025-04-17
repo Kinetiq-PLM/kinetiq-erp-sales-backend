@@ -316,7 +316,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"] - float(item["discount"]))
+                        float(float(item["total_price"]) - float(item["discount"]))
                     ),
                     style=style,
                 ),
