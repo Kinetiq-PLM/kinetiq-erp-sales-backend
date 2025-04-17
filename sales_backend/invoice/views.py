@@ -258,7 +258,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 Paragraph(
                     (
                         "-"
-                        if not item["special_requests"]
+                        if item["special_requests"]
                         else "{0:,.2f}".format(float(item["unit_price"]))
                     ),
                     style=style,
