@@ -448,17 +448,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             draw_page(pdf, page + 1, num_pages)
         # Totals Section
         pdf.setFont("Inter-Regular", 10)
-        shipping_fee = 0.0
-        if delivery.shipment:
-            if delivery.shipment.shipping_cost_id:
 
-                shipping_fee = float(
-                    ShippingCost.objects.get(
-                        pk=delivery.shipment.shipping_cost_id
-                    ).total_shipping_cost
-                )
-        if shipping_fee < 0:
-            shipping_fee = 0.0
         pdf.drawString(400, next_section_y, "Subtotal")
         pdf.drawRightString(
             right,
@@ -484,7 +474,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 30,
-            "{0:,.2f}".format(float(shipping_fee)),
+            "{0:,.2f}".format(float(delivery.shipping_fee)),
         )
         pdf.drawString(
             400,
@@ -512,7 +502,9 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 65,
-            "{0:,.2f}".format(float(delivery.statement.total_amount) + shipping_fee),
+            "{0:,.2f}".format(
+                float(delivery.statement.total_amount) + delivery.shipping_fee
+            ),
         )
 
         # Footer

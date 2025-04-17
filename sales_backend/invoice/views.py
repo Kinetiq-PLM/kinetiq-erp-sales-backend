@@ -395,9 +395,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.setFont("Inter-Regular", 10)
         pdf.drawString(400, next_section_y, "Subtotal")
 
-        shipping_fee = float(invoice.total_amount) - float(
-            invoice.delivery_note.statement.total_amount
-        )
+        shipping_fee = invoice.delivery_note.shipping_fee
         pdf.drawRightString(
             right,
             next_section_y,
