@@ -77,6 +77,12 @@ class OrderViewSet(viewsets.ModelViewSet):
             OrderViewSerializer(self.queryset.filter(**filters), many=True).data
         )
 
+    def retrieve(self, request, pk=None):
+        queryset = OrderView.objects.all()
+        order = get_object_or_404(queryset, pk=pk)
+        serializer = OrderViewSerializer(order)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         """
         inputs:

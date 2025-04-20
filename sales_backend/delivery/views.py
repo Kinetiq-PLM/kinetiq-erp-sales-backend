@@ -471,10 +471,11 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             next_section_y - 30,
             f"Shipping Fee",
         )
+        fee = DeliveryNoteSerializer(delivery).data["shipping_fee"]
         pdf.drawRightString(
             right,
             next_section_y - 30,
-            "{0:,.2f}".format(float(delivery.shipping_fee)),
+            "{0:,.2f}".format(float(fee)),
         )
         pdf.drawString(
             400,
@@ -502,9 +503,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 65,
-            "{0:,.2f}".format(
-                float(delivery.statement.total_amount) + delivery.shipping_fee
-            ),
+            "{0:,.2f}".format(float(delivery.statement.total_amount) + fee),
         )
 
         # Footer

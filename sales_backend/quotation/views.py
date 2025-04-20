@@ -23,6 +23,12 @@ class QuotationViewSet(viewsets.ModelViewSet):
     queryset = QuotationView.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
 
+    def retrieve(self, request, pk=None):
+        queryset = QuotationView.objects.all()
+        quotation = get_object_or_404(queryset, pk=pk)
+        serializer = QuotationViewSerializer(quotation)
+        return Response(serializer.data)
+
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
         status = params.get("status")

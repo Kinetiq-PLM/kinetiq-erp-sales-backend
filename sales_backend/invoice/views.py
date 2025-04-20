@@ -27,6 +27,12 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         updated = SalesInvoicesView.objects.all().order_by("-invoice_date")
         return Response(SalesInvoicesViewSerializer(updated, many=True).data)
 
+    def retrieve(self, request, pk=None):
+        queryset = SalesInvoicesView.objects.all()
+        invoice = get_object_or_404(queryset, pk=pk)
+        serializer = SalesInvoicesViewSerializer(invoice)
+        return Response(serializer.data)
+
     def create(self, request: Request, *args, **kwargs):
         """
         inputs:
@@ -189,20 +195,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 pdf.drawString(ship_to, y_pos, line)
                 y_pos -= line_height
             formatted_invoice_date = invoice.invoice_date.strftime("%d %B %Y")
-            order_items = StatementSerializer(
-                invoice.delivery_note.order.statement
-            ).data["items"]
-            delivery_items = StatementSerializer(invoice.delivery_note.statement).data[
-                "items"
-            ]
-
-            is_partial = False
-            for order, delivery in zip_longest(order_items, delivery_items):
-                if delivery is None:
-                    is_partial = True
-                elif order["quantity"] != delivery["quantity"]:
-                    is_partial = True
-
+            fulfillment = SalesInvoicesViewSerializer(invoice).data["order_fulfillment"]
             table_data = [
                 [
                     "Invoice Date",
@@ -213,7 +206,7 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
                 [
                     formatted_invoice_date,
                     Paragraph("30% Downpayment, 70% After Delivery", style=style),
-                    "Partial" if is_partial else "Full",
+                    fulfillment,
                     invoice.payment_status,
                 ],
             ]
@@ -395,7 +388,9 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         pdf.setFont("Inter-Regular", 10)
         pdf.drawString(400, next_section_y, "Subtotal")
 
-        shipping_fee = invoice.delivery_note.shipping_fee
+        shipping_fee = DeliveryNoteSerializer(invoice.delivery_note).data[
+            "shipping_fee"
+        ]
         pdf.drawRightString(
             right,
             next_section_y,
