@@ -31,9 +31,8 @@ ALLOWED_HOSTS = [
     "ls9h09elei.execute-api.ap-southeast-1.amazonaws.com",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
