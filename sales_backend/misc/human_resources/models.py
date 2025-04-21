@@ -159,7 +159,7 @@ class Employees(models.Model):
     employment_type = models.CharField(max_length=20, blank=True, null=True)
     status = models.CharField(max_length=20, blank=True, null=True)
     reports_to = models.ForeignKey(
-        "self", models.DO_NOTHING, db_column="reports_to", blank=True, null=True
+        "self", models.DO_NOTHING, db_column="reports_to_id", blank=True, null=True
     )
     is_supervisor = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
