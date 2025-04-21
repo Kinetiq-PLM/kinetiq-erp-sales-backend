@@ -70,8 +70,8 @@ class StatementSerializer(serializers.ModelSerializer):
         return data
 
     def get_items(self, obj):
-        items = StatementItemView.objects.filter(statement=obj)
-        return StatementItemViewSerializer(items, many=True).data
+        items = StatementItem.objects.filter(statement=obj)
+        return StatementItemSerializer(items, many=True).data
 
 
 class StatementItemViewSerializer(serializers.ModelSerializer):
