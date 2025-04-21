@@ -25,7 +25,17 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         # for some reason, it is necessary to retrieve all objects to reflect changes made to remaining_balance
         updated = SalesInvoicesView.objects.all().order_by("-invoice_date")
-        return Response(SalesInvoicesViewSerializer(updated, many=True).data)
+        params = request.query_params
+        salesrep = params.get("salesrep")
+        filters = {}
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filters["delivery_note__statement__salesrep__employee_id"] = salesrep
+
+        return Response(
+            SalesInvoicesViewSerializer(updated.filter(**filters), many=True).data
+        )
 
     def retrieve(self, request, pk=None):
         queryset = SalesInvoicesView.objects.all()

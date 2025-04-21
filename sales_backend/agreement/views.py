@@ -28,6 +28,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         status = params.get("status")
         period = params.get("period")
         method = params.get("agreement_method")
+        salesrep = params.get("salesrep")
         start_date = date.today()
         end_date = date.today()
         match period:
@@ -52,6 +53,10 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
             filtered["start_date__range"] = (start_date, end_date)
         if method:
             filtered["agreement_method"] = method
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
             AgreementViewSerializer(self.queryset.filter(**filtered), many=True).data

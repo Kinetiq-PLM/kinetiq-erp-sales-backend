@@ -36,6 +36,7 @@ class QuotationViewSet(viewsets.ModelViewSet):
         get_null = params.get("get_null")
         start_date = date.today()
         end_date = date.today()
+        salesrep = params.get("salesrep")
         match period:
             case "month":
                 start_date = date.today() - relativedelta(months=1)
@@ -58,6 +59,10 @@ class QuotationViewSet(viewsets.ModelViewSet):
             filtered["date_issued__range"] = (start_date, end_date)
         if get_null:
             filtered["agreement__isnull"] = True
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
             QuotationViewSerializer(self.queryset.filter(**filtered), many=True).data

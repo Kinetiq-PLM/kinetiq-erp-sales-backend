@@ -51,6 +51,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         period = params.get("period")
         start_date = date.today()
         end_date = date.today()
+        salesrep = params.get("salesrep")
         match period:
             case "month":
                 start_date = date.today() - relativedelta(months=1)
@@ -72,7 +73,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             filters["order_type"] = order_type
         if period:
             filters["order_date__range"] = (start_date, end_date)
-
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filters["statement__salesrep__employee_id"] = salesrep
         return Response(
             OrderViewSerializer(self.queryset.filter(**filters), many=True).data
         )

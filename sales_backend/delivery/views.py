@@ -27,6 +27,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         customer = params.get("customer_id")
         delivery = params.get("delivery_note_id")
         order = params.get("order_id")
+        salesrep = params.get("salesrep")
         filtered = {}
         if status:
             filtered["shipment_status__in"] = status.split(",")
@@ -36,6 +37,10 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             filtered["delivery_note_id"] = delivery
         if order:
             filtered["order_id"] = order
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filtered["statement__salesrep__employee_id"] = salesrep
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
         )

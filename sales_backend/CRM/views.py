@@ -80,9 +80,14 @@ class OpportunitiesViewSet(viewsets.ModelViewSet):
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
         customer = params.get("customer")
+        salesrep = params.get("salesrep")
         filtered = {}
         if customer:
             filtered["customer__customer_id"] = customer
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filtered["salesrep__employee_id"] = salesrep
 
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
@@ -92,6 +97,19 @@ class OpportunitiesViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+
+    def list(self, request: Request, *args, **kwargs):
+        params = request.query_params
+        salesrep = params.get("salesrep")
+        filtered = {}
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor:
+                filtered["salesrep__employee_id"] = salesrep
+
+        return Response(
+            self.serializer_class(self.queryset.filter(**filtered), many=True).data
+        )
 
 
 class TicketConvoViewSet(viewsets.ModelViewSet):
