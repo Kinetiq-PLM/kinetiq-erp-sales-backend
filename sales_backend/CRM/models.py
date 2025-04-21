@@ -155,6 +155,7 @@ class Opportunities(models.Model):
     reason_lost = models.TextField(blank=True, null=True)
     interest_level = models.TextField(choices=InterestLevel)
     probability_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         managed = False

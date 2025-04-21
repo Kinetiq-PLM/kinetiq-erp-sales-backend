@@ -111,7 +111,6 @@ class QuotationViewSet(viewsets.ModelViewSet):
                         if item_serializer.is_valid():
                             item_serializer.save()
                         else:
-                            print(item_data)
                             raise Exception(item_serializer.errors)
 
                     quotation = Quotation.objects.create(statement=statement)

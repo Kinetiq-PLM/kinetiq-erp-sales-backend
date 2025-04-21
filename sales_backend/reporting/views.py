@@ -355,7 +355,6 @@ def get_employee_conversions(request: Request):
     queryset = Opportunities.objects.filter(status=Opportunities.Status.WON)
     now = timezone.now()
     if period == "Day":
-        print("here")
         queryset = queryset.filter(expected_closed_date=now.date())
     elif period == "Month":
         queryset = queryset.filter(

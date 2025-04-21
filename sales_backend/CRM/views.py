@@ -81,14 +81,13 @@ class OpportunitiesViewSet(viewsets.ModelViewSet):
         params = request.query_params
         customer = params.get("customer")
         salesrep = params.get("salesrep")
-        filtered = {}
+        filtered = {"is_archived": False}
         if customer:
             filtered["customer__customer_id"] = customer
         if salesrep:
             s = Employees.objects.get(pk=salesrep)
             if not s.is_supervisor:
                 filtered["salesrep__employee_id"] = salesrep
-
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
         )
