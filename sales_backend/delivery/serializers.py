@@ -33,11 +33,14 @@ class DeliveryNoteSerializer(serializers.ModelSerializer):
         shipping_fee = 0.0
         if delivery.shipment:
             if delivery.shipment.shipping_cost_id:
-                shipping_fee = float(
-                    OperationalCost.objects.get(
-                        shipping_cost_id=delivery.shipment.shipping_cost_id
-                    ).total_operational_cost
-                )
+                try:
+                    shipping_fee = float(
+                        OperationalCost.objects.get(
+                            shipping_cost_id=delivery.shipment.shipping_cost_id
+                        ).total_operational_cost
+                    )
+                except OperationalCost.DoesNotExist:
+                    shipping_fee = 0.00
         if shipping_fee < 0:
             shipping_fee = 0.0
         return shipping_fee
