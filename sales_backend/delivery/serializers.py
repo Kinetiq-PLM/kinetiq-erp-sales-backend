@@ -2,7 +2,7 @@ from .models import *
 from rest_framework import serializers
 from order.serializers import *
 from django.shortcuts import get_object_or_404
-from misc.distribution.models import ShippingCost
+from misc.distribution.models import OperationalCost
 from itertools import zip_longest
 
 
@@ -33,11 +33,10 @@ class DeliveryNoteSerializer(serializers.ModelSerializer):
         shipping_fee = 0.0
         if delivery.shipment:
             if delivery.shipment.shipping_cost_id:
-
                 shipping_fee = float(
-                    ShippingCost.objects.get(
-                        pk=delivery.shipment.shipping_cost_id
-                    ).total_shipping_cost
+                    OperationalCost.objects.get(
+                        shipping_cost_id=delivery.shipment.shipping_cost_id
+                    ).total_operational_cost
                 )
         if shipping_fee < 0:
             shipping_fee = 0.0
