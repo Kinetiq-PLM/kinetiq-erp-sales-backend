@@ -11,7 +11,10 @@ class StatementItemSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all())
+    inventory_item = serializers.PrimaryKeyRelatedField(
+        queryset=InventoryItem.objects.all()
+    )
 
     class Meta:
         model = StatementItem
@@ -25,17 +28,18 @@ class StatementItemSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        p = data.pop("product")
-        product = get_object_or_404(Products, pk=p) if p else None
+        p = data.pop("pricing")
+        product: Pricing = get_object_or_404(Pricing, pk=p) if p else None
+
         data["product"] = (
             {
-                "product_id": product.product_id,
-                "product_name": product.product_name,
-                "description": product.description,
-                "policy_id": product.policy_id,
-                "selling_price": product.selling_price,
-                "stock_level": product.stock_level,
-                "warranty_period": product.warranty_period,
+                "product_id": product.item.id,
+                "product_name": product.item.item_name,
+                "description": product.item.item_description,
+                # "policy_id": product.policy_id,
+                "selling_price": product.item_price,
+                # "stock_level": product.stock_level,
+                # "warranty_period": product.warranty_period,
             }
             if p
             else None
@@ -79,7 +83,7 @@ class StatementItemViewSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all())
 
     class Meta:
         model = StatementItemView
@@ -88,16 +92,16 @@ class StatementItemViewSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         p = data.pop("product")
-        product = get_object_or_404(Products, pk=p) if p else None
+        product = get_object_or_404(Pricing, pk=p) if p else None  # baka need ichange
         data["product"] = (
             {
-                "product_id": product.product_id,
-                "product_name": product.product_name,
-                "description": product.description,
-                "policy_id": product.policy_id,
-                "selling_price": product.selling_price,
-                "stock_level": product.stock_level,
-                "warranty_period": product.warranty_period,
+                "product_id": product.item.id,
+                "product_name": product.item.item_name,
+                "description": product.item.item_description,
+                # "policy_id": product.policy_id,
+                "selling_price": product.item_price,
+                # "stock_level": product.stock_level,   # dapat sa inventory_item to
+                # "warranty_period": product.warranty_period,
             }
             if p
             else None

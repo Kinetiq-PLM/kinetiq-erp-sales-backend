@@ -1,4 +1,4 @@
-from .admin.models import Products
+from .admin.models import ItemMasterData
 from rest_framework import viewsets
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
@@ -11,12 +11,12 @@ from .admin.models import BusinessPartnerMaster
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Products
+        model = ItemMasterData
         fields = "__all__"
 
 
 class ProductsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Products.objects.all()
+    queryset = ItemMasterData.objects.filter(item_type="Product")
     serializer_class = ProductSerializer
 
 

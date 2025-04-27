@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from misc.admin.models import ItemMasterData
 
 
 class BillOfMaterials(models.Model):
@@ -48,6 +49,16 @@ class NonProjectOrderPricing(models.Model):
         db_table = '"mrp"."non_project_order_pricing"'
 
 
+class Pricing(models.Model):
+    price_id = models.CharField(primary_key=True, max_length=255)
+    item = models.ForeignKey(to=ItemMasterData, on_delete=models.CASCADE)
+    item_price = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '"mrp"."pricing"'
+
+
 class PrincipalItems(models.Model):
     principal_item_id = models.CharField(primary_key=True, max_length=255)
     service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
@@ -61,11 +72,31 @@ class PrincipalItems(models.Model):
 
 class ProductMats(models.Model):
     product_mats_id = models.CharField(primary_key=True, max_length=255)
-    product_id = models.CharField(max_length=255, blank=True, null=True)
-    material_id = models.CharField(max_length=255, blank=True, null=True)
     quantity_required = models.DecimalField(max_digits=10, decimal_places=2)
     cost_of_used_materials = models.DecimalField(max_digits=10, decimal_places=2)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = '"mrp"."product_mats"'
+
+
+class TrackingNpop(models.Model):
+    tracking_npop_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = '"mrp"."tracking_npop"'
+
+
+class TrackingPrincipal(models.Model):
+    tracking_principal_id = models.CharField(primary_key=True, max_length=255)
+    service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = '"mrp"."tracking_principal"'

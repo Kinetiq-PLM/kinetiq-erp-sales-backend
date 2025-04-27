@@ -1,10 +1,10 @@
 from django.db import models
-from misc.admin.models import Products
+from misc.mrp.models import Pricing
 from misc.human_resources.models import Employees
 from django.db import connection
 from django.contrib import admin
 from django.utils import timezone
-from misc.project_management.models import ExternalProjectRequest
+from misc.inventory.models import InventoryItem
 
 
 class StatementAdmin(admin.ModelAdmin):
@@ -76,7 +76,7 @@ class StatementItem(models.Model):
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
     product = models.ForeignKey(
-        to=Products, on_delete=models.SET_NULL, null=True, blank=True
+        to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
     )
     additional_service_id = models.CharField(
         max_length=255,
@@ -94,6 +94,9 @@ class StatementItem(models.Model):
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
     quantity_delivered = models.IntegerField(default=0, blank=True)
     created_at = models.DateTimeField(default=timezone.now())
+    inventory_item = models.ForeignKey(
+        to=InventoryItem, on_delete=models.CASCADE, blank=True, null=True
+    )
 
     class Meta:
         managed = False
@@ -118,7 +121,7 @@ class StatementItemView(models.Model):
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
     product = models.ForeignKey(
-        to=Products, on_delete=models.SET_NULL, null=True, blank=True
+        to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
     )
     additional_service_id = models.CharField(
         max_length=255,
@@ -136,6 +139,9 @@ class StatementItemView(models.Model):
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
     quantity_delivered = models.IntegerField(default=0, blank=True)
     created_at = models.DateTimeField(default=timezone.now())
+    inventory_item = models.ForeignKey(
+        to=InventoryItem, on_delete=models.CASCADE, blank=True, null=True
+    )
 
     class Meta:
         managed = False

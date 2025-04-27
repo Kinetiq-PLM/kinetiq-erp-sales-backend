@@ -10,8 +10,8 @@ class SalesCostingViewSet(viewsets.ModelViewSet):
 
 class ProductPricingViewSet(viewsets.ModelViewSet):
     queryset = ProductPricing.objects.filter(
-        admin_product__item_status="Active"
-    ).order_by("admin_product__product_name")
+        pricing__item__item_status="Active"
+    ).order_by("pricing__item__item_name")
     serializer_class = ProductPricingSerializer
 
     def list(self, request, *args, **kwargs):

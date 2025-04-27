@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from misc.admin.models import Products
+from misc.mrp.models import Pricing
+from misc.inventory.models import InventoryItem
 from django.forms import model_to_dict
 
 
@@ -11,7 +12,7 @@ class SalesCostingSerializer(serializers.ModelSerializer):
 
 
 class ProductPricingSerializer(serializers.ModelSerializer):
-    admin_product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    pricing = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all())
 
     class Meta:
         model = ProductPricing
@@ -19,13 +20,17 @@ class ProductPricingSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        product = instance.admin_product
-        data.pop("admin_product")
+        product: Pricing = instance.pricing
+        # inventory_item: InventoryItem = InventoryItem.objects.filter(item_md=product.item.item_id) # pag naayus na ung inventory_item kc wala pa ngayon siya item_id
+        # total_stock = sum([item.quantity for item in inventory_item])
+
+        data.pop("pricing")
         data["product_pricing_id"] = instance.product_id
-        product_info = model_to_dict(
-            product,
-            fields=[field.name for field in Products._meta.fields],
-        )
-        data = {**data, **product_info}
+        data["product_id"] = product.item.item_id
         data["selling_price"] = instance.selling_price
+        # lagay sa serializer ng statement_item pag nag-add is
+        # ung inventory_item_id where item_id = item_id and warehouse = warehouse
+        # imbis na product_id para may warehouse na rin
+
+        # data["stock_level"] = total_stock
         return data
