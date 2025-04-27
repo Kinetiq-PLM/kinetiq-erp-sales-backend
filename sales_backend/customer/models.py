@@ -25,9 +25,6 @@ class Customer(models.Model):
         INACTIVE = "Inactive"
 
     customer_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    partner = models.ForeignKey(
-        to=BusinessPartnerMaster, on_delete=models.SET_NULL, blank=True, null=True
-    )
     gl_account = models.ForeignKey(
         to=GeneralLedgerAccounts, on_delete=models.SET_NULL, null=True, blank=True
     )
