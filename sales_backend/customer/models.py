@@ -38,7 +38,6 @@ class Customer(models.Model):
     country = models.CharField(max_length=100)
     customer_type = models.TextField(choices=Type)
     status = models.TextField(choices=Status)
-    debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     contact_person = models.CharField(max_length=255)
 
     class Meta:
