@@ -5,4 +5,4 @@ from .models import *
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        exclude = ["customer_id"]
+        fields = "__all__"
