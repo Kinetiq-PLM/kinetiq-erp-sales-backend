@@ -13,6 +13,12 @@ class PaymentsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+"""
+In cases of Partial Delivery, Sales Invoice are only finalized and sent in the final batch of delivery.
+Batches of Partial Deliveries prior to the final batch should not have invoices. 
+"""
+
+
 class SalesInvoicesSerializer(serializers.ModelSerializer):
     delivery_note = serializers.PrimaryKeyRelatedField(
         queryset=DeliveryNote.objects.all()

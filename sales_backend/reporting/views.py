@@ -384,3 +384,119 @@ def get_employee_conversions(request: Request):
         )
 
     return Response(data)
+
+
+@api_view(["GET"])
+def get_sales_commissions(request: Request):
+    """
+    Retrieves all sales orders and calculates 10% commission for each sales representative.
+
+    Returns:
+    {
+        "total_sales": decimal,
+        "total_commission": decimal,
+        "commissions": [
+            {
+                "sales_rep": str,
+                "orders": int,
+                "total_sales": decimal,
+                "commission": decimal
+            }
+        ]
+    }
+    """
+    # Get all orders grouped by sales rep
+    sales_data = (
+        Order.objects.values("statement__salesrep")
+        .annotate(total_sales=Sum("statement__total_amount"), order_count=Count("id"))
+        .order_by("-total_sales")
+    )
+
+    commission_rate = Decimal("0.10")  # 10% commission
+    total_sales = Decimal("0")
+    total_commission = Decimal("0")
+    commissions = []
+
+    for data in sales_data:
+        if data["total_sales"]:
+            sales_rep = get_object_or_404(Employees, pk=data["statement__salesrep"])
+            commission = data["total_sales"] * commission_rate
+
+            total_sales += data["total_sales"]
+            total_commission += commission
+
+            commissions.append(
+                {
+                    "sales_rep": f"{sales_rep.first_name} {sales_rep.last_name}",
+                    "orders": data["order_count"],
+                    "total_sales": round(data["total_sales"], 2),
+                    "commission": round(commission, 2),
+                }
+            )
+
+    return Response(
+        {
+            "total_sales": round(total_sales, 2),
+            "total_commission": round(total_commission, 2),
+            "commissions": commissions,
+        }
+    )
+
+
+@api_view(["GET"])
+def get_order_commissions(request: Request):
+    """
+    Retrieves individual orders and calculates commission for each order's sales representative.
+
+    Returns:
+    {
+        "orders": [
+            {
+                "order_id": str,
+                "order_date": date,
+                "sales_rep": str,
+                "order_amount": decimal,
+                "commission": decimal,
+                "customer": str
+            }
+        ],
+        "total_orders": int,
+        "total_commission": decimal
+    }
+    """
+    orders = (
+        Order.objects.select_related("statement__salesrep", "statement__customer")
+        .all()
+        .order_by("-order_date")
+    )
+
+    commission_rate = Decimal("0.10")  # 10% commission
+    total_commission = Decimal("0")
+    order_data = []
+
+    for order in orders:
+        if order.statement and order.statement.total_amount:
+            commission = order.statement.total_amount * commission_rate
+            total_commission += commission
+
+            order_data.append(
+                {
+                    "order_id": order.order_id,
+                    "order_date": order.order_date,
+                    "sales_rep": (
+                        f"{order.statement.salesrep.first_name} "
+                        f"{order.statement.salesrep.last_name}"
+                    ),
+                    "customer": order.statement.customer.name,
+                    "order_amount": round(order.statement.total_amount, 2),
+                    "commission": round(commission, 2),
+                }
+            )
+
+    return Response(
+        {
+            "orders": order_data,
+            "total_orders": len(order_data),
+            "total_commission": round(total_commission, 2),
+        }
+    )

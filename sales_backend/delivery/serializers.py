@@ -6,6 +6,12 @@ from misc.distribution.models import OperationalCost, ShippingCost
 from itertools import zip_longest
 
 
+"""
+In cases of Partial Delivery, Sales Invoice are only finalized and sent in the final batch of delivery.
+Batches of Partial Deliveries prior to the final batch should not have invoices. 
+"""
+
+
 class DeliveryNoteSerializer(serializers.ModelSerializer):
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
     statement = serializers.PrimaryKeyRelatedField(queryset=Statement.objects.all())
@@ -18,10 +24,6 @@ class DeliveryNoteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if data.get("order"):
-            data["order"] = OrderSerializer(
-                get_object_or_404(Order, pk=data.pop("order"))
-            ).data
         if data.get("statement"):
             data["statement"] = StatementSerializer(
                 get_object_or_404(Statement, pk=data.pop("statement"))

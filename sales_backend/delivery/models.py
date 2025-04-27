@@ -13,6 +13,12 @@ class DeliveryNoteAdmin(admin.ModelAdmin):
         obj.save()  # Calls the model's save method
 
 
+"""
+In cases of Partial Delivery, Sales Invoice are only finalized and sent in the final batch of delivery.
+Batches of Partial Deliveries prior to the final batch should not have invoices. 
+"""
+
+
 class DeliveryNote(models.Model):
     class Method(models.TextChoices):
         STANDARD = "Standard"
