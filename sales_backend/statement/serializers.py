@@ -63,7 +63,8 @@ class StatementSerializer(serializers.ModelSerializer):
         return data
 
     def get_items(self, obj):
-        items = StatementItem.objects.filter(statement=obj)
+        # The prefetch_related above makes this efficient
+        items = obj.statementitem_set.all()
         return StatementItemSerializer(items, many=True).data
 
 
@@ -77,6 +78,8 @@ class StatementItemViewSerializer(serializers.ModelSerializer):
         queryset=InventoryItem.objects.all()
     )
 
+    inventory_item_details = serializers.SerializerMethodField()
+
     class Meta:
         model = StatementItemView
         exclude = [
@@ -88,10 +91,10 @@ class StatementItemViewSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        p = data.pop("inventory_item")
-        inventory_item = get_object_or_404(InventoryItem, pk=p) if p else None
         # data.pop("product")
         data["inventory_item"] = (
-            InventoryItemSerializer(inventory_item).data if inventory_item else None
+            InventoryItemSerializer(instance.inventory_item).data
+            if instance.inventory_item
+            else None
         )
         return data

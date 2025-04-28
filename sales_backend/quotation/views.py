@@ -17,15 +17,35 @@ from textwrap import wrap
 from utils import *
 from django.http import HttpResponse
 from django.forms import model_to_dict
+from django.db.models import Prefetch
 
 
 class QuotationViewSet(viewsets.ModelViewSet):
-    queryset = QuotationView.objects.all().order_by("-date_issued")
+    # queryset = QuotationView.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
 
+    def get_queryset(self):
+        item_qs = (
+            StatementItem.objects.select_related(  # or whatever the model is
+                "inventory_item"
+            )  # if you show product name
+            # .only("id", "statement_id", "qty", "product__name")
+        )
+
+        return (
+            QuotationView.objects.select_related(
+                "statement",
+                "statement__salesrep",
+                "statement__customer",
+            )
+            .prefetch_related(
+                Prefetch("statement__statementitem_set", queryset=item_qs)
+            )
+            .order_by("-date_issued")
+        )
+
     def retrieve(self, request, pk=None):
-        queryset = QuotationView.objects.all()
-        quotation = get_object_or_404(queryset, pk=pk)
+        quotation = get_object_or_404(self.get_queryset(), pk=pk)
         serializer = QuotationViewSerializer(quotation)
         return Response(serializer.data)
 
@@ -65,7 +85,9 @@ class QuotationViewSet(viewsets.ModelViewSet):
                 filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
-            QuotationViewSerializer(self.queryset.filter(**filtered), many=True).data
+            QuotationViewSerializer(
+                self.get_queryset().filter(**filtered), many=True
+            ).data
         )
 
     def create(self, request: Request, *args, **kwargs):
