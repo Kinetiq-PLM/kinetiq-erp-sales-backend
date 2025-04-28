@@ -13,6 +13,7 @@ class Customer(models.Model):
     class Status(models.TextChoices):
         ACTIVE = "Active"
         INACTIVE = "Inactive"
+        BLOCKED = "Blocked"
 
     customer_id = models.CharField(primary_key=True, max_length=255, blank=True)
     gl_account = models.ForeignKey(

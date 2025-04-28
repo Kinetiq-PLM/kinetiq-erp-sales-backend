@@ -2,6 +2,7 @@ from django.db import models
 from datetime import datetime
 from misc.mrp.models import NonProjectOrderPricing, Pricing
 from misc.project_management.models import ExternalProjectCostManagement
+from misc.admin.models import ItemMasterData
 
 
 # contains all necessary pricing for products
@@ -36,6 +37,7 @@ class ProductPricing(models.Model):
         SEASONAL = "Seasonal"
 
     product_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    admin_product = models.ForeignKey(ItemMasterData, models.CASCADE)
     pricing = models.ForeignKey(Pricing, models.CASCADE)
     markup_percentage = models.DecimalField(
         max_digits=5, decimal_places=2, blank=True, null=True

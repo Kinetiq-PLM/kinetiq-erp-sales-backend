@@ -18,7 +18,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         if status:
             filters["status"] = status
         if type:
-            filters["type"] = type
+            filters["customer_type"] = type
 
         return Response(
             self.serializer_class(self.queryset.filter(**filters), many=True).data
@@ -39,7 +39,6 @@ class CustomerViewSet(viewsets.ModelViewSet):
             customer_type,
             contact_person,
             status (default 'Active'),
-            debt (default 0)
         }
         """
 

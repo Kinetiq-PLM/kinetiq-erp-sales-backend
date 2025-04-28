@@ -75,9 +75,9 @@ class StatementItem(models.Model):
 
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
-    product = models.ForeignKey(
-        to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
-    )
+    # product = models.ForeignKey(
+    #     to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
+    # )
     additional_service_id = models.CharField(
         max_length=255,
         blank=True,

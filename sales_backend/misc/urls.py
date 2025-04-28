@@ -13,7 +13,7 @@ from .inventory.models import InventoryItem
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemMasterData
-        fields = "__all__"
+        fields = ["item_id", "item_name", "item_status", "item_description"]
 
 
 class ProductsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -24,7 +24,7 @@ class ProductsViewSet(viewsets.ReadOnlyModelViewSet):
 class EmployeesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employees
-        fields = "__all__"
+        fields = ["employee_id", "first_name", "last_name"]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -40,18 +40,23 @@ class EmployeesViewSet(viewsets.ReadOnlyModelViewSet):
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
-        exclude = ["warehouse_manager", "contact_no"]
+        fields = ["warehouse_id", "warehouse_name"]  # keep only what you need
 
 
 class InventoryItemSerializer(serializers.ModelSerializer):
+    warehouse = WarehouseSerializer(read_only=True)
+    item = serializers.SerializerMethodField()
+
     class Meta:
         model = InventoryItem
-        fields = ["inventory_item_id", "item", "warehouse", "current_quantity"]
+        fields = ["inventory_item_id", "item", "current_quantity", "warehouse"]
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["warehouse"] = WarehouseSerializer(instance.warehouse).data
-        return data
+    def get_item(self, obj):
+        return {
+            "item_id": obj.item.item_id,
+            "item_name": obj.item.item_name,
+            "item_description": obj.item.item_description,
+        }
 
 
 router = DefaultRouter()
