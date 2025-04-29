@@ -50,6 +50,7 @@ class DeliveryNote(models.Model):
     estimated_delivery = models.DateTimeField(blank=True, null=True)
     shipment_status = models.TextField(choices=Status)
     created_at = models.DateTimeField(blank=True, null=True)
+    posting_date = models.DateField()
 
     class Meta:
         managed = False
@@ -70,8 +71,8 @@ class DeliveryNote(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.delivery_note (order_id, statement_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, shipment_status, preferred_delivery_date)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO sales.delivery_note (order_id, statement_id, shipment_id, shipping_method, tracking_num, shipping_date, estimated_delivery, shipment_status, preferred_delivery_date, posting_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING delivery_note_id;
             """,
                 [
@@ -84,6 +85,7 @@ class DeliveryNote(models.Model):
                     self.estimated_delivery,
                     self.shipment_status,
                     self.preferred_delivery_date,
+                    self.posting_date,
                 ],
             )
             row = cursor.fetchone()
@@ -97,7 +99,7 @@ class DeliveryNote(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.delivery_note 
-                SET order_id = %s, statement_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, shipment_status = %s, preferred_delivery_date = %s
+                SET order_id = %s, statement_id = %s, shipping_method = %s, tracking_num = %s, shipping_date = %s, estimated_delivery = %s, shipment_status = %s, preferred_delivery_date = %s, posting_date = %s
                 WHERE delivery_note_id = %s;
             """,
                 [
@@ -109,6 +111,7 @@ class DeliveryNote(models.Model):
                     self.estimated_delivery,
                     self.shipment_status,
                     self.delivery_note_id,
+                    self.posting_date,
                     self.preferred_delivery_date,
                 ],
             )

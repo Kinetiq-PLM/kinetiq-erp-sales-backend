@@ -272,37 +272,46 @@ def get_customer_report(request: Request):
 
 @api_view(["GET"])
 def get_product_report(request: Request):
-    # only consider orders as product sold
+    # Get order statements and filter statement items
     order_statements = Order.objects.values_list("statement_id", flat=True)
     filtered_statement_items = StatementItem.objects.filter(
         statement_id__in=order_statements
-    )
+    ).select_related("inventory_item__item")
+
+    # Get total quantity of all products sold
     total_products = (
         filtered_statement_items.aggregate(total=Sum("quantity"))["total"] or 1
     )
 
+    # Get top products with distinct items
     top_products = (
-        filtered_statement_items.values("product")  # Group by product name
-        .annotate(total_sold=Sum("quantity"))  # Sum total quantity sold
+        filtered_statement_items.values(
+            "inventory_item",
+            "inventory_item__item__item_name",  # Include item name directly
+        )
+        .annotate(total_sold=Sum("quantity"))
         .order_by("-total_sold")
     )
-    data = {"top_products": []}
 
-    # Calculate each top customer's percentage of total revenue
+    data = {"top_products": []}
     total_percent = 0
-    for product in top_products[:3]:  # Get top 3 best-selling products
-        model = get_object_or_404(Products, pk=product["product"])
+
+    # Get top 3 best-selling products
+    for product in top_products[:3]:
         percent = round((product["total_sold"] / total_products) * 100, 2)
         total_percent += percent
         data["top_products"].append(
             {
-                "product": model.product_name,
+                "product": product["inventory_item__item__item_name"],
                 "percentage": percent,
             }
         )
+
+    # Add "Others" category
     data["top_products"].append(
         {"product": "Others", "percentage": round(100 - total_percent, 2)}
     )
+
     data["total_sold"] = total_products
     return Response(data)
 

@@ -58,6 +58,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     shipping_date,
                     estimated_delivery,
                     shipment_status,
+                    posting_date,
                     items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
                 }
                 statement_data: {

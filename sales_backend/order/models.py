@@ -40,6 +40,8 @@ class Order(models.Model):
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     order_date = models.DateTimeField(auto_now_add=True)
     order_type = models.TextField(choices=Type)
+    posting_date = models.DateField()
+    delivery_date = models.DateField()
 
     class Meta:
         managed = False
@@ -60,8 +62,8 @@ class Order(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                    INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id, agreement_id)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO sales.orders (order_date, order_type, quotation_id, statement_id, ext_project_request_id, agreement_id, posting_date, delivery_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING order_id;
                 """,
                 [
@@ -75,6 +77,8 @@ class Order(models.Model):
                         else None
                     ),
                     self.agreement.agreement_id if self.agreement else None,
+                    self.posting_date,
+                    self.delivery_date,
                 ],
             )
             row = cursor.fetchone()
@@ -86,7 +90,7 @@ class Order(models.Model):
             cursor.execute(
                 """
                     UPDATE sales.orders 
-                    SET order_date = %s, order_type = %s, quotation_id = %s, statement_id = %s, ext_project_request_id = %s, agreement_id = %s
+                    SET order_date = %s, order_type = %s, quotation_id = %s, statement_id = %s, ext_project_request_id = %s, agreement_id = %s, posting_date = %s, delivery_date = %s
                     WHERE order_id = %s;
                 """,
                 [
@@ -100,6 +104,8 @@ class Order(models.Model):
                         else None
                     ),
                     self.agreement.agreement_id if self.agreement else None,
+                    self.posting_date,
+                    self.delivery_date,
                     self.order_id,
                 ],
             )
@@ -122,6 +128,8 @@ class OrderView(models.Model):
     statement = models.ForeignKey(to="statement.Statement", on_delete=models.CASCADE)
     order_date = models.DateTimeField(auto_now_add=True)
     order_type = models.TextField()
+    posting_date = models.DateField()
+    delivery_date = models.DateField()
     completion_status = models.TextField()
 
     class Meta:
