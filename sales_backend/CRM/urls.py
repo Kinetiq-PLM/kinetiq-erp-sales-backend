@@ -10,4 +10,8 @@ router.register(r"ticket", views.TicketViewSet)
 router.register(r"ticket-convo", views.TicketConvoViewSet)
 
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [
+    path("", include(router.urls)),
+    path("reporting/conversion", views.get_customer_type_report),
+    path("reporting/dashboard", views.get_dashboard_stats),
+]

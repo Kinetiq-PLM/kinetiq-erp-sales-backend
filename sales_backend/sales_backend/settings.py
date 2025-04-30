@@ -126,7 +126,7 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD", "KntBg3jIY0DbpH8G9bwt"),
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv("DB_PORT", "15432"),
-        "OPTIONS": {"options": "--search-path=inventory"},
+        # "OPTIONS": {"options": "--search-path=inventory"},
     }
 }
 

@@ -1,5 +1,6 @@
 from django.db import models
 from misc.accounting.models import GeneralLedgerAccounts
+from django.utils import timezone
 
 # Create your models here.
 
@@ -30,7 +31,17 @@ class Customer(models.Model):
     customer_type = models.TextField(choices=Type)
     status = models.TextField(choices=Status)
     contact_person = models.CharField(max_length=255)
+    updated_at = models.DateTimeField(blank=True, default=timezone.now)
 
     class Meta:
         managed = False
         db_table = '"sales"."customers"'
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # on insert, leave updated_at at its default (now)
+            super().save(*args, **kwargs)
+        else:
+            # on update, set updated_at explicitly
+            self.updated_at = timezone.now()
+            super().save(*args, **kwargs)

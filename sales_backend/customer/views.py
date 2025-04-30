@@ -38,7 +38,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
             address_line2,
             customer_type,
             contact_person,
-            status (default 'Active'),
+            status (default 'Active')
         }
         """
 
