@@ -8,4 +8,6 @@ urlpatterns = [
     path("top-products/", get_product_report),
     path("top-employees/", get_employee_report),
     path("top-employee-conversions/", get_employee_conversions),
+    path("commissions/", get_salesrep_commission),
+    path("quota/", get_salesrep_quota_progress),
 ]

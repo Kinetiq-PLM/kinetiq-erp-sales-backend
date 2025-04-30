@@ -13,12 +13,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
         status = params.get("status")
-        type = params.get("type")
+        type = params.get("type").split(",") if params.get("type") else []
         filters = {}
         if status:
             filters["status"] = status
         if type:
-            filters["type"] = type
+            filters["customer_type__in"] = type
 
         return Response(
             self.serializer_class(self.queryset.filter(**filters), many=True).data
@@ -38,8 +38,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
             address_line2,
             customer_type,
             contact_person,
-            status (default 'Active'),
-            debt (default 0)
+            status (default 'Active')
         }
         """
 

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from customer.serializers import Customer, CustomerSerializer
-from django.shortcuts import get_object_or_404
 from misc.urls import EmployeesSerializer, Employees
 
 

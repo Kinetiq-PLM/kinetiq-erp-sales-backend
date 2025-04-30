@@ -17,32 +17,30 @@ from reportlab.lib.styles import getSampleStyleSheet
 from rest_framework.request import Request
 from textwrap import wrap
 from rest_framework.decorators import action
+from django.db.models import Prefetch
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = OrderView.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
 
-    @action(detail=True, methods=["get"])
-    def ordered_products(self, request, pk=None):
-        try:
-            order = self.get_object()
-        except Order.DoesNotExist:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        sql = """
-        SELECT si.* FROM sales.statement_items_view si  
-        INNER JOIN sales.orders o ON si.statement_id = o.statement_id 
-        LEFT JOIN project_management.external_project_request pr ON pr.item_id = si.statement_item_id 
-        LEFT JOIN management.management_approvals m ON pr.approval_id = m.approval_id 
-        WHERE si.special_requests IS NOT NULL 
-        OR (si.total_price IS NOT NULL AND m.status = 'approved');
-
-        """
-
-        StatementItem.objects.filter()
-
-        # return super().retrieve(request, *args, **kwargs)
+    def get_optimized_queryset(self):
+        """Get a fresh queryset with all required relations"""
+        return (
+            OrderView.objects.select_related(
+                "statement", "statement__salesrep", "statement__customer", "quotation"
+            )
+            .prefetch_related(
+                Prefetch(
+                    "statement__statementitem_set",
+                    queryset=StatementItem.objects.select_related(
+                        "inventory_item"
+                    ).all(),
+                    to_attr="cached_items",
+                )
+            )
+            .order_by("-order_date")
+        )
 
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
@@ -52,6 +50,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         start_date = date.today()
         end_date = date.today()
         salesrep = params.get("salesrep")
+
+        # Handle period filtering
         match period:
             case "month":
                 start_date = date.today() - relativedelta(months=1)
@@ -66,6 +66,11 @@ class OrderViewSet(viewsets.ModelViewSet):
                     return Response(
                         {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
                     )
+
+        # Start with an optimized queryset using select_related
+        queryset = self.get_optimized_queryset()
+
+        # Build filters
         filters = {}
         if order_status:
             filters["completion_status__in"] = order_status.split(",")
@@ -77,9 +82,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             s = Employees.objects.get(pk=salesrep)
             if not s.is_supervisor:
                 filters["statement__salesrep__employee_id"] = salesrep
-        return Response(
-            OrderViewSerializer(self.queryset.filter(**filters), many=True).data
-        )
+
+        # Apply filters and serialize
+        filtered_queryset = queryset.filter(**filters)
+        serializer = OrderViewSerializer(filtered_queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         queryset = OrderView.objects.all()

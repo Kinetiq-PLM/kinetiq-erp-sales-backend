@@ -4,6 +4,7 @@ from customer.serializers import *
 from django.shortcuts import get_object_or_404, get_list_or_404
 from misc.human_resources.models import Employees
 from django.forms import model_to_dict
+from misc.urls import InventoryItemSerializer
 
 
 class StatementItemSerializer(serializers.ModelSerializer):
@@ -11,11 +12,19 @@ class StatementItemSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    # product = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all())
+    inventory_item = serializers.PrimaryKeyRelatedField(
+        queryset=InventoryItem.objects.all()
+    )
 
     class Meta:
         model = StatementItem
-        fields = "__all__"
+        exclude = [
+            "additional_service_id",
+            "created_at",
+            "return_reason",
+            "return_action",
+        ]
 
     def create(self, validated_data):
         validated_data["total_price"] = (
@@ -25,20 +34,11 @@ class StatementItemSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        p = data.pop("product")
-        product = get_object_or_404(Products, pk=p) if p else None
-        data["product"] = (
-            {
-                "product_id": product.product_id,
-                "product_name": product.product_name,
-                "description": product.description,
-                "policy_id": product.policy_id,
-                "selling_price": product.selling_price,
-                "stock_level": product.stock_level,
-                "warranty_period": product.warranty_period,
-            }
-            if p
-            else None
+        p = data.pop("inventory_item")
+        inventory_item = get_object_or_404(InventoryItem, pk=p) if p else None
+        # data.pop("product")
+        data["inventory_item"] = (
+            InventoryItemSerializer(inventory_item).data if inventory_item else None
         )
         return data
 
@@ -50,27 +50,21 @@ class StatementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Statement
-        fields = "__all__"
+        exclude = ["created_at"]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        c = data.pop("customer")
-        data["customer"] = (
-            CustomerSerializer(Customer.objects.get(pk=c)).data if c else None
-        )
-        s = data.pop("salesrep")
-        data["salesrep"] = (
-            model_to_dict(
-                Employees.objects.get(pk=s),
-                fields=[field.name for field in Employees._meta.fields],
-            )
-            if s
-            else None
-        )
+        data["customer"] = CustomerSerializer(instance.customer).data
+        data["salesrep"] = {
+            "employee_id": instance.salesrep.employee_id,
+            "first_name": instance.salesrep.first_name,
+            "last_name": instance.salesrep.last_name,
+        }
         return data
 
     def get_items(self, obj):
-        items = StatementItem.objects.filter(statement=obj)
+        # The prefetch_related above makes this efficient
+        items = obj.statementitem_set.all()
         return StatementItemSerializer(items, many=True).data
 
 
@@ -79,27 +73,28 @@ class StatementItemViewSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    # product = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all())
+    inventory_item = serializers.PrimaryKeyRelatedField(
+        queryset=InventoryItem.objects.all()
+    )
+
+    inventory_item_details = serializers.SerializerMethodField()
 
     class Meta:
         model = StatementItemView
-        fields = "__all__"
+        exclude = [
+            "additional_service_id",
+            "created_at",
+            "return_reason",
+            "return_action",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        p = data.pop("product")
-        product = get_object_or_404(Products, pk=p) if p else None
-        data["product"] = (
-            {
-                "product_id": product.product_id,
-                "product_name": product.product_name,
-                "description": product.description,
-                "policy_id": product.policy_id,
-                "selling_price": product.selling_price,
-                "stock_level": product.stock_level,
-                "warranty_period": product.warranty_period,
-            }
-            if p
+        # data.pop("product")
+        data["inventory_item"] = (
+            InventoryItemSerializer(instance.inventory_item).data
+            if instance.inventory_item
             else None
         )
         return data

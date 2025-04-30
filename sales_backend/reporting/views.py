@@ -272,37 +272,46 @@ def get_customer_report(request: Request):
 
 @api_view(["GET"])
 def get_product_report(request: Request):
-    # only consider orders as product sold
+    # Get order statements and filter statement items
     order_statements = Order.objects.values_list("statement_id", flat=True)
     filtered_statement_items = StatementItem.objects.filter(
         statement_id__in=order_statements
-    )
+    ).select_related("inventory_item__item")
+
+    # Get total quantity of all products sold
     total_products = (
         filtered_statement_items.aggregate(total=Sum("quantity"))["total"] or 1
     )
 
+    # Get top products with distinct items
     top_products = (
-        filtered_statement_items.values("product")  # Group by product name
-        .annotate(total_sold=Sum("quantity"))  # Sum total quantity sold
+        filtered_statement_items.values(
+            "inventory_item",
+            "inventory_item__item__item_name",  # Include item name directly
+        )
+        .annotate(total_sold=Sum("quantity"))
         .order_by("-total_sold")
     )
-    data = {"top_products": []}
 
-    # Calculate each top customer's percentage of total revenue
+    data = {"top_products": []}
     total_percent = 0
-    for product in top_products[:3]:  # Get top 3 best-selling products
-        model = get_object_or_404(Products, pk=product["product"])
+
+    # Get top 3 best-selling products
+    for product in top_products[:3]:
         percent = round((product["total_sold"] / total_products) * 100, 2)
         total_percent += percent
         data["top_products"].append(
             {
-                "product": model.product_name,
+                "product": product["inventory_item__item__item_name"],
                 "percentage": percent,
             }
         )
+
+    # Add "Others" category
     data["top_products"].append(
         {"product": "Others", "percentage": round(100 - total_percent, 2)}
     )
+
     data["total_sold"] = total_products
     return Response(data)
 
@@ -384,3 +393,272 @@ def get_employee_conversions(request: Request):
         )
 
     return Response(data)
+
+
+@api_view(["GET"])
+def get_salesrep_commission(request: Request):
+    """
+    Get commission history for a specific sales representative over time.
+
+    Query parameters:
+    - salesrep (required): Employee ID of the sales representative
+    - period (required): 'day', 'month', 'year', 'all'
+
+    Returns:
+    {
+        "start_date": date,
+        "end_date": date,
+        "commission_data": [
+            {
+                "date": str,
+                "commission": decimal,
+                "sales": decimal
+            }
+        ],
+        "total_commission": decimal,
+        "total_sales": decimal
+    }
+    """
+    params = request.query_params
+    salesrep_id = params.get("salesrep")
+
+    if not salesrep_id:
+        return Response(
+            {"error": "salesrep parameter is required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    start_date = date.today()
+    end_date = date.today()
+    end_date_inclusive = make_aware(datetime.combine(end_date, time.max))
+
+    # Set date range based on period
+    match params.get("period"):
+        case "month":
+            start_date = date.today() - relativedelta(months=1)
+        case "year":
+            start_date = date.today() - relativedelta(years=1)
+        case "all":
+            start_date = datetime.fromtimestamp(0).date()
+        case "day":
+            pass
+        case other:
+            return Response(
+                {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+    # Get orders for the sales rep within date range
+    orders = Order.objects.filter(
+        statement__salesrep_id=salesrep_id,
+        order_date__range=(start_date, end_date_inclusive),
+    ).select_related("statement")
+
+    commission_rate = Decimal("0.10")
+    data = {}
+    total_commission = Decimal("0")
+    total_sales = Decimal("0")
+
+    # Aggregate data by date
+    for order in orders:
+        if not order.statement or not order.statement.total_amount:
+            continue
+
+        if params.get("period") == "day":
+            hour = order.order_date.hour
+            str_date = (
+                f"{order.order_date.date()}T{hour if hour > 9 else f'0{hour}'}:00:00Z"
+            )
+        else:
+            str_date = str(order.order_date.date())
+
+        if str_date not in data:
+            data[str_date] = {"commission": Decimal("0"), "sales": Decimal("0")}
+
+        commission = order.statement.total_amount * commission_rate
+        data[str_date]["commission"] += commission
+        data[str_date]["sales"] += order.statement.total_amount
+        total_commission += commission
+        total_sales += order.statement.total_amount
+
+    # Format data for line graph
+    commission_data = [
+        {
+            "date": key,
+            "commission": round(data[key]["commission"], 2),
+            "sales": round(data[key]["sales"], 2),
+        }
+        for key in sorted(
+            data.keys(),
+            key=lambda x: datetime.strptime(
+                x, "%Y-%m-%d" if params.get("period") != "day" else "%Y-%m-%dT%H:%M:%SZ"
+            ),
+        )
+    ]
+
+    return Response(
+        {
+            "start_date": start_date,
+            "end_date": end_date_inclusive,
+            "commission_data": commission_data,
+            "total_commission": round(total_commission, 2),
+            "total_sales": round(total_sales, 2),
+        }
+    )
+
+
+@api_view(["GET"])
+def get_order_commissions(request: Request):
+    """
+    Retrieves individual orders and calculates commission for each order's sales representative.
+
+    Returns:
+    {
+        "orders": [
+            {
+                "order_id": str,
+                "order_date": date,
+                "sales_rep": str,
+                "order_amount": decimal,
+                "commission": decimal,
+                "customer": str
+            }
+        ],
+        "total_orders": int,
+        "total_commission": decimal
+    }
+    """
+    orders = (
+        Order.objects.select_related("statement__salesrep", "statement__customer")
+        .all()
+        .order_by("-order_date")
+    )
+
+    commission_rate = Decimal("0.10")  # 10% commission
+    total_commission = Decimal("0")
+    order_data = []
+
+    for order in orders:
+        if order.statement and order.statement.total_amount:
+            commission = order.statement.total_amount * commission_rate
+            total_commission += commission
+
+            order_data.append(
+                {
+                    "order_id": order.order_id,
+                    "order_date": order.order_date,
+                    "sales_rep": (
+                        f"{order.statement.salesrep.first_name} "
+                        f"{order.statement.salesrep.last_name}"
+                    ),
+                    "customer": order.statement.customer.name,
+                    "order_amount": round(order.statement.total_amount, 2),
+                    "commission": round(commission, 2),
+                }
+            )
+
+    return Response(
+        {
+            "orders": order_data,
+            "total_orders": len(order_data),
+            "total_commission": round(total_commission, 2),
+        }
+    )
+
+
+@api_view(["GET"])
+def get_salesrep_quota_progress(request: Request):
+    """
+    Get daily order counts for a sales representative in the current month and compare against quota.
+
+    Query parameters:
+    - salesrep (required): Employee ID of the sales representative
+
+    Returns:
+    {
+        "quota": int,
+        "current_total": int,
+        "remaining": int,
+        "quota_reached": boolean,
+        "start_date": date,
+        "end_date": date,
+        "daily_progress": [
+            {
+                "date": str,
+                "orders": int,
+                "cumulative_total": int
+            }
+        ]
+    }
+    """
+    params = request.query_params
+    salesrep_id = params.get("salesrep")
+
+    if not salesrep_id:
+        return Response(
+            {"error": "salesrep parameter is required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Set date range for current month
+    today = date.today()
+    start_date = date(today.year, today.month, 1)
+    end_date = date(
+        today.year + (today.month // 12), ((today.month % 12) + 1), 1
+    ) - relativedelta(days=1)
+    end_date_inclusive = make_aware(datetime.combine(end_date, time.max))
+
+    # Get orders for the sales rep within current month
+    orders = Order.objects.filter(
+        statement__salesrep_id=salesrep_id,
+        order_date__range=(start_date, end_date_inclusive),
+    ).order_by("order_date")
+
+    # Initialize tracking variables
+    monthly_quota = 50
+    data = {}
+    current_total = 0
+
+    # Aggregate daily orders
+    for order in orders:
+        str_date = str(order.order_date.date())
+
+        if str_date not in data:
+            data[str_date] = {"orders": 0, "cumulative_total": 0}
+
+        data[str_date]["orders"] += 1
+        current_total += 1
+        data[str_date]["cumulative_total"] = current_total
+
+    # Format data for line graph, including dates with no orders
+    daily_progress = []
+    current_date = start_date
+    running_total = 0
+
+    while current_date <= end_date:
+        str_date = str(current_date)
+        if str_date in data:
+            running_total = data[str_date]["cumulative_total"]
+            daily_progress.append(
+                {
+                    "date": str_date,
+                    "orders": data[str_date]["orders"],
+                    "cumulative_total": running_total,
+                }
+            )
+        else:
+            daily_progress.append(
+                {"date": str_date, "orders": 0, "cumulative_total": running_total}
+            )
+        current_date += relativedelta(days=1)
+
+    return Response(
+        {
+            "quota": monthly_quota,
+            "current_total": current_total,
+            "remaining": max(0, monthly_quota - current_total),
+            "quota_reached": current_total >= monthly_quota,
+            "start_date": start_date,
+            "end_date": end_date,
+            "daily_progress": daily_progress,
+        }
+    )

@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from misc.admin.models import Warehouse, ItemMasterData
 
 
 class DeprecationReport(models.Model):
@@ -68,13 +69,10 @@ class InventoryCyclicCounts(models.Model):
 
 class InventoryItem(models.Model):
     inventory_item_id = models.CharField(primary_key=True, max_length=255)
-    serial_id = models.CharField(max_length=255, blank=True, null=True)
-    productdocu_id = models.CharField(max_length=255, blank=True, null=True)
-    material_id = models.CharField(max_length=255, blank=True, null=True)
-    asset_id = models.CharField(max_length=255, blank=True, null=True)
+    item = models.ForeignKey(ItemMasterData, models.CASCADE)
     item_type = models.TextField()  # This field type is a guess.
     current_quantity = models.IntegerField()
-    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
+    warehouse = models.ForeignKey(to=Warehouse, on_delete=models.CASCADE)
     expiry = models.DateTimeField(blank=True, null=True)
     shelf_life = models.TextField(blank=True, null=True)  # This field type is a guess.
     last_update = models.DateTimeField()
@@ -115,11 +113,10 @@ class WarehouseMovement(models.Model):
 
 
 class WarehouseMovementItems(models.Model):
-    movement = models.OneToOneField(
-        WarehouseMovement, models.DO_NOTHING, primary_key=True
-    )  # The composite primary key (movement_id, inventory_item_id) found, that is not supported. The first column is selected.
+    movement = models.ForeignKey(WarehouseMovement, models.DO_NOTHING)
     inventory_item = models.ForeignKey(InventoryItem, models.DO_NOTHING)
     quantity = models.IntegerField()
+    warehouse_movement_items_id = models.CharField(primary_key=True, max_length=255)
 
     class Meta:
         managed = False
