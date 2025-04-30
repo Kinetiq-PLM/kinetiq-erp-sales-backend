@@ -20,7 +20,6 @@ import importlib
 from django.contrib import admin
 from django.urls import path, include
 from django.apps import apps
-from statement.views import *
 
 # app_config = apps.get_app_config("misc")
 # for module_info in pkgutil.iter_modules(app_config.module.__path__):
