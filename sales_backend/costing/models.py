@@ -5,29 +5,6 @@ from misc.project_management.models import ExternalProjectCostManagement
 from misc.admin.models import ItemMasterData
 
 
-# contains all necessary pricing for products
-class SalesCosting(models.Model):
-    sales_costing_id = models.CharField(primary_key=True, max_length=255, blank=True)
-    non_project_costing = models.ForeignKey(
-        to=NonProjectOrderPricing,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-    )
-    project_resources = models.ForeignKey(
-        to=ExternalProjectCostManagement,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-    )
-    created_at = models.DateTimeField(default=datetime.now())
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        managed = False
-        db_table = '"sales"."sales_costing"'
-
-
 class ProductPricing(models.Model):
     class DemandLevel(models.TextChoices):
         VERY_HIGH = "Very High"
