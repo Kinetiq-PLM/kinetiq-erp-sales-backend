@@ -1,5 +1,4 @@
 from django.urls import path, include
-from statement.views import *
 
 urlpatterns = [
     path(
