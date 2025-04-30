@@ -3,15 +3,10 @@ from .serializers import *
 from rest_framework.response import Response
 
 
-from django.db.models import Sum, Prefetch, F, OuterRef, Subquery
+from django.db.models import Sum, Prefetch
 from misc.inventory.models import InventoryItem
 
 inventory_qs = InventoryItem.objects.select_related("warehouse")  # JOIN warehouse now
-
-
-class SalesCostingViewSet(viewsets.ModelViewSet):
-    queryset = SalesCosting.objects.all()
-    serializer_class = SalesCostingSerializer
 
 
 class ProductPricingViewSet(viewsets.ModelViewSet):

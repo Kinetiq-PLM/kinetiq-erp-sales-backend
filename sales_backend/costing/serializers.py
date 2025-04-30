@@ -1,16 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from misc.mrp.models import Pricing
-from misc.inventory.models import InventoryItem
-from django.forms import model_to_dict
 from misc.urls import InventoryItemSerializer
-from django.db.models import Sum
-
-
-class SalesCostingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SalesCosting
-        fields = "__all__"
 
 
 class ProductPricingSerializer(serializers.ModelSerializer):
