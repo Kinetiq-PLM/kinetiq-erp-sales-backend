@@ -139,9 +139,7 @@ class Opportunities(models.Model):
     customer = models.ForeignKey(
         to="customer.Customer", on_delete=models.SET_NULL, null=True
     )
-    partner = models.ForeignKey(
-        to=BusinessPartnerMaster, on_delete=models.SET_NULL, null=True
-    )
+
     salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     estimated_value = models.DecimalField(max_digits=10, decimal_places=2)
     weighted_amount = models.DecimalField(max_digits=10, decimal_places=2)
