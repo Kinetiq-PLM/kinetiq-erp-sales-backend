@@ -39,7 +39,10 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             filtered["order_id"] = order
         if salesrep:
             s = Employees.objects.get(pk=salesrep)
-            if not s.is_supervisor:
+            if (
+                not s.is_supervisor
+                and s.position.position_title != "Sales Order Processor"
+            ):
                 filtered["statement__salesrep__employee_id"] = salesrep
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data

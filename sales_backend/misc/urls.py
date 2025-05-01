@@ -24,7 +24,14 @@ class ProductsViewSet(viewsets.ReadOnlyModelViewSet):
 class EmployeesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employees
-        fields = ["employee_id", "first_name", "last_name", "position_id", "dept_id"]
+        fields = [
+            "employee_id",
+            "first_name",
+            "last_name",
+            "position_id",
+            "dept_id",
+            "is_supervisor",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

@@ -30,7 +30,10 @@ class SalesInvoicesViewSet(viewsets.ModelViewSet):
         filters = {}
         if salesrep:
             s = Employees.objects.get(pk=salesrep)
-            if not s.is_supervisor:
+            if (
+                not s.is_supervisor
+                and s.position.position_title != "Sales Order Processor"
+            ):
                 filters["delivery_note__statement__salesrep__employee_id"] = salesrep
 
         return Response(
