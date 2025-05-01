@@ -24,7 +24,14 @@ class ProductsViewSet(viewsets.ReadOnlyModelViewSet):
 class EmployeesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employees
-        fields = ["employee_id", "first_name", "last_name"]
+        fields = [
+            "employee_id",
+            "first_name",
+            "last_name",
+            "position_id",
+            "dept_id",
+            "is_supervisor",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -35,6 +42,19 @@ class EmployeesSerializer(serializers.ModelSerializer):
 class EmployeesViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Employees.objects.all()
     serializer_class = EmployeesSerializer
+
+    def list(self, request: Request) -> Response:
+        request_data = request.query_params
+        filters = {}
+        if request_data.get("position_id"):
+            filters["position_id__in"] = (
+                request_data.get("position_id").split(",")
+                if request_data.get("position_id")
+                else []
+            )
+
+        serializer = self.serializer_class(self.queryset.filter(**filters), many=True)
+        return Response(serializer.data)
 
 
 class WarehouseSerializer(serializers.ModelSerializer):
@@ -61,5 +81,5 @@ class InventoryItemSerializer(serializers.ModelSerializer):
 
 router = DefaultRouter()
 router.register("product", ProductsViewSet)
-router.register("employee", EmployeesViewSet)
+router.register("employee", EmployeesViewSet, basename="employee")
 urlpatterns = [path("", include(router.urls))]
