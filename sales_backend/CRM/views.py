@@ -171,7 +171,9 @@ def get_customer_type_report(request: Request):
             start_date = date.today() - relativedelta(years=1)
             group_by_month = True
         case "all":
-            start_date = datetime.fromtimestamp(0).date()
+            # Get earliest opportunity record and use that as start date
+            first_opportunity = Opportunities.objects.order_by("starting_date").first()
+            start_date = first_opportunity.starting_date.date()
             group_by_month = True
         case "day":
             pass
