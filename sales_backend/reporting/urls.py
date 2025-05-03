@@ -10,4 +10,6 @@ urlpatterns = [
     path("top-employee-conversions/", get_employee_conversions),
     path("commissions/", get_salesrep_commission),
     path("quota/", get_salesrep_quota_progress),
+    path("supervisor-commissions/", supervisor_commission_view),
+    path("supervisor-quota/", supervisor_quota_view),
 ]
