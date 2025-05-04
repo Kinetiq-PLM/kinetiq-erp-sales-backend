@@ -8,107 +8,90 @@
 from django.db import models
 
 
-class DeprecationReport(models.Model):
-    deprecation_report_id = models.CharField(primary_key=True, max_length=255)
-    inventory_item = models.ForeignKey('InventoryItem', models.DO_NOTHING, blank=True, null=True)
-    reported_date = models.DateTimeField()
-    deprecation_status = models.TextField()  # This field type is a guess.
+class BillOfMaterials(models.Model):
+    bom_id = models.CharField(primary_key=True, max_length=255)
+    project_id = models.CharField(max_length=255, blank=True, null=True)
+    product_mats = models.ForeignKey('ProductMats', models.DO_NOTHING, blank=True, null=True)
+    overall_quantity_of_material = models.IntegerField(blank=True, null=True)
+    cost_per_raw_material = models.DecimalField(max_digits=10, decimal_places=2)
+    total_cost_of_raw_materials = models.DecimalField(max_digits=10, decimal_places=2)
+    production_order_detail_id = models.CharField(max_length=255, blank=True, null=True)
+    labor_cost = models.ForeignKey('LaborCost', models.DO_NOTHING, blank=True, null=True)
+    total_cost = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'deprecation_report'
+        db_table = 'bill_of_materials'
 
 
-class ExpiryReport(models.Model):
-    expiry_report_id = models.CharField(primary_key=True, max_length=255)
-    inventory_item = models.ForeignKey('InventoryItem', models.DO_NOTHING, blank=True, null=True)
-    reported_date = models.DateTimeField()
-    expiry_report_status = models.TextField()  # This field type is a guess.
+class LaborCost(models.Model):
+    labor_cost_id = models.CharField(primary_key=True, max_length=255)
+    labor_id = models.CharField(max_length=255, blank=True, null=True)
+    salary_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'expiry_report'
+        db_table = 'labor_cost'
 
 
-class InventoryAdjustments(models.Model):
-    adjustment_id = models.CharField(primary_key=True, max_length=255)
+class NonProjectOrderPricing(models.Model):
+    non_project_costing_id = models.CharField(primary_key=True, max_length=255)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2)
+    statement_item_id = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'non_project_order_pricing'
+
+
+class Pricing(models.Model):
+    price_id = models.CharField(primary_key=True, max_length=255)
     item_id = models.CharField(max_length=255, blank=True, null=True)
-    adjustment_type = models.TextField()  # This field type is a guess.
-    quantity = models.IntegerField()
-    adjustment_date = models.DateTimeField()
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
+    item_price = models.FloatField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'inventory_adjustments'
+        db_table = 'pricing'
 
 
-class InventoryCyclicCounts(models.Model):
-    inventory_count_id = models.CharField(primary_key=True, max_length=255)
-    inventory_item = models.ForeignKey('InventoryItem', models.DO_NOTHING, blank=True, null=True)
-    item_onhand = models.IntegerField()
-    item_actually_counted = models.IntegerField()
-    difference_in_qty = models.IntegerField()
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
-    status = models.TextField()  # This field type is a guess.
-    remarks = models.TextField(blank=True, null=True)
-    time_period = models.TextField()  # This field type is a guess.
-    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'inventory_cyclic_counts'
-
-
-class InventoryItem(models.Model):
-    inventory_item_id = models.CharField(primary_key=True, max_length=255)
-    item_type = models.TextField()  # This field type is a guess.
-    current_quantity = models.IntegerField()
-    warehouse_id = models.CharField(max_length=255, blank=True, null=True)
-    expiry = models.DateTimeField(blank=True, null=True)
-    shelf_life = models.TextField(blank=True, null=True)  # This field type is a guess.
-    last_update = models.DateTimeField()
-    date_created = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'inventory_item'
-
-
-class InventoryItemThreshold(models.Model):
-    inventory_item_threshold_id = models.CharField(primary_key=True, max_length=255)
+class PrincipalItems(models.Model):
+    principal_item_id = models.CharField(primary_key=True, max_length=255)
+    service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
     item_id = models.CharField(max_length=255, blank=True, null=True)
-    minimum_threshold = models.IntegerField()
-    maximum_threshold = models.IntegerField()
+    mark_up_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
-        db_table = 'inventory_item_threshold'
+        db_table = 'principal_items'
 
 
-class WarehouseMovement(models.Model):
-    movement_id = models.CharField(primary_key=True, max_length=255)
-    docu_creation_date = models.DateTimeField()
-    movement_date = models.DateTimeField()
-    movement_status = models.TextField()  # This field type is a guess.
-    destination = models.CharField(max_length=255, blank=True, null=True)
-    source = models.CharField(max_length=255, blank=True, null=True)
-    reference_id_purchase_order = models.CharField(max_length=255, blank=True, null=True)
-    reference_id_order = models.CharField(max_length=255, blank=True, null=True)
-    comments = models.TextField(blank=True, null=True)
+class ProductMats(models.Model):
+    product_mats_id = models.CharField(primary_key=True, max_length=255)
+    quantity_required = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_of_used_materials = models.DecimalField(max_digits=10, decimal_places=2)
+    product_id = models.CharField(max_length=255, blank=True, null=True)
+    material_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'warehouse_movement'
+        db_table = 'product_mats'
 
 
-class WarehouseMovementItems(models.Model):
-    movement = models.ForeignKey(WarehouseMovement, models.DO_NOTHING)
-    inventory_item = models.ForeignKey(InventoryItem, models.DO_NOTHING)
-    quantity = models.IntegerField()
-    warehouse_movement_items_id = models.CharField(primary_key=True, max_length=255)
+class TrackingNpop(models.Model):
+    tracking_npop_id = models.CharField(primary_key=True, max_length=255)
+    order_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'warehouse_movement_items'
-        unique_together = (('movement', 'inventory_item'),)
+        db_table = 'tracking_npop'
+
+
+class TrackingPrincipal(models.Model):
+    tracking_principal_id = models.CharField(primary_key=True, max_length=255)
+    service_order_item_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'tracking_principal'

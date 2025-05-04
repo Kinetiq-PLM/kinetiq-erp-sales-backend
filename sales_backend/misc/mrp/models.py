@@ -6,7 +6,6 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from misc.admin.models import ItemMasterData
 
 
 class BillOfMaterials(models.Model):
@@ -41,8 +40,8 @@ class LaborCost(models.Model):
 
 class NonProjectOrderPricing(models.Model):
     non_project_costing_id = models.CharField(primary_key=True, max_length=255)
-    order_id = models.CharField(max_length=255, blank=True, null=True)
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
+    statement_item_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -51,7 +50,7 @@ class NonProjectOrderPricing(models.Model):
 
 class Pricing(models.Model):
     price_id = models.CharField(primary_key=True, max_length=255)
-    item = models.ForeignKey(to=ItemMasterData, on_delete=models.CASCADE)
+    item_id = models.CharField(max_length=255, blank=True, null=True)
     item_price = models.FloatField(blank=True, null=True)
 
     class Meta:
