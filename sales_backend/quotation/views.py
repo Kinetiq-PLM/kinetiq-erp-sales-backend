@@ -81,10 +81,10 @@ class QuotationViewSet(viewsets.ModelViewSet):
             filtered["agreement__isnull"] = True
         if salesrep:
             s = Employees.objects.get(pk=salesrep)
-            if (
-                not s.is_supervisor
-                and s.position.position_title != "Sales Order Processor"
-            ):
+            if not s.is_supervisor and s.position.position_title not in [
+                "Sales Order Processor",
+                "Product Demonstrator",
+            ]:
                 filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
