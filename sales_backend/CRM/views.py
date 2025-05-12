@@ -92,7 +92,7 @@ class OpportunitiesViewSet(viewsets.ModelViewSet):
             filtered["customer__customer_id"] = customer
         if salesrep:
             s = Employees.objects.get(pk=salesrep)
-            if not s.is_supervisor:
+            if not s.is_supervisor and s.position.position_id not in ["REG-2504-fd99"]:
                 filtered["salesrep__employee_id"] = salesrep
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
