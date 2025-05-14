@@ -1,10 +1,10 @@
 from django.db import models
-from misc.admin.models import Products
+from misc.mrp.models import Pricing
 from misc.human_resources.models import Employees
 from django.db import connection
 from django.contrib import admin
 from django.utils import timezone
-from misc.project_management.models import ExternalProjectRequest
+from misc.inventory.models import InventoryItem
 
 
 class StatementAdmin(admin.ModelAdmin):
@@ -19,6 +19,7 @@ class Statement(models.Model):
     customer = models.ForeignKey(to="customer.Customer", on_delete=models.CASCADE)
     salesrep = models.ForeignKey(to=Employees, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -37,8 +38,8 @@ class Statement(models.Model):
             with connection.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, total_tax)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO sales.statement (customer_id, salesrep_id, total_amount, discount, total_tax, subtotal)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING statement_id;
                 """,
                     [
@@ -47,6 +48,7 @@ class Statement(models.Model):
                         self.total_amount,
                         self.discount,
                         self.total_tax,
+                        self.subtotal,
                     ],
                 )
                 row = cursor.fetchone()
@@ -73,16 +75,13 @@ class StatementItem(models.Model):
 
     statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
     statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
-    product = models.ForeignKey(
-        to=Products, on_delete=models.SET_NULL, null=True, blank=True
-    )
+    # product = models.ForeignKey(
+    #     to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
+    # )
     additional_service_id = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-    )
-    renewal = models.ForeignKey(
-        to="warranty.RenewalWarranty", on_delete=models.SET_NULL, blank=True, null=True
     )
     quantity = models.IntegerField()
     quantity_to_deliver = models.IntegerField(default=0)
@@ -95,7 +94,55 @@ class StatementItem(models.Model):
     return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
     quantity_delivered = models.IntegerField(default=0, blank=True)
     created_at = models.DateTimeField(default=timezone.now())
+    inventory_item = models.ForeignKey(
+        to=InventoryItem, on_delete=models.CASCADE, blank=True, null=True
+    )
 
     class Meta:
         managed = False
         db_table = '"sales"."statement_item"'
+
+
+class StatementItemView(models.Model):
+    class DemandLevel(models.TextChoices):
+        LOW = "Low"
+        MEDIUM = "Medium"
+        HIGH = "High"
+        VERY_HIGH = "Very High"
+        SEASONAL = "Seasonal"
+
+    class ReturnAction(models.TextChoices):
+        CREDIT = "Credit"
+        REPAIR = "Repair"
+        REPLACE = "Replace"
+        RETURN = "Return"
+        DEFINE_NEW = "Define New"
+
+    statement_item_id = models.CharField(primary_key=True, max_length=255, blank=True)
+    statement = models.ForeignKey(to=Statement, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        to=Pricing, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    additional_service_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    quantity = models.IntegerField()
+    quantity_to_deliver = models.IntegerField(default=0)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    special_requests = models.TextField(null=True, blank=True)
+    return_reason = models.TextField(blank=True, null=True)
+    return_action = models.TextField(choices=ReturnAction, null=True, blank=True)
+    quantity_delivered = models.IntegerField(default=0, blank=True)
+    created_at = models.DateTimeField(default=timezone.now())
+    inventory_item = models.ForeignKey(
+        to=InventoryItem, on_delete=models.CASCADE, blank=True, null=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = '"sales"."statement_items_view"'

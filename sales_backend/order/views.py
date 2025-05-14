@@ -17,11 +17,30 @@ from reportlab.lib.styles import getSampleStyleSheet
 from rest_framework.request import Request
 from textwrap import wrap
 from rest_framework.decorators import action
+from django.db.models import Prefetch
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = OrderView.objects.all().order_by("-order_date")
     serializer_class = OrderSerializer
+
+    def get_optimized_queryset(self):
+        """Get a fresh queryset with all required relations"""
+        return (
+            OrderView.objects.select_related(
+                "statement", "statement__salesrep", "statement__customer", "quotation"
+            )
+            .prefetch_related(
+                Prefetch(
+                    "statement__statementitem_set",
+                    queryset=StatementItem.objects.select_related(
+                        "inventory_item"
+                    ).all(),
+                    to_attr="cached_items",
+                )
+            )
+            .order_by("-order_date")
+        )
 
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
@@ -30,6 +49,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         period = params.get("period")
         start_date = date.today()
         end_date = date.today()
+        salesrep = params.get("salesrep")
+
+        # Handle period filtering
         match period:
             case "month":
                 start_date = date.today() - relativedelta(months=1)
@@ -44,6 +66,11 @@ class OrderViewSet(viewsets.ModelViewSet):
                     return Response(
                         {"error": "invalid period"}, status=status.HTTP_400_BAD_REQUEST
                     )
+
+        # Start with an optimized queryset using select_related
+        queryset = self.get_optimized_queryset()
+
+        # Build filters
         filters = {}
         if order_status:
             filters["completion_status__in"] = order_status.split(",")
@@ -51,10 +78,24 @@ class OrderViewSet(viewsets.ModelViewSet):
             filters["order_type"] = order_type
         if period:
             filters["order_date__range"] = (start_date, end_date)
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor and s.position.position_title not in [
+                "Sales Order Processor",
+                "Product Demonstrator",
+            ]:
+                filters["statement__salesrep__employee_id"] = salesrep
 
-        return Response(
-            OrderViewSerializer(self.queryset.filter(**filters), many=True).data
-        )
+        # Apply filters and serialize
+        filtered_queryset = queryset.filter(**filters)
+        serializer = OrderViewSerializer(filtered_queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = OrderView.objects.all()
+        order = get_object_or_404(queryset, pk=pk)
+        serializer = OrderViewSerializer(order)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         """
@@ -304,12 +345,17 @@ class OrderViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "-"
+                        if item["special_requests"]
+                        else "{0:,.2f}".format(float(item["unit_price"]))
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -439,11 +485,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(order.statement.total_amount)
-                + float(order.statement.discount)
-                - float(order.statement.total_tax)
-            ),
+            "{0:,.2f}".format(float(order.statement.subtotal)),
         )
 
         pdf.drawString(

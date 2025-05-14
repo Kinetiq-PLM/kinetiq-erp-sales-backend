@@ -28,6 +28,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         status = params.get("status")
         period = params.get("period")
         method = params.get("agreement_method")
+        salesrep = params.get("salesrep")
         start_date = date.today()
         end_date = date.today()
         match period:
@@ -52,6 +53,13 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
             filtered["start_date__range"] = (start_date, end_date)
         if method:
             filtered["agreement_method"] = method
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor and s.position.position_title not in [
+                "Sales Order Processor",
+                "Product Demonstrator",
+            ]:
+                filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
             AgreementViewSerializer(self.queryset.filter(**filtered), many=True).data
@@ -254,12 +262,17 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "-"
+                        if item["special_requests"]
+                        else "{0:,.2f}".format(float(item["unit_price"]))
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -430,7 +443,7 @@ class BlanketAgreementViewSet(viewsets.ModelViewSet):
         gap -= 20
 
         p = Paragraph(
-            f'<font size="10">Either party may terminate this Agreement with [30] days written notice.</font>',
+            f'<font size="10">This agreement is not subject to termination by either party for convenience.</font>',
             style=style,
         )
         p.wrapOn(pdf, width, height)

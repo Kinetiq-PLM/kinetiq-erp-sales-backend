@@ -139,9 +139,7 @@ class Opportunities(models.Model):
     customer = models.ForeignKey(
         to="customer.Customer", on_delete=models.SET_NULL, null=True
     )
-    partner = models.ForeignKey(
-        to=BusinessPartnerMaster, on_delete=models.SET_NULL, null=True
-    )
+
     salesrep = models.ForeignKey(to=Employees, on_delete=models.SET_NULL, null=True)
     estimated_value = models.DecimalField(max_digits=10, decimal_places=2)
     weighted_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -154,6 +152,8 @@ class Opportunities(models.Model):
     description = models.TextField(blank=True, null=True)
     reason_lost = models.TextField(blank=True, null=True)
     interest_level = models.TextField(choices=InterestLevel)
+    probability_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         managed = False
@@ -212,8 +212,8 @@ class Ticket(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO sales.ticket (customer_id, salesrep_id, subject, description, status, priority, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO sales.ticket (customer_id, salesrep_id, subject, description, status, priority, created_at, type)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING ticket_id;
             """,
                 [
@@ -224,6 +224,7 @@ class Ticket(models.Model):
                     self.status,
                     self.priority,
                     self.created_at,
+                    self.type,
                 ],
             )
             row = cursor.fetchone()
@@ -235,7 +236,7 @@ class Ticket(models.Model):
             cursor.execute(
                 """
                 UPDATE sales.ticket 
-                SET customer_id = %s, salesrep_id = %s, subject = %s, description = %s, status = %s, priority = %s, created_at = %s
+                SET customer_id = %s, salesrep_id = %s, subject = %s, description = %s, status = %s, priority = %s, created_at = %s, type = %s
                 WHERE ticket_id = %s;
             """,
                 [
@@ -246,6 +247,7 @@ class Ticket(models.Model):
                     self.status,
                     self.priority,
                     self.created_at,
+                    self.type,
                     self.ticket_id,
                 ],
             )

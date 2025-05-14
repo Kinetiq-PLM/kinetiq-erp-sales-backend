@@ -12,6 +12,8 @@ from utils import *
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
+from misc.distribution.models import ShippingCost
+
 from django.db import transaction
 
 
@@ -25,6 +27,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         customer = params.get("customer_id")
         delivery = params.get("delivery_note_id")
         order = params.get("order_id")
+        salesrep = params.get("salesrep")
         filtered = {}
         if status:
             filtered["shipment_status__in"] = status.split(",")
@@ -34,6 +37,13 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             filtered["delivery_note_id"] = delivery
         if order:
             filtered["order_id"] = order
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor and s.position.position_title not in [
+                "Sales Order Processor",
+                "Product Demonstrator",
+            ]:
+                filtered["statement__salesrep__employee_id"] = salesrep
         return Response(
             self.serializer_class(self.queryset.filter(**filtered), many=True).data
         )
@@ -51,6 +61,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                     shipping_date,
                     estimated_delivery,
                     shipment_status,
+                    posting_date,
                     items (see statement_items): [ product_id, quantity, unit_price, markup_percentage ]
                 }
                 statement_data: {
@@ -304,12 +315,17 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "-"
+                        if item["special_requests"]
+                        else "{0:,.2f}".format(float(item["unit_price"]))
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(float(item["total_price"]) - float(item["discount"]))
                     ),
                     style=style,
                 ),
@@ -441,25 +457,12 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             draw_page(pdf, page + 1, num_pages)
         # Totals Section
         pdf.setFont("Inter-Regular", 10)
-        shipping_fee = 0.0
-        if delivery.shipment:
-            if delivery.shipment.shipping_cost_id:
-                from misc.distribution.models import ShippingCost
 
-                shipping_fee = float(
-                    ShippingCost.objects.get(
-                        pk=delivery.shipment.shipping_cost_id
-                    ).total_shipping_cost
-                )
         pdf.drawString(400, next_section_y, "Subtotal")
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(delivery.statement.total_amount)
-                + float(delivery.statement.discount)
-                - float(delivery.statement.total_tax)
-            ),
+            "{0:,.2f}".format(float(delivery.statement.subtotal)),
         )
 
         pdf.drawString(
@@ -477,10 +480,11 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
             next_section_y - 30,
             f"Shipping Fee",
         )
+        fee = DeliveryNoteSerializer(delivery).data["shipping_fee"]
         pdf.drawRightString(
             right,
             next_section_y - 30,
-            "{0:,.2f}".format(float(shipping_fee)),
+            "{0:,.2f}".format(float(fee)),
         )
         pdf.drawString(
             400,
@@ -508,7 +512,7 @@ class DeliveryNoteViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 65,
-            "{0:,.2f}".format(float(delivery.statement.total_amount) + shipping_fee),
+            "{0:,.2f}".format(float(delivery.statement.total_amount) + fee),
         )
 
         # Footer

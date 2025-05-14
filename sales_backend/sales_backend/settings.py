@@ -31,9 +31,8 @@ ALLOWED_HOSTS = [
     "ls9h09elei.execute-api.ap-southeast-1.amazonaws.com",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -54,9 +53,7 @@ INSTALLED_APPS = [
     "order",
     "quotation",
     "reporting",
-    "returns",
     "statement",
-    "warranty",
     "rest_framework",
     "corsheaders",
     "django_cognito_jwt",
@@ -102,14 +99,31 @@ WSGI_APPLICATION = "sales_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+## comment out when ready to use RDS
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": latest,
+#         "USER": postgres,
+#         "PASSWORD": 123,
+#         "HOST: localhost,
+#         "PORT": 5432,
+#         # "OPTIONS": {"options": "--search-path=sales"},
+#     }
+# }
+
+
+## uncomment when ready to use RDS
+import os
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kinetiq_revised",
-        "USER": "postgres",
-        "PASSWORD": "123",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME", "Kinetiq-DB"),
+        "USER": os.getenv("DB_USER", "postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "KntBg3jIY0DbpH8G9bwt"),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "15432"),
         # "OPTIONS": {"options": "--search-path=sales"},
     }
 }

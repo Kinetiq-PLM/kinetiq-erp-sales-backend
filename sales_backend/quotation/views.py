@@ -17,18 +17,46 @@ from textwrap import wrap
 from utils import *
 from django.http import HttpResponse
 from django.forms import model_to_dict
+from django.db.models import Prefetch
 
 
 class QuotationViewSet(viewsets.ModelViewSet):
-    queryset = QuotationView.objects.all().order_by("-date_issued")
+    # queryset = QuotationView.objects.all().order_by("-date_issued")
     serializer_class = QuotationSerializer
+
+    def get_queryset(self):
+        item_qs = (
+            StatementItem.objects.select_related(  # or whatever the model is
+                "inventory_item"
+            )  # if you show product name
+            # .only("id", "statement_id", "qty", "product__name")
+        )
+
+        return (
+            QuotationView.objects.select_related(
+                "statement",
+                "statement__salesrep",
+                "statement__customer",
+            )
+            .prefetch_related(
+                Prefetch("statement__statementitem_set", queryset=item_qs)
+            )
+            .order_by("-date_issued")
+        )
+
+    def retrieve(self, request, pk=None):
+        quotation = get_object_or_404(self.get_queryset(), pk=pk)
+        serializer = QuotationViewSerializer(quotation)
+        return Response(serializer.data)
 
     def list(self, request: Request, *args, **kwargs):
         params = request.query_params
         status = params.get("status")
         period = params.get("period")
+        get_null = params.get("get_null")
         start_date = date.today()
         end_date = date.today()
+        salesrep = params.get("salesrep")
         match period:
             case "month":
                 start_date = date.today() - relativedelta(months=1)
@@ -49,9 +77,20 @@ class QuotationViewSet(viewsets.ModelViewSet):
             filtered["status"] = status
         if period:
             filtered["date_issued__range"] = (start_date, end_date)
+        if get_null:
+            filtered["agreement__isnull"] = True
+        if salesrep:
+            s = Employees.objects.get(pk=salesrep)
+            if not s.is_supervisor and s.position.position_title not in [
+                "Sales Order Processor",
+                "Product Demonstrator",
+            ]:
+                filtered["statement__salesrep__employee_id"] = salesrep
 
         return Response(
-            QuotationViewSerializer(self.queryset.filter(**filtered), many=True).data
+            QuotationViewSerializer(
+                self.get_queryset().filter(**filtered), many=True
+            ).data
         )
 
     def create(self, request: Request, *args, **kwargs):
@@ -97,7 +136,6 @@ class QuotationViewSet(viewsets.ModelViewSet):
                         if item_serializer.is_valid():
                             item_serializer.save()
                         else:
-                            print(item_data)
                             raise Exception(item_serializer.errors)
 
                     quotation = Quotation.objects.create(statement=statement)
@@ -290,12 +328,17 @@ class QuotationViewSet(viewsets.ModelViewSet):
                 ),
                 Paragraph(str(item["quantity"]), style=style),
                 Paragraph("{0:,.2f}".format(float(item["discount"])), style=style),
-                Paragraph("{0:,.2f}".format(float(item["unit_price"])), style=style),
+                Paragraph(
+                    (
+                        "-"
+                        if item["special_requests"]
+                        else "{0:,.2f}".format(float(item["unit_price"]))
+                    ),
+                    style=style,
+                ),
                 Paragraph(
                     "{0:,.2f}".format(
-                        float(item["total_price"])
-                        - float(item["discount"])
-                        - float(item["tax_amount"])
+                        float(item["total_price"]) - float(item["discount"])
                     ),
                     style=style,
                 ),
@@ -431,11 +474,7 @@ class QuotationViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y,
-            "{0:,.2f}".format(
-                float(quotation.statement.total_amount)
-                - float(quotation.statement.total_tax)
-                + float(quotation.statement.discount)
-            ),
+            "{0:,.2f}".format(float(quotation.statement.total_amount)),
         )
 
         pdf.drawString(
@@ -474,7 +513,11 @@ class QuotationViewSet(viewsets.ModelViewSet):
         pdf.drawRightString(
             right,
             next_section_y - 50,
-            "{0:,.2f}".format(float(quotation.statement.total_amount)),
+            "{0:,.2f}".format(
+                +float(quotation.statement.total_amount)
+                + float(quotation.statement.total_tax)
+                - float(quotation.statement.discount)
+            ),
         )
 
         # Footer

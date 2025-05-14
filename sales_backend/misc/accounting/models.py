@@ -9,7 +9,7 @@ from django.db import models
 
 
 class ChartOfAccounts(models.Model):
-    account_code = models.CharField(primary_key=True, blank=True, max_length=255)
+    account_code = models.CharField(primary_key=True, max_length=255)
     account_name = models.CharField(max_length=255)
     account_type = models.CharField(max_length=50, blank=True, null=True)
 
@@ -18,25 +18,27 @@ class ChartOfAccounts(models.Model):
         db_table = '"accounting"."chart_of_accounts"'
 
 
-class Currency(models.Model):
-    currency_id = models.CharField(primary_key=True, blank=True, max_length=255)
-    currency_name = models.CharField(max_length=255)
-    exchange_rate = models.DecimalField(max_digits=15, decimal_places=6)
-    is_active = models.BooleanField()
+class FinancialReport(models.Model):
+    report_id = models.CharField(primary_key=True, max_length=255)
+    report_type = models.CharField(max_length=255)
+    total_cost = models.DecimalField(max_digits=15, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    generated_by = models.CharField(max_length=255)
 
     class Meta:
         managed = False
-        db_table = '"accounting"."currency"'
+        db_table = '"accounting"."financial_report"'
 
 
 class GeneralLedgerAccounts(models.Model):
-    gl_account_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    gl_account_id = models.CharField(primary_key=True, max_length=255)
     account_name = models.CharField(max_length=255)
     account_code = models.ForeignKey(
         ChartOfAccounts, models.DO_NOTHING, db_column="account_code"
     )
     account_id = models.CharField(max_length=255, blank=True, null=True)
-    status = models.TextField(blank=True, null=True)  # This field type is a guess.
+    status = models.TextField()  # This field type is a guess.
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -45,13 +47,13 @@ class GeneralLedgerAccounts(models.Model):
 
 
 class JournalEntries(models.Model):
-    journal_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    journal_id = models.CharField(primary_key=True, max_length=255)
     journal_date = models.DateField()
     description = models.CharField(max_length=255, blank=True, null=True)
     total_debit = models.DecimalField(max_digits=15, decimal_places=2)
     total_credit = models.DecimalField(max_digits=15, decimal_places=2)
     invoice_id = models.CharField(max_length=255, blank=True, null=True)
-    currency = models.ForeignKey(Currency, models.DO_NOTHING)
+    currency_id = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -59,7 +61,7 @@ class JournalEntries(models.Model):
 
 
 class JournalEntryLines(models.Model):
-    entry_line_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    entry_line_id = models.CharField(primary_key=True, max_length=255)
     gl_account = models.ForeignKey(
         GeneralLedgerAccounts, models.DO_NOTHING, blank=True, null=True
     )
@@ -76,13 +78,15 @@ class JournalEntryLines(models.Model):
 
 
 class OfficialReceipts(models.Model):
-    or_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    or_id = models.CharField(primary_key=True, max_length=255)
     invoice_id = models.CharField(max_length=255, blank=True, null=True)
     customer_id = models.CharField(max_length=255, blank=True, null=True)
     or_date = models.DateField()
     settled_amount = models.DecimalField(max_digits=15, decimal_places=2)
-    remaining_amount = models.DecimalField(max_digits=15, decimal_places=2)
-    payment_method = models.CharField(max_length=50)
+    remaining_amount = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
+    payment_method = models.TextField()  # This field type is a guess.
     reference_number = models.CharField(max_length=100, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
 
